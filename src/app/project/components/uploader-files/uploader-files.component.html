@@ -1,0 +1,76 @@
+<div class="grid">
+    <div class="col-12 sm:col-12 md:col-12 lg:col-12 xl:col-12">
+        <div class="field">
+            <label>Adjuntar REXE (.pdf) *</label>
+            <p-fileUpload #uploader accept="application/pdf" [customUpload]="true" [multiple]="true"
+                (onSelect)="onSelect($event,uploader)" (uploadHandler)="uploadHandler($event)">
+                <ng-template pTemplate="header" let-chooseCallback="chooseCallback" let-uploadCallback="uploadCallback"
+                    let-clearCallback="clearCallback">
+                    <div class="flex flex-wrap md:flex-wrap">
+                        <div class="flex align-items-center justify-content-center m-1">
+                            <p-button (click)="choose($event, chooseCallback)" icon="pi pi-plus" label="Seleccionar"
+                                styleClass="p-button-sm" />
+                        </div>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="content" let-removeFileCallback="removeFileCallback">
+                    <div *ngIf="files.length > 0">
+                        <!-- <h5>Pendientes</h5> -->
+                        <p-table [value]="files" [tableStyle]="{'min-width': '18.75rem'}">
+                            <ng-template pTemplate="body" let-fileWithExtras let-i="rowIndex">
+                                <tr>
+                                    <td style="min-width: 15rem;">
+                                <tr>
+                                    <td class="pr-3">
+                                        <img width="40"
+                                            src="https://repositorio.uv.cl/imagenes/extensions/{{fileWithExtras.nombre.toLowerCase() | fileExtension}}.png"
+                                            style="margin: 0 auto" />
+                                    </td>
+                                    <td style="word-break: break-all">
+                                        {{ fileWithExtras.nombre | lowercase | slice:0:20 }} {{
+                                        (fileWithExtras.nombre.length > 20 ) ? '... .pdf' : '' }}<br />
+                                        <em class="small" style="color: gray"><i class="pi pi-file"></i> {{
+                                            fileWithExtras.extras.pesoDocumento | fileSize }}</em>
+                                    </td>
+                                </tr>
+                                </td>
+                                <ng-container *ngIf="fileWithExtras.id else newDeb">
+                                    <td>
+                                        <span class="estado-badge-doc estado-cloud"><i class="pi pi-cloud"></i></span>
+                                        <!-- <p-badge value="Completado" severity="success" /> -->
+                                        <!-- <p-button 
+                                            icon="pi pi-cloud" 
+                                            severity="success" 
+                                            badgeClass="p-badge-info" /> -->
+                                    </td>
+                                </ng-container>
+                                <ng-template #newDeb>
+                                    <td>
+                                        <span class="estado-badge-doc estado-upload"><i
+                                                class="pi pi-cloud-upload"></i></span>
+                                        <!-- <p-badge value="Pendiente" severity="warning" /> -->
+                                    </td>
+                                </ng-template>
+                                <td>
+                                    <textarea pInputTextarea placeholder="Comentarios (opcional)" maxLength="150"
+                                        rows="2" cols="15" [autoResize]="true"
+                                        [(ngModel)]="fileWithExtras.extras.comentarios"
+                                        (ngModelChange)="onCommentChange(i, $event)"></textarea>
+                                </td>
+                                <td>
+                                    <button pButton class="p-button-sm p-button-outlined p-button-secondary"
+                                        pTooltip="Quitar documento" icon="pi pi-trash"
+                                        (click)="onRemoveTemplatingFile(fileWithExtras, uploader, i)"
+                                        pTooltip="Eliminar"></button>
+                                </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="file"></ng-template>
+            </p-fileUpload>
+        </div>
+    </div>
+</div>
