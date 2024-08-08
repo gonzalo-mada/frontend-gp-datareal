@@ -35,10 +35,7 @@ export class UploaderFilesComponent implements OnChanges, OnDestroy {
   
 
   ngOnChanges(changes: SimpleChanges): void {
-
-    // console.log("changes",changes);
     
-
     if (changes['triggerUpload'] && (Object.keys(changes['triggerUpload'].currentValue).length !== 0) ) { 
       // console.log("trigger from uploader", this.triggerUpload);
       this.uploadHandler(this.triggerUpload);
@@ -49,12 +46,9 @@ export class UploaderFilesComponent implements OnChanges, OnDestroy {
     }
 
     this.subscription = this.resetQueueUploaderEmitter.subscribe(() => {
-      // console.log("hola fui emitido");
-      
       this.resetQueueUploader();
     });
 
-    
   }
 
   ngOnDestroy(): void {
@@ -194,9 +188,8 @@ export class UploaderFilesComponent implements OnChanges, OnDestroy {
   }
 
   resetQueueUploader(){
-    // console.log("resetie uploader");
     this.docsToUpload = [];  
-    this.uploader.clear();
+    this.uploader?.clear();
   }
 
   test(){

@@ -515,9 +515,7 @@ export class CampusComponent implements OnInit {
 
 
   async submit() {
-    this.systemService.loading(true);
     try {
-
       if ( this.mode == 'create' ) {
         //modo creacion
         let res = await this.insertCampus()
@@ -541,20 +539,15 @@ export class CampusComponent implements OnInit {
           });
         }
       }
-      
     } catch (e:any) {
-
       const action = this.mode === 'create' ? 'guardar' : 'actualizar';
-
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
           summary: `Error al ${action} campus`,
           message: e.message,
       });
-
     } finally {
-      this.systemService.loading(false);
       this.dialog = false;
     }
 

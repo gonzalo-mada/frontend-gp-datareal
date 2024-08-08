@@ -9,11 +9,6 @@ export class CampusService {
 
   constructor(private invoker: InvokerService) { }
 
-  // router.post('/logica_getCampus', services.logica_getCampus);
-  // router.post('/logica_insertCampus', services.logica_insertCampus);
-  // router.post('/logica_updateCampus', services.logica_updateCampus);
-  // router.post('/logica_deleteCampus', services.logica_deleteCampus);
-
   async getCampus(){
     return await this.invoker.httpInvoke('campus/logica_getCampus');
   }
@@ -24,7 +19,7 @@ export class CampusService {
   }
 
   async updateCampusService(params: any){
-    console.log("params from service updateCampusService",params);
+    // console.log("params from service updateCampusService",params);
     return await this.invoker.httpInvoke('campus/logica_updateCampus',params);
   }
 
