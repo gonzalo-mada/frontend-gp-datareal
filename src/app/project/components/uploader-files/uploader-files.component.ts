@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { docMongoCampus, extras } from 'src/app/project/models/Campus'
 import { FileUtils } from '../../tools/utils/file.utils';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
