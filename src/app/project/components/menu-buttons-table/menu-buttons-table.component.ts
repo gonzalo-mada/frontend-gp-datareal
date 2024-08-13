@@ -1,4 +1,6 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { CampusService } from '../../services/campus.service';
 
 @Component({
   selector: 'app-menu-buttons-table',
@@ -6,28 +8,33 @@ import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from
   styles: [
   ]
 })
-export class MenuButtonsTableComponent implements OnChanges {
-
-  onClick : boolean = false;
+export class MenuButtonsTableComponent implements OnInit, OnDestroy {
+ 
   disabled : boolean = true;
 
-  @Input() selectedRows: any;
+  private subscription!: Subscription;
 
-  @Output() clickOpenNew: EventEmitter<any> = new EventEmitter();
-  @Output() clickDeletededSelected: EventEmitter<any> = new EventEmitter();
+  constructor(private campusService: CampusService){}
+  
+  ngOnInit(): void {
+    this.subscription = this.campusService.selectedRows$.subscribe( selectedRows => {
+      selectedRows.length === 0 ? this.disabled = true : this.disabled = false;
+    })
+  }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['selectedRows'] && changes['selectedRows'].currentValue) {
-      this.selectedRows.length == 0 ? this.disabled = true : this.disabled = false;
+  ngOnDestroy(): void {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
     }
   }
 
   openNew(){
-    this.clickOpenNew.emit();
+    this.campusService.triggerNewRegisterAction();
   }
 
   deleteSelected(){
-    this.clickDeletededSelected.emit(this.selectedRows)
+    this.campusService.triggerDeleteAction();
   }
+
   
 }

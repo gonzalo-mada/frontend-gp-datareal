@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { InvokerService } from 'src/app/base/services/invoker.service';
 import { Campus } from '../models/Campus';
+import { ActionsTableService } from './actions-table.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CampusService {
+export class CampusService extends ActionsTableService<Campus> {
 
-  constructor(private invoker: InvokerService) { }
+  constructor(private invoker: InvokerService) { super() }
 
   async getCampus(){
     return await this.invoker.httpInvoke('campus/logica_getCampus');
@@ -19,7 +20,7 @@ export class CampusService {
   }
 
   async updateCampusService(params: any){
-    // console.log("params from service updateCampusService",params);
+    console.log("params from service updateCampusService",params);
     return await this.invoker.httpInvoke('campus/logica_updateCampus',params);
   }
 
@@ -46,22 +47,5 @@ export class CampusService {
     return await this.invoker.httpInvoke('campus/deleteDocCampus',{Cod_campus: Cod_campus,});
   }
 
-  async saveDocs(docs: any){
-    return await this.invoker.httpInvoke(
-      {
-        service: 'campus/saveDocs',
-        retry: 0,
-        timeout: 30000
-      },
-      {
-        nombre: docs.nombre,
-        archivo: docs.archivo,
-        tipo: docs.tipo,
-        Cod_campus: docs.extras.Cod_campus,
-        Descripcion_campus: docs.extras.Descripcion_campus,
-        pesoDocumento: docs.extras.pesoDocumento,
-        comentarios: docs.extras.comentarios,
-      }
-    );
-  }
+
 }

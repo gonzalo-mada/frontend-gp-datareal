@@ -15,17 +15,20 @@ import { MenuButtonsTableComponent } from '../components/menu-buttons-table/menu
 import { DialogComponent } from '../components/dialog/dialog.component';
 import { UploaderFilesComponent } from '../components/uploader-files/uploader-files.component';
 import { TableCampusComponent } from '../components/tables/table-campus/table-campus.component';
+import { DialogVisorPdfComponent } from '../components/dialog-visor-pdf/dialog-visor-pdf.component';
 
 @NgModule({
   declarations: [
     CardComponent,
     MenuButtonsTableComponent,
     DialogComponent,
+    DialogVisorPdfComponent,
     UploaderFilesComponent,
     TableCampusComponent,
     //pipes
     FileSizePipe,
     FileExtensionPipe,
+    
   ],
   imports: [
     CommonModule,
@@ -52,6 +55,7 @@ import { TableCampusComponent } from '../components/tables/table-campus/table-ca
     //components gp
     CardComponent,
     DialogComponent,
+    DialogVisorPdfComponent,
     MenuButtonsTableComponent,
     UploaderFilesComponent,
     TableCampusComponent,

@@ -1,11 +1,11 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { Campus } from '../../models/Campus';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
-import { SystemService } from 'src/app/base/services/system.service';
 import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 import { CampusService } from '../../services/campus.service';
+import { Subscription } from 'rxjs';
 
 export interface DocFromUploader {
   nombre: string;
@@ -31,11 +31,9 @@ export interface ActionUploadDoc{
   ]
 })
 
-export class CampusComponent implements OnInit {
+export class CampusComponent implements OnInit, OnDestroy {
 
   resetQueueUploaderEmitter = new EventEmitter<void>();
-  resetSelectedRowsEmitter = new EventEmitter<void>();
-  @Output() actionDelete = new EventEmitter<any>();
 
   campuses: Campus[] = [];
   campus: Campus = {};
@@ -49,9 +47,12 @@ export class CampusComponent implements OnInit {
   triggerSelected: boolean = false; 
   dialog: boolean = false;
   mode: string = '';
-  extrasDocs : any = {};
+
   _files: any[] = [];
   selectedRows: any[] = [];
+  selectedRowsService: any[] = [];
+
+  private subscription: Subscription = new Subscription();
 
   public fbForm : FormGroup = this.fb.group({
     Estado_campus: [true, Validators.required],
@@ -64,20 +65,54 @@ export class CampusComponent implements OnInit {
               private errorTemplateHandler: ErrorTemplateHandler,
               private fb: FormBuilder,
               private messageService: MessageService,
-              private systemService: SystemService,
               private commonUtils: CommonUtils
   ){}
 
   async ngOnInit() {
     this.cols = [
-      { field: 'nombre', header: 'Nombre' },
-      { field: 'estado', header: 'Estado' },
+      { field: 'Descripcion_campus', header: 'Nombre' },
+      { field: 'Estado_campus', header: 'Estado' },
       { field: 'accion', header: 'Acciones' }
     ];
 
-    this.globalFiltros = [ 'nombre' ]
+    this.globalFiltros = [ 'Descripcion_campus' ]
     this.dataKeyTable = 'Cod_campus';
     await this.getCampuses();
+
+    this.subscription.add(this.campusService.selectedRows$.subscribe(selectedRows => {this.selectedRowsService = selectedRows}));
+    this.subscription.add(this.campusService.actionNewRegister$.subscribe( actionTriggered => { actionTriggered && this.openCreate()}));
+    this.subscription.add(this.campusService.actionRefreshTable$.subscribe( actionTriggered => { actionTriggered && this.getCampuses()}));
+    this.subscription.add(this.campusService.actionDownloadDoc$.subscribe( event => { event && this.downloadDoc(event)}));
+    this.subscription.add(this.campusService.updateValidatorFiles$.subscribe( event => { event && this.filesChanged(event)}));
+    this.subscription.add(this.campusService.actionDeleteDocUploader$.subscribe( event => { event && this.openConfirmationDeleteDoc(event)}));
+    this.subscription.add(this.campusService.actionDeleteSelected$.subscribe( actionTriggered => { actionTriggered && this.openConfirmationDeleteSelectedCampus(this.selectedRowsService)}));
+    this.subscription.add(
+      this.campusService.actionMode$.subscribe( action => {
+        if (action) {
+          switch (action.mode) {
+            case 'create':
+              this.openCreate()
+            break;
+            case 'show':        
+              this.openShow(action.data)
+            break;
+            case 'edit':
+              this.openEdit(action.data)
+            break;
+            case 'delete':
+              this.openConfirmationDeleteCampus(action.data)
+            break;
+            case 'changeState':
+              this.openConfirmationChangeStateCampus(action.data)
+            break;
+          }
+        }
+      })
+    )
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   filesValidator(control: any): { [key: string]: boolean } | null {   
@@ -117,12 +152,14 @@ export class CampusComponent implements OnInit {
   async insertCampus(){
     try {
 
-      this.extrasDocs = {
+      const extrasDocs = {
         Descripcion_campus: this.fbForm.get('Descripcion_campus')!.value
       }
 
-      const actionUploadDoc: ActionUploadDoc = await new Promise( (resolve , reject) => {
-        this.triggerUpload = { resolve , reject }
+      this.campusService.setExtrasDocs(extrasDocs);
+
+      const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
+        this.campusService.triggerUploadDocsAction(resolve, reject);
       });
     
       if ( actionUploadDoc.success ) {
@@ -147,25 +184,27 @@ export class CampusComponent implements OnInit {
 
   async updateCampus(campus: Campus ){
     try {
-      this.extrasDocs = {
+
+      const extrasDocs = {
         Cod_campus: campus.Cod_campus,
         Descripcion_campus: this.fbForm.get('Descripcion_campus')!.value
       }
 
-      const actionUploadDoc: ActionUploadDoc = await new Promise( (resolve , reject) => {
-        this.triggerUpload = { resolve , reject }
+      this.campusService.setExtrasDocs(extrasDocs);
+
+      const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
+        this.campusService.triggerUploadDocsAction(resolve, reject);
       });
-       
 
       if ( actionUploadDoc.success ) {
 
         let params = {
           Cod_campus: campus.Cod_campus,
           Descripcion_campus: this.fbForm.get('Descripcion_campus')!.value == '' ? campus.Descripcion_campus : this.fbForm.get('Descripcion_campus')!.value,
-          Estado_campus: this.mode == 'activate' ? campus.Estado_campus : this.fbForm.get('Estado_campus')!.value,
+          Estado_campus: this.mode == 'changeState' ? campus.Estado_campus : this.fbForm.get('Estado_campus')!.value,
           docs: actionUploadDoc.docs
         }
-
+        
         const campusUpdated = await this.campusService.updateCampusService( params )
         return campusUpdated;
       } 
@@ -194,25 +233,12 @@ export class CampusComponent implements OnInit {
     } 
   }
 
-  async cargarDocumentos(Cod_campus: any) {
-    try {
-      let res = await this.campusService.getDocumentosCampus(Cod_campus);
-      return res      
-    } catch (e:any) {
-        this.errorTemplateHandler.processError(
-          e, {
-            notifyMethod: 'alert',
-            summary: 'Error al cargar documentos',
-            message: e.message,
-        });
-      }
-  }
-
   async loadDocsWithBinary(campus: Campus){
     try {     
-      const files = await this.campusService.getDocumentosWithBinaryCampus(campus.Cod_campus!)
-      this.fbForm.patchValue({ files });
+      const files = await this.campusService.getDocumentosWithBinaryCampus(campus.Cod_campus!)      
+      this.campusService.setFiles(files)      
       this.filesChanged(files);
+      return files
     } catch (e:any) {
       this.errorTemplateHandler.processError(e, {
         notifyMethod: 'alert',
@@ -236,33 +262,10 @@ export class CampusComponent implements OnInit {
     }
   }
 
-
-
-  actionMode(event: any){
-    switch (event.mode) {
-      case 'create':
-        this.openCreate()
-      break;
-      case 'show':
-        this.openShow(event.data)
-      break;
-      case 'edit':
-        this.openEdit(event.data)
-      break;
-      case 'delete':
-        this.openConfirmationDeleteCampus(event.data)
-      break;
-      case 'activate':
-        this.openConfirmationActivateCampus(event.data)
-      break;
-    }
-  }
   
   openCreate(){
     this.mode = 'create';
-    this.extrasDocs = {};
-    this.triggerUpload = {};
-    this.resetQueueUploaderEmitter.emit();
+    this.campusService.triggerResetQueueUploaderAction();
     this.reset();
     this.campus = {};
     this.dialog = true; 
@@ -270,17 +273,22 @@ export class CampusComponent implements OnInit {
 
   async openShow(campus: any) {
     this.mode = 'show'
+    this.campusService.triggerResetQueueUploaderAction();
     this.campus = {...campus}
-    let res = await this.cargarDocumentos(this.campus.Cod_campus)
-    this._files = res;
+    this.fbForm.patchValue({
+      Estado_campus: this.campus.Estado_campus,
+      Descripcion_campus: this.campus.Descripcion_campus
+    })
+    this.fbForm.get('Estado_campus')?.disable();
+    this.fbForm.get('Descripcion_campus')?.disable();
+    await this.loadDocsWithBinary(campus);
     this.dialog = true;
   }
 
   async openEdit(campus: any){
+    this.reset();
     this.mode = 'edit';
-    this.extrasDocs = {};
-    this.triggerUpload = {} ;
-    this.resetQueueUploaderEmitter.emit();
+    this.campusService.triggerResetQueueUploaderAction();
     this.campus = {...campus}
 
     this.fbForm.patchValue({
@@ -288,7 +296,7 @@ export class CampusComponent implements OnInit {
       Descripcion_campus: this.campus.Descripcion_campus
     })
 
-    await this.loadDocsWithBinary(campus);
+    await this.loadDocsWithBinary(campus);    
     this.dialog = true;
   }
 
@@ -304,14 +312,14 @@ export class CampusComponent implements OnInit {
       Descripcion_campus: '',
       files: []
     });
-    this.resetSelectedRowsEmitter.emit();
+    this.fbForm.get('Estado_campus')?.enable();
+    this.fbForm.get('Descripcion_campus')?.enable();
+    this.campusService.triggerResetSelectedRowsAction();
     this.fbForm.controls['files'].updateValueAndValidity();
   }
 
   parseNombresCampus(campusSelected: Campus[]){
-
     let nombresCampusSelected = []; 
-
     for (let i = 0; i < campusSelected.length; i++) {
       const campus = campusSelected[i];
       nombresCampusSelected.push(campus.Descripcion_campus)
@@ -325,21 +333,15 @@ export class CampusComponent implements OnInit {
       message = `los campus: <b>${nombresConSeparador}</b>`;
     }
     return message;
-
   }
 
-  actionSelectRow(event: any){
-    this.selectedRows = event
-  }
 
   changeEstadoCampus(event : any){
     this.fbForm.controls['files'].updateValueAndValidity();
   }
 
-  async openConfirmationDeleteSelectedCampus(campusSelected: Campus[]){
-
+  async openConfirmationDeleteSelectedCampus(campusSelected: any){
     const message = this.parseNombresCampus(campusSelected);
-    //TODO: ERROR AL CREAR UN CAMPUS DESACTIVADO CON ARCHIVOS, LUEGO DESEO ACTIVAR Y TIRA ERROR DE MISMO DOCUMENTO
     this.confirmationService.confirm({
       header: "Confirmar",
       message: `Es necesario confirmar la acción para eliminar ${message}. ¿Desea confirmar?`,
@@ -361,8 +363,8 @@ export class CampusComponent implements OnInit {
               severity: 'success',
               detail: 'Campus eliminados exitosamente',
             });
-            this.getCampuses();
             this.reset();
+            this.getCampuses();
           }
           
                 
@@ -419,11 +421,14 @@ export class CampusComponent implements OnInit {
     })
   }
 
-  async openConfirmationActivateCampus(campus: any){
-    this.resetQueueUploaderEmitter.emit();
+  openConfirmationChangeStateCampus(campus: any){
+    this.campusService.triggerResetQueueUploaderAction(); 
+    const stateCampus = campus.Estado_campus;
+    const action = stateCampus ? 'desactivar' : 'activar';
+    const actionUpdated = stateCampus ? 'desactivado' : 'activado';
     this.confirmationService.confirm({
       header: 'Confirmar',
-      message: `Es necesario confirmar la acción para activar el campus <b>${campus.Descripcion_campus}</b>. ¿Desea confirmar?`,
+      message: `Es necesario confirmar la acción para <b>${action}</b> el campus <b>${campus.Descripcion_campus}</b>. ¿Desea confirmar?`,
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
@@ -432,27 +437,24 @@ export class CampusComponent implements OnInit {
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
         try {
-                  
-          //TODO: ARREGLAR COMPORTAMIENTO MODAL DESDE CELULAR
-          let res = await this.cargarDocumentos(campus.Cod_campus)          
-          this.fbForm.patchValue({files : res})
-
-          this.mode = 'activate';
-          if (res.length != 0 ) {
+          
+          let res = await this.loadDocsWithBinary(campus)
+          this.mode = 'changeState';
+          if ( stateCampus || (res.length != 0  && stateCampus === false) ) {
 
             const updatedCampus = {
               Cod_campus: campus.Cod_campus,
               Descripcion_campus: campus.Descripcion_campus,
-              Estado_campus: campus.Estado_campus === false ? true : campus.Estado_campus
+              Estado_campus: stateCampus === false ? true : false
             }
             
-            let res = await this.updateCampus( updatedCampus )
+            let response = await this.updateCampus( updatedCampus )
 
-            if (res) {
+            if (response) {
               this.messageService.add({
                 key: 'campus',
                 severity: 'success',
-                detail: `Campus ${updatedCampus.Descripcion_campus} activado exitosamente`,
+                detail: `Campus ${updatedCampus.Descripcion_campus} ${actionUpdated} exitosamente`,
               });
             }
             
@@ -460,27 +462,24 @@ export class CampusComponent implements OnInit {
             this.messageService.add({
               key: 'campus',
               severity: 'error',
-              detail: `Campus ${campus.Descripcion_campus} no es posible activarlo sin documentos adjuntos.`,
+              detail: `Campus ${campus.Descripcion_campus} no es posible ${action} sin documentos adjuntos.`,
             });
           }     
           this.getCampuses();
-
-        } catch (e:any) {
+        } catch (e: any) {
           this.errorTemplateHandler.processError(
             e, {
               notifyMethod: 'alert',
-              summary: 'Error al activar campus',
+              summary: `Error al ${action} campus`,
               message: e.message,
           });
         }
       }
-    })
+    })    
   }
 
-  async openConfirmationDeleteDoc(event : any){
-    
+  async openConfirmationDeleteDoc(event : any){    
     const {file: doc , resolve, reject} = event ;
-    
     this.confirmationService.confirm({
       header: 'Confirmar',
       message: `Es necesario confirmar la acción para eliminar el documento <b>${doc.nombre}</b>. ¿Desea confirmar?`,
@@ -512,7 +511,6 @@ export class CampusComponent implements OnInit {
       }
     })
   }
-
 
   async submit() {
     try {
@@ -552,7 +550,5 @@ export class CampusComponent implements OnInit {
     }
 
   }
-
-
 
 }

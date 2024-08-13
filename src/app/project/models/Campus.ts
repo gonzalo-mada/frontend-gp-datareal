@@ -1,7 +1,7 @@
 export interface Campus {
     Cod_campus?: string;
     Descripcion_campus?: string;
-    Estado_campus?: number;
+    Estado_campus?: boolean;
 }
 
 export interface extras{

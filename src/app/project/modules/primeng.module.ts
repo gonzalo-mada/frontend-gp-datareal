@@ -15,7 +15,7 @@ import { DialogModule } from 'primeng/dialog';
 import { FileUploadModule } from 'primeng/fileupload';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { BadgeModule } from 'primeng/badge';
-
+import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { StepsModule } from 'primeng/steps';
 import { SelectButtonModule  } from 'primeng/selectbutton';
 import { InputSwitchModule } from 'primeng/inputswitch';
@@ -43,7 +43,8 @@ import { ConfirmPopupModule } from 'primeng/confirmpopup';
     ToastModule,
     ToolbarModule,
     SelectButtonModule,
-    StepsModule
+    StepsModule,
+    OverlayPanelModule
   ],
   exports: [
     CommonModule,
@@ -63,7 +64,8 @@ import { ConfirmPopupModule } from 'primeng/confirmpopup';
     ToastModule,
     ToolbarModule,
     SelectButtonModule,
-    StepsModule
+    StepsModule,
+    OverlayPanelModule
   ],
 })
 export class PrimengModule {}

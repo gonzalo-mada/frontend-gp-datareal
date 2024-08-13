@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { docMongoCampus, extras } from 'src/app/project/models/Campus'
 import { FileUtils } from '../../tools/utils/file.utils';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { FileSelectEvent, FileUpload } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
+import { CampusService } from '../../services/campus.service';
 
 @Component({
   selector: 'app-uploader-files',
@@ -13,42 +14,37 @@ import { Subscription } from 'rxjs';
   ]
 })
 
-export class UploaderFilesComponent implements OnChanges, OnDestroy {
-
-  constructor(private fileUtils: FileUtils, private errorTemplateHandler: ErrorTemplateHandler, private messageService: MessageService){}
-  
+export class UploaderFilesComponent implements OnInit ,OnDestroy {
 
   @ViewChild('uploader') uploader!: FileUpload;
-
-  @Input() resetQueueUploaderEmitter: EventEmitter<void> = new EventEmitter();
-  @Input() files: docMongoCampus[] = [];
-  @Input() extrasDocs: any ;
-  @Input() triggerUpload : any;
-
-  @Output() filesChange = new EventEmitter<any>();
-  @Output() saveOrUpdateDoc = new EventEmitter<any>();
-  @Output() deleteDoc = new EventEmitter<any>();
+  @Input() mode: string = '';
 
   docsToUpload : any[] = [];
+  leyendas: any[] = [];
+  files: docMongoCampus[] = [];
 
-  private subscription!: Subscription;
+  dialogVisorPDF: boolean = false;
+  doc: any ;
+  extrasDocs: any;
+
+  private subscription: Subscription = new Subscription();
+
+  constructor(private campusService: CampusService,
+    private fileUtils: FileUtils, 
+    private errorTemplateHandler: ErrorTemplateHandler, 
+    private messageService: MessageService
+  ){}
   
+  ngOnInit(): void {
+    this.leyendas = [
+      { label: ' Archivo en línea' , icon:'pi-cloud' , color:'estado-cloud'},
+      { label: ' Archivo por subir' , icon:'pi-cloud-upload' , color:'estado-upload'}
+    ];
 
-  ngOnChanges(changes: SimpleChanges): void {
-    
-    if (changes['triggerUpload'] && (Object.keys(changes['triggerUpload'].currentValue).length !== 0) ) { 
-      // console.log("trigger from uploader", this.triggerUpload);
-      this.uploadHandler(this.triggerUpload);
-    }
-
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
-
-    this.subscription = this.resetQueueUploaderEmitter.subscribe(() => {
-      this.resetQueueUploader();
-    });
-
+    this.subscription.add(this.campusService.actionUploadDocs$.subscribe(event => { event && this.uploadHandler(event)}));
+    this.subscription.add(this.campusService.extrasDocs$.subscribe(extrasDocs => { extrasDocs && (this.extrasDocs = extrasDocs);}));
+    this.subscription.add(this.campusService.files$.subscribe(files => { files && (this.files = files);}));
+    this.subscription.add(this.campusService.actionResetQueueUploader$.subscribe(trigger => {trigger && this.resetQueueUploader()}))
   }
 
   ngOnDestroy(): void {
@@ -61,14 +57,11 @@ export class UploaderFilesComponent implements OnChanges, OnDestroy {
     callback();
   }
 
-  onSelect(event: FileSelectEvent, uploader: FileUpload){
+  onSelect(event: any, uploader: FileUpload){
 
     const uniqueFiles = event.currentFiles.filter((newFile: File) => {
       return !this.files.some(fileWithComment => fileWithComment.nombre === newFile.name && fileWithComment.extras.pesoDocumento === newFile.size);
     });
-
-    // console.log("tetetettetetete",uploader.files);
-    
 
     if (uniqueFiles.length == 0) {
       let lastFile = event.currentFiles[event.currentFiles.length - 1 ];
@@ -82,12 +75,13 @@ export class UploaderFilesComponent implements OnChanges, OnDestroy {
         uploader.remove(event.originalEvent, fileIndex);
       }
     }
-       
-    uniqueFiles.forEach((newFile: File) => {
+      
+    uniqueFiles.forEach((newFile: File) => {    
       this.files.push({nombre: newFile.name , tipo: newFile.type, extras:{pesoDocumento: newFile.size ,comentarios:''} , origFile: newFile});
     });
 
-    this.filesChange.emit(this.files)
+    // this.filesChange.emit(this.files)
+    this.campusService.updateValidatorFiles(this.files);
   }
 
   async uploadHandler(event: any){
@@ -97,7 +91,7 @@ export class UploaderFilesComponent implements OnChanges, OnDestroy {
       //subieron docs
       
       for (let i = 0; i < this.files.length; i++) {
-        const doc = this.files[i];
+        const doc = this.files[i];        
         if (!doc.id) {
           //modo subir nuevo archivo
           // console.log("entre al modo nuevo archivo");
@@ -119,7 +113,6 @@ export class UploaderFilesComponent implements OnChanges, OnDestroy {
             extras: combinedExtras,
           };
           this.docsToUpload.push(documento)
-          
           
         }else{
           //modo actualizar archivo
@@ -149,7 +142,8 @@ export class UploaderFilesComponent implements OnChanges, OnDestroy {
       resolve({success: true , docs: this.docsToUpload = [] })
     }
     
-    this.filesChange.emit(this.files)
+    // this.filesChange.emit(this.files)
+    // this.campusService.updateValidatorFiles(this.files);
     this.resetQueueUploader();
   }
 
@@ -163,7 +157,7 @@ export class UploaderFilesComponent implements OnChanges, OnDestroy {
       //eliminar de mongo
       try {
         const result: any = await new Promise( (resolve , reject) => {
-          this.deleteDoc.emit({file , resolve , reject})
+          this.campusService.triggerDeleteDocUplaoderAction(file, resolve, reject);
         });
         
         if ( result.success ) {
@@ -184,18 +178,23 @@ export class UploaderFilesComponent implements OnChanges, OnDestroy {
       this.files.splice(index, 1);
     }
 
-    this.filesChange.emit(this.files)
+    // this.filesChange.emit(this.files)
+    this.campusService.updateValidatorFiles(this.files);
   }
 
-  resetQueueUploader(){
+  resetQueueUploader(){   
+    this.files = []; 
     this.docsToUpload = [];  
     this.uploader?.clear();
   }
 
-  test(){
-    console.log("this files from test",this.files);
-    console.log("files from uploader ",this.uploader._files);
-    
+  showVisorPDF(event: any){   
+    this.dialogVisorPDF = true;
+    this.doc = event;
+  }
+
+  downloadDoc(event: any){
+    this.campusService.triggerDownloadDocUploaderAction(event)
   }
 
 }
