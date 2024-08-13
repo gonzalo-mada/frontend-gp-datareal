@@ -157,7 +157,7 @@ export class UploaderFilesComponent implements OnInit ,OnDestroy {
       //eliminar de mongo
       try {
         const result: any = await new Promise( (resolve , reject) => {
-          this.actionsCrudService.triggerDeleteDocUplaoderAction(file, resolve, reject);
+          this.actionsCrudService.triggerDeleteDocUplaoderAction({file, resolve, reject});
         });
         
         if ( result.success ) {

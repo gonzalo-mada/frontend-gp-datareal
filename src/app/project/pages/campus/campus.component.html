@@ -1,5 +1,5 @@
-<p-toast key="campus"></p-toast>
-<p-confirmDialog key="campus" [style]="{ width: '500px' }"></p-confirmDialog>
+<p-toast [key]="keyPopups"></p-toast>
+<p-confirmDialog [key]="keyPopups" [style]="{ width: '500px' }"></p-confirmDialog>
 <p-confirmDialog key="campusUpdateByDeleted" [style]="{ width: '500px' }"></p-confirmDialog>
 
 <div class="grid">
@@ -63,7 +63,7 @@
                                         <div class="flex flex-row flex-wrap">
                                             <div class="flex align-items-center justify-content-center "><span>Desactivo</span></div>
                                             <div class="flex align-items-center justify-content-center mx-2">
-                                                <p-inputSwitch formControlName="Estado_campus" styleClass="mt-1" (onChange)="changeEstadoCampus($event)" />
+                                                <p-inputSwitch formControlName="Estado_campus" styleClass="mt-1" (onChange)="changeState($event)" />
                                             </div>
                                             <div class="flex align-items-center justify-content-center "><span>Activo</span></div>
                                         </div>

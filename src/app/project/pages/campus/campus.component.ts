@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Campus } from '../../models/Campus';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -24,6 +24,14 @@ export interface ActionUploadDoc{
   docs: DocFromUploader[];
 }
 
+export interface NamesCrud{
+  singular?: string;
+  plural?: string;
+  articulo_singular?: string;
+  articulo_plural?: string;
+  genero?: string;
+}
+
 
 @Component({
   selector: 'app-campus',
@@ -34,23 +42,17 @@ export interface ActionUploadDoc{
 
 export class CampusComponent implements OnInit, OnDestroy {
 
-  resetQueueUploaderEmitter = new EventEmitter<void>();
-
   campuses: Campus[] = [];
   campus: Campus = {};
+  namesCrud : NamesCrud = {}
 
   cols: any[] = [];
-  selectedCampus: Campus[] = [];
   globalFiltros : any[] = [];
   dataKeyTable : string = '';
-
-  triggerUpload: any = {}; 
-  triggerSelected: boolean = false; 
+  keyPopups: string = '';
   dialog: boolean = false;
   mode: string = '';
 
-  _files: any[] = [];
-  selectedRows: any[] = [];
   selectedRowsService: any[] = [];
 
   private subscription: Subscription = new Subscription();
@@ -77,8 +79,17 @@ export class CampusComponent implements OnInit, OnDestroy {
       { field: 'accion', header: 'Acciones' }
     ];
 
+    this.namesCrud = {
+      singular: 'campus',
+      plural: 'campus',
+      articulo_singular: 'el campus',
+      articulo_plural: 'los campus',
+      genero: 'masculino'
+    }
+
     this.globalFiltros = [ 'Descripcion_campus' ]
     this.dataKeyTable = 'Cod_campus';
+    this.keyPopups = 'campus'
     await this.getCampuses();
 
     this.subscription.add(this.actionsCrudService.selectedRows$.subscribe(selectedRows => {this.selectedRowsService = selectedRows}));
@@ -87,7 +98,7 @@ export class CampusComponent implements OnInit, OnDestroy {
     this.subscription.add(this.actionsCrudService.actionDownloadDoc$.subscribe( event => { event && this.downloadDoc(event)}));
     this.subscription.add(this.actionsCrudService.updateValidatorFiles$.subscribe( event => { event && this.filesChanged(event)}));
     this.subscription.add(this.actionsCrudService.actionDeleteDocUploader$.subscribe( event => { event && this.openConfirmationDeleteDoc(event)}));
-    this.subscription.add(this.actionsCrudService.actionDeleteSelected$.subscribe( actionTriggered => {actionTriggered && this.openConfirmationDeleteSelectedCampus(this.selectedRowsService)}));
+    this.subscription.add(this.actionsCrudService.actionDeleteSelected$.subscribe( actionTriggered => {actionTriggered && this.openConfirmationDeleteSelected(this.selectedRowsService)}));
     this.subscription.add(
       this.actionsCrudService.actionMode$.subscribe( action => {
         if (action) {
@@ -102,10 +113,10 @@ export class CampusComponent implements OnInit, OnDestroy {
               this.openEdit(action.data)
             break;
             case 'delete':
-              this.openConfirmationDeleteCampus(action.data)
+              this.openConfirmationDelete(action.data)
             break;
             case 'changeState':
-              this.openConfirmationChangeStateCampus(action.data)
+              this.openConfirmationChangeState(action.data)
             break;
           }
         }
@@ -115,6 +126,11 @@ export class CampusComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
+    this.actionsCrudService.setSelectedRows([]); 
+    this.actionsCrudService.setExtrasDocs(null);
+    this.actionsCrudService.setFiles(null);
+    this.actionsCrudService.triggerDeleteDocUplaoderAction(null);
+    this.actionsCrudService.triggerUploadDocsAction(null);
   }
 
   filesValidator(control: any): { [key: string]: boolean } | null {   
@@ -125,15 +141,15 @@ export class CampusComponent implements OnInit, OnDestroy {
       return null;
     }
 
-    const estadoCampus = formGroup.get('Estado_campus')?.value;
+    const state = formGroup.get('Estado_campus')?.value;
     const files = formGroup.get('files')?.value;   
     
     if ( this.mode == 'create' ){
-      if (files.length === 0 && estadoCampus === true) {
+      if (files.length === 0 && state === true) {
         return { required: true };
       }
     }else if ( this.mode == 'edit'){
-      if (files.length === 0 && estadoCampus === true) {
+      if (files.length === 0 && state === true) {
         return { required: true };
       }
     }
@@ -161,7 +177,7 @@ export class CampusComponent implements OnInit, OnDestroy {
       this.actionsCrudService.setExtrasDocs(extrasDocs);
 
       const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
-        this.actionsCrudService.triggerUploadDocsAction(resolve, reject);
+        this.actionsCrudService.triggerUploadDocsAction({resolve, reject});
       });
     
       if ( actionUploadDoc.success ) {
@@ -170,15 +186,15 @@ export class CampusComponent implements OnInit, OnDestroy {
           Estado_campus: this.fbForm.get('Estado_campus')!.value,
           docs: actionUploadDoc.docs
         }
-        const campusInserted = await this.campusService.insertCampusService( params )
-        return campusInserted;
+        const inserted = await this.campusService.insertCampusService( params )
+        return inserted;
       } 
       
     } catch (e:any) {
         this.errorTemplateHandler.processError(
           e, {
             notifyMethod: 'alert',
-            summary: 'Error al guardar campus',
+            summary: `Error al guardar ${this.namesCrud.singular}`,
             message: e.message,
           });
       }
@@ -195,7 +211,7 @@ export class CampusComponent implements OnInit, OnDestroy {
       this.actionsCrudService.setExtrasDocs(extrasDocs);
 
       const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
-        this.actionsCrudService.triggerUploadDocsAction(resolve, reject);
+        this.actionsCrudService.triggerUploadDocsAction({resolve, reject});
       });
 
       if ( actionUploadDoc.success ) {
@@ -207,15 +223,15 @@ export class CampusComponent implements OnInit, OnDestroy {
           docs: actionUploadDoc.docs
         }
         
-        const campusUpdated = await this.campusService.updateCampusService( params )
-        return campusUpdated;
+        const updated = await this.campusService.updateCampusService( params )
+        return updated;
       } 
 
     } catch (e:any) {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: 'Error al actualizar campus',
+          summary: `Error al actualizar ${this.namesCrud.singular}`,
           message: e.message,
       });
     }
@@ -229,7 +245,7 @@ export class CampusComponent implements OnInit, OnDestroy {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: 'Error al eliminar campus',
+          summary: `Error al eliminar ${this.namesCrud.singular}`,
           message: e.message,
       });
     } 
@@ -237,7 +253,7 @@ export class CampusComponent implements OnInit, OnDestroy {
 
   async loadDocsWithBinary(campus: Campus){
     try {     
-      const files = await this.campusService.getDocumentosWithBinaryCampus(campus.Cod_campus!)      
+      const files = await this.campusService.getDocumentosWithBinary(campus.Cod_campus!)      
       this.actionsCrudService.setFiles(files)      
       this.filesChanged(files);
       return files
@@ -320,37 +336,51 @@ export class CampusComponent implements OnInit, OnDestroy {
     this.fbForm.controls['files'].updateValueAndValidity();
   }
 
-  parseNombresCampus(campusSelected: Campus[]){
-    let nombresCampusSelected = []; 
-    for (let i = 0; i < campusSelected.length; i++) {
-      const campus = campusSelected[i];
-      nombresCampusSelected.push(campus.Descripcion_campus)
+  parseNombres(rowsSelected: Campus[]){
+    let nombresSelected = []; 
+    for (let i = 0; i < rowsSelected.length; i++) {
+      const campus = rowsSelected[i];
+      nombresSelected.push(campus.Descripcion_campus)
     }
     
     let message = '' ;
-    if (nombresCampusSelected.length == 1) {
-      message = `el campus: <b>${nombresCampusSelected}</b>`;
+    if (nombresSelected.length == 1) {
+      message = `${this.namesCrud.articulo_singular}: <b>${nombresSelected}</b>`;
     } else {
-      let nombresConSeparador = nombresCampusSelected.join(', ');
-      message = `los campus: <b>${nombresConSeparador}</b>`;
+      let nombresConSeparador = nombresSelected.join(', ');
+      message = `${this.namesCrud.articulo_plural}: <b>${nombresConSeparador}</b>`;
     }
     return message;
   }
 
+  capitalizeFirstLetter(word: string): string {
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }
 
-  changeEstadoCampus(event : any){
+  getWordWithGender(word: string, gender: string): string {
+    if (gender === 'femenino') {
+      if (word.endsWith('os')) {
+        return word.replace(/os$/, 'as'); // Plural
+      } else if (word.endsWith('o')) {
+        return word.replace(/o$/, 'a'); // Singular
+      }
+    }
+    return word;
+  }
+
+  changeState(event : any){
     this.fbForm.controls['files'].updateValueAndValidity();
   }
 
-  async openConfirmationDeleteSelectedCampus(campusSelected: any){
-    const message = this.parseNombresCampus(campusSelected);
+  async openConfirmationDeleteSelected(campusSelected: any){
+    const message = this.parseNombres(campusSelected);
     this.confirmationService.confirm({
       header: "Confirmar",
       message: `Es necesario confirmar la acción para eliminar ${message}. ¿Desea confirmar?`,
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
-      key: 'campus',
+      key: this.keyPopups,
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
@@ -361,9 +391,9 @@ export class CampusComponent implements OnInit, OnDestroy {
           if (res) {
             
             this.messageService.add({
-              key: 'campus',
+              key: this.keyPopups,
               severity: 'success',
-              detail: 'Campus eliminados exitosamente',
+              detail: `${this.capitalizeFirstLetter(this.namesCrud.plural!)} ${this.getWordWithGender('eliminados', this.namesCrud.genero!)} exitosamente`,
             });
             this.reset();
             this.getCampuses();
@@ -374,7 +404,7 @@ export class CampusComponent implements OnInit, OnDestroy {
           this.errorTemplateHandler.processError(
             e, {
               notifyMethod: 'alert',
-              summary: 'Error al eliminar campus',
+              summary: `Error al eliminar ${this.namesCrud.singular}`,
               message: e.message,
           });
         }
@@ -383,14 +413,14 @@ export class CampusComponent implements OnInit, OnDestroy {
     
   }
 
-  async openConfirmationDeleteCampus(campus: any){
+  async openConfirmationDelete(campus: any){
     this.confirmationService.confirm({
       header: 'Confirmar',
-      message: `Es necesario confirmar la acción para eliminar el campus <b>${campus.Descripcion_campus}</b>. ¿Desea confirmar?`,
+      message: `Es necesario confirmar la acción para eliminar ${this.namesCrud.articulo_singular} <b>${campus.Descripcion_campus}</b>. ¿Desea confirmar?`,
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
-      key: 'campus',
+      key: this.keyPopups,
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
@@ -403,9 +433,9 @@ export class CampusComponent implements OnInit, OnDestroy {
             if (res) {
               this.getCampuses();
               this.messageService.add({
-                key: 'campus',
+                key: this.keyPopups,
                 severity: 'success',
-                detail: 'Campus eliminado exitosamente',
+                detail: `${this.capitalizeFirstLetter(this.namesCrud.singular!)} ${this.getWordWithGender('eliminado', this.namesCrud.genero!)} exitosamente`,
               });
             }
             
@@ -414,7 +444,7 @@ export class CampusComponent implements OnInit, OnDestroy {
             this.errorTemplateHandler.processError(
               e, {
                 notifyMethod: 'alert',
-                summary: 'Error al eliminar campus',
+                summary: `Error al eliminar ${this.namesCrud.singular}`,
                 message: e.message,
             });
           }
@@ -423,18 +453,18 @@ export class CampusComponent implements OnInit, OnDestroy {
     })
   }
 
-  openConfirmationChangeStateCampus(campus: any){
+  openConfirmationChangeState(campus: any){
     this.actionsCrudService.triggerResetQueueUploaderAction(); 
-    const stateCampus = campus.Estado_campus;
-    const action = stateCampus ? 'desactivar' : 'activar';
-    const actionUpdated = stateCampus ? 'desactivado' : 'activado';
+    const state = campus.Estado_campus;
+    const action = state ? 'desactivar' : 'activar';
+    const actionUpdated = state ? 'desactivado' : 'activado';
     this.confirmationService.confirm({
       header: 'Confirmar',
-      message: `Es necesario confirmar la acción para <b>${action}</b> el campus <b>${campus.Descripcion_campus}</b>. ¿Desea confirmar?`,
+      message: `Es necesario confirmar la acción para <b>${action}</b> ${this.namesCrud.articulo_singular} <b>${campus.Descripcion_campus}</b>. ¿Desea confirmar?`,
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
-      key: 'campus',
+      key: this.keyPopups,
       acceptButtonStyleClass: 'p-button-success p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
@@ -442,29 +472,29 @@ export class CampusComponent implements OnInit, OnDestroy {
           
           let res = await this.loadDocsWithBinary(campus)
           this.mode = 'changeState';
-          if ( stateCampus || (res.length != 0  && stateCampus === false) ) {
+          if ( state || (res.length != 0  && state === false) ) {
 
-            const updatedCampus = {
+            const updated = {
               Cod_campus: campus.Cod_campus,
               Descripcion_campus: campus.Descripcion_campus,
-              Estado_campus: stateCampus === false ? true : false
+              Estado_campus: state === false ? true : false
             }
             
-            let response = await this.updateCampus( updatedCampus )
+            let response = await this.updateCampus( updated )
 
             if (response) {
               this.messageService.add({
-                key: 'campus',
+                key: this.keyPopups,
                 severity: 'success',
-                detail: `Campus ${updatedCampus.Descripcion_campus} ${actionUpdated} exitosamente`,
+                detail: `${this.capitalizeFirstLetter(this.namesCrud.singular!)} ${updated.Descripcion_campus} ${actionUpdated} exitosamente`,
               });
             }
             
           }else{
             this.messageService.add({
-              key: 'campus',
+              key: this.keyPopups,
               severity: 'error',
-              detail: `Campus ${campus.Descripcion_campus} no es posible ${action} sin documentos adjuntos.`,
+              detail: `${this.capitalizeFirstLetter(this.namesCrud.singular!)} ${campus.Descripcion_campus} no es posible ${action} sin documentos adjuntos.`,
             });
           }     
           this.getCampuses();
@@ -472,7 +502,7 @@ export class CampusComponent implements OnInit, OnDestroy {
           this.errorTemplateHandler.processError(
             e, {
               notifyMethod: 'alert',
-              summary: `Error al ${action} campus`,
+              summary: `Error al ${action} ${this.namesCrud.singular}`,
               message: e.message,
           });
         }
@@ -488,12 +518,12 @@ export class CampusComponent implements OnInit, OnDestroy {
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
-      key: 'campus',
+      key: this.keyPopups,
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
         try {
-          await this.campusService.deleteDocCampus(doc.id);
+          await this.campusService.deleteDoc(doc.id);
           resolve({success: true})
         } catch (e:any) {
           this.errorTemplateHandler.processError(
@@ -505,7 +535,7 @@ export class CampusComponent implements OnInit, OnDestroy {
           reject(e)
         } finally {
           this.messageService.add({
-            key: 'campus',
+            key: this.keyPopups,
             severity: 'success',
             detail: 'Documento eliminado exitosamente',
           });
@@ -522,9 +552,9 @@ export class CampusComponent implements OnInit, OnDestroy {
         if (res) {
           this.getCampuses();
           this.messageService.add({
-            key: 'campus',
+            key: this.keyPopups,
             severity: 'success',
-            detail: 'Campus creado exitosamente',
+            detail: `${this.capitalizeFirstLetter(this.namesCrud.singular!)} ${this.getWordWithGender('creado', this.namesCrud.genero!)} exitosamente`,
           });
         }
       }else{
@@ -533,9 +563,9 @@ export class CampusComponent implements OnInit, OnDestroy {
         if (res) {
           this.getCampuses();
           this.messageService.add({
-            key: 'campus',
+            key: this.keyPopups,
             severity: 'success',
-            detail: 'Campus actualizado exitosamente',
+            detail: `${this.capitalizeFirstLetter(this.namesCrud.singular!)} ${this.getWordWithGender('actualizado', this.namesCrud.genero!)} exitosamente`,
           });
         }
       }
@@ -544,7 +574,7 @@ export class CampusComponent implements OnInit, OnDestroy {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al ${action} campus`,
+          summary: `Error al ${action} ${this.namesCrud.singular}`,
           message: e.message,
       });
     } finally {

@@ -95,54 +95,62 @@ export class ActionsCrudService {
     return this.filesSubject.getValue();
   }
 
-  //Dispara la acción de eliminar
+  //Dispara la acción de eliminar seleccionados
   triggerDeleteAction() {
     this.actionDeleteSelectedSubject.next(true);
+    this.actionDeleteSelectedSubject.next(false);
   }
 
   //Dispara la acción de restablecer filas seleccionadas
   triggerResetSelectedRowsAction(){
     this.actionResetSelectedSubject.next(true);
+    this.actionResetSelectedSubject.next(false);
   }
 
   //Dispara la acción de nuevo registro
   triggerNewRegisterAction(){
     this.actionNewRegisterSubject.next(true);
+    this.actionNewRegisterSubject.next(false);
   }
 
   //Dispara la acción con el modo del crud
   triggerModeAction(data: any, mode: string) {
     this.actionModeSubject.next({ data, mode });
+    this.actionModeSubject.next(null); //reset
   }
 
   //Dispara la acción para refrescar la tabla
   triggerRefreshTableAction(){
     this.actionRefreshTableSubject.next(true);
+    this.actionRefreshTableSubject.next(false);
   }
 
   //Dispara la acción para cargar documentos
-  triggerUploadDocsAction(resolve: Function, reject: Function) {
-    this.actionUploadDocsSubject.next({ resolve, reject });
+  triggerUploadDocsAction(input:{resolve: Function, reject: Function} | null) {
+    this.actionUploadDocsSubject.next(input);
   }
 
   //Dispara la acción para resetear la cola del uploader
   triggerResetQueueUploaderAction(){
     this.actionResetQueueUploaderSubject.next(true);
+    this.actionResetQueueUploaderSubject.next(false);
   }
 
   //Dispara la acción para eliminar un archivo en línea del uploader
-  triggerDeleteDocUplaoderAction(file: any, resolve: Function, reject: Function){
-    this.actionDeleteDocUploaderSubject.next({ file, resolve, reject });
+  triggerDeleteDocUplaoderAction( input: {file: any, resolve: Function, reject: Function} | null ){
+    this.actionDeleteDocUploaderSubject.next(input);
   }
 
   //Dispara la acción para descargar un archivo en linea del uploader
   triggerDownloadDocUploaderAction(file:any){
     this.actionDownloadDocSubject.next(file);
+    this.actionDownloadDocSubject.next(null);
   }
 
   //Actualiza el validador de archivos para el formulario
   updateValidatorFiles(files:any){
     this.updateValidatorFilesSubject.next(files);
+    this.updateValidatorFilesSubject.next(null);
   }
   
 

@@ -20,7 +20,7 @@ export class CampusService extends ActionsCrudService {
   }
 
   async updateCampusService(params: any){
-    console.log("params from service updateCampusService",params);
+    // console.log("params from service updateCampusService",params);
     return await this.invoker.httpInvoke('campus/logica_updateCampus',params);
   }
 
@@ -31,20 +31,16 @@ export class CampusService extends ActionsCrudService {
 
   //servicios para mongodb
 
-  async getDocumentosCampus(Cod_campus: string) {
-    return await this.invoker.httpInvoke('campus/getDocumentosCampus',{Cod_campus: Cod_campus,});
-  }
-
-  async getDocumentosWithBinaryCampus(Cod_campus: string) {
-    return await this.invoker.httpInvoke('campus/getDocumentosWithBinaryCampus',{Cod_campus: Cod_campus,});
+  async getDocumentosWithBinary(Cod_campus: string) {
+    return await this.invoker.httpInvoke('campus/getDocumentosWithBinary',{Cod_campus: Cod_campus,});
   }
 
   async getArchiveDoc(idDocumento: string) {
     return await this.invoker.httpInvokeReport('campus/getArchivoDocumento','pdf',{id: idDocumento,});
   }
 
-  async deleteDocCampus(Cod_campus: string) {
-    return await this.invoker.httpInvoke('campus/deleteDocCampus',{Cod_campus: Cod_campus,});
+  async deleteDoc(Cod_campus: string) {
+    return await this.invoker.httpInvoke('campus/deleteDoc',{Cod_campus: Cod_campus,});
   }
 
 
