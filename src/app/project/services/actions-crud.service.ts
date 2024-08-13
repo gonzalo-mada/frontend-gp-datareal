@@ -7,10 +7,10 @@ import { BehaviorSubject } from 'rxjs';
 })
 
 
-export class ActionsTableService<T> {
+export class ActionsCrudService {
 
   //Maneja las filas seleccionadas en la tabla
-  private selectedRowsSubject = new BehaviorSubject<T[]>([]);
+  private selectedRowsSubject = new BehaviorSubject<any[]>([]);
   selectedRows$ = this.selectedRowsSubject.asObservable();
 
   //Maneja los atributos extras para los docs
@@ -38,7 +38,7 @@ export class ActionsTableService<T> {
   actionRefreshTable$ = this.actionRefreshTableSubject.asObservable();
 
   //Maneja la acción de setear el modo del crud
-  private actionModeSubject  = new BehaviorSubject<{ data: T; mode: string } | null>(null);
+  private actionModeSubject  = new BehaviorSubject<{ data: any; mode: string } | null>(null);
   actionMode$ = this.actionModeSubject.asObservable();
 
   //Maneja la promesa que ejecuta la carga de archivos del uploader
@@ -66,7 +66,7 @@ export class ActionsTableService<T> {
   constructor() { }
 
   //Setea filas seleccionadas
-  setSelectedRows(rows: T[]) {
+  setSelectedRows(rows: any[]) {    
     this.selectedRowsSubject.next(rows);
   }
 
@@ -111,7 +111,7 @@ export class ActionsTableService<T> {
   }
 
   //Dispara la acción con el modo del crud
-  triggerModeAction(data: T, mode: string) {
+  triggerModeAction(data: any, mode: string) {
     this.actionModeSubject.next({ data, mode });
   }
 

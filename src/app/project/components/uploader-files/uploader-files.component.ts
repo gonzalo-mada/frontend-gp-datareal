@@ -5,7 +5,7 @@ import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { FileSelectEvent, FileUpload } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
-import { CampusService } from '../../services/campus.service';
+import { ActionsCrudService } from '../../services/actions-crud.service';
 
 @Component({
   selector: 'app-uploader-files',
@@ -29,7 +29,7 @@ export class UploaderFilesComponent implements OnInit ,OnDestroy {
 
   private subscription: Subscription = new Subscription();
 
-  constructor(private campusService: CampusService,
+  constructor(private actionsCrudService: ActionsCrudService,
     private fileUtils: FileUtils, 
     private errorTemplateHandler: ErrorTemplateHandler, 
     private messageService: MessageService
@@ -41,10 +41,10 @@ export class UploaderFilesComponent implements OnInit ,OnDestroy {
       { label: ' Archivo por subir' , icon:'pi-cloud-upload' , color:'estado-upload'}
     ];
 
-    this.subscription.add(this.campusService.actionUploadDocs$.subscribe(event => { event && this.uploadHandler(event)}));
-    this.subscription.add(this.campusService.extrasDocs$.subscribe(extrasDocs => { extrasDocs && (this.extrasDocs = extrasDocs);}));
-    this.subscription.add(this.campusService.files$.subscribe(files => { files && (this.files = files);}));
-    this.subscription.add(this.campusService.actionResetQueueUploader$.subscribe(trigger => {trigger && this.resetQueueUploader()}))
+    this.subscription.add(this.actionsCrudService.actionUploadDocs$.subscribe(event => { event && this.uploadHandler(event)}));
+    this.subscription.add(this.actionsCrudService.extrasDocs$.subscribe(extrasDocs => { extrasDocs && (this.extrasDocs = extrasDocs);}));
+    this.subscription.add(this.actionsCrudService.files$.subscribe(files => { files && (this.files = files);}));
+    this.subscription.add(this.actionsCrudService.actionResetQueueUploader$.subscribe(trigger => {trigger && this.resetQueueUploader()}))
   }
 
   ngOnDestroy(): void {
@@ -81,7 +81,7 @@ export class UploaderFilesComponent implements OnInit ,OnDestroy {
     });
 
     // this.filesChange.emit(this.files)
-    this.campusService.updateValidatorFiles(this.files);
+    this.actionsCrudService.updateValidatorFiles(this.files);
   }
 
   async uploadHandler(event: any){
@@ -143,7 +143,7 @@ export class UploaderFilesComponent implements OnInit ,OnDestroy {
     }
     
     // this.filesChange.emit(this.files)
-    // this.campusService.updateValidatorFiles(this.files);
+    // this.actionsCrudService.updateValidatorFiles(this.files);
     this.resetQueueUploader();
   }
 
@@ -157,7 +157,7 @@ export class UploaderFilesComponent implements OnInit ,OnDestroy {
       //eliminar de mongo
       try {
         const result: any = await new Promise( (resolve , reject) => {
-          this.campusService.triggerDeleteDocUplaoderAction(file, resolve, reject);
+          this.actionsCrudService.triggerDeleteDocUplaoderAction(file, resolve, reject);
         });
         
         if ( result.success ) {
@@ -179,7 +179,7 @@ export class UploaderFilesComponent implements OnInit ,OnDestroy {
     }
 
     // this.filesChange.emit(this.files)
-    this.campusService.updateValidatorFiles(this.files);
+    this.actionsCrudService.updateValidatorFiles(this.files);
   }
 
   resetQueueUploader(){   
@@ -194,7 +194,7 @@ export class UploaderFilesComponent implements OnInit ,OnDestroy {
   }
 
   downloadDoc(event: any){
-    this.campusService.triggerDownloadDocUploaderAction(event)
+    this.actionsCrudService.triggerDownloadDocUploaderAction(event)
   }
 
 }

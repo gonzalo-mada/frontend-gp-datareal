@@ -2,7 +2,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@
 import { Table } from 'primeng/table';
 import { Subscription } from 'rxjs';
 import { Campus } from 'src/app/project/models/Campus';
-import { CampusService } from 'src/app/project/services/campus.service';
+import { ActionsCrudService } from 'src/app/project/services/actions-crud.service';
 
 @Component({
   selector: 'app-table-campus',
@@ -24,10 +24,10 @@ export class TableCampusComponent implements OnInit ,OnChanges, OnDestroy {
 
   private subscription: Subscription = new Subscription();
 
-  constructor(private campusService: CampusService){}
+  constructor(private actionsCrudService: ActionsCrudService){}
 
   ngOnInit(): void {
-    this.subscription = this.campusService.actionResetSelectedRows$.subscribe( actionTriggered => { actionTriggered && this.resetSelectedRows();})
+    this.subscription = this.actionsCrudService.actionResetSelectedRows$.subscribe( actionTriggered => { actionTriggered && this.resetSelectedRows();})
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -47,36 +47,36 @@ export class TableCampusComponent implements OnInit ,OnChanges, OnDestroy {
   }
 
   refresh(){
-    this.campusService.triggerRefreshTableAction();
+    this.actionsCrudService.triggerRefreshTableAction();
   }
 
   edit(campus: Campus){
     this.mode = 'edit';
-    this.campusService.triggerModeAction(campus,this.mode);
+    this.actionsCrudService.triggerModeAction(campus,this.mode);
   }
 
   show(campus: Campus){
     this.mode = 'show';
-    this.campusService.triggerModeAction(campus,this.mode);
+    this.actionsCrudService.triggerModeAction(campus,this.mode);
   }
 
   delete(campus: Campus){
     this.mode = 'delete';
-    this.campusService.triggerModeAction(campus,this.mode);
+    this.actionsCrudService.triggerModeAction(campus,this.mode);
   }
 
   changeState(campus: Campus , estado_campus: boolean){
     this.mode = 'changeState';
-    this.campusService.triggerModeAction(campus,this.mode);
+    this.actionsCrudService.triggerModeAction(campus,this.mode);
   }
 
   selectionChange(){   
-    this.campusService.setSelectedRows(this.selectedCampus)
+    this.actionsCrudService.setSelectedRows(this.selectedCampus)
   }
 
   resetSelectedRows(){    
     this.selectedCampus = [];
-    this.campusService.setSelectedRows(this.selectedCampus)
+    this.actionsCrudService.setSelectedRows(this.selectedCampus)
   }
 
   clear(table: Table){

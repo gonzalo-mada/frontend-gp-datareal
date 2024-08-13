@@ -8,9 +8,9 @@
 }
 
 .estado-badge-doc {
-  display: inline-flex;           /* Cambiar display a flex */
-  align-items: center;     /* Centrar verticalmente */
-  justify-content: center; /* Centrar horizontalmente */
+  display: inline-flex;          
+  align-items: center;    
+  justify-content: center; 
   border-radius: var(--border-radius);
   padding: 0.25em 0.5rem;
   text-transform: uppercase;

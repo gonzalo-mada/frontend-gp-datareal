@@ -6,6 +6,7 @@ import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 import { CampusService } from '../../services/campus.service';
 import { Subscription } from 'rxjs';
+import { ActionsCrudService } from '../../services/actions-crud.service';
 
 export interface DocFromUploader {
   nombre: string;
@@ -60,7 +61,8 @@ export class CampusComponent implements OnInit, OnDestroy {
     files: [[], this.filesValidator.bind(this)]
   })
 
-  constructor(private campusService: CampusService,
+  constructor(private actionsCrudService: ActionsCrudService,
+              private campusService: CampusService,
               private confirmationService: ConfirmationService,
               private errorTemplateHandler: ErrorTemplateHandler,
               private fb: FormBuilder,
@@ -79,15 +81,15 @@ export class CampusComponent implements OnInit, OnDestroy {
     this.dataKeyTable = 'Cod_campus';
     await this.getCampuses();
 
-    this.subscription.add(this.campusService.selectedRows$.subscribe(selectedRows => {this.selectedRowsService = selectedRows}));
-    this.subscription.add(this.campusService.actionNewRegister$.subscribe( actionTriggered => { actionTriggered && this.openCreate()}));
-    this.subscription.add(this.campusService.actionRefreshTable$.subscribe( actionTriggered => { actionTriggered && this.getCampuses()}));
-    this.subscription.add(this.campusService.actionDownloadDoc$.subscribe( event => { event && this.downloadDoc(event)}));
-    this.subscription.add(this.campusService.updateValidatorFiles$.subscribe( event => { event && this.filesChanged(event)}));
-    this.subscription.add(this.campusService.actionDeleteDocUploader$.subscribe( event => { event && this.openConfirmationDeleteDoc(event)}));
-    this.subscription.add(this.campusService.actionDeleteSelected$.subscribe( actionTriggered => { actionTriggered && this.openConfirmationDeleteSelectedCampus(this.selectedRowsService)}));
+    this.subscription.add(this.actionsCrudService.selectedRows$.subscribe(selectedRows => {this.selectedRowsService = selectedRows}));
+    this.subscription.add(this.actionsCrudService.actionNewRegister$.subscribe( actionTriggered => { actionTriggered && this.openCreate()}));
+    this.subscription.add(this.actionsCrudService.actionRefreshTable$.subscribe( actionTriggered => { actionTriggered && this.getCampuses()}));
+    this.subscription.add(this.actionsCrudService.actionDownloadDoc$.subscribe( event => { event && this.downloadDoc(event)}));
+    this.subscription.add(this.actionsCrudService.updateValidatorFiles$.subscribe( event => { event && this.filesChanged(event)}));
+    this.subscription.add(this.actionsCrudService.actionDeleteDocUploader$.subscribe( event => { event && this.openConfirmationDeleteDoc(event)}));
+    this.subscription.add(this.actionsCrudService.actionDeleteSelected$.subscribe( actionTriggered => {actionTriggered && this.openConfirmationDeleteSelectedCampus(this.selectedRowsService)}));
     this.subscription.add(
-      this.campusService.actionMode$.subscribe( action => {
+      this.actionsCrudService.actionMode$.subscribe( action => {
         if (action) {
           switch (action.mode) {
             case 'create':
@@ -156,10 +158,10 @@ export class CampusComponent implements OnInit, OnDestroy {
         Descripcion_campus: this.fbForm.get('Descripcion_campus')!.value
       }
 
-      this.campusService.setExtrasDocs(extrasDocs);
+      this.actionsCrudService.setExtrasDocs(extrasDocs);
 
       const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
-        this.campusService.triggerUploadDocsAction(resolve, reject);
+        this.actionsCrudService.triggerUploadDocsAction(resolve, reject);
       });
     
       if ( actionUploadDoc.success ) {
@@ -190,10 +192,10 @@ export class CampusComponent implements OnInit, OnDestroy {
         Descripcion_campus: this.fbForm.get('Descripcion_campus')!.value
       }
 
-      this.campusService.setExtrasDocs(extrasDocs);
+      this.actionsCrudService.setExtrasDocs(extrasDocs);
 
       const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
-        this.campusService.triggerUploadDocsAction(resolve, reject);
+        this.actionsCrudService.triggerUploadDocsAction(resolve, reject);
       });
 
       if ( actionUploadDoc.success ) {
@@ -236,7 +238,7 @@ export class CampusComponent implements OnInit, OnDestroy {
   async loadDocsWithBinary(campus: Campus){
     try {     
       const files = await this.campusService.getDocumentosWithBinaryCampus(campus.Cod_campus!)      
-      this.campusService.setFiles(files)      
+      this.actionsCrudService.setFiles(files)      
       this.filesChanged(files);
       return files
     } catch (e:any) {
@@ -265,7 +267,7 @@ export class CampusComponent implements OnInit, OnDestroy {
   
   openCreate(){
     this.mode = 'create';
-    this.campusService.triggerResetQueueUploaderAction();
+    this.actionsCrudService.triggerResetQueueUploaderAction();
     this.reset();
     this.campus = {};
     this.dialog = true; 
@@ -273,7 +275,7 @@ export class CampusComponent implements OnInit, OnDestroy {
 
   async openShow(campus: any) {
     this.mode = 'show'
-    this.campusService.triggerResetQueueUploaderAction();
+    this.actionsCrudService.triggerResetQueueUploaderAction();
     this.campus = {...campus}
     this.fbForm.patchValue({
       Estado_campus: this.campus.Estado_campus,
@@ -288,7 +290,7 @@ export class CampusComponent implements OnInit, OnDestroy {
   async openEdit(campus: any){
     this.reset();
     this.mode = 'edit';
-    this.campusService.triggerResetQueueUploaderAction();
+    this.actionsCrudService.triggerResetQueueUploaderAction();
     this.campus = {...campus}
 
     this.fbForm.patchValue({
@@ -314,7 +316,7 @@ export class CampusComponent implements OnInit, OnDestroy {
     });
     this.fbForm.get('Estado_campus')?.enable();
     this.fbForm.get('Descripcion_campus')?.enable();
-    this.campusService.triggerResetSelectedRowsAction();
+    this.actionsCrudService.triggerResetSelectedRowsAction();
     this.fbForm.controls['files'].updateValueAndValidity();
   }
 
@@ -422,7 +424,7 @@ export class CampusComponent implements OnInit, OnDestroy {
   }
 
   openConfirmationChangeStateCampus(campus: any){
-    this.campusService.triggerResetQueueUploaderAction(); 
+    this.actionsCrudService.triggerResetQueueUploaderAction(); 
     const stateCampus = campus.Estado_campus;
     const action = stateCampus ? 'desactivar' : 'activar';
     const actionUpdated = stateCampus ? 'desactivado' : 'activado';

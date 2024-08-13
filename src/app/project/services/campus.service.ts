@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { InvokerService } from 'src/app/base/services/invoker.service';
 import { Campus } from '../models/Campus';
-import { ActionsTableService } from './actions-table.service';
+import { ActionsCrudService } from './actions-crud.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CampusService extends ActionsTableService<Campus> {
+export class CampusService extends ActionsCrudService {
 
   constructor(private invoker: InvokerService) { super() }
 
