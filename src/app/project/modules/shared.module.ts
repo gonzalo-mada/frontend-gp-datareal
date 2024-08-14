@@ -16,6 +16,7 @@ import { DialogComponent } from '../components/dialog/dialog.component';
 import { UploaderFilesComponent } from '../components/uploader-files/uploader-files.component';
 import { TableCampusComponent } from '../components/tables/table-campus/table-campus.component';
 import { DialogVisorPdfComponent } from '../components/dialog-visor-pdf/dialog-visor-pdf.component';
+import { TableFacultadComponent } from '../components/tables/table-facultad/table-facultad.component';
 
 @NgModule({
   declarations: [
@@ -25,9 +26,11 @@ import { DialogVisorPdfComponent } from '../components/dialog-visor-pdf/dialog-v
     DialogVisorPdfComponent,
     UploaderFilesComponent,
     TableCampusComponent,
+    TableFacultadComponent,
     //pipes
     FileSizePipe,
     FileExtensionPipe,
+
     
   ],
   imports: [
@@ -59,6 +62,7 @@ import { DialogVisorPdfComponent } from '../components/dialog-visor-pdf/dialog-v
     MenuButtonsTableComponent,
     UploaderFilesComponent,
     TableCampusComponent,
+    TableFacultadComponent,
 
   ],
 })

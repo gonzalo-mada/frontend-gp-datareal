@@ -11,6 +11,10 @@ const routes: Routes = [
   {
     path: 'mantenedores/campus',
     loadChildren: () => import('../pages/campus/campus.module').then((m) => m.CampusModule)
+  },
+  {
+    path: 'mantenedores/facultades',
+    loadChildren: () => import('../pages/facultad/facultad.module').then((m) => m.FacultadModule)
   }
 ];
 
