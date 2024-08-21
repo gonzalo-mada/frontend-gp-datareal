@@ -1,20 +1,55 @@
+<p-overlayPanel #op>
+    <ng-template pTemplate>
+        <div class="flex flex-row flex-wrap">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-sync" style="color:#6c757d"></i>
+            </div>
+            <div class="flex align-items-center justify-content-center">
+                <span class="mx-1" style="font-weight: 100;">Cambiar estado</span>
+            </div>
+        </div>
+    </ng-template>
+</p-overlayPanel>
 <p-table #dt [rows]="10" [paginator]="true" [rowsPerPageOptions]="[10,25,50]" [showCurrentPageReport]="true"
     currentPageReportTemplate="{first} hasta {last} de {totalRecords} registros." selectionMode="multiple"
     [rowHover]="true" [value]="data" [columns]="cols" [globalFilterFields]="globalFiltros"
     [(selection)]="selectedCampus" [dataKey]="dataKeyTable" (selectionChange)="selectionChange()" >
     <ng-template pTemplate="caption">
-        <div class="flex justify-content-between align-content-center">
-            <div>
-                <span class="p-input-icon-left">
-                    <i class="pi pi-search"></i>
-                    <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Buscar..." [(ngModel)]="searchValue" />
-                </span>
-                <p-button styleClass="p-button-text p-button-sm ml-2" icon="pi pi-filter-slash" pTooltip="Limpiar filtros" (click)="clear(dt)"></p-button>
+        <div class="flex flex-wrap flex-column md:flex-row justify-content-between align-items-center">
+            <div class="flex mb-2 md:mb-0">
+              <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)" />
+              </span>
+              <p-button 
+                styleClass="p-button-text p-button-sm ml-2" 
+                icon="pi pi-filter-slash" 
+                pTooltip="Limpiar filtros" 
+                (click)="clear(dt)">
+              </p-button>
             </div>
-            <div>
-                <p-button pRipple label="Actualizar" icon="pi pi-refresh" styleClass="p-button-sm p-button-info" (click)="refresh()"></p-button>
+          
+            <div class="hidden md:flex align-items-center">
+              <i class="pi pi-sync" style="color:#6c757d"></i>
+              <span class="mx-1 font-light">Cambiar estado</span>
             </div>
-        </div>
+                      
+            <div class="flex">
+                <p-button 
+                pTooltip="Muestra la leyenda de iconos" 
+                icon="pi pi-question-circle"
+                styleClass="p-button-sm p-button-warning mr-2 md:hidden" 
+                (click)="op.toggle($event)">
+              </p-button> 
+              <p-button 
+                pRipple 
+                label="Actualizar" 
+                icon="pi pi-refresh" 
+                styleClass="p-button-sm p-button-info" 
+                (click)="refresh()">
+              </p-button>
+            </div>
+          </div>
     </ng-template>
 
     <ng-template pTemplate="header">
@@ -35,7 +70,7 @@
         </tr>
     </ng-template>
 
-    <ng-template pTemplate="body" let-campus>
+    <ng-template pTemplate="body" let-campus let-i="rowIndex">
         <tr>
             <td>
                 <p-tableCheckbox [value]="campus"></p-tableCheckbox>
@@ -45,38 +80,34 @@
                 {{campus.Descripcion_campus}}
             </td>
             <td style="width:50%; min-width:10rem;">
-                <span class="p-column-title">Estado</span>
-                <ng-container *ngIf="campus.Estado_campus == true">
-                    <span class="estado-badge estado-activo">activo</span>
-                </ng-container>
-                <ng-container *ngIf="campus.Estado_campus == false">
-                    <span class="estado-badge estado-desactivo">desactivo</span>
-                </ng-container>
+                <div class="flex flex-row flex-wrap">
+                    <div class="flex align-items-center justify-content-center">
+                        <span [ngClass]="campus.Estado_campus ? 'estado-badge estado-activo' : 'estado-badge estado-desactivo'">
+                            {{ campus.Estado_campus ? 'activo' : 'desactivo' }}
+                          </span>
+                    </div>
+                    <div class="flex align-items-center justify-content-center">
+                        <p-button icon="pi pi-sync" styleClass="p-button-sm p-button-text p-button-secondary" pTooltip="Cambiar estado" (click)="changeState(campus , campus.Estado_campus)"  />
+                    </div>
+                </div>
             </td>
             <td>
                 <div class="flex">
                     <p-button 
                         icon="pi pi-trash" 
-                        styleClass="p-button-sm p-button-text p-button-secondary mr-2"
+                        styleClass="p-button-sm p-button-danger mr-2"
                         pTooltip="Eliminar registro" 
                         (click)="delete(campus)">
                     </p-button>
                     <p-button 
-                        *ngIf="campus.Estado_campus !== undefined"
-                        [icon]="campus.Estado_campus ? 'pi pi-times' : 'pi pi-check'"
-                        styleClass="p-button-sm p-button-text p-button-secondary mr-2"
-                        [pTooltip]="campus.Estado_campus ? 'Desactivar registro' : 'Activar registro'"
-                        (click)="changeState(campus , campus.Estado_campus)">
-                    </p-button>
-                    <p-button 
                         icon="pi pi-pencil" 
-                        styleClass="p-button-sm p-button-text p-button-secondary mr-2"
+                        styleClass="p-button-sm p-button-warning mr-2"
                         pTooltip="Editar registro" 
                         (click)="edit(campus)">
                     </p-button>
                     <p-button 
                         icon="pi pi-eye" 
-                        styleClass="p-button-sm p-button-text p-button-secondary mr-2" 
+                        styleClass="p-button-sm p-button-info mr-2"
                         pTooltip="Ver registro"
                         (click)="show(campus)" 
                         tooltipPosition="left">

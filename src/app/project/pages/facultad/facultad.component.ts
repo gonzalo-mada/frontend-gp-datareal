@@ -8,6 +8,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 import { Facultad } from '../../models/Facultad';
 
+
 export interface DocFromUploader {
   nombre: string;
   tipo: string;
@@ -46,6 +47,7 @@ export class FacultadComponent implements OnInit, OnDestroy {
   cols: any[] = [];
   globalFiltros : any[] = [];
   selectedRowsService: any[] = [];
+
   dataKeyTable : string = '';
   keyPopups: string = '';
   dialog: boolean = false;
@@ -77,7 +79,7 @@ export class FacultadComponent implements OnInit, OnDestroy {
       articulo_singular: 'la facultad',
       articulo_plural: 'las facultades',
       genero: 'femenino'
-    }
+    };
 
     this.globalFiltros = [ 'Descripcion_facu' ]
     this.dataKeyTable = 'Cod_facultad';
@@ -171,7 +173,15 @@ export class FacultadComponent implements OnInit, OnDestroy {
           docs: actionUploadDoc.docs
         }
         const inserted = await this.facultadService.bruto_insertFacultad(params)
-        return inserted;
+        if ( inserted.dataWasInserted ) {
+          this.getFacultades();
+          this.messageService.add({
+            key: this.keyPopups,
+            severity: 'success',
+            detail: `${this.capitalizeFirstLetter(this.namesCrud.articulo_singular!)} ${inserted.dataInserted} ha sido ${this.getWordWithGender('creado', this.namesCrud.genero!)} exitosamente`,
+          });
+          this.reset();
+        }
       } 
     } catch (e:any) {
         this.errorTemplateHandler.processError(
@@ -206,7 +216,15 @@ export class FacultadComponent implements OnInit, OnDestroy {
         }
         
         const updated = await this.facultadService.bruto_updateFacultad(params);
-        return updated;
+        if ( updated.dataWasUpdated ){
+          this.getFacultades();
+          this.messageService.add({
+            key: this.keyPopups,
+            severity: 'success',
+            detail: `${this.capitalizeFirstLetter(this.namesCrud.articulo_singular!)} ${updated.dataUpdated} ha sido ${this.getWordWithGender('actualizado', this.namesCrud.genero!)} exitosamente`,
+          });
+          this.reset();
+        }
       } 
 
     } catch (e:any) {
@@ -219,10 +237,27 @@ export class FacultadComponent implements OnInit, OnDestroy {
     }
   }
 
-  async deleteFacultad(facultadToDelete: Facultad[]){    
+  async deleteFacultad(facultadToDelete: Facultad[], isFromDeleteSelected = false){    
     try {
-      let res = await this.facultadService.bruto_deleteFacultad(facultadToDelete);
-      return res ;
+      const deleted:{ dataWasDeleted: boolean, dataDeleted: [] } = await this.facultadService.bruto_deleteFacultad(facultadToDelete);
+      const message = this.parseNombres(deleted.dataDeleted)
+      if ( deleted.dataWasDeleted ) {
+        this.getFacultades();
+        if ( isFromDeleteSelected ){
+          this.messageService.add({
+            key: this.keyPopups,
+            severity: 'success',
+            detail: `${this.capitalizeFirstLetter(message)} han sido ${this.getWordWithGender('eliminados', this.namesCrud.genero!)} exitosamente`,
+          });
+        }else{
+          this.messageService.add({
+            key: this.keyPopups,
+            severity: 'success',
+            detail: `${this.capitalizeFirstLetter(message)} ha sido ${this.getWordWithGender('eliminado', this.namesCrud.genero!)} exitosamente`,
+          });
+        }
+        this.reset();
+      }
     } catch (e:any) {
       this.errorTemplateHandler.processError(
         e, {
@@ -287,11 +322,9 @@ export class FacultadComponent implements OnInit, OnDestroy {
     this.mode = 'edit';
     this.actionsCrudService.triggerResetQueueUploaderAction();
     this.facultad = {...facultad}
-
     this.fbForm.patchValue({
       Descripcion_facu: this.facultad.Descripcion_facu
     })
-
     await this.loadDocsWithBinary(facultad);    
     this.dialog = true;
   }
@@ -311,20 +344,13 @@ export class FacultadComponent implements OnInit, OnDestroy {
     this.fbForm.controls['files'].updateValueAndValidity();
   }
 
-  parseNombres(rowsSelected: Facultad[]){
-    let nombresSelected = []; 
-    for (let i = 0; i < rowsSelected.length; i++) {
-      const facu = rowsSelected[i];
-      nombresSelected.push(facu.Descripcion_facu)
-    }
+  parseNombres(rowsSelected: any[] , withHtml = false){
+    const nombresSelected = rowsSelected.map(facultad => facultad.Descripcion_facu);
+  
+    const message = nombresSelected.length === 1 
+      ? `${this.namesCrud.articulo_singular}${withHtml ? ': <b>' : ' '}${nombresSelected[0]}${withHtml ? '</b>' : ''}`
+      : `${this.namesCrud.articulo_plural}${withHtml ? ': <b>' : ' '}${nombresSelected.join(', ')}${withHtml ? '</b>' : ''}`;
     
-    let message = '' ;
-    if (nombresSelected.length == 1) {
-      message = `${this.namesCrud.articulo_singular}: <b>${nombresSelected}</b>`;
-    } else {
-      let nombresConSeparador = nombresSelected.join(', ');
-      message = `${this.namesCrud.articulo_plural}: <b>${nombresConSeparador}</b>`;
-    }
     return message;
   }
 
@@ -344,7 +370,7 @@ export class FacultadComponent implements OnInit, OnDestroy {
   }
 
   async openConfirmationDeleteSelected(facultadSelected: any){
-    const message = this.parseNombres(facultadSelected);
+    const message = this.parseNombres(facultadSelected, true);
     this.confirmationService.confirm({
       header: "Confirmar",
       message: `Es necesario confirmar la acción para eliminar ${message}. ¿Desea confirmar?`,
@@ -355,22 +381,8 @@ export class FacultadComponent implements OnInit, OnDestroy {
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
-        
         try {
-
-          let res = await this.deleteFacultad(facultadSelected);
-          if (res) {
-            
-            this.messageService.add({
-              key: this.keyPopups,
-              severity: 'success',
-              detail: `${this.capitalizeFirstLetter(this.namesCrud.plural!)} ${this.getWordWithGender('eliminados', this.namesCrud.genero!)} exitosamente`,
-            });
-            this.reset();
-            this.getFacultades();
-          }
-          
-                
+          await this.deleteFacultad(facultadSelected , true);
         } catch (e:any) {
           this.errorTemplateHandler.processError(
             e, {
@@ -381,7 +393,6 @@ export class FacultadComponent implements OnInit, OnDestroy {
         }
       }
     })
-    
   }
 
   async openConfirmationDelete(facultad: any){
@@ -397,20 +408,8 @@ export class FacultadComponent implements OnInit, OnDestroy {
       accept: async () => {
           let facultadToDelete = []
           facultadToDelete.push(facultad);
-
           try {
-
-            let res = await this.deleteFacultad(facultadToDelete);
-            if (res) {
-              this.getFacultades();
-              this.messageService.add({
-                key: this.keyPopups,
-                severity: 'success',
-                detail: `${this.capitalizeFirstLetter(this.namesCrud.singular!)} ${this.getWordWithGender('eliminado', this.namesCrud.genero!)} exitosamente`,
-              });
-            }
-            
-            
+            await this.deleteFacultad(facultadToDelete);
           } catch (e:any) {
             this.errorTemplateHandler.processError(
               e, {
@@ -419,7 +418,6 @@ export class FacultadComponent implements OnInit, OnDestroy {
                 message: e.message,
             });
           }
-          
       }
     })
   }
@@ -462,26 +460,10 @@ export class FacultadComponent implements OnInit, OnDestroy {
     try {
       if ( this.mode == 'create' ) {
         //modo creacion
-        let res = await this.insertFacultad()
-        if (res) {
-          this.getFacultades();
-          this.messageService.add({
-            key: this.keyPopups,
-            severity: 'success',
-            detail: `${this.capitalizeFirstLetter(this.namesCrud.singular!)} ${this.getWordWithGender('creado', this.namesCrud.genero!)} exitosamente`,
-          });
-        }
+        await this.insertFacultad()
       }else{
         //modo edit
-        let res = await this.updateFacultad(this.facultad);
-        if (res) {
-          this.getFacultades();
-          this.messageService.add({
-            key: this.keyPopups,
-            severity: 'success',
-            detail: `${this.capitalizeFirstLetter(this.namesCrud.singular!)} ${this.getWordWithGender('actualizado', this.namesCrud.genero!)} exitosamente`,
-          });
-        }
+        await this.updateFacultad(this.facultad);
       }
     } catch (e:any) {
       const action = this.mode === 'create' ? 'guardar' : 'actualizar';

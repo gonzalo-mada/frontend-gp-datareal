@@ -23,11 +23,11 @@
                         </div>
                     </div>
                     <form [formGroup]="fbForm">
-                        <div class="grid">
+                        <div class="grid p-fluid">
                             <div class="col-12">
                                 <div class="field">
                                     <label><strong>Nombre *</strong></label>
-                                    <input type="text" pInputText formControlName="Descripcion_facu"
+                                    <input type="text" pInputText formControlName="Descripcion_facu" maxlength="30"
                                         class="w-full"  placeholder="Ingrese nombre de facultad" autofocus />
 
                                     <app-form-control [control]="fbForm.controls['Descripcion_facu']"

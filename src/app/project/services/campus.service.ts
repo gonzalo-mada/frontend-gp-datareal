@@ -31,16 +31,16 @@ export class CampusService extends ActionsCrudService {
 
   //servicios para mongodb
 
-  async getDocumentosWithBinary(Cod_campus: string) {
-    return await this.invoker.httpInvoke('campus/getDocumentosWithBinary',{Cod_campus: Cod_campus,});
+  async getDocumentosWithBinary(Cod_campus: string, loading = true) {
+    return await this.invoker.httpInvoke({service:'campus/getDocumentosWithBinary' , loading: loading},{Cod_campus: Cod_campus});
   }
 
   async getArchiveDoc(idDocumento: string) {
-    return await this.invoker.httpInvokeReport('campus/getArchivoDocumento','pdf',{id: idDocumento,});
+    return await this.invoker.httpInvokeReport('campus/getArchivoDocumento','pdf',{id: idDocumento});
   }
 
   async deleteDoc(Cod_campus: string) {
-    return await this.invoker.httpInvoke('campus/deleteDoc',{Cod_campus: Cod_campus,});
+    return await this.invoker.httpInvoke('campus/deleteDoc',{Cod_campus: Cod_campus});
   }
 
 

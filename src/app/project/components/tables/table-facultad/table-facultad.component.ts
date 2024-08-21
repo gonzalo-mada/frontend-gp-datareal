@@ -12,7 +12,7 @@ import { ActionsCrudService } from 'src/app/project/services/actions-crud.servic
 })
 export class TableFacultadComponent implements OnInit, OnChanges, OnDestroy {
 
-  @Input() data : any;
+  @Input() data: any[] = [];
   @Input() cols : any;
   @Input() globalFiltros : any;
   @Input() dataKeyTable : any;

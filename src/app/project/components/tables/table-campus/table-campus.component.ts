@@ -12,7 +12,7 @@ import { ActionsCrudService } from 'src/app/project/services/actions-crud.servic
 })
 export class TableCampusComponent implements OnInit ,OnChanges, OnDestroy {
   
-  @Input() data : any;
+  @Input() data: any[] = [];
   @Input() cols : any;
   @Input() globalFiltros : any;
   @Input() dataKeyTable : any;
@@ -32,7 +32,7 @@ export class TableCampusComponent implements OnInit ,OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data'] && changes['data'].currentValue) {
-      this.originalData = [...this.data];
+      this.originalData = [...this.data];     
     }
   }
 

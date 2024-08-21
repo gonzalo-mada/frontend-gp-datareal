@@ -34,23 +34,22 @@
                                     (click)="choose($event, chooseCallback)" 
                                     icon="pi pi-plus" 
                                     label="Seleccionar"
-                                    styleClass="p-button-sm" />
-                                </div>
+                                    styleClass="p-button-sm" 
+                                />
+                            </div>
                             <div class="sm:inline md:hidden lg:hidden xl:hidden">
                                 <p-button 
                                     pTooltip="Muestra la leyenda de archivos" 
                                     icon="pi pi-question-circle"
-                                    styleClass="p-button-sm p-button-warning  " 
+                                    styleClass="p-button-sm p-button-warning" 
                                     (click)="op.toggle($event)">
                                 </p-button>
                             </div>
                             <div class="hidden sm:hidden md:inline lg:inline xl:inline">
-
                                 <ng-container *ngFor="let ley of leyendas;">
                                     <span class="estado-badge-doc {{ ley.color }}"><i class="pi {{ ley.icon }}"></i></span>
                                     <span class="mx-1">{{ ley.label }}</span>
                                 </ng-container>
-
                             </div>
                         </div>
                     </div>
@@ -60,7 +59,6 @@
                     <div *ngIf="files.length > 0">
                         <!-- <h5>Pendientes</h5> -->
                         <p-table [value]="files" [tableStyle]="{'min-width': '18.75rem'}">
-                            
                             <ng-template pTemplate="body" let-fileWithExtras let-i="rowIndex">
                                 <tr>
                                     <td style="min-width: 17rem;">
@@ -89,9 +87,9 @@
                                     </td>
                                     <ng-container *ngIf="fileWithExtras.id else newDeb">
                                         <td>
-                                            <span pTooltip="En línea" class="estado-badge-doc estado-cloud"><i
-                                                    class="pi pi-cloud"></i></span>
-
+                                            <span pTooltip="En línea" class="estado-badge-doc estado-cloud">
+                                                <i class="pi pi-cloud"></i>
+                                            </span>
                                         </td>
                                     </ng-container>
                                     <ng-template #newDeb>
@@ -100,7 +98,7 @@
                                         </td>
                                     </ng-template>
                                     <td>
-                                        <textarea pInputTextarea placeholder="Comentarios (opcional)" maxLength="150"
+                                        <textarea pInputTextarea placeholder="Comentarios (opcional)" maxlength="50"
                                             rows="2"  [autoResize]="true"
                                             [(ngModel)]="fileWithExtras.extras.comentarios"
                                             (ngModelChange)="onCommentChange(i, $event)"></textarea>
@@ -149,6 +147,11 @@
                     </div>
                 </ng-template>
                 <ng-template pTemplate="file"></ng-template>
+                <ng-template  pTemplate="empty">
+                    <div *ngIf="files.length === 0" class="flex align-items-center justify-content-center flex-column">
+                        <p class="mt-4 mb-0">Sin archivos adjuntos.</p>
+                    </div>
+                </ng-template>
             </p-fileUpload>
         </div>
     </div>

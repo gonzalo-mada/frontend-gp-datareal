@@ -7,20 +7,21 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MenuModule } from 'primeng/menu';
 import { CardModule } from 'primeng/card';
 
-//
-import { ToastModule } from 'primeng/toast';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TableModule } from 'primeng/table';
+//prime gp
+import { BadgeModule } from 'primeng/badge';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { DialogModule } from 'primeng/dialog';
 import { FileUploadModule } from 'primeng/fileupload';
 import { InputTextareaModule } from 'primeng/inputtextarea';
-import { BadgeModule } from 'primeng/badge';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
-import { StepsModule } from 'primeng/steps';
-import { SelectButtonModule  } from 'primeng/selectbutton';
 import { InputSwitchModule } from 'primeng/inputswitch';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { StepsModule } from 'primeng/steps';
+import { ToastModule } from 'primeng/toast';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TableModule } from 'primeng/table'
 
 @NgModule({
   declarations: [],
@@ -39,12 +40,13 @@ import { ConfirmPopupModule } from 'primeng/confirmpopup';
     FileUploadModule,
     InputTextareaModule,
     InputSwitchModule,
-    TableModule,
-    ToastModule,
-    ToolbarModule,
+    MultiSelectModule,
+    OverlayPanelModule,
     SelectButtonModule,
     StepsModule,
-    OverlayPanelModule
+    TableModule,
+    ToastModule,
+    ToolbarModule
   ],
   exports: [
     CommonModule,
@@ -60,12 +62,13 @@ import { ConfirmPopupModule } from 'primeng/confirmpopup';
     FileUploadModule,
     InputTextareaModule,
     InputSwitchModule,
-    TableModule,
-    ToastModule,
-    ToolbarModule,
+    MultiSelectModule,
+    OverlayPanelModule,
     SelectButtonModule,
     StepsModule,
-    OverlayPanelModule
+    TableModule,
+    ToastModule,
+    ToolbarModule
   ],
 })
 export class PrimengModule {}
