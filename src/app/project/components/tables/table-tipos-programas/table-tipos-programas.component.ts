@@ -1,16 +1,16 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { Table } from 'primeng/table';
 import { Subscription } from 'rxjs';
-import { Facultad } from 'src/app/project/models/Facultad';
+import { TipoPrograma } from 'src/app/project/models/TipoPrograma';
 import { ActionsCrudService } from 'src/app/project/services/actions-crud.service';
 
 @Component({
-  selector: 'app-table-facultad',
-  templateUrl: './table-facultad.component.html',
+  selector: 'app-table-tipos-programas',
+  templateUrl: './table-tipos-programas.component.html',
   styles: [
   ]
 })
-export class TableFacultadComponent implements OnInit, OnChanges, OnDestroy {
+export class TableTiposProgramasComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() data: any[] = [];
   @Input() cols : any;
@@ -18,7 +18,7 @@ export class TableFacultadComponent implements OnInit, OnChanges, OnDestroy {
   @Input() dataKeyTable : any;
 
   mode : string = '';
-  selectedRow: Facultad[] = [] ;
+  selectedRow: TipoPrograma[] = [] ;
   searchValue: string | undefined;
   originalData: any[] = [];
 
@@ -48,24 +48,19 @@ export class TableFacultadComponent implements OnInit, OnChanges, OnDestroy {
     this.actionsCrudService.triggerRefreshTableAction();
   }
   
-  edit(data: Facultad){
+  edit(data: TipoPrograma){
     this.mode = 'edit';
     this.actionsCrudService.triggerModeAction(data,this.mode);
   }
 
-  show(data: Facultad){
+  show(data: TipoPrograma){
     this.mode = 'show';
     this.actionsCrudService.triggerModeAction(data,this.mode);
   }
 
-  delete(data: Facultad){
+  delete(data: TipoPrograma){
     this.mode = 'delete';
     this.actionsCrudService.triggerModeAction(data,this.mode);
-  }
-
-  changeState(facultad: Facultad){
-    this.mode = 'changeState';
-    this.actionsCrudService.triggerModeAction(facultad,this.mode);
   }
 
   selectionChange(){   
@@ -83,7 +78,5 @@ export class TableFacultadComponent implements OnInit, OnChanges, OnDestroy {
     this.data = [...this.originalData];
     table.reset();
   }
-
-
 
 }

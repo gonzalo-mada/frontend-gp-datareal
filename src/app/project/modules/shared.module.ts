@@ -17,21 +17,31 @@ import { UploaderFilesComponent } from '../components/uploader-files/uploader-fi
 import { TableCampusComponent } from '../components/tables/table-campus/table-campus.component';
 import { DialogVisorPdfComponent } from '../components/dialog-visor-pdf/dialog-visor-pdf.component';
 import { TableFacultadComponent } from '../components/tables/table-facultad/table-facultad.component';
+import { TableTiposProgramasComponent } from '../components/tables/table-tipos-programas/table-tipos-programas.component';
+import { TableCategoriasTpComponent } from '../components/tables/table-categorias-tp/table-categorias-tp.component';
+import { FormCategoriasTpComponent } from '../components/forms/form-categorias-tp/form-categorias-tp.component';
+import { TableUnidadesAcademicasComponent } from '../components/tables/table-unidades-academicas/table-unidades-academicas.component';
+
+const componentsGp = [
+  CardComponent,
+  DialogComponent,
+  DialogVisorPdfComponent,
+  FormCategoriasTpComponent,
+  MenuButtonsTableComponent,
+  UploaderFilesComponent,
+  TableCampusComponent,
+  TableCategoriasTpComponent,
+  TableFacultadComponent,
+  TableTiposProgramasComponent,
+  TableUnidadesAcademicasComponent
+]
 
 @NgModule({
   declarations: [
-    CardComponent,
-    MenuButtonsTableComponent,
-    DialogComponent,
-    DialogVisorPdfComponent,
-    UploaderFilesComponent,
-    TableCampusComponent,
-    TableFacultadComponent,
     //pipes
     FileSizePipe,
     FileExtensionPipe,
-
-    
+    ...componentsGp    
   ],
   imports: [
     CommonModule,
@@ -56,14 +66,7 @@ import { TableFacultadComponent } from '../components/tables/table-facultad/tabl
     FormIsvalidComponent,
     FormControlComponent,
     //components gp
-    CardComponent,
-    DialogComponent,
-    DialogVisorPdfComponent,
-    MenuButtonsTableComponent,
-    UploaderFilesComponent,
-    TableCampusComponent,
-    TableFacultadComponent,
-
+    ...componentsGp
   ],
 })
 export class SharedModule {}

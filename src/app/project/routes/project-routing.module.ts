@@ -15,6 +15,18 @@ const routes: Routes = [
   {
     path: 'mantenedores/facultades',
     loadChildren: () => import('../pages/facultad/facultad.module').then((m) => m.FacultadModule)
+  },
+  {
+    path: 'mantenedores/tiposProgramas',
+    loadChildren: () => import('../pages/tipos-programas/tipos-programas.module').then((m) => m.TiposProgramasModule)
+  },
+  {
+    path: 'mantenedores/categoria',
+    loadChildren: () => import('../pages/categorias-tp/categorias-tp.module').then((m) => m.CategoriasTpModule)
+  },
+  {
+    path: 'mantenedores/unidades',
+    loadChildren: () => import('../pages/unidades-academicas/unidades-academicas.module').then((m) => m.UnidadesAcademicasModule)
   }
 ];
 

@@ -24,14 +24,30 @@
                     </div>
                     <form [formGroup]="fbForm">
                         <div class="grid p-fluid">
-                            <div class="col-12">
+                            <div class="col-12 lg:col-8">
                                 <div class="field">
                                     <label><strong>Nombre *</strong></label>
-                                    <input type="text" pInputText formControlName="Descripcion_facu" maxlength="30"
-                                        class="w-full"  placeholder="Ingrese nombre de facultad" autofocus />
-
-                                    <app-form-control [control]="fbForm.controls['Descripcion_facu']"
-                                        [validators]="['required']"></app-form-control>
+                                    <input type="text" pInputText formControlName="Descripcion_facu" maxlength="50" class="w-full"  placeholder="Ingrese nombre de facultad" autofocus />
+                                    <app-form-control [control]="fbForm.controls['Descripcion_facu']" [validators]="['required']"></app-form-control>
+                                </div>
+                            </div>
+                            <div class="col-12 lg:col-4 ">
+                                <div class="flex flex-wrap justify-content-start lg:justify-content-center align-items-center">
+                                    <div class="field">
+                                        <label for="Estado"><strong>Estado</strong></label>
+                                        <br>
+                                        <div class="flex flex-row flex-wrap">
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>Desactivo</span>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                <p-inputSwitch formControlName="Estado_facu" styleClass="mt-1" (onChange)="changeState()" />
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>Activo</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -53,6 +69,5 @@
                 </div>
             </app-dialog>
         </app-card>
-
     </div>
 </div>

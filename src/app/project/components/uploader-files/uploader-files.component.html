@@ -1,9 +1,9 @@
 <p-overlayPanel #op>
     <ng-template pTemplate>
         <ng-container *ngFor="let ley of leyendas; let i = index">
-            <span class="estado-badge-doc {{ ley.color }}"><i class="pi {{ ley.icon }}"></i></span>
+            <span class="estado-badge-doc {{ ley.color }} mb-2"><i class="pi {{ ley.icon }}"></i></span>
             <span class="mr-2">{{ ley.label }}</span>
-            <ng-container *ngIf="i % 2 != 0"><br /></ng-container>
+            <br/>
         </ng-container>
     </ng-template>
 </p-overlayPanel>

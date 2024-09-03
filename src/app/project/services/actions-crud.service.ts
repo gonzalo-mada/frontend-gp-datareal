@@ -61,7 +61,13 @@ export class ActionsCrudService {
   private updateValidatorFilesSubject = new BehaviorSubject< {files:any} | null >(null);
   updateValidatorFiles$ = this.updateValidatorFilesSubject.asObservable();
 
+  //Maneja la promesa que ejecuta acciones de formulario
+  private actionFormSubject = new BehaviorSubject<{mode:string; data?:any; resolve: Function; reject: Function } | null>(null);
+  actionForm$ = this.actionFormSubject.asObservable();
 
+  //Maneja los estados del validador de los forms
+  private statusValidatorSubject = new BehaviorSubject<string>('');
+  statusValidator$ = this.statusValidatorSubject.asObservable();
 
   constructor() { }
 
@@ -153,7 +159,14 @@ export class ActionsCrudService {
     this.updateValidatorFilesSubject.next(null);
   }
   
+  //Dispara la acción para ejecutar form
+  triggerFormAction(input:{mode: string, data?:any, resolve: Function, reject: Function} | null) {
+    this.actionFormSubject.next(input);
+  }
 
-
+  //Dispara la acción para refrescar estados del validador de form
+  triggerStatusForm(status: string){
+    this.statusValidatorSubject.next(status)
+  }
 
 }

@@ -10,11 +10,6 @@ export class FacultadService {
 
   constructor(private invoker: InvokerService) { }
 
-  // bruto_getFacultades,
-  // bruto_insertFacultad,
-  // bruto_updateFacultad,
-  // bruto_deteleFacultad
-
   async bruto_getFacultades(){
     return await this.invoker.httpInvoke('facultades/bruto_getFacultades');
   }
@@ -29,6 +24,23 @@ export class FacultadService {
 
   async bruto_deleteFacultad(params: any){
     return await this.invoker.httpInvoke('facultades/bruto_deleteFacultad', {facultadesToDelete:params});
+  }
+
+  //logica
+  async getFacultades(){
+    return await this.invoker.httpInvoke('facultades/getFacultades');
+  }
+
+  async insertFacultadService(params: any){
+    return await this.invoker.httpInvoke('facultades/insertFacultad',params);
+  }
+
+  async updateFacultadService(params: any){
+    return await this.invoker.httpInvoke('facultades/updateFacultad',params);
+  }
+
+  async deleteFacultadService(params: any){  
+    return await this.invoker.httpInvoke('facultades/deleteFacultad',{facultadesToDelete: params});
   }
 
   //servicios para mongodb

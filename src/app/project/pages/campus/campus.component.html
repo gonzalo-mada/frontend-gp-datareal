@@ -42,7 +42,7 @@
                             <div class="col-12 lg:col-8">
                                 <div class="field">
                                     <label><strong>Nombre *</strong></label>
-                                    <input type="text" pInputText formControlName="Descripcion_campus" maxlength="30"
+                                    <input type="text" pInputText formControlName="Descripcion_campus" maxlength="50"
                                         class="w-full"  placeholder="Ingrese nombre de campus" autofocus />
                                     <app-form-control [control]="fbForm.controls['Descripcion_campus']"
                                         [validators]="['required']"></app-form-control>
@@ -80,7 +80,8 @@
                     <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
                         (click)="dialog = false" [text]="true">
                     </p-button>
-                    <p-button *ngIf="mode == 'create' || mode == 'edit' "
+                    <p-button 
+                        *ngIf="mode == 'create' || mode == 'edit' "
                         [label]="mode === 'edit' ? 'Actualizar' : 'Guardar'" icon="pi pi-check"
                         styleClass="mr-2 p-button-success p-button-sm" [disabled]="!fbForm.valid"
                         (click)="fbForm.valid && submit()">

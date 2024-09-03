@@ -12,6 +12,7 @@ import { BadgeModule } from 'primeng/badge';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { DialogModule } from 'primeng/dialog';
+import { DropdownModule } from 'primeng/dropdown';
 import { FileUploadModule } from 'primeng/fileupload';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { InputSwitchModule } from 'primeng/inputswitch';
@@ -19,6 +20,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { StepsModule } from 'primeng/steps';
+import { TabViewModule } from 'primeng/tabview';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table'
@@ -37,6 +39,7 @@ import { TableModule } from 'primeng/table'
     ConfirmDialogModule,
     ConfirmPopupModule,
     DialogModule,
+    DropdownModule,
     FileUploadModule,
     InputTextareaModule,
     InputSwitchModule,
@@ -45,6 +48,7 @@ import { TableModule } from 'primeng/table'
     SelectButtonModule,
     StepsModule,
     TableModule,
+    TabViewModule,
     ToastModule,
     ToolbarModule
   ],
@@ -59,6 +63,7 @@ import { TableModule } from 'primeng/table'
     ConfirmDialogModule,
     ConfirmPopupModule,
     DialogModule,
+    DropdownModule,
     FileUploadModule,
     InputTextareaModule,
     InputSwitchModule,
@@ -67,6 +72,7 @@ import { TableModule } from 'primeng/table'
     SelectButtonModule,
     StepsModule,
     TableModule,
+    TabViewModule,
     ToastModule,
     ToolbarModule
   ],
