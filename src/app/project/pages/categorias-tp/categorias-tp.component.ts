@@ -97,10 +97,6 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
     this.actionsCrudService.setSelectedRows([]); 
-    this.actionsCrudService.setExtrasDocs(null);
-    this.actionsCrudService.setFiles(null);
-    this.actionsCrudService.triggerUploadDocsAction(null);
-    this.actionsCrudService.triggerDeleteDocUplaoderAction(null);
     this.actionsCrudService.triggerFormAction(null);
   }
 

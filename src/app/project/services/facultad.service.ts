@@ -53,7 +53,4 @@ export class FacultadService {
     return await this.invoker.httpInvokeReport('facultades/getArchiveDoc','pdf',{id: idDocumento});
   }
 
-  async deleteDoc(Cod_facultad: string) {
-    return await this.invoker.httpInvoke('facultades/deleteDoc',{Cod_facultad: Cod_facultad});
-  }
 }

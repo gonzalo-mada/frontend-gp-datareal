@@ -27,7 +27,7 @@
                             <div class="col-12 lg:col-6">
                                 <div class="field">
                                     <label><strong>Nombre *</strong></label>
-                                    <input type="text" pInputText formControlName="Descripcion_ua" maxlength="30"
+                                    <input type="text" pInputText formControlName="Descripcion_ua" maxlength="50"
                                         class="w-full"  placeholder="Ingrese nombre de unidad académica" autofocus />
  
                                     <app-form-control [control]="fbForm.controls['Descripcion_ua']"
@@ -36,27 +36,24 @@
                             </div>
                             <div class="col-12 lg:col-6">
                                 <div class="field">
-                                    <label><strong>Facultad</strong></label>
-                                    <div *ngIf="mode=='create'">
-                                        <p-dropdown [options]="facultades" optionLabel="Descripcion_facu" formControlName="Cod_facultad"
-                                        class="w-full"  placeholder="Seleccione una facultad" autofocus>
-                                        </p-dropdown>
-                                        <app-form-control [control]="fbForm.controls['Cod_facultad']"
-                                            [validators]="['required']"></app-form-control>
+                                    <label><strong>Facultad *</strong></label>
+                                    <div *ngIf="mode != 'show'" class="flex align-items-center">
+                                        <p-dropdown
+                                            [options]="facultades"
+                                            optionLabel="Descripcion_facu"
+                                            optionValue="Cod_facultad"
+                                            placeholder="Seleccione facultad..."
+                                            appendTo="body"
+                                            class="flex-grow-1"
+                                            formControlName="Cod_facultad"
+                                        ></p-dropdown>
                                     </div>
-                                    <div *ngIf="mode=='edit'">
-                                        <p-dropdown [options]="facultades"
-                                        optionLabel="Descripcion_facu"
-                                        optionValue="Cod_facultad"
-                                        formControlName="Cod_facultad"
-                                        class="w-full"
-                                        autofocus>
-                                        </p-dropdown>
-                                        <app-form-control [control]="fbForm.controls['Cod_facultad']"
-                                            [validators]="['required']"></app-form-control>
+                                    <div *ngIf="mode != 'show'" class="flex align-items-center">
+                                        <app-form-control  [control]="fbForm.controls['Cod_facultad']" [validators]="['required']"></app-form-control>
                                     </div>
-                                    <div *ngIf="mode=='show'">
-                                        <input [readOnly]="true" type="text" pInputText formControlName="Cod_facultad">
+                                    <div *ngIf="mode=='show'" class="flex align-items-center">
+                                        <input pInputText *ngIf="unidadAcademica.Facultad" type="text" class="form-control flex-grow-1" value="{{ unidadAcademica.Facultad.Descripcion_facu }}" disabled/>
+                                        <input pInputText *ngIf="!unidadAcademica.Facultad" type="text" class="form-control flex-grow-1" value="Sin facultad" disabled/>
                                     </div>
                                 </div>
                             </div>

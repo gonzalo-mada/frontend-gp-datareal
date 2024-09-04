@@ -21,7 +21,8 @@ export interface DocFromUploader {
 
 export interface ActionUploadDoc{
   success: boolean;
-  docs: DocFromUploader[];
+  docsToUpload: DocFromUploader[];
+  docsToDelete: DocFromUploader[];
 }
 
 export interface NamesCrud{
@@ -94,7 +95,6 @@ export class CampusComponent implements OnInit, OnDestroy {
     this.subscription.add(this.actionsCrudService.actionRefreshTable$.subscribe( actionTriggered => { actionTriggered && this.getCampuses()}));
     this.subscription.add(this.actionsCrudService.actionDownloadDoc$.subscribe( event => { event && this.downloadDoc(event)}));
     this.subscription.add(this.actionsCrudService.updateValidatorFiles$.subscribe( event => { event && this.filesChanged(event)}));
-    this.subscription.add(this.actionsCrudService.actionDeleteDocUploader$.subscribe( event => { event && this.openConfirmationDeleteDoc(event)}));
     this.subscription.add(this.actionsCrudService.actionDeleteSelected$.subscribe( actionTriggered => {actionTriggered && this.openConfirmationDeleteSelected(this.selectedRowsService)}));
     this.subscription.add(
       this.actionsCrudService.actionMode$.subscribe( action => {
@@ -126,7 +126,6 @@ export class CampusComponent implements OnInit, OnDestroy {
     this.actionsCrudService.setSelectedRows([]); 
     this.actionsCrudService.setExtrasDocs(null);
     this.actionsCrudService.setFiles(null);
-    this.actionsCrudService.triggerDeleteDocUplaoderAction(null);
     this.actionsCrudService.triggerUploadDocsAction(null);
   }
 
@@ -179,7 +178,7 @@ export class CampusComponent implements OnInit, OnDestroy {
         let params = {
           Descripcion_campus: this.fbForm.get('Descripcion_campus')!.value,
           Estado_campus: this.fbForm.get('Estado_campus')!.value,
-          docs: actionUploadDoc.docs
+          docsToUpload: actionUploadDoc.docsToUpload
         }
         const inserted = await this.campusService.insertCampusService( params )
         
@@ -198,7 +197,7 @@ export class CampusComponent implements OnInit, OnDestroy {
           e, {
             notifyMethod: 'alert',
             summary: `Error al guardar ${this.namesCrud.singular}`,
-            message: e.message,
+            message: e.detail.error.message.message
           });
       }
   }
@@ -223,7 +222,8 @@ export class CampusComponent implements OnInit, OnDestroy {
           Cod_campus: campus.Cod_campus,
           Descripcion_campus: this.fbForm.get('Descripcion_campus')!.value == '' ? campus.Descripcion_campus : this.fbForm.get('Descripcion_campus')!.value,
           Estado_campus: this.mode == 'changeState' ? campus.Estado_campus : this.fbForm.get('Estado_campus')!.value,
-          docs: actionUploadDoc.docs,
+          docsToUpload: actionUploadDoc.docsToUpload,
+          docsToDelete: actionUploadDoc.docsToDelete,
           isFromChangeState : isFromChangeState
         }
         
@@ -245,7 +245,7 @@ export class CampusComponent implements OnInit, OnDestroy {
         e, {
           notifyMethod: 'alert',
           summary: `Error al actualizar ${this.namesCrud.singular}`,
-          message: e.message,
+          message: e.detail.error.message.message
       });
     }
   }
@@ -276,7 +276,7 @@ export class CampusComponent implements OnInit, OnDestroy {
         e, {
           notifyMethod: 'alert',
           summary: `Error al eliminar ${this.namesCrud.singular}`,
-          message: e.message,
+          message: e.detail.error.message.message
       });
     } 
   }
@@ -473,39 +473,7 @@ export class CampusComponent implements OnInit, OnDestroy {
     })    
   }
 
-  async openConfirmationDeleteDoc(event : any){    
-    const {file: doc , resolve, reject} = event ;
-    this.confirmationService.confirm({
-      header: 'Confirmar',
-      message: `Es necesario confirmar la acción para <b>eliminar</b> el documento <b>${doc.nombre}</b>. ¿Desea confirmar?`,
-      acceptLabel: 'Si',
-      rejectLabel: 'No',
-      icon: 'pi pi-exclamation-triangle',
-      key: this.keyPopups,
-      acceptButtonStyleClass: 'p-button-danger p-button-sm',
-      rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
-      accept: async () => {
-        try {
-          await this.campusService.deleteDoc(doc.id);
-          resolve({success: true})
-        } catch (e:any) {
-          this.errorTemplateHandler.processError(
-            e, {
-              notifyMethod: 'alert',
-              summary: 'Error al eliminar documento',
-              message: e.message,
-          });
-          reject(e)
-        } finally {
-          this.messageService.add({
-            key: this.keyPopups,
-            severity: 'success',
-            detail: 'Documento eliminado exitosamente',
-          });
-        }
-      }
-    })
-  }
+
 
   async submit() {
     try {

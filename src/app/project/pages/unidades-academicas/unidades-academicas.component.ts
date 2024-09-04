@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActionUploadDoc, NamesCrud, UnidadAcademica } from '../../models/UnidadAcademica';
 import { Facultad } from '../../models/Facultad';
 import { Subscription } from 'rxjs';
@@ -16,7 +16,7 @@ import { FacultadService } from '../../services/facultad.service';
   styles: [
   ]
 })
-export class UnidadesAcademicasComponent {
+export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
 
   unidadesAcademicas: UnidadAcademica[] = [];
   unidadAcademica: UnidadAcademica = {};
@@ -63,7 +63,7 @@ export class UnidadesAcademicasComponent {
       genero: 'femenino'
     };
  
-    this.globalFiltros = [ 'Descripcion_ua', 'Cod_facultad' ]
+    this.globalFiltros = [ 'Descripcion_ua', 'Facultad.Descripcion_facu' ]
     this.dataKeyTable = 'Cod_unidad_academica';
     this.keyPopups = 'unidad_academica'
  
@@ -74,7 +74,6 @@ export class UnidadesAcademicasComponent {
     this.subscription.add(this.actionsCrudService.actionRefreshTable$.subscribe( actionTriggered => { actionTriggered && this.getUnidadesAcademicas()}));
     this.subscription.add(this.actionsCrudService.actionDownloadDoc$.subscribe( event => { event && this.downloadDoc(event)}));
     this.subscription.add(this.actionsCrudService.updateValidatorFiles$.subscribe( event => { event && this.filesChanged(event)}));
-    this.subscription.add(this.actionsCrudService.actionDeleteDocUploader$.subscribe( event => { event && this.openConfirmationDeleteDoc(event)}));
     this.subscription.add(this.actionsCrudService.actionDeleteSelected$.subscribe( actionTriggered => {actionTriggered && this.openConfirmationDeleteSelected(this.selectedRowsService)}));
     this.subscription.add(
       this.actionsCrudService.actionMode$.subscribe( action => {
@@ -105,7 +104,6 @@ export class UnidadesAcademicasComponent {
     this.actionsCrudService.setExtrasDocs(null);
     this.actionsCrudService.setFiles(null);
     this.actionsCrudService.triggerUploadDocsAction(null);
-    this.actionsCrudService.triggerDeleteDocUplaoderAction(null);
   }
  
   filesValidator(control: any): { [key: string]: boolean } | null {  
@@ -133,9 +131,7 @@ export class UnidadesAcademicasComponent {
   async getUnidadesAcademicas(){
     try {
       this.unidadesAcademicas = <UnidadAcademica[]> await this.unidadesAcademicasService.logica_getUnidadesAcademicas();
-      console.log(this.unidadesAcademicas);
       this.facultades = <Facultad[]> await this.facultadService.getFacultades();
-      console.log(this.facultades);
      
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
@@ -157,8 +153,8 @@ export class UnidadesAcademicasComponent {
       if ( actionUploadDoc.success ) {
         let params = {
           Descripcion_ua: this.fbForm.get('Descripcion_ua')!.value,
-          Cod_facultad: this.fbForm.get('Cod_facultad')!.value.Cod_facultad,
-          docs: actionUploadDoc.docs
+          Cod_facultad: this.fbForm.get('Cod_facultad')!.value,
+          docsToUpload: actionUploadDoc.docsToUpload
         }
         const inserted = await this.unidadesAcademicasService.logica_insertUnidadesAcademicas(params)
         if ( inserted.dataWasInserted ) {
@@ -176,7 +172,7 @@ export class UnidadesAcademicasComponent {
           e, {
             notifyMethod: 'alert',
             summary: `Error al guardar ${this.namesCrud.singular}`,
-            message: e.message,
+            message: e.detail.error.message.message
           });
       }
   }
@@ -200,10 +196,10 @@ export class UnidadesAcademicasComponent {
         let params = {
           Cod_unidad_academica: unidadAcademica.Cod_unidad_academica,
           Descripcion_ua: this.fbForm.get('Descripcion_ua')!.value == '' ? unidadAcademica.Descripcion_ua : this.fbForm.get('Descripcion_ua')!.value,
-          Cod_facultad: this.mode == 'changeState' ? this.fbForm.get('Cod_facultad') : this.fbForm.get('Cod_facultad')!.value,
-          docs: actionUploadDoc.docs
+          Cod_facultad: this.fbForm.get('Cod_facultad')!.value == '' ? unidadAcademica.Facultad?.Cod_facultad : this.fbForm.get('Cod_facultad')!.value,
+          docsToUpload: actionUploadDoc.docsToUpload,
+          docsToDelete: actionUploadDoc.docsToDelete
         }
-        console.log(params);
        
         const updated = await this.unidadesAcademicasService.logica_updateUnidadesAcademicas(params);
         if ( updated.dataWasUpdated ){
@@ -222,7 +218,7 @@ export class UnidadesAcademicasComponent {
         e, {
           notifyMethod: 'alert',
           summary: `Error al actualizar ${this.namesCrud.singular}`,
-          message: e.message,
+          message: e.detail.error.message.message,
       });
      
     }
@@ -254,7 +250,7 @@ export class UnidadesAcademicasComponent {
         e, {
           notifyMethod: 'alert',
           summary: `Error al eliminar ${this.namesCrud.singular}`,
-          message: e.message,
+          message: e.detail.error.message.message
       });
     }
   }
@@ -269,7 +265,7 @@ export class UnidadesAcademicasComponent {
       this.errorTemplateHandler.processError(e, {
         notifyMethod: 'alert',
         summary: 'Error al obtener documentos',
-        message: e.message,
+        message: e.detail.error.message.message
       });
     }
   }
@@ -283,7 +279,7 @@ export class UnidadesAcademicasComponent {
         e, {
           notifyMethod: 'alert',
           summary: 'Error al descargar documento',
-          message: e.message,
+          message: e.detail.error.message.message
       });
     }
   }
@@ -301,12 +297,9 @@ export class UnidadesAcademicasComponent {
     this.actionsCrudService.triggerResetQueueUploaderAction();
     this.unidadAcademica = {...unidadAcademica};
  
-    // Buscar la facultad correspondiente usando Cod_facultad
-    const facultad = this.facultades.find(f => f.Cod_facultad === this.unidadAcademica.Cod_facultad);
- 
     this.fbForm.patchValue({
         Descripcion_ua: this.unidadAcademica.Descripcion_ua,
-        Cod_facultad: facultad ? facultad.Descripcion_facu : '' // Cambiar Cod_facultad por Descripcion_facu
+        Cod_facultad: this.unidadAcademica.Facultad?.Cod_facultad
     });
  
     this.fbForm.get('Descripcion_ua')?.disable();
@@ -323,7 +316,7 @@ export class UnidadesAcademicasComponent {
     this.unidadAcademica = {...unidadAcademica}
     this.fbForm.patchValue({
       Descripcion_ua: this.unidadAcademica.Descripcion_ua,
-      Cod_facultad: this.unidadAcademica.Cod_facultad,
+      Cod_facultad: this.unidadAcademica.Facultad?.Cod_facultad,
     })
     await this.loadDocsWithBinary(unidadAcademica);    
     this.dialog = true;
@@ -423,41 +416,7 @@ export class UnidadesAcademicasComponent {
       }
     })
   }
- 
-  async openConfirmationDeleteDoc(event : any){    
-    const {file: doc , resolve, reject} = event ;
-    this.confirmationService.confirm({
-      header: 'Confirmar',
-      message: `Es necesario confirmar la acción para eliminar el documento <b>${doc.nombre}</b>. ¿Desea confirmar?`,
-      acceptLabel: 'Si',
-      rejectLabel: 'No',
-      icon: 'pi pi-exclamation-triangle',
-      key: this.keyPopups,
-      acceptButtonStyleClass: 'p-button-danger p-button-sm',
-      rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
-      accept: async () => {
-        try {
-          await this.unidadesAcademicasService.deleteDoc(doc.id);
-          resolve({success: true})
-        } catch (e:any) {
-          this.errorTemplateHandler.processError(
-            e, {
-              notifyMethod: 'alert',
-              summary: 'Error al eliminar documento',
-              message: e.message,
-          });
-          reject(e)
-        } finally {
-          this.messageService.add({
-            key: this.keyPopups,
-            severity: 'success',
-            detail: 'Documento eliminado exitosamente',
-          });
-        }
-      }
-    })
-  }
- 
+  
   async submit() {
     try {
       if ( this.mode == 'create' ) {

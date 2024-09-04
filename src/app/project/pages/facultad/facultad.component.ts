@@ -22,7 +22,8 @@ export interface DocFromUploader {
 
 export interface ActionUploadDoc{
   success: boolean;
-  docs: DocFromUploader[];
+  docsToUpload: DocFromUploader[];
+  docsToDelete: DocFromUploader[];
 }
 
 export interface NamesCrud{
@@ -94,7 +95,6 @@ export class FacultadComponent implements OnInit, OnDestroy {
     this.subscription.add(this.actionsCrudService.actionRefreshTable$.subscribe( actionTriggered => { actionTriggered && this.getFacultades()}));
     this.subscription.add(this.actionsCrudService.actionDownloadDoc$.subscribe( event => { event && this.downloadDoc(event)}));
     this.subscription.add(this.actionsCrudService.updateValidatorFiles$.subscribe( event => { event && this.filesChanged(event)}));
-    this.subscription.add(this.actionsCrudService.actionDeleteDocUploader$.subscribe( event => { event && this.openConfirmationDeleteDoc(event)}));
     this.subscription.add(this.actionsCrudService.actionDeleteSelected$.subscribe( actionTriggered => {actionTriggered && this.openConfirmationDeleteSelected(this.selectedRowsService)}));
     this.subscription.add(
       this.actionsCrudService.actionMode$.subscribe( action => {
@@ -128,7 +128,6 @@ export class FacultadComponent implements OnInit, OnDestroy {
     this.actionsCrudService.setExtrasDocs(null);
     this.actionsCrudService.setFiles(null);
     this.actionsCrudService.triggerUploadDocsAction(null);
-    this.actionsCrudService.triggerDeleteDocUplaoderAction(null);
   }
 
   filesValidator(control: any): { [key: string]: boolean } | null {   
@@ -177,7 +176,7 @@ export class FacultadComponent implements OnInit, OnDestroy {
         let params = {
           Descripcion_facu: this.fbForm.get('Descripcion_facu')!.value,
           Estado_facu: this.fbForm.get('Estado_facu')!.value,
-          docs: actionUploadDoc.docs
+          docsToUpload: actionUploadDoc.docsToUpload
         }
         const inserted = await this.facultadService.insertFacultadService(params)
         if ( inserted.dataWasInserted ) {
@@ -213,14 +212,15 @@ export class FacultadComponent implements OnInit, OnDestroy {
       const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
         this.actionsCrudService.triggerUploadDocsAction({resolve, reject});
       });
-
+      
       if ( actionUploadDoc.success ) {
 
         let params = {
           Cod_facultad: facultad.Cod_facultad,
           Descripcion_facu: this.fbForm.get('Descripcion_facu')!.value == '' ? facultad.Descripcion_facu : this.fbForm.get('Descripcion_facu')!.value,
           Estado_facu: this.mode == 'changeState' ? facultad.Estado_facu : this.fbForm.get('Estado_facu')!.value,
-          docs: actionUploadDoc.docs,
+          docsToUpload: actionUploadDoc.docsToUpload,
+          docsToDelete: actionUploadDoc.docsToDelete,
           isFromChangeState : isFromChangeState
         }
         
@@ -287,7 +287,7 @@ export class FacultadComponent implements OnInit, OnDestroy {
       this.errorTemplateHandler.processError(e, {
         notifyMethod: 'alert',
         summary: 'Error al obtener documentos',
-        message: e.detail.error.message.message,
+        message: e.detail.error.message.message
       });
     }
   }
@@ -467,40 +467,6 @@ export class FacultadComponent implements OnInit, OnDestroy {
         }
       }
     })    
-  }
-
-  async openConfirmationDeleteDoc(event : any){    
-    const {file: doc , resolve, reject} = event ;
-    this.confirmationService.confirm({
-      header: 'Confirmar',
-      message: `Es necesario confirmar la acción para eliminar el documento <b>${doc.nombre}</b>. ¿Desea confirmar?`,
-      acceptLabel: 'Si',
-      rejectLabel: 'No',
-      icon: 'pi pi-exclamation-triangle',
-      key: this.keyPopups,
-      acceptButtonStyleClass: 'p-button-danger p-button-sm',
-      rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
-      accept: async () => {
-        try {
-          await this.facultadService.deleteDoc(doc.id);
-          resolve({success: true})
-        } catch (e:any) {
-          this.errorTemplateHandler.processError(
-            e, {
-              notifyMethod: 'alert',
-              summary: 'Error al eliminar documento',
-              message: e.message,
-          });
-          reject(e)
-        } finally {
-          this.messageService.add({
-            key: this.keyPopups,
-            severity: 'success',
-            detail: 'Documento eliminado exitosamente',
-          });
-        }
-      }
-    })
   }
 
   async submit() {

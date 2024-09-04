@@ -39,9 +39,4 @@ export class CampusService extends ActionsCrudService {
     return await this.invoker.httpInvokeReport('campus/getArchivoDocumento','pdf',{id: idDocumento});
   }
 
-  async deleteDoc(Cod_campus: string) {
-    return await this.invoker.httpInvoke('campus/deleteDoc',{Cod_campus: Cod_campus});
-  }
-
-
 }

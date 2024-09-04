@@ -1,7 +1,12 @@
 export interface UnidadAcademica {
-    Cod_unidad_academica?: number;
-    Descripcion_ua?: string;
-    Cod_facultad?: number;
+    Cod_unidad_academica?: number,
+    Descripcion_ua?: string,
+    Facultad?:{
+        Cod_facultad: number,
+        Descripcion_facu: string,
+        BadgeClass: string
+    }
+    
 }
  
 export interface DocFromUploader{
@@ -17,7 +22,8 @@ export interface DocFromUploader{
  
 export interface ActionUploadDoc{
     success:boolean;
-    docs: DocFromUploader[];
+    docsToUpload: DocFromUploader[];
+    docsToDelete: DocFromUploader[];
 }
  
 export interface NamesCrud{

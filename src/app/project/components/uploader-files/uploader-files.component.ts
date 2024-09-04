@@ -1,8 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { docMongoCampus, extras } from 'src/app/project/models/Campus'
 import { FileUtils } from '../../tools/utils/file.utils';
-import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
-import { FileSelectEvent, FileUpload } from 'primeng/fileupload';
+import { FileUpload } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { ActionsCrudService } from '../../services/actions-crud.service';
@@ -14,14 +12,15 @@ import { ActionsCrudService } from '../../services/actions-crud.service';
   ]
 })
 
-export class UploaderFilesComponent implements OnInit ,OnDestroy {
+export class UploaderFilesComponent implements OnInit, OnDestroy {
 
   @ViewChild('uploader') uploader!: FileUpload;
   @Input() mode: string = '';
 
   docsToUpload : any[] = [];
   leyendas: any[] = [];
-  files: docMongoCampus[] = [];
+  files: any[] = [];
+  filesToDelete : any[] = [];
 
   dialogVisorPDF: boolean = false;
   doc: any ;
@@ -31,7 +30,6 @@ export class UploaderFilesComponent implements OnInit ,OnDestroy {
 
   constructor(private actionsCrudService: ActionsCrudService,
     private fileUtils: FileUtils, 
-    private errorTemplateHandler: ErrorTemplateHandler, 
     private messageService: MessageService
   ){}
   
@@ -66,7 +64,7 @@ export class UploaderFilesComponent implements OnInit ,OnDestroy {
     if (uniqueFiles.length == 0) {
       let lastFile = event.currentFiles[event.currentFiles.length - 1 ];
       this.messageService.add({
-        key: 'campus',
+        key: 'uploader-files',
         severity: 'error',
         detail: `El documento con nombre ${lastFile.name} ya existe.`,
       });
@@ -137,9 +135,9 @@ export class UploaderFilesComponent implements OnInit ,OnDestroy {
           this.docsToUpload.push(documento)
         }
       }
-      resolve({success: true, docs: this.docsToUpload})
+      resolve({success: true, docsToUpload: this.docsToUpload, docsToDelete: this.filesToDelete})
     }else{
-      resolve({success: true , docs: this.docsToUpload = [] })
+      resolve({success: true , docsToUpload: this.docsToUpload = [], docsToDelete: this.filesToDelete })
     }
     
     // this.filesChange.emit(this.files)
@@ -154,36 +152,35 @@ export class UploaderFilesComponent implements OnInit ,OnDestroy {
 
   async onRemoveTemplatingFile(file: any, uploader: FileUpload, index: number) {
     if (file.id) {
-      //eliminar de mongo
-      try {
-        const result: any = await new Promise( (resolve , reject) => {
-          this.actionsCrudService.triggerDeleteDocUplaoderAction({file, resolve, reject});
-        });
-        
-        if ( result.success ) {
-          // hubo eliminación de doc en mongodb por tanto limpio 
-          // uploader.files = uploader.files.filter((f) => f != file.origFile);
-          this.files.splice(index, 1);
-        }
-      
-      } catch (error) {
-        this.errorTemplateHandler.processError(error, {
-          notifyMethod: 'alert',
-          message: 'Hubo un error al eliminar el documento. Intente nuevamente.',
-        });
-      }
+      this.filesToDelete.push(file);
+      this.files.splice(index, 1);
     }else{
       //eliminar de memoria navegador
       uploader.files = uploader.files.filter((f) => f != file.origFile);
       this.files.splice(index, 1);
     }
-
     // this.filesChange.emit(this.files)
+    this.actionsCrudService.updateValidatorFiles(this.files);
+  }
+
+  cancelDeleteFile(file: any, uploader: FileUpload, index: number){
+    const fileExists = this.files.some(existingFile => existingFile.nombre === file.nombre);
+    if (!fileExists) {
+      this.files.push(file);
+      this.filesToDelete.splice(index, 1);
+    } else {
+      this.messageService.add({
+        key: 'uploader-files',
+        severity: 'error',
+        detail: `El documento con nombre ${file.nombre} no es posible cancelar su eliminación ya que está como documento adjunto.`,
+      });
+    }
     this.actionsCrudService.updateValidatorFiles(this.files);
   }
 
   resetQueueUploader(){   
     this.files = []; 
+    this.filesToDelete = []; 
     this.docsToUpload = [];  
     this.uploader?.clear();
   }

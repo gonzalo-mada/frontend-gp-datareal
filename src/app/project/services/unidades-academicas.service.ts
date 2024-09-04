@@ -34,7 +34,4 @@ export class UnidadesAcademicasService {
     return await this.invoker.httpInvokeReport('unidadesAcademicas/getArchiveDoc','pdf',{id: idDocumento});
   }
  
-  async deleteDoc(Cod_unidad_academica: string) {
-    return await this.invoker.httpInvoke('unidadesAcademicas/deleteDoc',{Cod_unidad_academica: Cod_unidad_academica});
-  }
 }

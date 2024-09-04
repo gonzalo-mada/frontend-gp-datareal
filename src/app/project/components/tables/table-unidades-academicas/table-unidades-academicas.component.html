@@ -69,7 +69,18 @@
             </td>
             <td style="width:50%; min-width:10rem;">
                 <span class="p-column-title">Facultad</span>
-                <span class="p-badge p-component p-badge-success">{{data.facultad.Descripcion_facu}}</span>
+                <span *ngIf="data.Facultad" 
+                      class="p-badge p-component"
+                      [ngStyle]="{
+                                    'background-color': data.Facultad.BadgeClass.backgroundColor,
+                                    'color': data.Facultad.BadgeClass.textColor
+                                }"
+                      >
+                    {{ data.Facultad.Descripcion_facu | uppercase }}
+                </span>
+                <span *ngIf="!data.Facultad" class="p-badge p-component p-badge-secondary">
+                    SIN FACULTAD
+                </span>
             </td>
             <td>
                 <div class="flex">

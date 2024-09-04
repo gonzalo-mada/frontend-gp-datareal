@@ -49,10 +49,6 @@ export class ActionsCrudService {
   private actionResetQueueUploaderSubject = new BehaviorSubject<boolean>(false);
   actionResetQueueUploader$ = this.actionResetQueueUploaderSubject.asObservable();
 
-  //Maneja la promesa que elimina documento en linea del uploader
-  private actionDeleteDocUploaderSubject = new BehaviorSubject<{ file:any , resolve: Function; reject: Function } | null>(null);
-  actionDeleteDocUploader$ = this.actionDeleteDocUploaderSubject.asObservable();
-
   //Maneja la acción descargar un archivo desde el uploader
   private actionDownloadDocSubject = new BehaviorSubject< {file:any} | null >(null);
   actionDownloadDoc$ = this.actionDownloadDocSubject.asObservable();
@@ -140,11 +136,6 @@ export class ActionsCrudService {
   triggerResetQueueUploaderAction(){
     this.actionResetQueueUploaderSubject.next(true);
     this.actionResetQueueUploaderSubject.next(false);
-  }
-
-  //Dispara la acción para eliminar un archivo en línea del uploader
-  triggerDeleteDocUplaoderAction( input: {file: any, resolve: Function, reject: Function} | null ){
-    this.actionDeleteDocUploaderSubject.next(input);
   }
 
   //Dispara la acción para descargar un archivo en linea del uploader
