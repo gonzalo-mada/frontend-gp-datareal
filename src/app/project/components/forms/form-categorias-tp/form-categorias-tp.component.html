@@ -12,7 +12,7 @@
                     class="w-full" placeholder="Ingrese nombre de categoría de tipo de programa" />
 
                 <app-form-control [control]="fbForm.controls['Descripcion_categoria']"
-                    [validators]="['required']"></app-form-control>
+                    [validators]="['required' , 'pattern']"></app-form-control>
             </div>
         </div>
     </div>

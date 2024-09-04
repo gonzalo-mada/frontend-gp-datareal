@@ -9,6 +9,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 import { FacultadService } from '../../services/facultad.service';
+// import { noWhitespaceValidator } from '../../configs/form'
 
 @Component({
   selector: 'app-unidades-academicas',
@@ -33,7 +34,7 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
   private subscription: Subscription = new Subscription();
  
   public fbForm : FormGroup = this.fb.group({
-    Descripcion_ua: ['', Validators.required],
+    Descripcion_ua: ['', [Validators.required , Validators.pattern(/^(?!\s*$).+/)]],
     Cod_facultad: ['', Validators.required],
     files: [[], this.filesValidator.bind(this)]
   })
@@ -51,7 +52,7 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.cols = [
       { field: 'Descripcion_ua', header: 'Nombre' },
-      { field: 'Cod_facultad', header: 'Facultad' },
+      { field: 'Facultad.Descripcion_facu', header: 'Facultad' },
       { field: 'accion', header: 'Acciones' }
     ];
  

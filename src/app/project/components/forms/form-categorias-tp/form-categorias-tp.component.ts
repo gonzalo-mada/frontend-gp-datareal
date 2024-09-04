@@ -18,7 +18,7 @@ export class FormCategoriasTpComponent implements OnInit, OnDestroy {
   private subscription: Subscription = new Subscription();
 
   public fbForm : FormGroup = this.fb.group({
-    Descripcion_categoria: ['', Validators.required],
+    Descripcion_categoria: ['', [Validators.required , Validators.pattern(/^(?!\s*$).+/)]],
   })
 
   constructor(private actionsCrudService: ActionsCrudService, private categoriasTpService: CategoriasTpService, private fb: FormBuilder){}

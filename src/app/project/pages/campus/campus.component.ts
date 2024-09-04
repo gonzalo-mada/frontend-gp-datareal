@@ -57,7 +57,7 @@ export class CampusComponent implements OnInit, OnDestroy {
 
   public fbForm : FormGroup = this.fb.group({
     Estado_campus: [true, Validators.required],
-    Descripcion_campus: ['', Validators.required],
+    Descripcion_campus: ['', [Validators.required , Validators.pattern(/^(?!\s*$).+/)]],
     files: [[], this.filesValidator.bind(this)]
   })
 

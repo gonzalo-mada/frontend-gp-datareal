@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
+import { ActionsCrudService } from '../../services/actions-crud.service';
 
 @Component({
   selector: 'app-dialog-visor-pdf',
@@ -16,7 +17,7 @@ export class DialogVisorPdfComponent implements OnChanges {
 
   nameArchive : string = '';
 
-  constructor(private commonUtils : CommonUtils){}
+  constructor(private actionsCrudService : ActionsCrudService, private commonUtils : CommonUtils){}
 
   ngOnChanges(changes: SimpleChanges): void {
    
@@ -42,12 +43,21 @@ export class DialogVisorPdfComponent implements OnChanges {
   }
 
   download() {
-    if (this.archivo) {
+    if (this.archivo.id) {
+      this.commonUtils.downloadBlob(
+        this.fileToBlob(this.archivo),
+        this.archivo.nombre,
+      );
+    }else{
       this.commonUtils.downloadBlob(
         this.fileToBlob(this.archivo),
         this.archivo.name,
       );
     }
+  }
+
+  downloadMongo(){
+    this.actionsCrudService.triggerDownloadDocUploaderAction(this.archivo)
   }
 
   print() {
@@ -62,8 +72,12 @@ export class DialogVisorPdfComponent implements OnChanges {
     }
   }
 
-  private fileToBlob(file: File) {
-    return new Blob([file], { type: file.type });
+  private fileToBlob(file: any) {
+    if (this.archivo.id) {
+      return new Blob([file], { type: file.tipo });
+    }else{
+      return new Blob([file], { type: file.type });
+    }
   }
 
   onChange(){

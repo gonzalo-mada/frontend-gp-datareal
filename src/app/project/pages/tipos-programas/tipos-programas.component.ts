@@ -8,6 +8,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { CategoriaTp } from '../../models/CategoriaTp';
 import { CategoriasTpService } from '../../services/categorias-tp.service';
+import { GPValidator } from '../../tools/validators/gp.validators';
 
 @Component({
   selector: 'app-tipos-programas',
@@ -33,8 +34,8 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
   private subscription: Subscription = new Subscription();
 
   public fbForm : FormGroup = this.fb.group({
-    Descripcion_tp: ['', Validators.required],
-    Cod_CategoriaTP: ['', Validators.required]
+    Descripcion_tp: ['', [Validators.required , Validators.pattern(/^(?!\s*$).+/)]],
+    Cod_CategoriaTP: ['', [Validators.required , GPValidator.notMinusOneCategory()]]
   })
 
   constructor(private actionsCrudService: ActionsCrudService,
