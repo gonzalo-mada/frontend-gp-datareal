@@ -11,13 +11,18 @@ export interface extras{
     comentarios: string;
   }
   
-  export interface docMongoCampus{
-    id?: string;
+  export interface DocFromUploader {
     nombre: string;
     tipo: string;
-    fechaCreacion?: string;
-    fechaModificacion?: string;
-    dataBase64?: string;
-    extras: extras
-    origFile: File
+    archivo: string;
+    extras: {
+      comentarios: string,
+      pesoDocumento: number
+    }
+  }
+  
+  export interface ActionUploadDoc{
+    success: boolean;
+    docsToUpload: DocFromUploader[];
+    docsToDelete: DocFromUploader[];
   }

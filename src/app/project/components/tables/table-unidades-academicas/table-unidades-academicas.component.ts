@@ -2,7 +2,8 @@ import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@
 import { Table } from 'primeng/table';
 import { Subscription } from 'rxjs';
 import { UnidadAcademica } from 'src/app/project/models/UnidadAcademica';
-import { ActionsCrudService } from 'src/app/project/services/actions-crud.service';
+import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
+import { UnidadesAcademicasService } from 'src/app/project/services/unidades-academicas.service';
 
 @Component({
   selector: 'app-table-unidades-academicas',
@@ -12,27 +13,37 @@ import { ActionsCrudService } from 'src/app/project/services/actions-crud.servic
 })
 export class TableUnidadesAcademicasComponent implements OnInit, OnChanges, OnDestroy {
   @Input() data: any[] = [];
-  @Input() cols : any;
-  @Input() globalFiltros : any;
-  @Input() dataKeyTable : any;
+
  
   mode : string = '';
   selectedRow: UnidadAcademica[] = [] ;
   searchValue: string | undefined;
   originalData: any[] = [];
+  cols: any[] = []
+  globalFiltros: any[] = []
+  dataKeyTable: string = '';
  
   private subscription: Subscription = new Subscription();
  
-  constructor(private actionsCrudService: ActionsCrudService){}
+  constructor(private unidadesAcademicasService: UnidadesAcademicasService, private tableCrudService: TableCrudService){}
  
   ngOnInit(): void {
-    this.subscription = this.actionsCrudService.actionResetSelectedRows$.subscribe( actionTriggered => { actionTriggered && this.resetSelectedRows();})
+    this.subscription = this.tableCrudService.resetSelectedRowsSubject$.subscribe( () => this.selectedRow = []);
+    this.cols = [
+      { field: 'Descripcion_ua', header: 'Nombre' },
+      { field: 'Facultad.Descripcion_facu', header: 'Facultad' },
+      { field: 'accion', header: 'Acciones' }
+    ];
+    this.globalFiltros = [ 'Descripcion_ua', 'Facultad.Descripcion_facu' ]
+    this.dataKeyTable = 'Cod_unidad_academica';
   }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data'] && changes['data'].currentValue) {
       this.originalData = [...this.data];
     }
   }
+  
   ngOnDestroy(): void {
     if (this.subscription) {
       this.subscription.unsubscribe();
@@ -44,31 +55,28 @@ export class TableUnidadesAcademicasComponent implements OnInit, OnChanges, OnDe
   }
  
   refresh(){
-    this.actionsCrudService.triggerRefreshTableAction();
+    this.tableCrudService.emitClickRefreshTable();
   }
  
   edit(data: UnidadAcademica){
-    this.mode = 'edit';
-    this.actionsCrudService.triggerModeAction(data,this.mode);
+    this.unidadesAcademicasService.setModeCrud('edit',data);
   }
  
   show(data: UnidadAcademica){
-    this.mode = 'show';
-    this.actionsCrudService.triggerModeAction(data,this.mode);
+    this.unidadesAcademicasService.setModeCrud('show',data);
   }
  
   delete(data: UnidadAcademica){
-    this.mode = 'delete';
-    this.actionsCrudService.triggerModeAction(data,this.mode);
+    this.unidadesAcademicasService.setModeCrud('delete',data);
   }
  
-  selectionChange(){  
-    this.actionsCrudService.setSelectedRows(this.selectedRow)
+  selectionChange(){   
+    this.tableCrudService.setSelectedRows(this.selectedRow)
   }
- 
+
   resetSelectedRows(){    
     this.selectedRow = [];
-    this.actionsCrudService.setSelectedRows(this.selectedRow)
+    this.tableCrudService.setSelectedRows(this.selectedRow)
   }
  
   clear(table: Table){

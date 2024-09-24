@@ -95,7 +95,7 @@
                 <div class="flex flex-row flex-wrap">
                     <div class="flex align-items-center justify-content-center">
                         <span [ngClass]="data.Estado_facu ? 'estado-badge estado-activo' : 'estado-badge estado-desactivo'">
-                            {{ data.Estado_facu ? 'activo' : 'desactivo' }}
+                            {{ data.Estado_facu ? 'activo' : 'inactivo' }}
                           </span>
                     </div>
                     <div class="flex align-items-center justify-content-center">
@@ -126,6 +126,12 @@
                     </p-button>
                 </div>
             </td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td [attr.colspan]="cols.length + 1">Sin registros</td>
         </tr>
     </ng-template>
 </p-table>

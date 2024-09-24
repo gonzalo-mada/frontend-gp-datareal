@@ -1,5 +1,6 @@
 {
     "form" : {
-        "notMinusOneCategory": "Seleccione categoría válida"
+        "notMinusOneCategory": "Seleccione categoría válida",
+        "notValueNegativeYearsAcredit": "Selecciones fechas válidas"
     }
 }

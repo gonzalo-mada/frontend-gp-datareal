@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
-import { ActionsCrudService } from '../../services/actions-crud.service';
+import { UploaderFilesService } from '../../services/components/uploader-files.service';
 
 @Component({
   selector: 'app-dialog-visor-pdf',
@@ -17,7 +17,7 @@ export class DialogVisorPdfComponent implements OnChanges {
 
   nameArchive : string = '';
 
-  constructor(private actionsCrudService : ActionsCrudService, private commonUtils : CommonUtils){}
+  constructor(private commonUtils : CommonUtils, private uploaderFilesService: UploaderFilesService){}
 
   ngOnChanges(changes: SimpleChanges): void {
    
@@ -57,7 +57,7 @@ export class DialogVisorPdfComponent implements OnChanges {
   }
 
   downloadMongo(){
-    this.actionsCrudService.triggerDownloadDocUploaderAction(this.archivo)
+    this.uploaderFilesService.triggerDownloadDoc(this.archivo);
   }
 
   print() {

@@ -1,30 +1,38 @@
 import { Injectable } from '@angular/core';
 import { InvokerService } from 'src/app/base/services/invoker.service';
+import { ModeForm } from '../models/shared/ModeForm';
+import { StateValidatorForm } from '../models/shared/StateValidatorForm';
+import { BehaviorSubject } from 'rxjs';
+import { CategoriaTp } from '../models/CategoriaTp';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CategoriasTpService {
 
-  constructor(private invoker: InvokerService) { }
+  modeForm: ModeForm = undefined;
+  stateForm: StateValidatorForm = undefined;
 
-  async bruto_getCategoriasTp(){
-    return await this.invoker.httpInvoke('categorias-tp/bruto_getCategoriasTp');
+  private crudUpdate = new BehaviorSubject<{mode: ModeForm, data?: CategoriaTp | null, resolve?: Function, reject?: Function} | null>(null);
+  crudUpdate$ = this.crudUpdate.asObservable();
+
+  private formUpdate = new BehaviorSubject<{mode: ModeForm, data?: CategoriaTp | null, resolve?: Function, reject?: Function} | null>(null);
+  formUpdate$ = this.formUpdate.asObservable();
+
+  constructor(private invoker: InvokerService){}
+
+  setModeCrud(mode: ModeForm, data?: CategoriaTp | null, resolve?: Function, reject?: Function){
+    this.modeForm = mode;
+    this.crudUpdate.next({mode, data, resolve, reject});
+    this.crudUpdate.next(null);
   }
 
-  async bruto_insertCategoriaTp(params: any){
-    return await this.invoker.httpInvoke('categorias-tp/bruto_insertCategoriaTp', params);
+  setModeForm(mode: ModeForm, data?: CategoriaTp | null, resolve?: Function, reject?: Function){
+    this.modeForm = mode;
+    this.formUpdate.next({mode, data, resolve, reject});
+    this.formUpdate.next(null);
   }
 
-  async bruto_updateCategoriaTp(params: any){
-    return await this.invoker.httpInvoke('categorias-tp/bruto_updateCategoriaTp', params);
-  }
-
-  async bruto_deleteCategoriaTp(params: any){
-    return await this.invoker.httpInvoke('categorias-tp/bruto_deleteCategoriaTp', {categoriasTpToDelete:params});
-  }
-
-  //logica
   async getCategoriasTp(){
     return await this.invoker.httpInvoke('categorias-tp/getCategoriasTp');
   }

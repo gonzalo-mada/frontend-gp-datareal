@@ -2,7 +2,8 @@ import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@
 import { Table } from 'primeng/table';
 import { Subscription } from 'rxjs';
 import { Campus } from 'src/app/project/models/Campus';
-import { ActionsCrudService } from 'src/app/project/services/actions-crud.service';
+import { CampusService } from 'src/app/project/services/campus.service';
+import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
 
 @Component({
   selector: 'app-table-campus',
@@ -13,21 +14,27 @@ import { ActionsCrudService } from 'src/app/project/services/actions-crud.servic
 export class TableCampusComponent implements OnInit ,OnChanges, OnDestroy {
   
   @Input() data: any[] = [];
-  @Input() cols : any;
-  @Input() globalFiltros : any;
-  @Input() dataKeyTable : any;
 
-  mode : string = '';
-  selectedCampus: Campus[] = [] ;
+  selectedRow: Campus[] = [] ;
   searchValue: string | undefined;
   originalData: any[] = [];
+  cols: any[] = []
+  globalFiltros: any[] = []
+  dataKeyTable: string = '';
 
   private subscription: Subscription = new Subscription();
 
-  constructor(private actionsCrudService: ActionsCrudService){}
+  constructor(private campusService: CampusService, private tableCrudService: TableCrudService){}
 
   ngOnInit(): void {
-    this.subscription = this.actionsCrudService.actionResetSelectedRows$.subscribe( actionTriggered => { actionTriggered && this.resetSelectedRows();})
+    this.subscription = this.tableCrudService.resetSelectedRowsSubject$.subscribe( () => this.selectedRow = []);
+    this.cols = [
+      { field: 'Descripcion_campus', header: 'Nombre' },
+      { field: 'Estado_campus', header: 'Estado' },
+      { field: 'accion', header: 'Acciones' }
+    ];
+    this.globalFiltros = [ 'Descripcion_campus' ]
+    this.dataKeyTable = 'Cod_campus';
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -47,36 +54,32 @@ export class TableCampusComponent implements OnInit ,OnChanges, OnDestroy {
   }
 
   refresh(){
-    this.actionsCrudService.triggerRefreshTableAction();
+    this.tableCrudService.emitClickRefreshTable();
   }
 
-  edit(campus: Campus){
-    this.mode = 'edit';
-    this.actionsCrudService.triggerModeAction(campus,this.mode);
+  edit(data: Campus){
+    this.campusService.setModeCrud('edit',data);
   }
 
-  show(campus: Campus){
-    this.mode = 'show';
-    this.actionsCrudService.triggerModeAction(campus,this.mode);
+  show(data: Campus){
+    this.campusService.setModeCrud('show',data);
   }
 
-  delete(campus: Campus){
-    this.mode = 'delete';
-    this.actionsCrudService.triggerModeAction(campus,this.mode);
+  delete(data: Campus){
+    this.campusService.setModeCrud('delete',data);
   }
 
-  changeState(campus: Campus , estado_campus: boolean){
-    this.mode = 'changeState';
-    this.actionsCrudService.triggerModeAction(campus,this.mode);
+  changeState(data: Campus , estado_campus: boolean){
+    this.campusService.setModeCrud('changeState',data);
   }
 
   selectionChange(){   
-    this.actionsCrudService.setSelectedRows(this.selectedCampus)
+    this.tableCrudService.setSelectedRows(this.selectedRow)
   }
 
   resetSelectedRows(){    
-    this.selectedCampus = [];
-    this.actionsCrudService.setSelectedRows(this.selectedCampus)
+    this.selectedRow = [];
+    this.tableCrudService.setSelectedRows(this.selectedRow)
   }
 
   clear(table: Table){
@@ -85,8 +88,5 @@ export class TableCampusComponent implements OnInit ,OnChanges, OnDestroy {
     this.data = [...this.originalData];
     table.reset();
   }
-
-
-
 
 }

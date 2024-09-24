@@ -1,0 +1,36 @@
+<p-table
+    [value]="data"
+>
+    <ng-template pTemplate="header">
+        <tr>
+            <th>RUT</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Anexo</th>
+            <th>Facultad</th>
+            <th>Acción</th>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-data>
+        <tr>
+            <td>{{ data.rutcompleto }}</td>
+            <td>{{ data.Nombres }} {{ data.Paterno }} {{ data.Materno }}</td>
+            <td>{{ data.FiceMail }}</td>
+            <td>{{ data.DirFono || '' }}</td>
+            <td>{{ data.Facultad }}</td>
+            <td>
+                <p-button  
+                    styleClass="p-button-sm"
+                    label="Seleccionar"
+                    (click)="setDirector(data.rutcompleto, data.Nombres, data.Paterno, data.Materno)"
+                >
+                </p-button>
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+        Sin resultados
+    </ng-template>
+</p-table>

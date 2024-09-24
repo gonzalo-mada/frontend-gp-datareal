@@ -21,18 +21,34 @@ import { TableTiposProgramasComponent } from '../components/tables/table-tipos-p
 import { TableCategoriasTpComponent } from '../components/tables/table-categorias-tp/table-categorias-tp.component';
 import { FormCategoriasTpComponent } from '../components/forms/form-categorias-tp/form-categorias-tp.component';
 import { TableUnidadesAcademicasComponent } from '../components/tables/table-unidades-academicas/table-unidades-academicas.component';
+import { TableEstadosAcreditacionComponent } from '../components/tables/table-estados-acreditacion/table-estados-acreditacion.component';
+import { FormEstadosAcreditacionComponent } from '../components/forms/form-estados-acreditacion/form-estados-acreditacion.component';
+import { BreadcrumbgpComponent } from '../components/breadcrumbgp/breadcrumbgp.component';
+import { TableProgramasDirectoresComponent } from '../components/tables/programas/table-programas-directores/table-programas-directores.component';
+import { ConfigModeComponent } from '../components/config-mode/config-mode.component';
+import { TableProgramasEstadosAcreditacionComponent } from '../components/tables/programas/table-programas-estados-acreditacion/table-programas-estados-acreditacion.component';
+import { FormSuspensionComponent } from '../components/forms/form-suspension/form-suspension.component';
+import { TableProgramasSuspensionesComponent } from '../components/tables/programas/table-programas-suspensiones/table-programas-suspensiones.component';
 
 const componentsGp = [
+  BreadcrumbgpComponent,
   CardComponent,
+  ConfigModeComponent,
   DialogComponent,
   DialogVisorPdfComponent,
   FormCategoriasTpComponent,
+  FormEstadosAcreditacionComponent,
+  FormSuspensionComponent,
   MenuButtonsTableComponent,
   UploaderFilesComponent,
   TableCampusComponent,
   TableCategoriasTpComponent,
+  TableEstadosAcreditacionComponent,
   TableFacultadComponent,
   TableTiposProgramasComponent,
+  TableProgramasDirectoresComponent,
+  TableProgramasEstadosAcreditacionComponent,
+  TableProgramasSuspensionesComponent,
   TableUnidadesAcademicasComponent
 ]
 
@@ -41,7 +57,7 @@ const componentsGp = [
     //pipes
     FileSizePipe,
     FileExtensionPipe,
-    ...componentsGp    
+    ...componentsGp
   ],
   imports: [
     CommonModule,

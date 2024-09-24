@@ -1,0 +1,45 @@
+<button class="config-mode-button p-link" type="button" (click)="op.toggle($event)">
+    <i class="pi pi-cog" style="font-size: 1.5rem"></i>
+</button>
+
+<!-- <button class="config-mode-button p-link" type="button" (click)="onConfigButtonClick()">
+    <i class="pi pi-cog"></i>
+</button> -->
+
+
+<p-overlayPanel #op styleClass="config-mode-sidebar w-18rem">
+    <h3>Modo</h3>
+    <div class="flex flex-wrap justify-content-start lg:justify-content-center align-items-center">
+
+        <div class="flex flex-row flex-wrap">
+            <div class="flex align-items-center justify-content-center">
+                <span>Pregrado</span>
+            </div>
+            <div class="flex align-items-center justify-content-center mx-2">
+                <p-inputSwitch [(ngModel)]="mode" />
+            </div>
+            <div class="flex align-items-center justify-content-center">
+                <span>Postgrado</span>
+            </div>
+        </div>
+    </div>
+</p-overlayPanel>
+
+
+<p-sidebar [(visible)]="visible" position="right" [transitionOptions]="'.3s cubic-bezier(0, 0, 0.2, 1)'" styleClass="config-mode-sidebar w-18rem">
+    <h3>Modo</h3>
+    <div class="flex flex-wrap justify-content-start lg:justify-content-center align-items-center">
+
+        <div class="flex flex-row flex-wrap">
+            <div class="flex align-items-center justify-content-center">
+                <span>Pregrado</span>
+            </div>
+            <div class="flex align-items-center justify-content-center mx-2">
+                <p-inputSwitch [(ngModel)]="mode" />
+            </div>
+            <div class="flex align-items-center justify-content-center">
+                <span>Postgrado</span>
+            </div>
+        </div>
+    </div>
+</p-sidebar>

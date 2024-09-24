@@ -1,0 +1,48 @@
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { MantenedoresComponent } from './mantenedores.component';
+
+const routes: Routes = [
+  {
+    path: '',
+    component: MantenedoresComponent,
+  },
+  {
+    path: 'campus',
+    loadChildren: () => import('./campus/campus.module').then((m) => m.CampusModule),
+    title: 'Campus'
+  },
+  {
+    path: 'categoria',
+    loadChildren: () => import('./categorias-tp/categorias-tp.module').then((m) => m.CategoriasTpModule),
+    title: 'Categorías de tipos de programas'
+  },
+  {
+    path: 'estadosAcreditacion',
+    loadChildren: () => import('./estados-acreditacion/estados-acreditacion.module').then((m) => m.EstadosAcreditacionModule),
+    title: 'Estados de acreditación'
+  },
+  {
+    path: 'facultades',
+    loadChildren: () => import('./facultad/facultad.module').then((m) => m.FacultadModule),
+    title: 'Facultades'
+  },
+  {
+    path: 'tiposProgramas',
+    loadChildren: () => import('./tipos-programas/tipos-programas.module').then((m) => m.TiposProgramasModule),
+    title: 'Tipos de programas'
+  },
+  {
+    path: 'unidades',
+    loadChildren: () => import('./unidades-academicas/unidades-academicas.module').then((m) => m.UnidadesAcademicasModule),
+    title: 'Unidades académicas'
+  }
+
+  
+];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
+})
+export class MantenedoresRoutingModule { }

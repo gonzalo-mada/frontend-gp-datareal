@@ -1,0 +1,81 @@
+<p-toast [key]="keyPopups"></p-toast>
+<p-confirmDialog [key]="keyPopups" [style]="{ width: '500px' }"></p-confirmDialog>
+
+<div class="grid">
+    <div class="col-12">
+        <app-card header="Mantenedor de facultades" subheader="Permite ver, crear, actualizar y eliminar facultades.">
+            <app-menu-buttons-table></app-menu-buttons-table>
+
+            <app-table-facultad [data]="facultades"></app-table-facultad>
+
+            <app-dialog [(visible)]="dialog">
+                <div header>
+                    <ng-container [ngSwitch]="modeForm">
+                        <ng-container *ngSwitchCase="'create'"><span class="text-xl">Agregar facultad</span></ng-container>
+                        <ng-container *ngSwitchCase="'edit'"><span class="text-xl">Actualizar facultad</span></ng-container>
+                        <ng-container *ngSwitchCase="'show'"><span class="text-xl">Ver facultad</span></ng-container>
+                    </ng-container>
+                </div>
+                <div content>   
+                    <div class="grid" *ngIf="modeForm != 'show'">
+                        <div class="col-12">
+                            <app-form-isvalid [valid]="fbForm.valid"></app-form-isvalid>
+                        </div>
+                    </div>
+                    <form [formGroup]="fbForm">
+                        <div class="grid p-fluid">
+                            <div class="col-12 lg:col-8">
+                                <div class="field">
+                                    <label><strong>Nombre *</strong></label>
+                                    <input type="text" pInputText formControlName="Descripcion_facu" maxlength="50" class="w-full"  placeholder="Ingrese nombre de facultad" autofocus />
+                                    <app-form-control [control]="fbForm.controls['Descripcion_facu']" [validators]="['required' , 'pattern']"></app-form-control>
+                                </div>
+                            </div>
+                            <div class="col-12 lg:col-4 ">
+                                <div class="flex flex-wrap justify-content-start lg:justify-content-center align-items-center">
+                                    <div class="field">
+                                        <label for="Estado"><strong>Estado</strong></label>
+                                        <br>
+                                        <div class="flex flex-row flex-wrap">
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>Inactivo</span>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                <p-inputSwitch formControlName="Estado_facu" styleClass="mt-1" (onChange)="changeState($event)" />
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>Activo</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="grid">
+                        <div class="col-12">
+                            <div class="mb-2">
+                                <label>
+                                    <strong>
+                                      {{ modeForm !== 'show' ? 'Adjunte documento(s)' : 'Documento(s) adjunto(s)' }}
+                                      {{ modeForm !== 'show' && showAsterisk ? '*' : '' }}
+                                    </strong>
+                                  </label>                                  
+                            </div>
+                            <app-uploader-files [mode]="modeForm!"></app-uploader-files>
+                        </div>
+                    </div>
+                </div>
+                <div footer>
+                    <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" (click)="dialog = false" [text]="true"></p-button>
+
+                    <p-button *ngIf="modeForm == 'create' || modeForm == 'edit' "
+                        [label]="modeForm === 'edit' ? 'Actualizar' : 'Guardar'" icon="pi pi-check"
+                        styleClass="mr-2 p-button-success p-button-sm" [disabled]="!fbForm.valid"
+                        (click)="fbForm.valid && submit()">
+                    </p-button>
+                </div>
+            </app-dialog>
+        </app-card>
+    </div>
+</div>

@@ -1,29 +1,27 @@
 import { Injectable } from '@angular/core';
-import { ActionsCrudService } from './actions-crud.service';
-import { Facultad } from '../models/Facultad';
 import { InvokerService } from 'src/app/base/services/invoker.service';
+import { ModeForm } from '../models/shared/ModeForm';
+import { StateValidatorForm } from '../models/shared/StateValidatorForm';
+import { Facultad } from '../models/Facultad';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FacultadService {
 
+  modeForm: ModeForm = undefined;
+  stateForm: StateValidatorForm = undefined;
+
+  private crudUpdate = new BehaviorSubject<{mode: ModeForm, data?: Facultad | null, resolve?: Function, reject?: Function} | null>(null);
+  crudUpdate$ = this.crudUpdate.asObservable();
+
   constructor(private invoker: InvokerService) { }
 
-  async bruto_getFacultades(){
-    return await this.invoker.httpInvoke('facultades/bruto_getFacultades');
-  }
-
-  async bruto_insertFacultad(params: any){
-    return await this.invoker.httpInvoke('facultades/bruto_insertFacultad', params);
-  }
-
-  async bruto_updateFacultad(params: any){
-    return await this.invoker.httpInvoke('facultades/bruto_updateFacultad', params);
-  }
-
-  async bruto_deleteFacultad(params: any){
-    return await this.invoker.httpInvoke('facultades/bruto_deleteFacultad', {facultadesToDelete:params});
+  setModeCrud(mode: ModeForm, data?: Facultad | null, resolve?: Function, reject?: Function){
+    this.modeForm = mode;
+    this.crudUpdate.next({mode, data, resolve, reject});
+    this.crudUpdate.next(null);
   }
 
   //logica

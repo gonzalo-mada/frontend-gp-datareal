@@ -2,7 +2,8 @@ import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@
 import { Table } from 'primeng/table';
 import { Subscription } from 'rxjs';
 import { CategoriaTp } from 'src/app/project/models/CategoriaTp';
-import { ActionsCrudService } from 'src/app/project/services/actions-crud.service';
+import { CategoriasTpService } from 'src/app/project/services/categorias-tp.service';
+import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
 
 @Component({
   selector: 'app-table-categorias-tp',
@@ -13,22 +14,31 @@ import { ActionsCrudService } from 'src/app/project/services/actions-crud.servic
 export class TableCategoriasTpComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() data: any[] = [];
-  @Input() cols : any;
-  @Input() globalFiltros : any;
-  @Input() dataKeyTable : any;
 
-  mode : string = '';
   selectedRow: CategoriaTp[] = [] ;
   searchValue: string | undefined;
   originalData: any[] = [];
+  cols: any[] = []
+  globalFiltros: any[] = []
+  dataKeyTable: string = '';
 
   private subscription: Subscription = new Subscription();
 
-  constructor(private actionsCrudService: ActionsCrudService){}
+  constructor( private categoriasTpService: CategoriasTpService,
+    private tableCrudService: TableCrudService){}
 
   ngOnInit(): void {
-    this.subscription = this.actionsCrudService.actionResetSelectedRows$.subscribe( actionTriggered => { actionTriggered && this.resetSelectedRows();})
+    this.subscription = this.tableCrudService.resetSelectedRowsSubject$.subscribe( () => this.selectedRow = []);
+
+    this.cols = [
+      { field: 'Descripcion_categoria', header: 'Nombre' },
+      { field: 'accion', header: 'Acciones' }
+    ];
+
+    this.globalFiltros = [ 'Descripcion_categoria' ];
+    this.dataKeyTable = 'Cod_CategoriaTP';
   }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data'] && changes['data'].currentValue) {
       this.originalData = [...this.data];
@@ -45,31 +55,28 @@ export class TableCategoriasTpComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   refresh(){
-    this.actionsCrudService.triggerRefreshTableAction();
+    this.tableCrudService.emitClickRefreshTable();
   }
   
   edit(data: CategoriaTp){
-    this.mode = 'edit';
-    this.actionsCrudService.triggerModeAction(data,this.mode);
+    this.categoriasTpService.setModeCrud('edit',data)
   }
 
   show(data: CategoriaTp){
-    this.mode = 'show';
-    this.actionsCrudService.triggerModeAction(data,this.mode);
+    this.categoriasTpService.setModeCrud('show',data)
   }
 
   delete(data: CategoriaTp){
-    this.mode = 'delete';
-    this.actionsCrudService.triggerModeAction(data,this.mode);
+    this.categoriasTpService.setModeCrud('delete',data)
   }
 
   selectionChange(){   
-    this.actionsCrudService.setSelectedRows(this.selectedRow)
+    this.tableCrudService.setSelectedRows(this.selectedRow)
   }
 
   resetSelectedRows(){    
     this.selectedRow = [];
-    this.actionsCrudService.setSelectedRows(this.selectedRow)
+    this.tableCrudService.setSelectedRows(this.selectedRow)
   }
 
   clear(table: Table){

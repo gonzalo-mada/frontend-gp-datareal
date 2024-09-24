@@ -1,12 +1,28 @@
 import { Injectable } from '@angular/core';
 import { InvokerService } from 'src/app/base/services/invoker.service';
+import { ModeForm } from '../models/shared/ModeForm';
+import { StateValidatorForm } from '../models/shared/StateValidatorForm';
+import { UnidadAcademica } from '../models/UnidadAcademica';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UnidadesAcademicasService {
 
+  modeForm: ModeForm = undefined;
+  stateForm: StateValidatorForm = undefined;
+
+  private crudUpdate = new BehaviorSubject<{mode: ModeForm, data?: UnidadAcademica | null, resolve?: Function, reject?: Function} | null>(null);
+  crudUpdate$ = this.crudUpdate.asObservable();
+
   constructor(private invoker: InvokerService) { }
+
+  setModeCrud(mode: ModeForm, data?: UnidadAcademica | null, resolve?: Function, reject?: Function){
+    this.modeForm = mode;
+    this.crudUpdate.next({mode, data, resolve, reject});
+    this.crudUpdate.next(null);
+  }
 
   async logica_getUnidadesAcademicas(){
     return await this.invoker.httpInvoke('unidadesAcademicas/logica_getUnidadesAcademicas');

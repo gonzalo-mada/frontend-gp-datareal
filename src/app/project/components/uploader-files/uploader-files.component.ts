@@ -1,9 +1,9 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FileUtils } from '../../tools/utils/file.utils';
 import { FileUpload } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
-import { ActionsCrudService } from '../../services/actions-crud.service';
+import { UploaderFilesService } from '../../services/components/uploader-files.service';
 
 @Component({
   selector: 'app-uploader-files',
@@ -16,6 +16,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
 
   @ViewChild('uploader') uploader!: FileUpload;
   @Input() mode: string = '';
+  @Input() from: any = {}
 
   docsToUpload : any[] = [];
   leyendas: any[] = [];
@@ -28,21 +29,32 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
 
   private subscription: Subscription = new Subscription();
 
-  constructor(private actionsCrudService: ActionsCrudService,
-    private fileUtils: FileUtils, 
-    private messageService: MessageService
+  constructor(private fileUtils: FileUtils, 
+              private messageService: MessageService,
+              private uploaderFilesService: UploaderFilesService
   ){}
   
-  ngOnInit(): void {
+  
+  get disabled(): boolean | null {
+    return this.uploaderFilesService.stateLayout.stateButtonSeleccionarArchivos;
+  }
+
+  async ngOnInit() {
     this.leyendas = [
       { label: ' Archivo en línea' , icon:'pi-cloud' , color:'estado-cloud'},
       { label: ' Archivo por subir' , icon:'pi-cloud-upload' , color:'estado-upload'}
     ];
 
-    this.subscription.add(this.actionsCrudService.actionUploadDocs$.subscribe(event => { event && this.uploadHandler(event)}));
-    this.subscription.add(this.actionsCrudService.extrasDocs$.subscribe(extrasDocs => { extrasDocs && (this.extrasDocs = extrasDocs);}));
-    this.subscription.add(this.actionsCrudService.files$.subscribe(files => { files && (this.files = files);}));
-    this.subscription.add(this.actionsCrudService.actionResetQueueUploader$.subscribe(trigger => {trigger && this.resetQueueUploader()}))
+    this.subscription.add(this.uploaderFilesService.actionUploader$.subscribe( updateUploader => {
+      // console.log("updateUploader",updateUploader);
+      if (updateUploader) {
+        switch (updateUploader.action) {
+          case 'upload': this.newUploadHandler(updateUploader.resolve! , updateUploader.reject!); break;
+          case 'reset': this.resetQueueUploader();
+        }
+      }
+    }));
+    this.subscription.add(this.uploaderFilesService.files$.subscribe(files => { files && ( this.files = files ) } ));
   }
 
   ngOnDestroy(): void {
@@ -51,12 +63,11 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
     }
   }
 
-  choose(event: any, callback: any){
+  choose(callback: any){
     callback();
   }
 
   onSelect(event: any, uploader: FileUpload){
-
     const uniqueFiles = event.currentFiles.filter((newFile: File) => {
       return !this.files.some(fileWithComment => fileWithComment.nombre === newFile.name && fileWithComment.extras.pesoDocumento === newFile.size);
     });
@@ -74,77 +85,78 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
       }
     }
       
-    uniqueFiles.forEach((newFile: File) => {    
-      this.files.push({nombre: newFile.name , tipo: newFile.type, extras:{pesoDocumento: newFile.size ,comentarios:''} , origFile: newFile});
+    uniqueFiles.forEach((newFile: File) => {  
+      const fileToSelect = {
+        nombre: newFile.name , 
+        tipo: newFile.type, 
+        extras:{pesoDocumento: newFile.size ,comentarios:''} , 
+        origFile: newFile , 
+        from: this.from.section
+      }
+    
+      this.files.push(fileToSelect)
+      
     });
 
-    // this.filesChange.emit(this.files)
-    this.actionsCrudService.updateValidatorFiles(this.files);
+    // this.filesChange.emit(this.files)    
+    this.uploaderFilesService.updateValidatorFiles(this.files);
+    
   }
 
-  async uploadHandler(event: any){
-    const { resolve, reject } = event;
+  async newUploadHandler(resolve: Function, reject: Function){
+    try {
+      if (this.files.length != 0) {
+        //subieron docs
+        
+        for (let i = 0; i < this.files.length; i++) {
+          const doc = this.files[i];        
+          if (!doc.id) {
+            //modo subir nuevo archivo
+            
+            let file: any = await this.fileUtils.onSelectFile(doc.origFile);
     
-    if (this.files.length != 0) {
-      //subieron docs
-      
-      for (let i = 0; i < this.files.length; i++) {
-        const doc = this.files[i];        
-        if (!doc.id) {
-          //modo subir nuevo archivo
-          // console.log("entre al modo nuevo archivo");
-          
-          let file: any = await this.fileUtils.onSelectFile(doc.origFile);
+            const extras = {
+              pesoDocumento: doc.extras.pesoDocumento,
+              comentarios: doc.extras.comentarios
+            };
   
-          const extras = {
-            pesoDocumento: doc.extras.pesoDocumento,
-            comentarios: doc.extras.comentarios
-          };
-          const combinedExtras = {
-            ...this.extrasDocs,
-            ...extras
-          }
-          let documento: any = {
-            nombre: `${file.filename}.${file.format}`,
-            archivo: file.binary,
-            tipo: file.format,
-            extras: combinedExtras,
-          };
-          this.docsToUpload.push(documento)
-          
-        }else{
-          //modo actualizar archivo
-          // console.log("entre al modo actualizar archivo");
-          const extras = {
-            pesoDocumento: doc.extras.pesoDocumento,
-            comentarios: doc.extras.comentarios
-          };
-          const combinedExtras = {
-            ...this.extrasDocs,
-            ...extras
-          }
-          
-          let documento: any = {
-            id: doc.id,
-            nombre: `${doc.nombre}`,
-            dataBase64: doc.dataBase64,
-            tipo: doc.tipo,
-            extras: combinedExtras,
-          };
-          
-          this.docsToUpload.push(documento)
-        }
-      }
-      resolve({success: true, docsToUpload: this.docsToUpload, docsToDelete: this.filesToDelete})
-    }else{
-      resolve({success: true , docsToUpload: this.docsToUpload = [], docsToDelete: this.filesToDelete })
-    }
-    
-    // this.filesChange.emit(this.files)
-    // this.actionsCrudService.updateValidatorFiles(this.files);
-    this.resetQueueUploader();
-  }
+            let documento: any = {
+              nombre: `${file.filename}.${file.format}`,
+              archivo: file.binary,
+              tipo: file.format,
+              extras: extras,
+            };
+            this.docsToUpload.push(documento)
+            
+          }else{
+            //modo actualizar archivo
 
+            const extras = {
+              pesoDocumento: doc.extras.pesoDocumento,
+              comentarios: doc.extras.comentarios
+            };
+            
+            let documento: any = {
+              id: doc.id,
+              nombre: `${doc.nombre}`,
+              dataBase64: doc.dataBase64,
+              tipo: doc.tipo,
+              extras: extras,
+            };
+            
+            this.docsToUpload.push(documento)
+          }
+        }
+        resolve({success: true, docsToUpload: this.docsToUpload, docsToDelete: this.filesToDelete})
+      }else{
+        resolve({success: true , docsToUpload: this.docsToUpload = [], docsToDelete: this.filesToDelete })
+      }
+    } catch (e) {
+      reject(e);
+    }finally{
+      this.resetQueueUploader();
+    }
+  }
 
   onCommentChange(index: number, comment: string) {
     this.files[index].extras.comentarios = comment;
@@ -160,7 +172,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
       this.files.splice(index, 1);
     }
     // this.filesChange.emit(this.files)
-    this.actionsCrudService.updateValidatorFiles(this.files);
+    this.uploaderFilesService.updateValidatorFiles(this.files);
   }
 
   cancelDeleteFile(file: any, uploader: FileUpload, index: number){
@@ -175,7 +187,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
         detail: `El documento con nombre ${file.nombre} no es posible cancelar su eliminación ya que está como documento adjunto.`,
       });
     }
-    this.actionsCrudService.updateValidatorFiles(this.files);
+    this.uploaderFilesService.updateValidatorFiles(this.files);
   }
 
   resetQueueUploader(){   
@@ -191,7 +203,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
   }
 
   downloadDoc(event: any){
-    this.actionsCrudService.triggerDownloadDocUploaderAction(event)
+    this.uploaderFilesService.triggerDownloadDoc(event);
   }
 
 }

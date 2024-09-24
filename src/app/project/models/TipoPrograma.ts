@@ -13,7 +13,6 @@ export interface DocFromUploader {
     tipo: string;
     archivo: string;
     extras: {
-      Descripcion_tp: string,
       comentarios: string,
       pesoDocumento: number
     }
@@ -24,10 +23,3 @@ export interface ActionUploadDoc{
     docs: DocFromUploader[];
 }
 
-export interface NamesCrud{
-    singular?: string;
-    plural?: string;
-    articulo_singular?: string;
-    articulo_plural?: string;
-    genero?: string;
-}

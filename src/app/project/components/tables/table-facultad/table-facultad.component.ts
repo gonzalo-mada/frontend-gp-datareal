@@ -2,7 +2,8 @@ import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@
 import { Table } from 'primeng/table';
 import { Subscription } from 'rxjs';
 import { Facultad } from 'src/app/project/models/Facultad';
-import { ActionsCrudService } from 'src/app/project/services/actions-crud.service';
+import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
+import { FacultadService } from 'src/app/project/services/facultad.service';
 
 @Component({
   selector: 'app-table-facultad',
@@ -13,22 +14,29 @@ import { ActionsCrudService } from 'src/app/project/services/actions-crud.servic
 export class TableFacultadComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() data: any[] = [];
-  @Input() cols : any;
-  @Input() globalFiltros : any;
-  @Input() dataKeyTable : any;
 
-  mode : string = '';
   selectedRow: Facultad[] = [] ;
   searchValue: string | undefined;
   originalData: any[] = [];
+  cols: any[] = []
+  globalFiltros: any[] = []
+  dataKeyTable: string = '';
 
   private subscription: Subscription = new Subscription();
 
-  constructor(private actionsCrudService: ActionsCrudService){}
+  constructor(private facultadService: FacultadService, private tableCrudService: TableCrudService){}
 
   ngOnInit(): void {
-    this.subscription = this.actionsCrudService.actionResetSelectedRows$.subscribe( actionTriggered => { actionTriggered && this.resetSelectedRows();})
+    this.subscription = this.tableCrudService.resetSelectedRowsSubject$.subscribe( () => this.selectedRow = []);
+    this.cols = [
+      { field: 'Descripcion_facu', header: 'Nombre' },
+      { field: 'Estado_facu', header: 'Estado' },
+      { field: 'accion', header: 'Acciones' }
+    ];
+    this.globalFiltros = [ 'Descripcion_facu' ];
+    this.dataKeyTable = 'Cod_facultad';
   }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data'] && changes['data'].currentValue) {
       this.originalData = [...this.data];
@@ -45,36 +53,32 @@ export class TableFacultadComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   refresh(){
-    this.actionsCrudService.triggerRefreshTableAction();
+    this.tableCrudService.emitClickRefreshTable();
   }
   
   edit(data: Facultad){
-    this.mode = 'edit';
-    this.actionsCrudService.triggerModeAction(data,this.mode);
+    this.facultadService.setModeCrud('edit',data);
   }
 
   show(data: Facultad){
-    this.mode = 'show';
-    this.actionsCrudService.triggerModeAction(data,this.mode);
+    this.facultadService.setModeCrud('show',data);
   }
 
   delete(data: Facultad){
-    this.mode = 'delete';
-    this.actionsCrudService.triggerModeAction(data,this.mode);
+    this.facultadService.setModeCrud('delete',data);
   }
 
-  changeState(facultad: Facultad){
-    this.mode = 'changeState';
-    this.actionsCrudService.triggerModeAction(facultad,this.mode);
+  changeState(data: Facultad){
+    this.facultadService.setModeCrud('changeState',data);
   }
 
   selectionChange(){   
-    this.actionsCrudService.setSelectedRows(this.selectedRow)
+    this.tableCrudService.setSelectedRows(this.selectedRow)
   }
 
   resetSelectedRows(){    
     this.selectedRow = [];
-    this.actionsCrudService.setSelectedRows(this.selectedRow)
+    this.tableCrudService.setSelectedRows(this.selectedRow)
   }
 
   clear(table: Table){
