@@ -168,13 +168,13 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
     }
   }
 
-  async deleteEstadoAcreditacion(estadosAcreditacionToDelete: EstadosAcreditacion[], isFromDeleteSelected = false){    
+  async deleteEstadoAcreditacion(estadosAcreditacionToDelete: EstadosAcreditacion[]){    
     try {
       const deleted:{ dataWasDeleted: boolean, dataDeleted: [] } = await this.estadosAcreditacionService.deleteEstadoAcreditacion({estadosAcreditacionToDelete:estadosAcreditacionToDelete});
       // const message = this.parseNombres(deleted.dataDeleted)
       if ( deleted.dataWasDeleted ) {
         this.getEstadosAcreditacion();
-        if ( isFromDeleteSelected ){
+        if ( estadosAcreditacionToDelete.length > 1 ){
           this.messageService.add({
             key: this.keyPopups,
             severity: 'success',
@@ -289,7 +289,7 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
         try {
-          await this.deleteEstadoAcreditacion(data , true);
+          await this.deleteEstadoAcreditacion(data);
         } catch (e:any) {
           this.errorTemplateHandler.processError(
             e, {

@@ -1,88 +1,90 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CategoriaTp } from '../../../models/CategoriaTp';
-import { Subscription } from 'rxjs';
-import { CategoriasTpService } from '../../../services/categorias-tp.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
+import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
+import { Suspension } from 'src/app/project/models/Suspension';
 import { MenuButtonsTableService } from 'src/app/project/services/components/menu-buttons-table.service';
 import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
+import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
+import { SuspensionesService } from 'src/app/project/services/suspensiones.service';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
-import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 
 @Component({
-  selector: 'app-categorias-tp',
-  templateUrl: './categorias-tp.component.html',
+  selector: 'app-suspension',
+  templateUrl: './suspension.component.html',
   styles: [
   ]
 })
-export class CategoriasTpComponent implements OnInit, OnDestroy {
+export class SuspensionComponent implements OnInit, OnDestroy {
 
-  constructor(public categoriasTpService: CategoriasTpService,
-    private confirmationService: ConfirmationService,
+  constructor(private confirmationService: ConfirmationService,
     private errorTemplateHandler: ErrorTemplateHandler,
     private messageService: MessageService,
     private menuButtonsTableService: MenuButtonsTableService,
+    public suspensionesService: SuspensionesService,
     private tableCrudService: TableCrudService,
+    private uploaderFilesService: UploaderFilesService
   ){}
 
-  categoriasTp: CategoriaTp[] = [];
-  categoriaTp: CategoriaTp = {};
+  suspensiones: Suspension[] = [];
+  suspension: Suspension = {};
   namesCrud!: NamesCrud;
   keyPopups: string = '';
   dialog: boolean = false;
   private subscription: Subscription = new Subscription();
 
   get modeForm(){
-    return this.categoriasTpService.modeForm
+    return this.suspensionesService.modeForm
   }
 
-  async ngOnInit(){
-    
+  async ngOnInit() {
     this.namesCrud = {
-      singular: 'categoría de tipo de programa',
-      plural: 'categorías de tipos de programas',
-      articulo_singular: 'la categoría de tipo de programa',
-      articulo_plural: 'las categorías de tipos de programas',
-      genero: 'femenino'
+      singular: 'tipo de suspensión',
+      plural: 'tipos de suspensiones',
+      articulo_singular: 'el tipo de suspensión',
+      articulo_plural: 'los tipos de suspensiones',
+      genero: 'masculino'
     };
-    
-    this.keyPopups = 'categoria_tp'
 
-    await this.getCategoriasTp();
+    this.keyPopups = 'ID_TipoSuspension';
+
+    await this.getSuspensiones();
     this.subscription.add(this.menuButtonsTableService.onClickButtonAgregar$.subscribe(() => this.createForm()));
-    this.subscription.add(this.tableCrudService.onClickRefreshTable$.subscribe( () => this.getCategoriasTp() ));
+    this.subscription.add(this.tableCrudService.onClickRefreshTable$.subscribe( () => this.getSuspensiones() ));
     this.subscription.add(this.menuButtonsTableService.onClickDeleteSelected$.subscribe(() => this.openConfirmationDeleteSelected(this.tableCrudService.getSelectedRows()) ))
 
     this.subscription.add(
-      this.categoriasTpService.crudUpdate$.subscribe( crud => {
+      this.suspensionesService.crudUpdate$.subscribe( crud => {
         if (crud && crud.mode) {
           if (crud.data) {
-            this.categoriaTp = {};
-            this.categoriaTp = crud.data
+            this.suspension = {};
+            this.suspension = crud.data
           }
           switch (crud.mode) {
             case 'show': this.showForm(); break;
             case 'edit': this.editForm(); break;
-            case 'insert': this.insertCategoriaTp(); break;
-            case 'update': this.updateCategoriaTp(); break;
-            case 'delete': this.openConfirmationDelete(this.categoriaTp); break;
+            case 'insert': this.insertSuspension(); break;
+            case 'update': this.updateSuspension(); break;
+            case 'delete': this.openConfirmationDelete(this.suspension); break;
 
           }
         }
       })
     );
-    this.menuButtonsTableService.setContext('categorias-tp','dialog');
-
+    this.menuButtonsTableService.setContext('suspension','dialog');
   }
 
   ngOnDestroy(): void {
-    this.subscription.unsubscribe();
-    this.tableCrudService.resetSelectedRows();
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+    this.reset();
   }
 
-  async getCategoriasTp(){
+  async getSuspensiones(){
     try {
-      this.categoriasTp = <CategoriaTp[]> await this.categoriasTpService.getCategoriasTp();      
+      this.suspensiones = <Suspension[]> await this.suspensionesService.getSuspensiones();      
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
@@ -91,15 +93,15 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
     }
   }
 
-  async insertCategoriaTp(){
+  async insertSuspension(){
     try {
       const actionForm: any = await new Promise((resolve, reject) => {
-        this.categoriasTpService.setModeForm('insert',null,resolve,reject)
+        this.suspensionesService.setModeForm('insert',null,resolve,reject)
       })
       
       if (actionForm.success) {
         //insert exitoso
-        this.getCategoriasTp();
+        this.getSuspensiones();
         this.messageService.add({
           key: this.keyPopups,
           severity: 'success',
@@ -119,14 +121,14 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
     }
   }
 
-  async updateCategoriaTp(){
+  async updateSuspension(){
     try {
-      const data = this.categoriaTp;
+      const data = this.suspension;
       const actionForm: any = await new Promise((resolve, reject) => {
-        this.categoriasTpService.setModeForm('update',data,resolve,reject)
+        this.suspensionesService.setModeForm('update',data,resolve,reject)
       })
       if (actionForm.success) {
-        this.getCategoriasTp();
+        this.getSuspensiones();
         this.messageService.add({
           key: this.keyPopups,
           severity: 'success',
@@ -144,16 +146,15 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
     }finally{
       this.dialog = true
     }
-
   }
 
-  async deleteCategoriaTp(categoriaTpToDelete: CategoriaTp[]){
+  async deleteSuspension(dataToDelete: Suspension[]){
     try {
-      const deleted:{ dataWasDeleted: boolean, dataDeleted: [] } = await this.categoriasTpService.deleteCategoriaTp(categoriaTpToDelete);
-      const message = mergeNames(null,deleted.dataDeleted,false,'Descripcion_categoria')
+      const deleted:{ dataWasDeleted: boolean, dataDeleted: [] } = await this.suspensionesService.deleteSuspension({suspensionToDelete: dataToDelete});
+      const message = mergeNames(null,deleted.dataDeleted,false,'Descripcion_TipoSuspension')
       if ( deleted.dataWasDeleted ) {
-        this.getCategoriasTp();
-        if ( categoriaTpToDelete.length > 1 ){
+        this.getSuspensiones();
+        if ( dataToDelete.length > 1 ){
           this.messageService.add({
             key: this.keyPopups,
             severity: 'success',
@@ -182,7 +183,7 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
     try {
       this.reset();
       await new Promise((resolve,reject) => {
-        this.categoriasTpService.setModeForm('create',null,resolve,reject)
+        this.suspensionesService.setModeForm('create',null,resolve,reject)
       })
     } catch (e: any) {
       this.errorTemplateHandler.processError(
@@ -199,9 +200,9 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
 
   async showForm(){
     try {
-      const data = this.categoriaTp;
+      const data = this.suspension;
       await new Promise((resolve, reject) => {
-        this.categoriasTpService.setModeForm('show',data,resolve,reject);
+        this.suspensionesService.setModeForm('show',data,resolve,reject);
       })
     } catch (e: any) {
       this.errorTemplateHandler.processError(
@@ -215,14 +216,13 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
     finally{
       this.dialog = true;
     }
-
   }
 
   async editForm(){
     try {
-      const data = this.categoriaTp;
+      const data = this.suspension;
       await new Promise((resolve, reject) => {
-        this.categoriasTpService.setModeForm('edit',data,resolve,reject);
+        this.suspensionesService.setModeForm('edit',data,resolve,reject);
       })
     } catch (e:any) {
       this.errorTemplateHandler.processError(
@@ -237,14 +237,13 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
     }
   }
 
-
   reset() {
     this.tableCrudService.resetSelectedRows();
+    this.uploaderFilesService.setAction('reset')
   }
 
-
-  async openConfirmationDeleteSelected(categoriaTpSelected: any){
-    const message = mergeNames(this.namesCrud,categoriaTpSelected,true,'Descripcion_categoria')
+  async openConfirmationDeleteSelected(data: any){
+    const message = mergeNames(this.namesCrud,data,true,'Descripcion_TipoSuspension')
     this.confirmationService.confirm({
       header: "Confirmar",
       message: `Es necesario confirmar la acción para eliminar ${message}. ¿Desea confirmar?`,
@@ -256,7 +255,7 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
         try {
-          await this.deleteCategoriaTp(categoriaTpSelected);
+          await this.deleteSuspension(data);
         } catch (e:any) {
           this.errorTemplateHandler.processError(
             e, {
@@ -269,10 +268,10 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
     })
   }
 
-  async openConfirmationDelete(categoriaTp: any){
+  async openConfirmationDelete(data: any){
     this.confirmationService.confirm({
       header: 'Confirmar',
-      message: `Es necesario confirmar la acción para eliminar ${this.namesCrud.articulo_singular} <b>${categoriaTp.Descripcion_categoria}</b>. ¿Desea confirmar?`,
+      message: `Es necesario confirmar la acción para eliminar ${this.namesCrud.articulo_singular} <b>${data.Descripcion_TipoSuspension}</b>. ¿Desea confirmar?`,
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
@@ -281,9 +280,9 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
           let dataToDelete = []
-          dataToDelete.push(categoriaTp);
+          dataToDelete.push(data);
           try {
-            await this.deleteCategoriaTp(dataToDelete);
+            await this.deleteSuspension(dataToDelete);
           } catch (e:any) {
             this.errorTemplateHandler.processError(
               e, {
@@ -300,10 +299,10 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
     try {
       if ( this.modeForm == 'create' ) {
         //modo creacion
-        await this.insertCategoriaTp()
+        await this.insertSuspension()
       }else{
         //modo edit
-        await this.updateCategoriaTp();
+        await this.updateSuspension();
       }
     } catch (e:any) {
       const action = this.modeForm === 'create' ? 'guardar' : 'actualizar';
@@ -317,6 +316,7 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
       this.dialog = false;
     }
   }
+
 
 
 }

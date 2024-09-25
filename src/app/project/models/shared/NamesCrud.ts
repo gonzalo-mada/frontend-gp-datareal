@@ -3,5 +3,5 @@ export interface NamesCrud{
     plural: string;
     articulo_singular: string;
     articulo_plural: string;
-    genero: string;
+    genero: 'femenino' | 'masculino';
 }

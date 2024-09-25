@@ -91,6 +91,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
         }
     }));
     this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
+    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(file => {file && this.downloadDoc(file)}));
     this.subscription.add(this.fbForm.get('tiempo.Fecha_inicio')?.valueChanges.subscribe(() => this.calculateYearsDifference()))
     this.subscription.add(this.fbForm.get('tiempo.Fecha_termino')?.valueChanges.subscribe(() => this.calculateYearsDifference()))
     this.subscription.add(this.fbForm.get('Acreditado')?.valueChanges.subscribe(status => {

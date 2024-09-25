@@ -207,13 +207,13 @@ export class CampusComponent implements OnInit, OnDestroy {
     }
   }
 
-  async deleteCampus(campusToDelete: Campus[], isFromDeleteSelected = false){
+  async deleteCampus(campusToDelete: Campus[]){
     try {
       const deleted:{ dataWasDeleted: boolean, dataDeleted: [] } = await this.campusService.deleteCampusService(campusToDelete);
       const message = mergeNames(null,deleted.dataDeleted,false,'Descripcion_campus')
       if ( deleted.dataWasDeleted ) {
         this.getCampuses();
-        if ( isFromDeleteSelected ){
+        if ( campusToDelete.length > 1 ){
           this.messageService.add({
             key: this.keyPopups,
             severity: 'success',
@@ -353,7 +353,7 @@ export class CampusComponent implements OnInit, OnDestroy {
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
         try {
-          await this.deleteCampus(campusSelected , true); 
+          await this.deleteCampus(campusSelected); 
         } catch (e:any) {
           this.errorTemplateHandler.processError(
             e, {

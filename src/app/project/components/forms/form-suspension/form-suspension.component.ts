@@ -6,10 +6,12 @@ import { ActionUploadDoc } from 'src/app/project/models/shared/ActionUploadDoc';
 import { DataInserted } from 'src/app/project/models/shared/DataInserted';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 import { Suspension } from 'src/app/project/models/Suspension';
-import { MenuButtonsTableService } from 'src/app/project/services/components/menu-buttons-table.service';
 import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
 import { SuspensionesService } from 'src/app/project/services/suspensiones.service';
 import { generateMessage } from 'src/app/project/tools/utils/form.utils';
+import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
+import { DataUpdated } from 'src/app/project/models/shared/DataUpdated';
+import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 
 @Component({
   selector: 'app-form-suspension',
@@ -19,9 +21,10 @@ import { generateMessage } from 'src/app/project/tools/utils/form.utils';
 })
 export class FormSuspensionComponent implements OnInit, OnDestroy{
 
-  constructor(private suspensionesService: SuspensionesService,  
+  constructor(private commonUtils: CommonUtils,
+    private errorTemplateHandler: ErrorTemplateHandler,
     private fb: FormBuilder,
-    private menuButtonsTableService: MenuButtonsTableService,
+    public suspensionesService: SuspensionesService,  
     private uploaderFilesService: UploaderFilesService
   ){}
 
@@ -32,16 +35,15 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
   private subscription: Subscription = new Subscription();
 
   get modeForm() {
-    return this.suspensionesService.modeFormSuspension;
+    return this.suspensionesService.modeForm;
   }
+
   public fbForm: FormGroup = this.fb.group({
     Descripcion_TipoSuspension: ['', [Validators.required , Validators.pattern(/^(?!\s*$).+/)]],
     files: [[], this.filesValidator.bind(this)]
   })
 
   ngOnInit(): void {
-    this.menuButtonsTableService.setContext('form-susp','dialog');
-
     this.namesCrud = {
       singular: 'tipo de suspensión',
       plural: 'tipo de suspensión',
@@ -50,18 +52,22 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
       genero: 'masculino'
     };
 
-    this.subscription.add(this.fbForm.statusChanges.subscribe(status => { this.suspensionesService.stateFormSuspension = status as StateValidatorForm }))
+    this.subscription.add(this.fbForm.statusChanges.subscribe(status => { this.suspensionesService.stateForm = status as StateValidatorForm }))
     this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
+    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(file => {file && this.downloadDoc(file)}));
     this.subscription.add(
-      this.suspensionesService.modeCrud$.subscribe( crud => {
-        if (crud && crud.mode) {
-          this.showAsterisk = true;
-          switch (crud.mode) {
-            case 'create': this.createForm(); break;
-            case 'insert': this.insertFormSusp(crud.resolve!, crud.reject!); break;
-          
-            default:
-              break;
+      this.suspensionesService.formUpdate$.subscribe( form => {
+        if (form && form.mode) {
+          if (form.data) {
+            this.suspension = {};
+            this.suspension = form.data;
+          }
+          switch (form.mode) {
+            case 'create': this.createForm(form.resolve! , form.reject!); break;
+            case 'show': this.showForm(form.resolve! , form.reject!); break;
+            case 'edit': this.editForm(form.resolve! , form.reject!); break;
+            case 'insert': this.insertForm(form.resolve!, form.reject!); break;
+            case 'update': this.updateForm(form.resolve! , form.resolve!); break;
           }
         }
       })
@@ -94,27 +100,43 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
     return null;
   }
 
-  filesChanged(files: any){
-    this.fbForm.patchValue({ files });
-    this.fbForm.controls['files'].updateValueAndValidity();
+  createForm(resolve: Function, reject: Function){
+    try {
+      this.resetForm();
+      resolve(true)
+    } catch (e) {
+      reject(e)
+    }
   }
 
-  resetForm(){
-    this.suspension = {};
-    this.fbForm.reset({
-      Descripcion_TipoSuspension: '',
-      files : []
-    });
-    this.showAsterisk = false;
-    // this.uploaderFilesService.setAction('reset');
-    this.fbForm.controls['files'].updateValueAndValidity();
+  async showForm(resolve: Function, reject: Function){
+    try {
+      this.fbForm.patchValue({...this.suspension});
+      this.fbForm.get('Descripcion_TipoSuspension')?.disable();
+      this.showAsterisk = false;
+      await this.loadDocsWithBinary(this.suspension);
+      resolve(true)
+    } catch (e) {      
+      reject(e)
+    }
   }
 
-  createForm(){
-    // this.resetForm();
+  async editForm(resolve: Function, reject: Function){
+    try {
+      const data = {...this.suspension};
+      console.log("data",data);
+      
+      this.fbForm.patchValue({...this.suspension});
+      this.fbForm.get('Descripcion_TipoSuspension')?.enable();
+      this.showAsterisk = true;
+      await this.loadDocsWithBinary(this.suspension);
+      resolve(true)
+    } catch (e) {      
+      reject(e)
+    }
   }
 
-  async insertFormSusp(resolve: Function, reject: Function){
+  async insertForm(resolve: Function, reject: Function){
     try {
       let params = {};
       
@@ -142,5 +164,87 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
       this.resetForm()
     }
   }
+
+  async updateForm(resolve: Function, reject: Function){
+    try {
+      let params = {};
+      
+      const actionUploadDoc: ActionUploadDoc = await new Promise((res, rej) => {
+        this.uploaderFilesService.setAction('upload',res,rej);
+      });
+
+      if (actionUploadDoc.success) {
+        params = {
+          ...this.fbForm.value,
+          ID_TipoSuspension: this.suspension.ID_TipoSuspension,
+          docsToUpload: actionUploadDoc.docsToUpload,
+          docsToDelete: actionUploadDoc.docsToDelete,
+        }
+      };
+
+      const updated: DataUpdated = await this.suspensionesService.insertSuspension(params);
+      
+      if (updated.dataWasUpdated) {
+        const messageGp = generateMessage(this.namesCrud, updated.dataUpdated, 'actualizado', true,false);
+        resolve({success:true , dataInserted: updated.dataUpdated , messageGp})
+        this.resetForm()
+      }
+
+    } catch (e) {
+      reject(e)
+      this.resetForm()
+    }
+  }
+
+
+
+  filesChanged(files: any){
+    this.fbForm.patchValue({ files });
+    this.fbForm.controls['files'].updateValueAndValidity();
+  }
+
+  resetForm(){
+    this.fbForm.reset({
+      Descripcion_TipoSuspension: '',
+      files : []
+    });
+    this.fbForm.get('Descripcion_TipoSuspension')!.enable();
+    this.showAsterisk = false;
+    this.uploaderFilesService.setAction('reset');
+    this.fbForm.controls['files'].updateValueAndValidity();
+  }
+
+  async loadDocsWithBinary(suspension: Suspension){
+    try {
+      const files = await this.suspensionesService.getDocumentosWithBinary({ID_TipoSuspension: suspension.ID_TipoSuspension});
+      this.uploaderFilesService.setFiles(files);
+      this.filesChanged(files);
+      return files;
+    } catch (e: any) {
+      this.errorTemplateHandler.processError(e, {
+        notifyMethod: 'alert',
+        summary: 'Error al obtener documentos',
+        message: e.detail.error.message.message
+      });
+    }
+  }
+
+  async downloadDoc(documento: any) {
+    try {
+      let blob: Blob = await this.suspensionesService.getArchiveDoc(documento.id);
+      this.commonUtils.downloadBlob(blob, documento.nombre);      
+    } catch (e:any) {
+      this.errorTemplateHandler.processError(
+        e, {
+          notifyMethod: 'alert',
+          summary: 'Error al descargar documento',
+          message: e.detail.error.message.message,
+      });
+    }
+  }
+
+
+
+
 
 }

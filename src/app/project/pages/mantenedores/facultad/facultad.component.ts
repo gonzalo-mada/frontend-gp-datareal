@@ -208,13 +208,13 @@ export class FacultadComponent implements OnInit, OnDestroy {
     }
   }
 
-  async deleteFacultad(facultadToDelete: Facultad[], isFromDeleteSelected = false){    
+  async deleteFacultad(facultadToDelete: Facultad[]){    
     try {
       const deleted:{ dataWasDeleted: boolean, dataDeleted: [] } = await this.facultadService.deleteFacultadService(facultadToDelete);
       const message = mergeNames(null,deleted.dataDeleted,false,'Descripcion_facu')
       if ( deleted.dataWasDeleted ) {
         this.getFacultades();
-        if ( isFromDeleteSelected ){
+        if ( facultadToDelete.length > 1 ){
           this.messageService.add({
             key: this.keyPopups,
             severity: 'success',
@@ -353,7 +353,7 @@ export class FacultadComponent implements OnInit, OnDestroy {
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
         try {
-          await this.deleteFacultad(facultadSelected , true);
+          await this.deleteFacultad(facultadSelected);
         } catch (e:any) {
           this.errorTemplateHandler.processError(
             e, {

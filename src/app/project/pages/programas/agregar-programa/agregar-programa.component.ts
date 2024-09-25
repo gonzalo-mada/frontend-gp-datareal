@@ -275,14 +275,14 @@ export class AgregarProgramaComponent {
 
   async addNewSuspension(){
     this.newSuspensionDialog = true;
-    this.suspensionesService.setModeSubject('create');
+    this.suspensionesService.setModeForm('create');
   }
 
 
   async submitNewSuspension(){
     try {
       const result: any = await new Promise((resolve: Function, reject: Function) => {
-        this.suspensionesService.setModeSubject('insert',null,resolve, reject);
+        this.suspensionesService.setModeForm('insert',null,resolve, reject);
       })
       console.log("resulttt",result);
       

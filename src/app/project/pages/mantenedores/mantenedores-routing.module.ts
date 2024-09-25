@@ -36,6 +36,11 @@ const routes: Routes = [
     path: 'unidades',
     loadChildren: () => import('./unidades-academicas/unidades-academicas.module').then((m) => m.UnidadesAcademicasModule),
     title: 'Unidades académicas'
+  },
+  {
+    path: 'tipos',
+    loadChildren: () => import('./suspension/suspension.module').then((m) => m.SuspensionModule),
+    title: 'Tipos de suspensiones'
   }
 
   

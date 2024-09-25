@@ -210,13 +210,13 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
     }
   }
  
-  async deleteUnidadAcademica(unidadAcadToDelete: UnidadAcademica[], isFromDeleteSelected = false){
+  async deleteUnidadAcademica(unidadAcadToDelete: UnidadAcademica[]){
     try {
       const deleted:{ dataWasDeleted: boolean, dataDeleted: [] } = await this.unidadesAcademicasService.logica_deleteUnidadesAcademicas(unidadAcadToDelete);
       const message = mergeNames(null,deleted.dataDeleted,false,'Descripcion_ua')
       if ( deleted.dataWasDeleted ) {
         this.getUnidadesAcademicas();
-        if ( isFromDeleteSelected ){
+        if ( unidadAcadToDelete.length > 1 ){
           this.messageService.add({
             key: this.keyPopups,
             severity: 'success',
@@ -344,7 +344,7 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
         try {
-          await this.deleteUnidadAcademica(unidadAcademicaSelected , true);
+          await this.deleteUnidadAcademica(unidadAcademicaSelected);
         } catch (e:any) {
           this.errorTemplateHandler.processError(
             e, {

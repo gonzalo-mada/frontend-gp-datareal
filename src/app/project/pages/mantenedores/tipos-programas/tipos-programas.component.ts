@@ -173,13 +173,13 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
     }
   }
 
-  async deleteTipoPrograma(tipoProgramaToDelete: TipoPrograma[], isFromDeleteSelected = false){    
+  async deleteTipoPrograma(tipoProgramaToDelete: TipoPrograma[]){    
     try {
       const deleted:{ dataWasDeleted: boolean, dataDeleted: [] } = await this.tipoProgramaService.deleteTipoPrograma(tipoProgramaToDelete);
       const message = mergeNames(null,deleted.dataDeleted,false,'Descripcion_tp')
       if ( deleted.dataWasDeleted ) {
         this.getTiposProgramas();
-        if ( isFromDeleteSelected ){
+        if ( tipoProgramaToDelete.length > 1 ){
           this.messageService.add({
             key: this.keyPopups,
             severity: 'success',
@@ -247,7 +247,7 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
         try {
-          await this.deleteTipoPrograma(tipoProgramaSelected , true);
+          await this.deleteTipoPrograma(tipoProgramaSelected);
         } catch (e:any) {
           this.errorTemplateHandler.processError(
             e, {

@@ -11,18 +11,27 @@ type ModeForm = undefined | 'create' | 'edit' | 'show' | 'insert' | 'update' | '
 })
 export class SuspensionesService {
 
-  modeFormSuspension: ModeForm = undefined;
-  stateFormSuspension: StateValidatorForm = undefined;
+  modeForm: ModeForm = undefined;
+  stateForm: StateValidatorForm = undefined;
 
-  private modeCrudSubject = new BehaviorSubject<{mode: ModeForm, data?: Suspension | null, resolve?: Function, reject?: Function} | null>(null);
-  modeCrud$ = this.modeCrudSubject.asObservable();
+  private crudUpdate = new BehaviorSubject<{mode: ModeForm, data?: Suspension | null, resolve?: Function, reject?: Function} | null>(null);
+  crudUpdate$ = this.crudUpdate.asObservable();
+
+  private formUpdate = new BehaviorSubject<{mode: ModeForm, data?: Suspension | null, resolve?: Function, reject?: Function} | null>(null);
+  formUpdate$ = this.formUpdate.asObservable();
 
   constructor(private invoker: InvokerService){}
 
-  setModeSubject(mode: ModeForm, data?: Suspension | null, resolve?: Function, reject?: Function){
-    this.modeFormSuspension = mode;
-    this.modeCrudSubject.next({mode, data, resolve, reject});
-    this.modeCrudSubject.next(null);
+  setModeCrud(mode: ModeForm, data?: Suspension | null, resolve?: Function, reject?: Function){
+    this.modeForm = mode;
+    this.crudUpdate.next({mode, data, resolve, reject});
+    this.crudUpdate.next(null);
+  }
+
+  setModeForm(mode: ModeForm, data?: Suspension | null, resolve?: Function, reject?: Function){
+    this.modeForm = mode;
+    this.formUpdate.next({mode, data, resolve, reject});
+    this.formUpdate.next(null);
   }
 
   async getSuspensiones(){

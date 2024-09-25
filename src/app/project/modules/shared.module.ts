@@ -29,6 +29,7 @@ import { ConfigModeComponent } from '../components/config-mode/config-mode.compo
 import { TableProgramasEstadosAcreditacionComponent } from '../components/tables/programas/table-programas-estados-acreditacion/table-programas-estados-acreditacion.component';
 import { FormSuspensionComponent } from '../components/forms/form-suspension/form-suspension.component';
 import { TableProgramasSuspensionesComponent } from '../components/tables/programas/table-programas-suspensiones/table-programas-suspensiones.component';
+import { TableSuspensionesComponent } from '../components/tables/table-suspensiones/table-suspensiones.component';
 
 const componentsGp = [
   BreadcrumbgpComponent,
@@ -49,6 +50,7 @@ const componentsGp = [
   TableProgramasDirectoresComponent,
   TableProgramasEstadosAcreditacionComponent,
   TableProgramasSuspensionesComponent,
+  TableSuspensionesComponent,
   TableUnidadesAcademicasComponent
 ]
 
@@ -57,7 +59,7 @@ const componentsGp = [
     //pipes
     FileSizePipe,
     FileExtensionPipe,
-    ...componentsGp
+    ...componentsGp,
   ],
   imports: [
     CommonModule,
