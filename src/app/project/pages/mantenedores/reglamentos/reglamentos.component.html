@@ -1,0 +1,49 @@
+<p-toast [key]="keyPopups"></p-toast>
+<p-confirmDialog [key]="keyPopups" [style]="{ width: '500px' }"></p-confirmDialog>
+
+<div class="grid">
+    <div class="col-12">
+        <app-card header="Mantenedor de reglamentos"
+            subheader="Permite ver, crear, actualizar y eliminar reglamentos.">
+            
+            <!-- Botones de menú -->
+            <app-menu-buttons-table></app-menu-buttons-table>
+
+            <!-- Tabla de reglamentos -->
+            <app-table-reglamentos [data]="reglamentos"></app-table-reglamentos>
+
+            <!-- Dialogo para crear, actualizar o ver reglamentos -->
+            <app-dialog [(visible)]="dialog">
+                <div header>
+                    <ng-container [ngSwitch]="modeForm">
+                        <ng-container *ngSwitchCase="'create'">
+                            <span class="text-xl">Agregar reglamento de programa</span>
+                        </ng-container>
+                        <ng-container *ngSwitchCase="'edit'">
+                            <span class="text-xl">Actualizar reglamento de programa</span>
+                        </ng-container>
+                        <ng-container *ngSwitchCase="'show'">
+                            <span class="text-xl">Ver reglamento de programa</span>
+                        </ng-container>
+                    </ng-container>
+                </div>
+
+                <div content>
+                    <!-- Formulario de reglamentos -->
+                    <app-form-reglamentos></app-form-reglamentos>
+                </div>
+
+                <!-- Botones de acción en el footer -->
+                <div footer>
+                    <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" 
+                        (click)="dialog = false" [text]="true"></p-button>
+                    
+                    <p-button *ngIf="modeForm === 'create' || modeForm === 'edit'"
+                        [label]="modeForm === 'edit' ? 'Actualizar' : 'Guardar'" icon="pi pi-check"
+                        styleClass="mr-2 p-button-success p-button-sm" [disabled]="!fbForm.valid"
+                        (click)="fbForm.valid && submit()"></p-button>
+                </div>
+            </app-dialog>
+        </app-card>
+    </div>
+</div>

@@ -36,7 +36,12 @@ const routes: Routes = [
     path: 'unidades',
     loadChildren: () => import('./unidades-academicas/unidades-academicas.module').then((m) => m.UnidadesAcademicasModule),
     title: 'Unidades académicas'
-  }
+  },
+  {
+    path: 'reglamentos',
+    loadChildren: () => import('./reglamentos/reglamentos.module').then((m) => m.ReglamentosModule),
+    title: 'Reglamentos'
+  },
 
   
 ];

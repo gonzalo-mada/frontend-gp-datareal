@@ -29,6 +29,8 @@ import { ConfigModeComponent } from '../components/config-mode/config-mode.compo
 import { TableProgramasEstadosAcreditacionComponent } from '../components/tables/programas/table-programas-estados-acreditacion/table-programas-estados-acreditacion.component';
 import { FormSuspensionComponent } from '../components/forms/form-suspension/form-suspension.component';
 import { TableProgramasSuspensionesComponent } from '../components/tables/programas/table-programas-suspensiones/table-programas-suspensiones.component';
+import { TableReglamentosComponent } from '../components/tables/table-reglamentos/table-reglamentos.component';
+import { FormReglamentosComponent } from '../components/forms/form-reglamentos/form-reglamentos.component';
 
 const componentsGp = [
   BreadcrumbgpComponent,
@@ -36,6 +38,7 @@ const componentsGp = [
   ConfigModeComponent,
   DialogComponent,
   DialogVisorPdfComponent,
+  FormReglamentosComponent,
   FormCategoriasTpComponent,
   FormEstadosAcreditacionComponent,
   FormSuspensionComponent,
@@ -49,7 +52,8 @@ const componentsGp = [
   TableProgramasDirectoresComponent,
   TableProgramasEstadosAcreditacionComponent,
   TableProgramasSuspensionesComponent,
-  TableUnidadesAcademicasComponent
+  TableUnidadesAcademicasComponent,
+  TableReglamentosComponent
 ]
 
 @NgModule({
