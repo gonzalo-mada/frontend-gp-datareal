@@ -22,7 +22,7 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
 
   constructor(private confirmationService: ConfirmationService,
     private commonUtils: CommonUtils,
-    private errorTemplateHandler: ErrorTemplateHandler,
+   private errorTemplateHandler: ErrorTemplateHandler,
     private reglamentosService: ReglamentosService,
     private fb: FormBuilder,
     private messageService: MessageService,
