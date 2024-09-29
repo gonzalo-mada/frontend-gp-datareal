@@ -88,21 +88,28 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
       this.reglamentosService.modeCrud$.subscribe(crud => {
         if (crud && crud.mode) {
           if (crud.data) {
-            this.reglamento = {};
-            this.reglamento = crud.data;
+            this.reglamento = { ...crud.data }; // Clonamos crud.data en this.reglamento
           }
-          switch (crud.mode) {
-            // case 'show': this.showForm(); break;
-            case 'edit': this.openEdit(); break;
-            case 'insert': this.insertReglamento(); break;
-            // case 'update': this.updateReglamento(); break;
-            case 'delete': this.openConfirmationDelete(this.reglamento); break;
+    
+          // Mapeo de modos a funciones
+          const modeActions: { [key: string]: Function } = {
+            show: () => this.showForm(),
+            edit: () => this.openEdit(),
+            insert: () => this.insertReglamento(),
+            update: () => this.updateReglamento(),
+            delete: () => this.openConfirmationDelete(this.reglamento),
+          };
+    
+          // Ejecutar la acción correspondiente al modo
+          const action = modeActions[crud.mode];
+          if (action) {
+            action();
           }
         }
       })
     );
-    this.menuButtonsTableService.setContext('reglamento','dialog');
-  }
+    
+    this.menuButtonsTableService.setContext('reglamento', 'dialog');}
   
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
@@ -364,7 +371,7 @@ async submit() {
     this.uploaderFilesService.setAction('reset')
   }
 
-  async openEdit(){
+  async editForm(){
     try {
       this.reset();
       const data = this.reglamento;
@@ -382,6 +389,40 @@ async submit() {
       this.dialog = true;
     }
 
+  }
+
+  async openEdit(){
+    try {
+      this.reset();
+      this.reglamentosService.setModeCrud('edit')
+      // const data = this.reglamento;
+    } catch (e:any) {
+      this.errorTemplateHandler.processError(e, {
+        notifyMethod: 'alert',
+        summary: `Error al editar formulario de ${this.namesCrud.articulo_singular}`,
+        message: e.message,
+        }
+      );
+    }finally{
+      this.dialog = true;
+    }
+  }
+
+  async showForm(){
+    try {
+      this.reset();
+      this.reglamentosService.setModeCrud('show')
+
+    } catch (e:any) {
+      this.errorTemplateHandler.processError(e, {
+        notifyMethod: 'alert',
+        summary: `Error al visualizar ${this.namesCrud.articulo_singular}`,
+        message: e.message,
+        }
+      );
+    }finally{
+      this.dialog = true;
+    }
   }
 
 }
@@ -442,25 +483,7 @@ async submit() {
 
 
 
-  // async showForm(){
-  //   try {
-  //     this.reset();
-  //     this.fbForm.patchValue({...this.reglamento});
-  //     this.fbForm.get('Descripcion_regla')?.disable();
-  //     this.fbForm.get('vigencia')?.disable();
-  //     this.fbForm.get('anio')?.disable();
-  //     await this.loadDocsWithBinary(this.reglamento);
-  //   } catch (e:any) {
-  //     this.errorTemplateHandler.processError(e, {
-  //       notifyMethod: 'alert',
-  //       summary: `Error al visualizar ${this.namesCrud.articulo_singular}`,
-  //       message: e.message,
-  //       }
-  //     );
-  //   }finally{
-  //     this.dialog = true;
-  //   }
-  // }
+
 
 
 

@@ -77,27 +77,52 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
 
     this.subscription.add(
       this.reglamentosService.modeCrud$.subscribe(crud => {
-        if (crud && crud.mode) {
-          this.showAsterisk = true;
-          switch (crud.mode) {
-            case 'create':
-              console.log(crud.mode);
-              this.createForm();
-              break;
-            case 'insert':
-              console.log(crud.mode);
-              this.insertForm(crud.resolve!, crud.reject!);
-              break;
-            case 'update':
-            this.updateForm(crud.resolve!, crud.reject!);
-            break;
-
-              default:
-              break;
+        if (crud && crud.mode && crud.data) {
+          this.reglamento = crud.data; // Asignamos el reglamento seleccionado
+    
+          // Si el modo es 'edit' o 'update', llenamos el formulario con los datos del reglamento
+          if (crud.mode === 'edit' || crud.mode === 'update') {
+            this.fbForm.patchValue({
+              Cod_reglamento: this.reglamento.Cod_reglamento,
+              Descripcion_regla: this.reglamento.Descripcion_regla,
+              anio: this.reglamento.anio,
+              vigencia: this.reglamento.vigencia
+              // Agrega otros campos aquí según los campos de tu formulario reactivo
+            });
           }
         }
       })
     );
+
+   this.subscription.add(
+  this.reglamentosService.modeCrud$.subscribe(crud => {
+    if (crud && crud.mode) {
+      this.showAsterisk = true;
+      
+      // Mapeo de modos a funciones
+      const modeActions: { [key: string]: Function } = {
+        create: () => {
+          console.log(crud.mode);
+          this.createForm();
+        },
+        insert: () => {
+          console.log(crud.mode);
+          this.insertForm(crud.resolve!, crud.reject!);
+        },
+        update: () => {
+          this.updateForm(crud.resolve!, crud.reject!);
+        }
+      };
+
+      // Ejecutar la acción correspondiente al modo
+      const action = modeActions[crud.mode];
+      if (action) {
+        action();
+      }
+    }
+  })
+);
+
   }
 
   ngOnDestroy(): void {
