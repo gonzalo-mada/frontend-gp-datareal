@@ -9,6 +9,8 @@ import { MenuButtonsTableService } from 'src/app/project/services/components/men
 import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
 import { ReglamentosService } from 'src/app/project/services/reglamentos.service';
 import { generateMessage } from 'src/app/project/tools/utils/form.utils';
+import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
+import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 
 @Component({
   selector: 'app-form-reglamentos',
@@ -20,7 +22,10 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
     private reglamentosService: ReglamentosService,
     private fb: FormBuilder,
     private menuButtonsTableService: MenuButtonsTableService,
-    private uploaderFilesService: UploaderFilesService
+    private uploaderFilesService: UploaderFilesService,
+    private commonUtils: CommonUtils,
+    private errorTemplateHandler: ErrorTemplateHandler,
+
   ) {
     const currentYear = new Date().getFullYear();
     this.maxDate = new Date(currentYear, 11, 31);
@@ -59,12 +64,14 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
 
     // Subscripciones
     this.subscription.add(this.fbForm.statusChanges.subscribe(status => {
-      this.reglamentosService.stateFormReglamento = status as StateValidatorForm;
+      this.reglamentosService.stateForm = status as StateValidatorForm;
     }));
 
     this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe(event => {
       if (event) this.filesChanged(event);
     }));
+    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(file => {file && this.downloadDoc(file)}));
+    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
 
     this.subscription.add(
       this.reglamentosService.modeCrud$.subscribe(crud => {
@@ -72,10 +79,12 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
           this.showAsterisk = true;
           switch (crud.mode) {
             case 'create':
+              console.log(crud.mode);
               this.createForm();
               break;
             case 'insert':
-              this.insertFormReglamento(crud.resolve!, crud.reject!);
+              console.log(crud.mode);
+              this.insertForm(crud.resolve!, crud.reject!);
               break;
             default:
               break;
@@ -112,12 +121,26 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
     this.fbForm.controls['files'].updateValueAndValidity();
   }
 
+  async downloadDoc(documento: any) {
+    try {
+      let blob: Blob = await this.reglamentosService.getArchiveDoc(documento.id);
+      this.commonUtils.downloadBlob(blob, documento.nombre);      
+    } catch (e:any) {
+      this.errorTemplateHandler.processError(
+        e, {
+          notifyMethod: 'alert',
+          summary: 'Error al descargar documento',
+          message: e.detail.error.message.message
+      });
+    }
+  }
+
   // Reinicia el formulario
   resetForm(): void {
     this.fbForm.reset({
       Descripcion_regla: '',
       anio: '',
-      vigencia: true,
+      vigencia: false,
       files: []
     });
     this.showAsterisk = false;
@@ -130,34 +153,45 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
   }
 
   // Insertar reglamento
-  async insertFormReglamento(resolve: Function, reject: Function): Promise<void> {
+  async insertForm(resolve: Function, reject: Function): Promise<void> {
     try {
       let params = {};
-      
+  
+      // Siempre requerimos documentos
       const actionUploadDoc: ActionUploadDoc = await new Promise((res, rej) => {
         this.uploaderFilesService.setAction('upload', res, rej);
       });
-
+  
       if (actionUploadDoc.success) {
+        // Preparar los parámetros excluyendo "files" y agregando los documentos
+        const { files, ...formData } = this.fbForm.value;
         params = {
-          ...this.fbForm.value,
+          ...formData,
           docsToUpload: actionUploadDoc.docsToUpload
         };
+        console.log(params,  actionUploadDoc.docsToUpload);
+        
       }
-
+      console.log(params);
+      
+  
+      // Insertar los reglamentos utilizando el servicio
       const inserted: DataInserted = await this.reglamentosService.insertReglamento(params);
-
+  
       if (inserted.dataWasInserted) {
+        // Generar mensaje de éxito y resolver la promesa
         const messageGp = generateMessage(this.namesCrud, inserted.dataInserted, 'creado', true, false);
         resolve({ success: true, dataInserted: inserted.dataInserted, messageGp });
-        this.resetForm();
+        this.resetForm();  // Resetear el formulario tras el éxito
       }
-
+  
     } catch (e) {
+      // Rechazar la promesa en caso de error
       reject(e);
       this.resetForm();
     }
   }
+  
 
   changeState(): void {
     this.fbForm.controls['files'].updateValueAndValidity();

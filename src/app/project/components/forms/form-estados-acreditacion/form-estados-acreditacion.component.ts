@@ -232,7 +232,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
     this.uploaderFilesService.disabledButtonSeleccionar();
   }
 
-  async insertForm(resolve: Function, reject: Function){
+  async insertForm(resolve: Function, reject: Function): Promise<void>{
     try {
       let params = {};
 
@@ -253,7 +253,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
           params = {
             ...formData,
             docsToUpload: actionUploadDoc.docsToUpload
-          }
+          };
         }
       }
       console.log("params",params);

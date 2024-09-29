@@ -18,13 +18,13 @@ import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.ut
   styles: [
   ]
 })
+
 export class ReglamentosComponent implements OnInit, OnDestroy {
 
-  constructor(private confirmationService: ConfirmationService,
+  constructor(public reglamentosService: ReglamentosService,
+    private confirmationService: ConfirmationService,
     private commonUtils: CommonUtils,
-   private errorTemplateHandler: ErrorTemplateHandler,
-    private reglamentosService: ReglamentosService,
-    private fb: FormBuilder,
+    private errorTemplateHandler: ErrorTemplateHandler,
     private messageService: MessageService,
     private menuButtonsTableService: MenuButtonsTableService,
     private tableCrudService: TableCrudService,
@@ -39,7 +39,6 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
   reglamentos: Reglamento[] = [];
   reglamento: Reglamento = {};
   namesCrud! : NamesCrud;
-  cols: any[] = [];
   globalFiltros : any[] = [];
   selectedRowsService: any[] = [];
   dataKeyTable : string = '';
@@ -58,14 +57,18 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
   set modeForm(_val){
     this.reglamentosService.modeForm = _val;
   }
+
+  get modeCrud() {
+    return this.reglamentosService.modeForm;
+  }
   
 
-  public fbForm : FormGroup = this.fb.group({
-    Descripcion_regla: ['', [Validators.required , Validators.pattern(/^(?!\s*$).+/)]],
-    anio: ['', Validators.required],
-    vigencia: [true],
-    files: [[], this.filesValidator.bind(this)]
-  })
+  // public fbForm : FormGroup = this.fb.group({
+  //   Descripcion_regla: ['', [Validators.required , Validators.pattern(/^(?!\s*$).+/)]],
+  //   anio: ['', Validators.required],
+  //   vigencia: [true],
+  //   files: [[], this.filesValidator.bind(this)]
+  // })
 
   
   async ngOnInit() {
@@ -76,12 +79,6 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
       articulo_plural: 'los reglamentos',
       genero: 'masculino'
     };
-    
-    this.cols = [
-      { field: 'Descripcion_regla', header: 'Nombre' },
-      { field: 'vigencia', header: 'Vigencia' },
-      { field: 'accion', header: 'Acciones' }
-    ];
 
     this.globalFiltros = [ 'Descripcion_regla']
     this.dataKeyTable = 'Cod_reglamento';
@@ -91,8 +88,8 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
     
     this.subscription.add(this.menuButtonsTableService.onClickButtonAgregar$.subscribe(() => this.openCreate()));
     this.subscription.add(this.tableCrudService.onClickRefreshTable$.subscribe(() => this.getReglamentos()));
-    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(file => {file && this.downloadDoc(file)}));
-    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
+    //this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(file => {file && this.downloadDoc(file)}));
+    // this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
     this.subscription.add(this.menuButtonsTableService.onClickDeleteSelected$.subscribe(() => this.openConfirmationDeleteSelected(this.tableCrudService.getSelectedRows()) ))
     
     
@@ -104,10 +101,10 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
             this.reglamento = crud.data;
           }
           switch (crud.mode) {
-            case 'show': this.showForm(); break;
-            case 'edit': this.editForm(); break;
+            // case 'show': this.showForm(); break;
+            // case 'edit': this.editForm(); break;
             case 'insert': this.insertReglamento(); break;
-            case 'update': this.updateReglamento(); break;
+            // case 'update': this.updateReglamento(); break;
             case 'delete': this.openConfirmationDelete(this.reglamento); break;
           }
         }
@@ -119,8 +116,8 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
     this.tableCrudService.resetSelectedRows();
-    this.uploaderFilesService.updateValidatorFiles(null);
-    this.uploaderFilesService.setFiles(null);
+    // this.uploaderFilesService.updateValidatorFiles(null);
+    // this.uploaderFilesService.setFiles(null);
   }
 
   filesValidator(control: any): { [key: string]: boolean } | null {  
@@ -161,27 +158,26 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
 
   async insertReglamento(){
     try {
-
-      const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
-        this.uploaderFilesService.setAction('upload',resolve,reject);
-      });
-      if ( actionUploadDoc.success ) {
-        let params = {
-          Descripcion_regla: this.fbForm.get('Descripcion_regla')!.value,
-          vigencia: this.fbForm.get('vigencia')!.value,
-          anio: this.fbForm.get('anio')!.value,
-          docsToUpload: actionUploadDoc.docsToUpload
-        }
-        const inserted = await this.reglamentosService.insertReglamento(params)
-        if ( inserted.dataWasInserted ) {
-          this.getReglamentos();
-          this.messageService.add({
-            key: this.keyPopups,
-            severity: 'success',
-            detail: generateMessage(this.namesCrud,inserted.dataInserted,'creado',true,false)
-          });
-          this.reset();
-        }
+      const result: any = await new Promise <void> ((resolve: Function, reject: Function) => {
+        this.reglamentosService.setModeCrud('insert',null, resolve, reject);
+      })
+      if (result.success) {
+        //insert exitoso
+        this.getReglamentos();
+        this.messageService.add({
+          key: this.keyPopups,
+          severity: 'success',
+          detail: result.messageGp
+        });
+        this.reset();
+      }else{
+        this.errorTemplateHandler.processError(
+          result, {
+            notifyMethod: 'alert',
+            summary: result.messageGp,
+            message: result.e.detail.error.message,
+        });
+        this.reset();
       }
     } catch (e:any) {
         this.errorTemplateHandler.processError(
@@ -193,45 +189,44 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
       }
   }
 
-  async updateReglamento(){
-    try {
-  
-      const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
-        this.uploaderFilesService.setAction('upload',resolve,reject);
-      });
+  // async updateReglamento(){
+  //   try {
+  //     const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
+  //       this.uploaderFilesService.setAction('upload',resolve,reject);
+  //     });
  
-      if ( actionUploadDoc.success ) {
+  //     if ( actionUploadDoc.success ) {
  
-        let params = {
-          Descripcion_regla: this.fbForm.get('Descripcion_regla')!.value,
-          vigencia: this.fbForm.get('vigencia')!.value,
-          anio: this.fbForm.get('anio')!.value,
-          docsToUpload: actionUploadDoc.docsToUpload,
-          docsToDelete: actionUploadDoc.docsToDelete
-        }
+  //       let params = {
+  //         Descripcion_regla: this.fbForm.get('Descripcion_regla')!.value,
+  //         vigencia: this.fbForm.get('vigencia')!.value,
+  //         anio: this.fbForm.get('anio')!.value,
+  //         docsToUpload: actionUploadDoc.docsToUpload,
+  //         docsToDelete: actionUploadDoc.docsToDelete
+  //       }
        
-        const updated = await this.reglamentosService.updateReglamento(params);
-        if ( updated.dataWasUpdated ){
-          this.getReglamentos();
-          this.messageService.add({
-            key: this.keyPopups,
-            severity: 'success',
-            detail: generateMessage(this.namesCrud,updated.dataUpdated,'actualizado',true,false)
-          });
-          this.reset();
-        }
-      }
+  //       const updated = await this.reglamentosService.updateReglamento(params);
+  //       if ( updated.dataWasUpdated ){
+  //         this.getReglamentos();
+  //         this.messageService.add({
+  //           key: this.keyPopups,
+  //           severity: 'success',
+  //           detail: generateMessage(this.namesCrud,updated.dataUpdated,'actualizado',true,false)
+  //         });
+  //         this.reset();
+  //       }
+  //     }
  
-    } catch (e:any) {
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: `Error al actualizar ${this.namesCrud.singular}`,
-          message: e.detail.error.message.message,
-      });
+  //   } catch (e:any) {
+  //     this.errorTemplateHandler.processError(
+  //       e, {
+  //         notifyMethod: 'alert',
+  //         summary: `Error al actualizar ${this.namesCrud.singular}`,
+  //         message: e.detail.error.message.message,
+  //     });
      
-    }
-  }
+  //   }
+  // }
 
   async deleteReglamentos(reglamentoToDelete: Reglamento[], isFromDeleteSelected = false){
     try {
@@ -264,34 +259,34 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
     }
   }
 
-  async loadDocsWithBinary(reglamento: Reglamento){
-    try {    
-      const files = await this.reglamentosService.getDocumentosWithBinary(reglamento.Cod_reglamento!)  
-      this.uploaderFilesService.setFiles(files);      
-      this.filesChanged(files);
-      return files
-    } catch (e:any) {
-      this.errorTemplateHandler.processError(e, {
-        notifyMethod: 'alert',
-        summary: 'Error al obtener documentos',
-        message: e.detail.error.message.message
-      });
-    }
-  }
+  // async loadDocsWithBinary(reglamento: Reglamento){
+  //   try {    
+  //     const files = await this.reglamentosService.getDocumentosWithBinary(reglamento.Cod_reglamento!)  
+  //     this.uploaderFilesService.setFiles(files);      
+  //     this.filesChanged(files);
+  //     return files
+  //   } catch (e:any) {
+  //     this.errorTemplateHandler.processError(e, {
+  //       notifyMethod: 'alert',
+  //       summary: 'Error al obtener documentos',
+  //       message: e.detail.error.message.message
+  //     });
+  //   }
+  // }
   
-  async downloadDoc(documento: any) {
-    try {
-      let blob: Blob = await this.reglamentosService.getArchiveDoc(documento.id);
-      this.commonUtils.downloadBlob(blob, documento.nombre);      
-    } catch (e:any) {
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: 'Error al descargar documento',
-          message: e.detail.error.message.message
-      });
-    }
-  }
+  // async downloadDoc(documento: any) {
+  //   try {
+  //     let blob: Blob = await this.reglamentosService.getArchiveDoc(documento.id);
+  //     this.commonUtils.downloadBlob(blob, documento.nombre);      
+  //   } catch (e:any) {
+  //     this.errorTemplateHandler.processError(
+  //       e, {
+  //         notifyMethod: 'alert',
+  //         summary: 'Error al descargar documento',
+  //         message: e.detail.error.message.message
+  //     });
+  //   }
+  // }
 
   openCreate(){
     this.reglamentosService.setModeCrud('create')
@@ -300,62 +295,67 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
     this.dialog = true;
   }
 
-  async showForm(){
-    try {
-      this.reset();
-      this.fbForm.patchValue({...this.reglamento});
-      this.fbForm.get('Descripcion_regla')?.disable();
-      this.fbForm.get('vigencia')?.disable();
-      this.fbForm.get('anio')?.disable();
-      await this.loadDocsWithBinary(this.reglamento);
-    } catch (e:any) {
-      this.errorTemplateHandler.processError(e, {
-        notifyMethod: 'alert',
-        summary: `Error al visualizar ${this.namesCrud.articulo_singular}`,
-        message: e.message,
-        }
-      );
-    }finally{
-      this.dialog = true;
-    }
+  reset() {
+    this.tableCrudService.resetSelectedRows();
+    this.uploaderFilesService.setAction('reset')
   }
 
-  async editForm(){
-    try {
-      this.reset();
-      this.fbForm.patchValue({...this.reglamento});
-      await this.loadDocsWithBinary(this.reglamento);
-    } catch (e:any) {
-      this.errorTemplateHandler.processError(e, {
-        notifyMethod: 'alert',
-        summary: `Error al editar ${this.namesCrud.articulo_singular}`,
-        message: e.message,
-        }
-      );
-    } finally{
-      this.dialog = true;
-    }
-  }
+  // async showForm(){
+  //   try {
+  //     this.reset();
+  //     this.fbForm.patchValue({...this.reglamento});
+  //     this.fbForm.get('Descripcion_regla')?.disable();
+  //     this.fbForm.get('vigencia')?.disable();
+  //     this.fbForm.get('anio')?.disable();
+  //     await this.loadDocsWithBinary(this.reglamento);
+  //   } catch (e:any) {
+  //     this.errorTemplateHandler.processError(e, {
+  //       notifyMethod: 'alert',
+  //       summary: `Error al visualizar ${this.namesCrud.articulo_singular}`,
+  //       message: e.message,
+  //       }
+  //     );
+  //   }finally{
+  //     this.dialog = true;
+  //   }
+  // }
 
-filesChanged(files: any){
-  this.fbForm.patchValue({ files });
-  this.fbForm.controls['files'].updateValueAndValidity();
-}
+  // async editForm(){
+  //   try {
+  //     this.reset();
+  //     this.fbForm.patchValue({...this.reglamento});
+  //     await this.loadDocsWithBinary(this.reglamento);
+  //   } catch (e:any) {
+  //     this.errorTemplateHandler.processError(e, {
+  //       notifyMethod: 'alert',
+  //       summary: `Error al editar ${this.namesCrud.articulo_singular}`,
+  //       message: e.message,
+  //       }
+  //     );
+  //   } finally{
+  //     this.dialog = true;
+  //   }
+  // }
 
-reset() {
-  this.fbForm.reset({
-    Descripcion_regla: '',
-    vigencia: true,
-    anio: '',
-    files: [],
-  });
-  this.fbForm.get('Descripcion_regla')?.enable();
-  this.fbForm.get('vigencia')?.enable();
-  this.fbForm.get('anio')?.enable();
-  this.tableCrudService.resetSelectedRows();
-  this.uploaderFilesService.setAction('reset');
-  this.fbForm.controls['files'].updateValueAndValidity();
-}
+// filesChanged(files: any){
+//   this.fbForm.patchValue({ files });
+//   this.fbForm.controls['files'].updateValueAndValidity();
+// }
+
+// reset() {
+//   this.fbForm.reset({
+//     Descripcion_regla: '',
+//     vigencia: true,
+//     anio: '',
+//     files: [],
+//   });
+//   this.fbForm.get('Descripcion_regla')?.enable();
+//   this.fbForm.get('vigencia')?.enable();
+//   this.fbForm.get('anio')?.enable();
+//   this.tableCrudService.resetSelectedRows();
+//   this.uploaderFilesService.setAction('reset');
+//   this.fbForm.controls['files'].updateValueAndValidity();
+// }
 
 parseNombres(rowsSelected: any[] , withHtml = false){
   const nombresSelected = rowsSelected.map(reglamento => reglamento.Descripcion_regla);
@@ -382,9 +382,9 @@ getWordWithGender(word: string, gender: string): string {
   return word;
 }
 
-changeState(){
-  this.fbForm.controls['files'].updateValueAndValidity();
-}
+// changeState(){
+//   this.fbForm.controls['files'].updateValueAndValidity();
+// }
 
 
 async openConfirmationDeleteSelected(reglamentoSelected: any){
@@ -442,12 +442,14 @@ async openConfirmationDelete(reglamento: any){
 
 async submit() {
   try {
-    if ( this.mode == 'create' ) {
+    console.log("boton funciona");
+    
+    if ( this.modeCrud == 'create' ) {
       //modo creacion
       await this.insertReglamento()
     }else{
       //modo edit
-      await this.updateReglamento();
+      // await this.updateReglamento();
     }
   } catch (e:any) {
     const action = this.mode === 'create' ? 'guardar' : 'actualizar';

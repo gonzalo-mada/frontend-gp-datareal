@@ -13,7 +13,7 @@ export class ReglamentosService {
 
   
   modeForm: ModeForm = undefined;
-  stateFormReglamento: StateValidatorForm = undefined;
+  stateForm: StateValidatorForm = undefined;
 
   // BehaviorSubject para manejar el modo CRUD
   private modeCrudSubject = new BehaviorSubject<{mode: ModeForm, data?: Reglamento | null, resolve?: Function, reject?: Function} | null>(null);
@@ -23,10 +23,11 @@ export class ReglamentosService {
 
   // Método para establecer el modo CRUD
   setModeCrud(mode: ModeForm, data?: Reglamento | null, resolve?: Function, reject?: Function) {
-    this.modeForm = mode;
-    this.modeCrudSubject.next({ mode, data, resolve, reject });
-    this.modeCrudSubject.next(null); // Reiniciar el BehaviorSubject
-  }
+    if (this.modeForm !== mode) {
+        this.modeForm = mode;
+        this.modeCrudSubject.next({ mode, data, resolve, reject });
+    }
+}
 
   // Métodos CRUD para reglamentos
 
