@@ -61,16 +61,7 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
   get modeCrud() {
     return this.reglamentosService.modeForm;
   }
-  
-
-  // public fbForm : FormGroup = this.fb.group({
-  //   Descripcion_regla: ['', [Validators.required , Validators.pattern(/^(?!\s*$).+/)]],
-  //   anio: ['', Validators.required],
-  //   vigencia: [true],
-  //   files: [[], this.filesValidator.bind(this)]
-  // })
-
-  
+ 
   async ngOnInit() {
     this.namesCrud = {
       singular: 'reglamento',
@@ -102,7 +93,7 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
           }
           switch (crud.mode) {
             // case 'show': this.showForm(); break;
-            // case 'edit': this.editForm(); break;
+            case 'edit': this.openEdit(); break;
             case 'insert': this.insertReglamento(); break;
             // case 'update': this.updateReglamento(); break;
             case 'delete': this.openConfirmationDelete(this.reglamento); break;
@@ -142,8 +133,6 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
     return null;
   }
   
-  
-
   async getReglamentos(){
     try {
       this.reglamentos = <Reglamento[]> await this.reglamentosService.getReglamentos();
@@ -189,44 +178,46 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
       }
   }
 
-  // async updateReglamento(){
-  //   try {
-  //     const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
-  //       this.uploaderFilesService.setAction('upload',resolve,reject);
-  //     });
- 
-  //     if ( actionUploadDoc.success ) {
- 
-  //       let params = {
-  //         Descripcion_regla: this.fbForm.get('Descripcion_regla')!.value,
-  //         vigencia: this.fbForm.get('vigencia')!.value,
-  //         anio: this.fbForm.get('anio')!.value,
-  //         docsToUpload: actionUploadDoc.docsToUpload,
-  //         docsToDelete: actionUploadDoc.docsToDelete
-  //       }
-       
-  //       const updated = await this.reglamentosService.updateReglamento(params);
-  //       if ( updated.dataWasUpdated ){
-  //         this.getReglamentos();
-  //         this.messageService.add({
-  //           key: this.keyPopups,
-  //           severity: 'success',
-  //           detail: generateMessage(this.namesCrud,updated.dataUpdated,'actualizado',true,false)
-  //         });
-  //         this.reset();
-  //       }
-  //     }
- 
-  //   } catch (e:any) {
-  //     this.errorTemplateHandler.processError(
-  //       e, {
-  //         notifyMethod: 'alert',
-  //         summary: `Error al actualizar ${this.namesCrud.singular}`,
-  //         message: e.detail.error.message.message,
-  //     });
-     
-  //   }
-  // }
+
+  async updateReglamento() {
+    try {
+      const result: any = await new Promise<void>((resolve: Function, reject: Function) => {
+        // Cambiamos el modo CRUD a 'update' y pasamos los datos del reglamento
+        this.reglamentosService.setModeCrud('update', this.reglamento, resolve, reject);
+      });
+  
+      if (result.success) {
+        // Si la actualización fue exitosa, recargamos la lista de reglamentos
+        this.getReglamentos();
+        this.messageService.add({
+          key: this.keyPopups,
+          severity: 'success',
+          detail: result.messageGp
+        });
+        this.reset();  // Reseteamos el formulario y el estado
+      } else {
+        // Si hubo algún error durante la actualización
+        this.errorTemplateHandler.processError(
+          result, {
+            notifyMethod: 'alert',
+            summary: result.messageGp,
+            message: result.e?.detail?.error?.message || 'Error al actualizar el reglamento',
+          }
+        );
+        this.reset();  // También reseteamos en caso de error
+      }
+    } catch (e: any) {
+      // Manejo de errores en la promesa
+      this.errorTemplateHandler.processError(
+        e, {
+          notifyMethod: 'alert',
+          summary: `Error al actualizar ${this.namesCrud.singular}`,
+          message: e?.detail?.error?.message || 'Error desconocido',
+        }
+      );
+    }
+  }
+  
 
   async deleteReglamentos(reglamentoToDelete: Reglamento[], isFromDeleteSelected = false){
     try {
@@ -259,104 +250,6 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
     }
   }
 
-  // async loadDocsWithBinary(reglamento: Reglamento){
-  //   try {    
-  //     const files = await this.reglamentosService.getDocumentosWithBinary(reglamento.Cod_reglamento!)  
-  //     this.uploaderFilesService.setFiles(files);      
-  //     this.filesChanged(files);
-  //     return files
-  //   } catch (e:any) {
-  //     this.errorTemplateHandler.processError(e, {
-  //       notifyMethod: 'alert',
-  //       summary: 'Error al obtener documentos',
-  //       message: e.detail.error.message.message
-  //     });
-  //   }
-  // }
-  
-  // async downloadDoc(documento: any) {
-  //   try {
-  //     let blob: Blob = await this.reglamentosService.getArchiveDoc(documento.id);
-  //     this.commonUtils.downloadBlob(blob, documento.nombre);      
-  //   } catch (e:any) {
-  //     this.errorTemplateHandler.processError(
-  //       e, {
-  //         notifyMethod: 'alert',
-  //         summary: 'Error al descargar documento',
-  //         message: e.detail.error.message.message
-  //     });
-  //   }
-  // }
-
-  openCreate(){
-    this.reglamentosService.setModeCrud('create')
-    this.reset();
-    this.reglamento = {};
-    this.dialog = true;
-  }
-
-  reset() {
-    this.tableCrudService.resetSelectedRows();
-    this.uploaderFilesService.setAction('reset')
-  }
-
-  // async showForm(){
-  //   try {
-  //     this.reset();
-  //     this.fbForm.patchValue({...this.reglamento});
-  //     this.fbForm.get('Descripcion_regla')?.disable();
-  //     this.fbForm.get('vigencia')?.disable();
-  //     this.fbForm.get('anio')?.disable();
-  //     await this.loadDocsWithBinary(this.reglamento);
-  //   } catch (e:any) {
-  //     this.errorTemplateHandler.processError(e, {
-  //       notifyMethod: 'alert',
-  //       summary: `Error al visualizar ${this.namesCrud.articulo_singular}`,
-  //       message: e.message,
-  //       }
-  //     );
-  //   }finally{
-  //     this.dialog = true;
-  //   }
-  // }
-
-  // async editForm(){
-  //   try {
-  //     this.reset();
-  //     this.fbForm.patchValue({...this.reglamento});
-  //     await this.loadDocsWithBinary(this.reglamento);
-  //   } catch (e:any) {
-  //     this.errorTemplateHandler.processError(e, {
-  //       notifyMethod: 'alert',
-  //       summary: `Error al editar ${this.namesCrud.articulo_singular}`,
-  //       message: e.message,
-  //       }
-  //     );
-  //   } finally{
-  //     this.dialog = true;
-  //   }
-  // }
-
-// filesChanged(files: any){
-//   this.fbForm.patchValue({ files });
-//   this.fbForm.controls['files'].updateValueAndValidity();
-// }
-
-// reset() {
-//   this.fbForm.reset({
-//     Descripcion_regla: '',
-//     vigencia: true,
-//     anio: '',
-//     files: [],
-//   });
-//   this.fbForm.get('Descripcion_regla')?.enable();
-//   this.fbForm.get('vigencia')?.enable();
-//   this.fbForm.get('anio')?.enable();
-//   this.tableCrudService.resetSelectedRows();
-//   this.uploaderFilesService.setAction('reset');
-//   this.fbForm.controls['files'].updateValueAndValidity();
-// }
-
 parseNombres(rowsSelected: any[] , withHtml = false){
   const nombresSelected = rowsSelected.map(reglamento => reglamento.Descripcion_regla);
 
@@ -381,11 +274,6 @@ getWordWithGender(word: string, gender: string): string {
   }
   return word;
 }
-
-// changeState(){
-//   this.fbForm.controls['files'].updateValueAndValidity();
-// }
-
 
 async openConfirmationDeleteSelected(reglamentoSelected: any){
   const message = mergeNames(this.namesCrud,reglamentoSelected,true,'Descripcion_regla'); 
@@ -449,7 +337,7 @@ async submit() {
       await this.insertReglamento()
     }else{
       //modo edit
-      // await this.updateReglamento();
+      await this.updateReglamento();
     }
   } catch (e:any) {
     const action = this.mode === 'create' ? 'guardar' : 'actualizar';
@@ -463,4 +351,135 @@ async submit() {
       this.dialog = false;
     }
   }
+
+  openCreate(){
+    this.reglamentosService.setModeCrud('create')
+    this.reset();
+    this.reglamento = {};
+    this.dialog = true;
+  }
+
+  reset() {
+    this.tableCrudService.resetSelectedRows();
+    this.uploaderFilesService.setAction('reset')
+  }
+
+  async openEdit(){
+    try {
+      this.reset();
+      const data = this.reglamento;
+      await new Promise((resolve,reject) => {
+        this.reglamentosService.setModeCrud('edit', data, resolve, reject);
+      })
+    } catch (e:any) {
+      this.errorTemplateHandler.processError(e, {
+        notifyMethod: 'alert',
+        summary: `Error al editar formulario de ${this.namesCrud.articulo_singular}`,
+        message: e.message,
+        }
+      );
+    }finally{
+      this.dialog = true;
+    }
+
+  }
+
 }
+
+  // changeState(){
+//   this.fbForm.controls['files'].updateValueAndValidity();
+// }
+
+  // public fbForm : FormGroup = this.fb.group({
+  //   Descripcion_regla: ['', [Validators.required , Validators.pattern(/^(?!\s*$).+/)]],
+  //   anio: ['', Validators.required],
+  //   vigencia: [true],
+  //   files: [[], this.filesValidator.bind(this)]
+  // })
+
+  
+// changeState(){
+//   this.fbForm.controls['files'].updateValueAndValidity();
+// }
+
+  // public fbForm : FormGroup = this.fb.group({
+  //   Descripcion_regla: ['', [Validators.required , Validators.pattern(/^(?!\s*$).+/)]],
+  //   anio: ['', Validators.required],
+  //   vigencia: [true],
+  //   files: [[], this.filesValidator.bind(this)]
+  // })
+
+  
+
+  // async loadDocsWithBinary(reglamento: Reglamento){
+  //   try {    
+  //     const files = await this.reglamentosService.getDocumentosWithBinary(reglamento.Cod_reglamento!)  
+  //     this.uploaderFilesService.setFiles(files);      
+  //     this.filesChanged(files);
+  //     return files
+  //   } catch (e:any) {
+  //     this.errorTemplateHandler.processError(e, {
+  //       notifyMethod: 'alert',
+  //       summary: 'Error al obtener documentos',
+  //       message: e.detail.error.message.message
+  //     });
+  //   }
+  // }
+  
+  // async downloadDoc(documento: any) {
+  //   try {
+  //     let blob: Blob = await this.reglamentosService.getArchiveDoc(documento.id);
+  //     this.commonUtils.downloadBlob(blob, documento.nombre);      
+  //   } catch (e:any) {
+  //     this.errorTemplateHandler.processError(
+  //       e, {
+  //         notifyMethod: 'alert',
+  //         summary: 'Error al descargar documento',
+  //         message: e.detail.error.message.message
+  //     });
+  //   }
+  // }
+
+
+
+  // async showForm(){
+  //   try {
+  //     this.reset();
+  //     this.fbForm.patchValue({...this.reglamento});
+  //     this.fbForm.get('Descripcion_regla')?.disable();
+  //     this.fbForm.get('vigencia')?.disable();
+  //     this.fbForm.get('anio')?.disable();
+  //     await this.loadDocsWithBinary(this.reglamento);
+  //   } catch (e:any) {
+  //     this.errorTemplateHandler.processError(e, {
+  //       notifyMethod: 'alert',
+  //       summary: `Error al visualizar ${this.namesCrud.articulo_singular}`,
+  //       message: e.message,
+  //       }
+  //     );
+  //   }finally{
+  //     this.dialog = true;
+  //   }
+  // }
+
+
+
+// filesChanged(files: any){
+//   this.fbForm.patchValue({ files });
+//   this.fbForm.controls['files'].updateValueAndValidity();
+// }
+
+// reset() {
+//   this.fbForm.reset({
+//     Descripcion_regla: '',
+//     vigencia: true,
+//     anio: '',
+//     files: [],
+//   });
+//   this.fbForm.get('Descripcion_regla')?.enable();
+//   this.fbForm.get('vigencia')?.enable();
+//   this.fbForm.get('anio')?.enable();
+//   this.tableCrudService.resetSelectedRows();
+//   this.uploaderFilesService.setAction('reset');
+//   this.fbForm.controls['files'].updateValueAndValidity();
+// }

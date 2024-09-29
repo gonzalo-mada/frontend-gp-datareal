@@ -11,6 +11,7 @@ import { ReglamentosService } from 'src/app/project/services/reglamentos.service
 import { generateMessage } from 'src/app/project/tools/utils/form.utils';
 import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
+import { Reglamento } from 'src/app/project/models/Reglamento';
 
 @Component({
   selector: 'app-form-reglamentos',
@@ -31,6 +32,7 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
     this.maxDate = new Date(currentYear, 11, 31);
   }
   
+  reglamento: Reglamento = {};
   maxDate: Date;
   mode: string = '';
   showAsterisk: boolean = false;
@@ -86,7 +88,11 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
               console.log(crud.mode);
               this.insertForm(crud.resolve!, crud.reject!);
               break;
-            default:
+            case 'update':
+            this.updateForm(crud.resolve!, crud.reject!);
+            break;
+
+              default:
               break;
           }
         }
@@ -173,8 +179,7 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
         
       }
       console.log(params);
-      
-  
+
       // Insertar los reglamentos utilizando el servicio
       const inserted: DataInserted = await this.reglamentosService.insertReglamento(params);
   
@@ -191,7 +196,69 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
       this.resetForm();
     }
   }
-  
+
+  async updateForm(resolve: Function, reject: Function) {
+  try {
+    let params = {};
+
+    // Verificar si hay documentos para subir o eliminar
+    const hasDocumentsToUpload = this.fbForm.value.docsToUpload?.length > 0;
+    const hasDocumentsToDelete = this.fbForm.value.docsToDelete?.length > 0;
+
+    if (!hasDocumentsToUpload && !hasDocumentsToDelete) {
+      // Si no hay documentos que manejar, excluimos el campo "files"
+      const { files, ...formData } = this.fbForm.value;
+      params = {
+        ...formData,
+        Cod_reglamento: this.reglamento.Cod_reglamento, // Código del reglamento actual
+      };
+    } else {
+      // Si hay documentos que subir o eliminar, manejamos la lógica de archivos
+      const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
+        this.uploaderFilesService.setAction('upload', resolve, reject);
+      });
+
+      if (actionUploadDoc.success) {
+        // Excluimos el campo "files" y agregamos los documentos a subir/eliminar
+        const { files, ...formData } = this.fbForm.value;
+        params = {
+          ...formData,
+          docsToUpload: actionUploadDoc.docsToUpload,
+          docsToDelete: actionUploadDoc.docsToDelete,
+          Cod_reglamento: this.reglamento.Cod_reglamento, // Código del reglamento
+        }
+      }
+      // } else {
+      //   // Si hubo un error en la subida de documentos
+      //   const messageGp = generateMessage(this.namesCrud, null, 'actualizado', false, false);
+      //   reject({ e: actionUploadDoc.error, messageGp });
+      //   this.resetForm(); // Reseteamos el formulario en caso de error
+      //   return;
+      // }
+    }
+
+    // Llamada al servicio para actualizar el reglamento con los parámetros preparados
+    const updated = await this.reglamentosService.updateReglamento(params);
+
+    if (updated.dataWasUpdated) {
+      // Si la actualización fue exitosa
+      const messageGp = generateMessage(this.namesCrud, updated.dataUpdated, 'actualizado', true, false);
+      resolve({ success: true, dataWasUpdated: updated.dataWasUpdated, messageGp });
+      this.resetForm(); // Resetea el formulario tras la actualización exitosa
+    } else {
+      // Si no se pudo actualizar
+      const messageGp = generateMessage(this.namesCrud, null, 'actualizado', false, false);
+      reject({ e: updated.error, messageGp });
+      this.resetForm(); // Resetea el formulario en caso de fallo
+    }
+  } catch (e: any) {
+    // Manejo de errores generales
+    const messageGp = generateMessage(this.namesCrud, null, 'actualizado', false, false);
+    reject({ e, messageGp });
+    this.resetForm(); // Resetea el formulario en caso de error
+  }
+}
+
 
   changeState(): void {
     this.fbForm.controls['files'].updateValueAndValidity();
