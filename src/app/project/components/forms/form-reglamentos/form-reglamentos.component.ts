@@ -26,7 +26,7 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
     private menuButtonsTableService: MenuButtonsTableService,
     private uploaderFilesService: UploaderFilesService,
     private commonUtils: CommonUtils,
-    private errorTemplateHandler: ErrorTemplateHandler,
+    private errorTemplateHandler: ErrorTemplateHandler
 
   ) {
     const currentYear = new Date().getFullYear();
@@ -40,9 +40,10 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
   mode : string = '';
   private subscription: Subscription = new Subscription();
 
-  get modeForm() {
-    return this.reglamentosService.modeForm;
-  }
+get modeForm() {
+  return this.reglamentosService.modeForm || 'defaultMode'; // Valor por defecto o manejo de error
+}
+
   
   // Definición del formulario reactivo
   public fbForm: FormGroup = this.fb.group({
@@ -69,7 +70,10 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
     this.subscription.add(this.fbForm.statusChanges.subscribe(status => {
       this.reglamentosService.stateForm = status as StateValidatorForm;
     }));
-    this.uploaderFilesService.disabledButtonSeleccionar();
+    // this.uploaderFilesService.disabledButtonSeleccionar();
+    //Para show form
+    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(file => {file && this.downloadDoc(file)}));
+    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
     this.subscription.add(
       this.reglamentosService.formUpdate$.subscribe( form => {
         if (form && form.mode){
@@ -81,15 +85,13 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
             case 'create': this.createForm(form.resolve! , form.reject!); break;
             case 'show': this.showForm(form.resolve! , form.reject!); break;
             case 'edit': this.editForm(form.resolve! , form.reject!); break;
-            case 'insert': this.insertForm(form.resolve! , form.resolve!); break;
+            case 'insert': this.insertForm(form.resolve! , form.reject!); break;
             case 'update': this.updateForm(form.resolve! , form.resolve!); break;
           
           }
         }
     }));
     
-    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
-    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(file => {file && this.downloadDoc(file)}));
   }
 
   ngOnDestroy(): void {
@@ -102,33 +104,31 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
   // Validador de archivos personalizado
   filesValidator(control: AbstractControl): { [key: string]: boolean } | null {
     const formGroup = control.parent as FormGroup;
-
+  
     if (!formGroup) {
-        return null;
+      return null;
     }
-    const files = formGroup.get('files')?.value;
-
-    if ( this.modeForm == 'create' ){
-      if (files.length === 0 ) {
-        return { required: true };
-      }
-    }else if ( this.modeForm == 'edit'){
-      if (files.length === 0 ) {
-        return { required: true };
-      }
+  
+    const files = formGroup.get('files')?.value || [];
+    const isCreatingOrEditing = this.modeForm === 'create' || this.modeForm === 'edit';
+  
+    if (isCreatingOrEditing && files.length === 0) {
+      return { required: true };
     }
+  
     return null;
   }
+  
 
-  // Crear formulario (nueva entrada)
-  createForm(resolve: Function, reject: Function){
+  async createForm(resolve: Function, reject: Function): Promise<void> {
     try {
-      this.resetForm();
-      resolve(true)
+      this.resetForm();  // Asegúrate de que `resetForm` inicializa correctamente todos los campos
+      resolve(true);
     } catch (e) {
-      reject(e)
+      reject(e);
     }
   }
+  
 
   async showForm(resolve: Function, reject: Function){
     try {
@@ -161,37 +161,41 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
   // Insertar reglamento
   async insertForm(resolve: Function, reject: Function): Promise<void> {
     try {
+      // Verificar el estado y valores del formulario antes de la inserción
+      console.log('Formulario válido:', this.fbForm.valid);
+      console.log('Valores del formulario:', this.fbForm.value);
+  
       let params = {};
   
-      // Siempre requerimos documentos
       const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
         this.uploaderFilesService.setAction('upload', resolve, reject);
       });
   
       if (actionUploadDoc.success) {
-        // Preparar los parámetros excluyendo "files" y agregando los documentos
         const { files, ...formData } = this.fbForm.value;
         params = {
           ...formData,
           docsToUpload: actionUploadDoc.docsToUpload
         };
       }
-      // Insertar los reglamentos utilizando el servicio
+  
+      console.log('Params before Insert:', params);
+  
       const inserted: DataInserted = await this.reglamentosService.insertReglamento(params);
   
       if (inserted.dataWasInserted) {
-        // Generar mensaje de éxito y resolver la promesa
         const messageGp = generateMessage(this.namesCrud, inserted.dataInserted, 'creado', true, false);
         resolve({ success: true, dataInserted: inserted.dataInserted, messageGp });
-        this.resetForm();  // Resetear el formulario tras el éxito
+        this.resetForm();  
       }
   
     } catch (e) {
-      const messageGp = generateMessage(this.namesCrud, null, 'creado', false,false)
-      reject({e , messageGp})
-      this.resetForm()
+      const messageGp = generateMessage(this.namesCrud, null, 'creado', false, false);
+      reject({ e, messageGp });
+      this.resetForm();
     }
   }
+  
 
   async updateForm(resolve: Function, reject: Function){
     try {
@@ -227,20 +231,20 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
   }
 
 
-// Reinicia el formulario
-resetForm(): void {
-  this.fbForm.reset();
-  this.fbForm.get('vigencia')?.disable();
-  this.showAsterisk = false,
-  this.fbForm.reset({
-    Descripcion_regla: '',
-    anio: '',
-    vigencia: false,
-    files: []
-  });
-  this.uploaderFilesService.setAction('reset');
-  this.fbForm.controls['files'].updateValueAndValidity();
-}
+  resetForm(): void {
+    this.fbForm.reset();
+    // this.fbForm.get('vigencia')?.disable();
+    // this.showAsterisk = false;
+    this.fbForm.reset({
+      Descripcion_regla: '',
+      anio: '',
+      vigencia: false,
+      files: []  // Inicializar `files` como un array vacío
+    });
+    this.uploaderFilesService.setAction('reset');
+    this.fbForm.controls['files'].updateValueAndValidity();
+  }
+  
 
 // Manejo del cambio de archivos
 filesChanged(files: any): void {

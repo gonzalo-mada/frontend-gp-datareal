@@ -119,7 +119,7 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
   async insertReglamento(){
     try {
       const result: any = await new Promise <void> ((resolve: Function, reject: Function) => {
-        this.reglamentosService.setModeCrud('insert',null, resolve, reject);
+        this.reglamentosService.setModeForm('insert',null, resolve, reject);
       })
       if (result.success) {
         //insert exitoso
@@ -149,12 +149,44 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
       }
   }
 
+  // async insertReglamento() {
+  //   console.log("Attempting to insert reglamento:", this.reglamento);
+  //   if (!this.reglamento.Descripcion_regla) {
+  //     console.error("Description is required.");
+  //     return; // O lanza un error
+  //   }
+  
+  //   try {
+  //     const result: any = await new Promise<void>((resolve, reject) => {
+  //       this.reglamentosService.setModeForm('insert', this.reglamento, resolve, reject);
+  //     });
+  
+  //     if (result.success) {
+  //       await this.getReglamentos();
+  //       this.messageService.add({
+  //         key: this.keyPopups,
+  //         severity: 'success',
+  //         detail: result.messageGp
+  //       });
+  //       this.reset();
+  //     } else {
+  //       throw new Error(result.messageGp);
+  //     }
+  //   } catch (e: any) {
+  //     this.errorTemplateHandler.processError(e, {
+  //       notifyMethod: 'alert',
+  //       summary: `Error al insertar ${this.namesCrud.singular}`,
+  //       message: e?.message || 'Error desconocido',
+  //     });
+  //   }
+  // }
+  
 
   async updateReglamento() {
     try {
       const result: any = await new Promise<void>((resolve: Function, reject: Function) => {
         // Cambiamos el modo CRUD a 'update' y pasamos los datos del reglamento
-        this.reglamentosService.setModeCrud('update', this.reglamento, resolve, reject);
+        this.reglamentosService.setModeForm('update', this.reglamento, resolve, reject);
       });
   
       if (result.success) {
