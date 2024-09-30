@@ -15,7 +15,6 @@ import { ReglamentosService } from 'src/app/project/services/reglamentos.service
 export class TableReglamentosComponent implements OnInit, OnChanges, OnDestroy {
   @Input() data: any[] = [];
 
-  mode : string = '';
   selectedRow: Reglamento[] = [] ;
   searchValue: string | undefined;
   originalData: any[] = [];
@@ -57,17 +56,15 @@ export class TableReglamentosComponent implements OnInit, OnChanges, OnDestroy {
   }
  
   edit(data: Reglamento){
-    this.mode = 'edit';
-    this.reglamentosService.setModeCrud('edit', data);
+    this.reglamentosService.setModeCrud('edit',data);
+
   }
  
   show(data: Reglamento){
-    this.mode = 'show';
     this.reglamentosService.setModeCrud('show', data);
   }
  
   delete(data: Reglamento){
-    this.mode = 'delete';
     this.reglamentosService.setModeCrud('delete', data);
   }
  

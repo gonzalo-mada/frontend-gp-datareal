@@ -70,7 +70,8 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
       genero: 'masculino'
     };
 
-    this.subscription.add(this.fbForm.statusChanges.subscribe( status => { this.estadosAcreditacionService.stateForm = status as StateValidatorForm}));
+    this.subscription.add(this.fbForm.statusChanges.subscribe( status => { 
+      this.estadosAcreditacionService.stateForm = status as StateValidatorForm}));
     this.uploaderFilesService.disabledButtonSeleccionar();
     this.subscription.add(
       this.estadosAcreditacionService.formUpdate$.subscribe( form => {

@@ -19,6 +19,7 @@ import { Reglamento } from 'src/app/project/models/Reglamento';
   styles: []
 })
 export class FormReglamentosComponent implements OnInit, OnDestroy {
+  configModeService: any;
   constructor(
     private reglamentosService: ReglamentosService,
     private fb: FormBuilder,
@@ -34,22 +35,22 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
   
   reglamento: Reglamento = {};
   maxDate: Date;
-  mode: string = '';
   showAsterisk: boolean = false;
   namesCrud!: NamesCrud;
+  mode : string = '';
   private subscription: Subscription = new Subscription();
-
-  // Definición del formulario reactivo
-  public fbForm: FormGroup = this.fb.group({
-    Descripcion_regla: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/)]],
-    anio: ['', Validators.required],
-    vigencia: [true, Validators.required],
-    files: [[], this.filesValidator.bind(this)]  // Validación personalizada de archivos
-  });
 
   get modeForm() {
     return this.reglamentosService.modeForm;
   }
+  
+  // Definición del formulario reactivo
+  public fbForm: FormGroup = this.fb.group({
+    Descripcion_regla: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/)]],
+    anio: ['', Validators.required],
+    vigencia: [false],
+    files: [[], this.filesValidator.bind(this)]  // Validación personalizada de archivos
+  });
 
   ngOnInit(): void {
     // Configuración del contexto del menú
@@ -68,119 +69,93 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
     this.subscription.add(this.fbForm.statusChanges.subscribe(status => {
       this.reglamentosService.stateForm = status as StateValidatorForm;
     }));
-
-    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe(event => {
-      if (event) this.filesChanged(event);
-    }));
-    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(file => {file && this.downloadDoc(file)}));
-    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
-
+    this.uploaderFilesService.disabledButtonSeleccionar();
     this.subscription.add(
-      this.reglamentosService.modeCrud$.subscribe(crud => {
-        if (crud && crud.mode && crud.data) {
-          this.reglamento = crud.data; // Asignamos el reglamento seleccionado
-    
-          // Si el modo es 'edit' o 'update', llenamos el formulario con los datos del reglamento
-          if (crud.mode === 'edit' || crud.mode === 'update') {
-            this.fbForm.patchValue({
-              Cod_reglamento: this.reglamento.Cod_reglamento,
-              Descripcion_regla: this.reglamento.Descripcion_regla,
-              anio: this.reglamento.anio,
-              vigencia: this.reglamento.vigencia
-              // Agrega otros campos aquí según los campos de tu formulario reactivo
-            });
+      this.reglamentosService.formUpdate$.subscribe( form => {
+        if (form && form.mode){
+          if (form.data) {
+            this.reglamento = {};
+            this.reglamento = form.data;
+          }
+          switch (form.mode) {
+            case 'create': this.createForm(form.resolve! , form.reject!); break;
+            case 'show': this.showForm(form.resolve! , form.reject!); break;
+            case 'edit': this.editForm(form.resolve! , form.reject!); break;
+            case 'insert': this.insertForm(form.resolve! , form.resolve!); break;
+            case 'update': this.updateForm(form.resolve! , form.resolve!); break;
+          
           }
         }
-      })
-    );
-
-   this.subscription.add(
-  this.reglamentosService.modeCrud$.subscribe(crud => {
-    if (crud && crud.mode) {
-      this.showAsterisk = true;
-      
-      // Mapeo de modos a funciones
-      const modeActions: { [key: string]: Function } = {
-        create: () => {
-          console.log(crud.mode);
-          this.createForm();
-        },
-        insert: () => {
-          console.log(crud.mode);
-          this.insertForm(crud.resolve!, crud.reject!);
-        },
-        update: () => {
-          this.updateForm(crud.resolve!, crud.reject!);
-        }
-      };
-
-      // Ejecutar la acción correspondiente al modo
-      const action = modeActions[crud.mode];
-      if (action) {
-        action();
-      }
-    }
-  })
-);
-
+    }));
+    
+    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
+    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(file => {file && this.downloadDoc(file)}));
   }
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
     this.uploaderFilesService.updateValidatorFiles(null);
     this.uploaderFilesService.setFiles(null);
+    this.uploaderFilesService.enabledButtonSeleccionar();
   }
 
   // Validador de archivos personalizado
   filesValidator(control: AbstractControl): { [key: string]: boolean } | null {
     const formGroup = control.parent as FormGroup;
-    if (!formGroup) return null;
 
+    if (!formGroup) {
+        return null;
+    }
     const files = formGroup.get('files')?.value;
 
-    if (this.modeForm === 'create' || this.modeForm === 'edit') {
-      if (files.length === 0) {
+    if ( this.modeForm == 'create' ){
+      if (files.length === 0 ) {
+        return { required: true };
+      }
+    }else if ( this.modeForm == 'edit'){
+      if (files.length === 0 ) {
         return { required: true };
       }
     }
     return null;
   }
 
-  // Manejo del cambio de archivos
-  filesChanged(files: any): void {
-    this.fbForm.patchValue({ files });
-    this.fbForm.controls['files'].updateValueAndValidity();
-  }
-
-  async downloadDoc(documento: any) {
+  // Crear formulario (nueva entrada)
+  createForm(resolve: Function, reject: Function){
     try {
-      let blob: Blob = await this.reglamentosService.getArchiveDoc(documento.id);
-      this.commonUtils.downloadBlob(blob, documento.nombre);      
-    } catch (e:any) {
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: 'Error al descargar documento',
-          message: e.detail.error.message.message
-      });
+      this.resetForm();
+      resolve(true)
+    } catch (e) {
+      reject(e)
     }
   }
 
-  // Reinicia el formulario
-  resetForm(): void {
-    this.fbForm.reset({
-      Descripcion_regla: '',
-      anio: '',
-      vigencia: false,
-      files: []
-    });
-    this.showAsterisk = false;
-    this.fbForm.controls['files'].updateValueAndValidity();
+  async showForm(resolve: Function, reject: Function){
+    try {
+      this.fbForm.patchValue({...this.reglamento});
+      this.fbForm.get('Descripcion_regla')?.disable();
+      this.fbForm.get('vigencia')?.disable();
+      this.showAsterisk = false;
+      await this.loadDocsWithBinary(this.reglamento);
+      resolve(true)
+    } catch (e) {      
+      reject(e)
+    }  
   }
 
-  // Crear formulario (nueva entrada)
-  createForm(): void {
-    this.resetForm();
+  async editForm(resolve: Function, reject: Function){
+    try {
+      const formValues =  this.reglamento;
+      this.fbForm.patchValue(formValues);
+      await this.loadDocsWithBinary(this.reglamento);
+      resolve(true)
+    } catch (e) {
+      reject(e)
+    }
+  }
+
+  enableSwitch(){
+    this.fbForm.get('vigencia')?.disabled ? this.fbForm.get('vigencia')?.enable() : this.fbForm.get('vigencia')?.enable();
   }
 
   // Insertar reglamento
@@ -189,8 +164,8 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
       let params = {};
   
       // Siempre requerimos documentos
-      const actionUploadDoc: ActionUploadDoc = await new Promise((res, rej) => {
-        this.uploaderFilesService.setAction('upload', res, rej);
+      const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
+        this.uploaderFilesService.setAction('upload', resolve, reject);
       });
   
       if (actionUploadDoc.success) {
@@ -200,11 +175,7 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
           ...formData,
           docsToUpload: actionUploadDoc.docsToUpload
         };
-        console.log(params,  actionUploadDoc.docsToUpload);
-        
       }
-      console.log(params);
-
       // Insertar los reglamentos utilizando el servicio
       const inserted: DataInserted = await this.reglamentosService.insertReglamento(params);
   
@@ -216,74 +187,95 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
       }
   
     } catch (e) {
-      // Rechazar la promesa en caso de error
-      reject(e);
+      const messageGp = generateMessage(this.namesCrud, null, 'creado', false,false)
+      reject({e , messageGp})
+      this.resetForm()
+    }
+  }
+
+  async updateForm(resolve: Function, reject: Function){
+    try {
+      let params = {};
+
+
+        const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
+          this.uploaderFilesService.setAction('upload',resolve,reject);
+        });
+
+        if (actionUploadDoc.success) {
+          const { files, ...formData } = this.fbForm.value ; 
+          params = {
+            ...formData,
+            docsToUpload: actionUploadDoc.docsToUpload,
+            docsToDelete: actionUploadDoc.docsToDelete,
+            Cod_reglamento: this.reglamento.Cod_reglamento,
+          }
+      }
+
+
+      const updated = await this.reglamentosService.updateReglamento(params)
+      if ( updated.dataWasUpdated ) {
+        const messageGp = generateMessage(this.namesCrud, null , 'actualizado', true,false)
+        resolve({success:true , dataWasUpdated: updated.dataWasUpdated, messageGp})
+        this.resetForm()
+      }
+    } catch (e) {
+      const messageGp = generateMessage(this.namesCrud, null, 'actualizado', false,false)
+      reject({e, messageGp})
       this.resetForm();
     }
   }
 
-  async updateForm(resolve: Function, reject: Function) {
-  try {
-    let params = {};
 
-    // Verificar si hay documentos para subir o eliminar
-    const hasDocumentsToUpload = this.fbForm.value.docsToUpload?.length > 0;
-    const hasDocumentsToDelete = this.fbForm.value.docsToDelete?.length > 0;
+// Reinicia el formulario
+resetForm(): void {
+  this.fbForm.reset();
+  this.fbForm.get('vigencia')?.disable();
+  this.showAsterisk = false,
+  this.fbForm.reset({
+    Descripcion_regla: '',
+    anio: '',
+    vigencia: false,
+    files: []
+  });
+  this.uploaderFilesService.setAction('reset');
+  this.fbForm.controls['files'].updateValueAndValidity();
+}
 
-    if (!hasDocumentsToUpload && !hasDocumentsToDelete) {
-      // Si no hay documentos que manejar, excluimos el campo "files"
-      const { files, ...formData } = this.fbForm.value;
-      params = {
-        ...formData,
-        Cod_reglamento: this.reglamento.Cod_reglamento, // Código del reglamento actual
-      };
-    } else {
-      // Si hay documentos que subir o eliminar, manejamos la lógica de archivos
-      const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
-        this.uploaderFilesService.setAction('upload', resolve, reject);
-      });
+// Manejo del cambio de archivos
+filesChanged(files: any): void {
+  this.fbForm.patchValue({ files });
+  this.fbForm.controls['files'].updateValueAndValidity();
+}
 
-      if (actionUploadDoc.success) {
-        // Excluimos el campo "files" y agregamos los documentos a subir/eliminar
-        const { files, ...formData } = this.fbForm.value;
-        params = {
-          ...formData,
-          docsToUpload: actionUploadDoc.docsToUpload,
-          docsToDelete: actionUploadDoc.docsToDelete,
-          Cod_reglamento: this.reglamento.Cod_reglamento, // Código del reglamento
-        }
-      }
-      // } else {
-      //   // Si hubo un error en la subida de documentos
-      //   const messageGp = generateMessage(this.namesCrud, null, 'actualizado', false, false);
-      //   reject({ e: actionUploadDoc.error, messageGp });
-      //   this.resetForm(); // Reseteamos el formulario en caso de error
-      //   return;
-      // }
-    }
-
-    // Llamada al servicio para actualizar el reglamento con los parámetros preparados
-    const updated = await this.reglamentosService.updateReglamento(params);
-
-    if (updated.dataWasUpdated) {
-      // Si la actualización fue exitosa
-      const messageGp = generateMessage(this.namesCrud, updated.dataUpdated, 'actualizado', true, false);
-      resolve({ success: true, dataWasUpdated: updated.dataWasUpdated, messageGp });
-      this.resetForm(); // Resetea el formulario tras la actualización exitosa
-    } else {
-      // Si no se pudo actualizar
-      const messageGp = generateMessage(this.namesCrud, null, 'actualizado', false, false);
-      reject({ e: updated.error, messageGp });
-      this.resetForm(); // Resetea el formulario en caso de fallo
-    }
-  } catch (e: any) {
-    // Manejo de errores generales
-    const messageGp = generateMessage(this.namesCrud, null, 'actualizado', false, false);
-    reject({ e, messageGp });
-    this.resetForm(); // Resetea el formulario en caso de error
+async loadDocsWithBinary(reglamento: Reglamento){
+  try {    
+    const files = await this.reglamentosService.getDocumentosWithBinary(reglamento.Cod_reglamento!)  
+    this.uploaderFilesService.setFiles(files);      
+    this.filesChanged(files);
+    return files
+  } catch (e:any) {
+    this.errorTemplateHandler.processError(e, {
+      notifyMethod: 'alert',
+      summary: 'Error al obtener documentos',
+      message: e.detail.error.message.message
+    });
   }
 }
 
+async downloadDoc(documento: any) {
+  try {
+    let blob: Blob = await this.reglamentosService.getArchiveDoc(documento.id);
+    this.commonUtils.downloadBlob(blob, documento.nombre);      
+  } catch (e:any) {
+    this.errorTemplateHandler.processError(
+      e, {
+        notifyMethod: 'alert',
+        summary: 'Error al descargar documento',
+        message: e.detail.error.message.message
+    });
+  }
+}
 
   changeState(): void {
     this.fbForm.controls['files'].updateValueAndValidity();

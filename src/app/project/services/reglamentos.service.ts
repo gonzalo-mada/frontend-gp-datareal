@@ -19,6 +19,9 @@ export class ReglamentosService {
   private modeCrudSubject = new BehaviorSubject<{mode: ModeForm, data?: Reglamento | null, resolve?: Function, reject?: Function} | null>(null);
   modeCrud$ = this.modeCrudSubject.asObservable();
 
+  private formUpdate = new BehaviorSubject<{mode: ModeForm, data?: Reglamento | null, resolve?: Function, reject?: Function  } | null>(null);
+  formUpdate$ = this.formUpdate.asObservable();
+
   constructor(private invoker: InvokerService) {}
 
   // Método para establecer el modo CRUD
@@ -27,7 +30,13 @@ export class ReglamentosService {
         this.modeForm = mode;
         this.modeCrudSubject.next({ mode, data, resolve, reject });
     }
-}
+  }
+
+  setModeForm(mode: ModeForm, data?: Reglamento | null, resolve?: Function, reject?: Function){
+    this.modeForm = mode;
+    this.formUpdate.next({mode, data, resolve, reject});
+    this.formUpdate.next(null);
+  }
 
   // Métodos CRUD para reglamentos
 
