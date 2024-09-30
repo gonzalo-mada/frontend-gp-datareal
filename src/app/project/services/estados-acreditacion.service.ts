@@ -4,6 +4,7 @@ import { InvokerService } from 'src/app/base/services/invoker.service';
 import { EstadosAcreditacion } from '../models/EstadosAcreditacion';
 import { ModeForm } from '../models/shared/ModeForm';
 import { StateValidatorForm } from '../models/shared/StateValidatorForm';
+import { generateServiceMongo } from '../tools/utils/service.utils';
 
 @Injectable({
   providedIn: 'root'
@@ -37,10 +38,10 @@ export class EstadosAcreditacionService {
     return await this.invoker.httpInvoke('estados_acreditacion/getEstadosAcreditacion');
   }
   async insertEstadoAcreditacion(params: any){
-    return await this.invoker.httpInvoke('estados_acreditacion/insertEstadoAcreditacion', params);
+    return await this.invoker.httpInvoke(generateServiceMongo('estados_acreditacion/insertEstadoAcreditacion'), params);
   }
   async updateEstadoAcreditacion(params: any){
-    return await this.invoker.httpInvoke('estados_acreditacion/updateEstadoAcreditacion', params);
+    return await this.invoker.httpInvoke(generateServiceMongo('estados_acreditacion/updateEstadoAcreditacion'), params);
   }
   async deleteEstadoAcreditacion(params: any){
     return await this.invoker.httpInvoke('estados_acreditacion/deleteEstadoAcreditacion', params);

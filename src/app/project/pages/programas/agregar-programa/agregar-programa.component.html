@@ -55,6 +55,27 @@
     </div>
 </app-dialog>
 
+<app-dialog [dialogWidth]="'75vw'" [(visible)]="newReglamentoDialog">
+    <div header>
+        <span class="text-xl">Agregar reglamento</span>
+    </div>
+    <div content>
+        <app-form-reglamentos *ngIf="newReglamentoDialog"></app-form-reglamentos>
+    </div>
+    <div footer>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
+            (click)="newReglamentoDialog = false" [text]="true"></p-button>
+
+        <p-button 
+            label="Guardar"
+            icon="pi pi-check"
+            styleClass="mr-2 p-button-success p-button-sm" 
+            [disabled]="reglamentosService.stateForm === 'INVALID' || reglamentosService.stateForm === undefined "
+            (click)="submitNewReglamento()">
+        </p-button>
+    </div>
+</app-dialog>
+
 <app-card header="Agregar programa" subheader="Permite agregar un programa.">
     <!-- <button 
         pButton 
@@ -162,6 +183,39 @@
                                 <app-form-control [control]="fbForm.controls['Unidad_academica']" [validators]="['required']"></app-form-control>
                             </div>
                         </div>
+                        <div class="formgrid grid">
+                            <div class="field col-12 lg:col-3">
+                                <label><strong>¿Tiene graduación conjunta?</strong></label>
+                                <div class="flex flex-row justify-content-start flex-wrap">
+                                    <div class="flex align-items-center justify-content-center">
+                                        <span>No</span>
+                                    </div>
+                                    <div class="flex align-items-center justify-content-center mx-2">
+                                        <p-inputSwitch formControlName="Graduacion_Conjunta_Switch" trueValue="SI" falseValue="NO" (onChange)="changeSwitch($event)" styleClass="mt-1 mx-1"/>
+                                    </div>
+                                    <div class="flex align-items-center justify-content-center">
+                                        <span>Si</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field col-12 lg:col-5">
+                                <label><strong>Instituciones {{ showAsterisk ? '*' : '' }}</strong></label>
+                                <br>
+                                <p-multiSelect
+                                    [options]="instituciones"
+                                    formControlName="Instituciones"
+                                    placeholder="Seleccione instituciones"
+                                    [style]="{ width: '100%', 'min-width': '100%' }"
+                                    optionLabel="nombreInstitucion"
+                                    optionValue="idInstitucion"
+                                    appendTo="body"
+                                    [virtualScroll]="true"
+                                    [virtualScrollItemSize]="43"
+                                >
+                                </p-multiSelect>
+                                <app-form-control [control]="fbForm.controls['Instituciones']" [validators]="['required']"></app-form-control>
+                            </div>
+                        </div>                        
                     </div>
                     <div class="flex pt-4 justify-content-between">
                         <p-button label="Atrás" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()" />
@@ -260,6 +314,25 @@
                                         </div>
                                     </div>
                                 </ng-template>
+                                <ng-template pTemplate="body">
+                                    <div class="flex flex-wrap justify-content-between align-items-center">
+                                        <div>
+                                            <span>
+                                                Seleccione un reglamento registrado en la tabla. <br/> Si no está registrado, agregue uno nuevo presionando el botón <strong>Agregar</strong>. <br>
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <p-button
+                                            label="Agregar"
+                                            icon="pi pi-plus"
+                                            styleClass="p-button-success p-button-sm"
+                                            (click)="addNewReglamento()"
+                                            ></p-button>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <app-table-programas-reglamentos [data]="reglamentos"></app-table-programas-reglamentos>
+                                </ng-template>
                             </p-accordionTab>
                             <p-accordionTab id="director">
                                 <ng-template pTemplate="header">
@@ -341,7 +414,7 @@
                                     </div>
                                 </ng-template>
                             </p-accordionTab>
-                            <p-accordionTab>
+                            <p-accordionTab id="estadoAcreditacion_Suspensiones">
                                 <ng-template pTemplate="header">
                                     <div class="flex justify-content-between flex-wrap w-full">
                                         <div>

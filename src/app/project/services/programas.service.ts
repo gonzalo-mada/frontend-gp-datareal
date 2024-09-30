@@ -1,14 +1,20 @@
 import { effect, Injectable, signal } from '@angular/core';
 import { InvokerService } from 'src/app/base/services/invoker.service';
 import { Programa } from '../models/Programa'
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { EstadosAcreditacion } from '../models/EstadosAcreditacion';
 import { EstadoMaestro } from '../models/EstadoMaestro';
 import { Suspension } from '../models/Suspension';
+import { ModeForm } from '../models/shared/ModeForm';
+import { StateValidatorForm } from '../models/shared/StateValidatorForm';
+import { Reglamento } from '../models/Reglamento';
 @Injectable({
   providedIn: 'root'
 })
 export class ProgramasService {
+
+  modeForm: ModeForm = undefined;
+  stateForm: StateValidatorForm = undefined;
 
   _programa: Programa = {
     Cod_Programa: undefined,
@@ -34,7 +40,9 @@ export class ProgramasService {
     Grado_academico: '',
     EstadosAreditacion: undefined,
     EstadoMaestro: undefined,
-    Suspension: undefined
+    Suspension: undefined,
+    EstadosAcreditacion: undefined,
+    Reglamento: undefined
   }
 
   programa = signal<Programa>(this._programa);
@@ -48,16 +56,41 @@ export class ProgramasService {
   private buttonClickRefreshTableSusp = new Subject<void>();
   buttonRefreshTableSusp$ = this.buttonClickRefreshTableSusp.asObservable();
 
+  private buttonClickRefreshTableReglamento = new Subject<void>();
+  buttonRefreshTableReglamento$ = this.buttonClickRefreshTableReglamento.asObservable();
+
   private actionDirectorSelected = new Subject<boolean>();
   actionDirectorSelected$ = this.actionDirectorSelected.asObservable();
 
   private actionDirectorAlternoSelected = new Subject<boolean>();
   actionDirectorAlternoSelected$ = this.actionDirectorAlternoSelected.asObservable();
 
+  private crudUpdate = new BehaviorSubject<{mode: ModeForm, data?: Programa | null, resolve?: Function, reject?: Function} | null>(null);
+  crudUpdate$ = this.crudUpdate.asObservable();
+
+  private formUpdate = new BehaviorSubject<{mode: ModeForm, data?: Programa | null, resolve?: Function, reject?: Function  } | null>(null);
+  formUpdate$ = this.formUpdate.asObservable();
+
   constructor(private invoker: InvokerService) { 
     effect(() => {
       this.onProgramaUpdate();
     })
+  }
+
+  setModeCrud(mode: ModeForm, data?: Programa | null, resolve?: Function, reject?: Function){
+    this.modeForm = mode;
+    this.crudUpdate.next({mode, data, resolve, reject});
+    // this.crudUpdate.next(null);
+  }
+
+  setModeForm(mode: ModeForm, data?: Programa | null, resolve?: Function, reject?: Function){
+    this.modeForm = mode;
+    this.formUpdate.next({mode, data, resolve, reject});
+    this.formUpdate.next(null);
+  }
+
+  resetModeCrud(){
+    this.crudUpdate.next(null);
   }
 
   emitButtonRefreshTableEA(){
@@ -66,6 +99,10 @@ export class ProgramasService {
 
   emitButtonRefreshTableSusp(){
     this.buttonClickRefreshTableSusp.next();
+  }
+
+  emitButtonRefreshTableReg(){
+    this.buttonClickRefreshTableReglamento.next();
   }
 
   setSelectEstadoAcreditacion(eaSelected : EstadosAcreditacion){
@@ -88,6 +125,13 @@ export class ProgramasService {
     this.programa.update((programa) => ({
       ...programa,
       Suspension: suspSelected
+    }))
+  }
+
+  setSelectReglamento(reglamentoSelected : Reglamento | undefined){
+    this.programa.update((programa) => ({
+      ...programa,
+      Reglamento: reglamentoSelected
     }))
   }
 
@@ -128,6 +172,14 @@ export class ProgramasService {
 
   async getDirector(params: any){
     return await this.invoker.httpInvoke('programas/getDirector', params);
+  }
+
+  async getInstituciones(){
+    return await this.invoker.httpInvoke('programas/getInstituciones');
+  }
+
+  async getProgramas(){
+    return await this.invoker.httpInvoke('programas/getProgramas');
   }
 
   async getEstadosAcreditacion(){

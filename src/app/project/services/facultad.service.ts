@@ -4,6 +4,7 @@ import { ModeForm } from '../models/shared/ModeForm';
 import { StateValidatorForm } from '../models/shared/StateValidatorForm';
 import { Facultad } from '../models/Facultad';
 import { BehaviorSubject } from 'rxjs';
+import { generateServiceMongo } from '../tools/utils/service.utils';
 
 @Injectable({
   providedIn: 'root'
@@ -30,11 +31,11 @@ export class FacultadService {
   }
 
   async insertFacultadService(params: any){
-    return await this.invoker.httpInvoke('facultades/insertFacultad',params);
+    return await this.invoker.httpInvoke(generateServiceMongo('facultades/insertFacultad'),params);
   }
 
   async updateFacultadService(params: any){
-    return await this.invoker.httpInvoke('facultades/updateFacultad',params);
+    return await this.invoker.httpInvoke(generateServiceMongo('facultades/updateFacultad'),params);
   }
 
   async deleteFacultadService(params: any){  

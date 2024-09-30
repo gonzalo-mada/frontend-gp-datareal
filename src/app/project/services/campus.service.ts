@@ -4,6 +4,7 @@ import { Campus } from '../models/Campus';
 import { ModeForm } from '../models/shared/ModeForm';
 import { StateValidatorForm } from '../models/shared/StateValidatorForm';
 import { BehaviorSubject } from 'rxjs';
+import { generateServiceMongo } from '../tools/utils/service.utils';
 
 @Injectable({
   providedIn: 'root'
@@ -29,11 +30,11 @@ export class CampusService {
   }
 
   async insertCampusService(params: any){
-    return await this.invoker.httpInvoke('campus/logica_insertCampus',params);
+    return await this.invoker.httpInvoke(generateServiceMongo('campus/logica_insertCampus'),params);
   }
 
   async updateCampusService(params: any){
-    return await this.invoker.httpInvoke('campus/logica_updateCampus',params);
+    return await this.invoker.httpInvoke(generateServiceMongo('campus/logica_updateCampus'),params);
   }
 
   async deleteCampusService(params: any){  

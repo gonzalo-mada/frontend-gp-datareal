@@ -17,6 +17,8 @@ import { EstadosAcreditacionService } from 'src/app/project/services/estados-acr
 import { ProgramasService } from 'src/app/project/services/programas.service';
 import { SuspensionesService } from 'src/app/project/services/suspensiones.service';
 import { groupDataTipoPrograma, groupDataUnidadesAcademicas } from 'src/app/project/tools/utils/dropwdown.utils';
+import { ReglamentosService } from 'src/app/project/services/reglamentos.service';
+import { Reglamento } from 'src/app/project/models/Reglamento';
 
 @Component({
   selector: 'app-agregar-programa',
@@ -32,6 +34,7 @@ export class AgregarProgramaComponent {
               private errorTemplateHandler: ErrorTemplateHandler,
               private fb: FormBuilder,
               private messageService: MessageService,
+              public reglamentosService: ReglamentosService,
               public suspensionesService: SuspensionesService,
               private programasService: ProgramasService,
               private tableCrudService: TableCrudService,
@@ -45,13 +48,17 @@ export class AgregarProgramaComponent {
   directoresAlternos: any[] = [];
   estadosAcreditacion: any[] = [];
   estadosMaestros: any[] = [];
+  instituciones: any[] = [];
   suspensiones: Suspension[] = [];
+  reglamentos: Reglamento[] = [];
   directorSelected: string = '';
   directorAlternoSelected: string = '';
   showDialogDocs: boolean = false;
   showDialogEstadoAcreditacion: boolean = false;
   showSuspension : boolean = false;
   newSuspensionDialog: boolean = false;
+  newReglamentoDialog: boolean = false;
+  showAsterisk: boolean = false;
   from = {};
   keyPopups: string = 'programa'
   estadoAcreditacion! : EstadosAcreditacion;
@@ -65,6 +72,8 @@ export class AgregarProgramaComponent {
     Codigo_SIES: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/)]],
     Codigo_FIN700: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
     Tipo_programa: ['', [Validators.required]],
+    Graduacion_Conjunta_Switch: [false],
+    Instituciones: [{value:'', disabled: true}, [Validators.required]],
     Campus: ['', [Validators.required]],
     Estado_maestro: ['', [Validators.required]],
     Suspension: ['', [Validators.required]],
@@ -84,9 +93,12 @@ export class AgregarProgramaComponent {
     this.getEstadosAcreditacion();
     this.getEstadosMaestros();
     this.getSuspensiones();
+    this.getInstituciones();
+    this.getReglamentos();
     this.subscription.add(this.programasService.actionDirectorSelected$.subscribe(actionTriggered => {actionTriggered && this.setDirectorSelected()}))
     this.subscription.add(this.programasService.actionDirectorAlternoSelected$.subscribe(actionTriggered => {actionTriggered && this.setDirectorAlternoSelected()}))
     this.subscription.add(this.programasService.buttonRefreshTableEA$.subscribe( () => {this.getEstadosAcreditacion()}))
+    this.subscription.add(this.programasService.buttonRefreshTableReglamento$.subscribe( () => {this.getReglamentos()}))
     this.subscription.add(this.programasService.programaUpdate$.subscribe( programa => {
       if (programa) {
         
@@ -166,6 +178,28 @@ export class AgregarProgramaComponent {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
         message: 'Hubo un error al obtener suspensiones. Intente nuevamente.',
+      });
+    }
+  }
+
+  async getReglamentos(){
+    try {
+      this.reglamentos = await this.reglamentosService.getReglamentos();      
+    } catch (error) {
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al obtener reglamentos. Intente nuevamente.',
+      });
+    }
+  }
+
+  async getInstituciones(){
+    try {
+      this.instituciones = await this.programasService.getInstituciones();
+    } catch (error) {
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al obtener instituciones. Intente nuevamente.',
       });
     }
   }
@@ -257,7 +291,7 @@ export class AgregarProgramaComponent {
 
   onEstadoMaestroChange(event: any){
     switch (event.value.Cod_EstadoMaestro) {
-      case 3:
+      case 2:
         this.estadoMaestroSelected = '';
         this.showSuspension = true;
         break;
@@ -309,6 +343,58 @@ export class AgregarProgramaComponent {
       console.log("eeeee",e);
       
       this.newSuspensionDialog = false;
+      this.errorTemplateHandler.processError(e, {
+        notifyMethod: 'alert',
+        message: e.detail.error.message
+      });
+    }
+  }
+
+  changeSwitch(event: any){
+    const Instituciones = this.fbForm.get('Instituciones');
+
+    switch (event.checked) {
+      case 'SI': Instituciones?.enable(); this.showAsterisk = true; break;
+      case 'NO': Instituciones?.disable(); this.showAsterisk = false; break;
+      default: Instituciones?.disable(); this.showAsterisk = false; break;
+    }
+  }
+
+  async addNewReglamento(){
+    this.newReglamentoDialog = true;
+    this.reglamentosService.setModeForm('create');
+  }
+
+  async submitNewReglamento(){
+    try {
+      const result: any = await new Promise((resolve: Function, reject: Function) => {
+        this.reglamentosService.setModeForm('insert',null,resolve, reject);
+      })
+      console.log("resulttt",result);
+      
+      if (result.success) {
+        //insert exitoso
+        this.getReglamentos();
+        this.messageService.add({
+          key: this.keyPopups,
+          severity: 'success',
+          detail: result.messageGp
+        });
+        
+      }else{
+        this.errorTemplateHandler.processError(
+          result, {
+            notifyMethod: 'alert',
+            summary: result.messageGp,
+            message: result.e.detail.error.message,
+        });
+      }
+      this.reset();
+      this.newReglamentoDialog = false;
+    } catch (e: any) {
+      console.log("eeeee",e);
+      
+      this.newReglamentoDialog = false;
       this.errorTemplateHandler.processError(e, {
         notifyMethod: 'alert',
         message: e.detail.error.message

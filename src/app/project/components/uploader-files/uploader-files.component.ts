@@ -195,6 +195,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
     this.filesToDelete = []; 
     this.docsToUpload = [];  
     this.uploader?.clear();
+    this.uploaderFilesService.updateValidatorFiles(null);
   }
 
   showVisorPDF(event: any){   

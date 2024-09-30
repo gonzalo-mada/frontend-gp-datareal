@@ -41,6 +41,11 @@ const routes: Routes = [
     path: 'tipos',
     loadChildren: () => import('./suspension/suspension.module').then((m) => m.SuspensionModule),
     title: 'Tipos de suspensiones'
+  },
+  {
+    path: 'reglamentos',
+    loadChildren: () => import('./reglamentos/reglamentos.module').then((m) => m.ReglamentosModule),
+    title: 'Reglamentos'
   }
 
   

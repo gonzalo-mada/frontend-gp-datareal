@@ -30,6 +30,10 @@ import { TableProgramasEstadosAcreditacionComponent } from '../components/tables
 import { FormSuspensionComponent } from '../components/forms/form-suspension/form-suspension.component';
 import { TableProgramasSuspensionesComponent } from '../components/tables/programas/table-programas-suspensiones/table-programas-suspensiones.component';
 import { TableSuspensionesComponent } from '../components/tables/table-suspensiones/table-suspensiones.component';
+import { TableProgramasComponent } from '../components/tables/table-programas/table-programas.component';
+import { TableReglamentosComponent } from '../components/tables/table-reglamentos/table-reglamentos.component';
+import { FormReglamentosComponent } from '../components/forms/form-reglamentos/form-reglamentos.component';
+import { TableProgramasReglamentosComponent } from '../components/tables/programas/table-programas-reglamentos/table-programas-reglamentos.component';
 
 const componentsGp = [
   BreadcrumbgpComponent,
@@ -39,6 +43,7 @@ const componentsGp = [
   DialogVisorPdfComponent,
   FormCategoriasTpComponent,
   FormEstadosAcreditacionComponent,
+  FormReglamentosComponent,
   FormSuspensionComponent,
   MenuButtonsTableComponent,
   UploaderFilesComponent,
@@ -47,9 +52,12 @@ const componentsGp = [
   TableEstadosAcreditacionComponent,
   TableFacultadComponent,
   TableTiposProgramasComponent,
+  TableProgramasComponent,
   TableProgramasDirectoresComponent,
   TableProgramasEstadosAcreditacionComponent,
+  TableProgramasReglamentosComponent,
   TableProgramasSuspensionesComponent,
+  TableReglamentosComponent,
   TableSuspensionesComponent,
   TableUnidadesAcademicasComponent
 ]

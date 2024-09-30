@@ -3,6 +3,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { ProgramasComponent } from './programas.component';
 import { HomeComponent } from './home/home.component';
 import { AgregarProgramaComponent } from './agregar-programa/agregar-programa.component';
+import { VerProgramaComponent } from './ver-programa/ver-programa.component';
+import { EditarProgramaComponent } from './editar-programa/editar-programa.component';
 
 
 const routes: Routes = [
@@ -18,6 +20,16 @@ const routes: Routes = [
         path: 'add',
         component: AgregarProgramaComponent,
         data: {title:'Agregar programa'}
+      },
+      {
+        path: 'show',
+        component: VerProgramaComponent,
+        data: {title:'Ver programa'}
+      },
+      {
+        path: 'edit/:cod_programa',
+        component: EditarProgramaComponent,
+        data: {title:'Actualizar programa'}
       }
     ]
   },

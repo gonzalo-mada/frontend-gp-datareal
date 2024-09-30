@@ -123,9 +123,6 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
 
   async editForm(resolve: Function, reject: Function){
     try {
-      const data = {...this.suspension};
-      console.log("data",data);
-      
       this.fbForm.patchValue({...this.suspension});
       this.fbForm.get('Descripcion_TipoSuspension')?.enable();
       this.showAsterisk = true;
@@ -182,7 +179,7 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
         }
       };
 
-      const updated: DataUpdated = await this.suspensionesService.insertSuspension(params);
+      const updated: DataUpdated = await this.suspensionesService.updateSuspension(params);
       
       if (updated.dataWasUpdated) {
         const messageGp = generateMessage(this.namesCrud, updated.dataUpdated, 'actualizado', true,false);

@@ -334,6 +334,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
       files: []
     });
     this.uploaderFilesService.setAction('reset');
+    this.uploaderFilesService.updateValidatorFiles(null);
     this.fbForm.controls['files'].updateValueAndValidity();
   }
 

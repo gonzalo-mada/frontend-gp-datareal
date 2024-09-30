@@ -1,5 +1,6 @@
 import { EstadoMaestro } from "./EstadoMaestro";
 import { EstadosAcreditacion } from "./EstadosAcreditacion";
+import { Reglamento } from "./Reglamento";
 import { Suspension } from "./Suspension";
 
 export interface Programa {
@@ -24,8 +25,10 @@ export interface Programa {
     Unidad_academica?: number,
     Codigo_FlN700?: number,
     Grado_academico?: string,
-    EstadosAreditacion: EstadosAcreditacion | undefined,
-    EstadoMaestro: EstadoMaestro | undefined,
-    Suspension: Suspension | undefined,
+    EstadosAreditacion?: EstadosAcreditacion ,
+    EstadoMaestro?: EstadoMaestro ,
+    Suspension?: Suspension ,
+    EstadosAcreditacion?: EstadosAcreditacion,
+    Reglamento?: Reglamento
 }
 

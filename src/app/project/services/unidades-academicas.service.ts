@@ -4,6 +4,7 @@ import { ModeForm } from '../models/shared/ModeForm';
 import { StateValidatorForm } from '../models/shared/StateValidatorForm';
 import { UnidadAcademica } from '../models/UnidadAcademica';
 import { BehaviorSubject } from 'rxjs';
+import { generateServiceMongo } from '../tools/utils/service.utils';
 
 @Injectable({
   providedIn: 'root'
@@ -27,13 +28,13 @@ export class UnidadesAcademicasService {
   async logica_getUnidadesAcademicas(){
     return await this.invoker.httpInvoke('unidadesAcademicas/logica_getUnidadesAcademicas');
   }
- 
+
   async logica_insertUnidadesAcademicas(params: any){
-    return await this.invoker.httpInvoke('unidadesAcademicas/logica_insertUnidadesAcademicas', params);
+    return await this.invoker.httpInvoke(generateServiceMongo('unidadesAcademicas/logica_insertUnidadesAcademicas'), params);
   }
- 
+  
   async logica_updateUnidadesAcademicas(params: any){
-    return await this.invoker.httpInvoke('unidadesAcademicas/logica_updateUnidadesAcademicas', params);
+    return await this.invoker.httpInvoke(generateServiceMongo('unidadesAcademicas/logica_updateUnidadesAcademicas'), params);
   }
  
   async logica_deleteUnidadesAcademicas(params: any){

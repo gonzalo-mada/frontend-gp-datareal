@@ -21,7 +21,11 @@
         <p-fileUpload #uploader accept="application/pdf" [customUpload]="true" [multiple]="true"
             (onSelect)="onSelect($event,uploader)"
             invalidFileTypeMessageSummary="El archivo '{0}' tiene formato incorrecto."
-            invalidFileTypeMessageDetail="Formato aceptado: PDF.">
+            invalidFileSizeMessageSummary="El archivo '{0}' supera el tamaño admitido."
+            invalidFileTypeMessageDetail="Formato aceptado: PDF."
+            invalidFileSizeMessageDetail="Tamaño maximo: 5 MB."
+            maxFileSize="5000000"
+            >
 
             <ng-template pTemplate="header" let-chooseCallback="chooseCallback" let-uploadCallback="uploadCallback"
                 let-clearCallback="clearCallback">
