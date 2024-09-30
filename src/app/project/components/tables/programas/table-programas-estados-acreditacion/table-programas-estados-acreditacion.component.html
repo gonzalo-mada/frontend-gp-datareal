@@ -85,6 +85,10 @@
             <td>
                 <p-button type="button" pRipple [pRowToggler]="data" [text]="true" [rounded]="true" [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
             </td>
+            <td>
+                <span class="p-column-title">ID</span>
+                {{data.Cod_acreditacion}}
+            </td>
             <td *ngIf="configModeService.config().isPostgrado">
                 <span class="p-column-title">Acreditado</span>
                 <div class="flex flex-row flex-wrap">
@@ -169,9 +173,9 @@
 
     <ng-template pTemplate="rowexpansion" let-data>
         <tr>
-            <td colspan="8">
+            <td colspan="9">
                 <h4>Documento(s) adjunto(s).</h4>
-                <app-uploader-files [mode]="mode"></app-uploader-files>
+                <app-uploader-files mode="show"></app-uploader-files>
             </td>
         </tr>
     </ng-template>

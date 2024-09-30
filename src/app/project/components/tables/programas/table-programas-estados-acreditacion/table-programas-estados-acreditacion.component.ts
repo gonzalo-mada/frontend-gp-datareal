@@ -1,7 +1,10 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Table, TableRowExpandEvent } from 'primeng/table';
+import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { EstadosAcreditacion } from 'src/app/project/models/EstadosAcreditacion';
 import { ConfigModeService } from 'src/app/project/services/components/config-mode.service';
+import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
+import { EstadosAcreditacionService } from 'src/app/project/services/estados-acreditacion.service';
 import { ProgramasService } from 'src/app/project/services/programas.service';
 
 @Component({
@@ -14,7 +17,10 @@ import { ProgramasService } from 'src/app/project/services/programas.service';
 export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnChanges {
 
   constructor(public configModeService: ConfigModeService,
+              private errorTemplateHandler: ErrorTemplateHandler,
+              private estadosAcreditacionService: EstadosAcreditacionService,
               private programasService: ProgramasService, 
+              private uploaderFilesService: UploaderFilesService,
   ){}
   
   @Input() data: any[] = [];
@@ -28,6 +34,7 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnCha
 
   ngOnInit(): void {
     this.cols = [
+      { field: 'Cod_acreditacion', header: 'ID' },
       { field: 'Acreditado', header: 'Acreditado' },
       { field: 'Certificado', header: 'Certificado' },
       { field: 'tiempo.Fecha_inicio', header: 'Fechas acreditación' },
@@ -87,9 +94,18 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnCha
     this.programasService.setSelectEstadoAcreditacion(data);
   }
 
-  onRowExpand(event: TableRowExpandEvent) {
-    this.mode = 'show';
-    // this.loadDocsWithBinary(event.data.Cod_acreditacion)
+  async onRowExpand(event: TableRowExpandEvent) {
+    try {
+      const files = await this.estadosAcreditacionService.getDocumentosWithBinary({Cod_acreditacion: event.data.Cod_acreditacion});
+      this.uploaderFilesService.setFiles(files);
+    } catch (e:any) {
+      this.errorTemplateHandler.processError(e, {
+        notifyMethod: 'alert',
+        summary: 'Error al obtener documentos',
+        message: e.detail.error.message.message
+      }
+    );
+    }
   }
 
 }

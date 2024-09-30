@@ -308,9 +308,8 @@
                                         <div>
                                             <span><strong>Reglamento</strong></span>
                                         </div>
-                                        <div>
-                                            <!-- <span style="font-weight: 100;"><i>{{ fbForm.get('Titulo')?.value }}</i></span> -->
-
+                                        <div *ngIf="reglamentoSelected !== '' ">
+                                            <span style="font-weight: 100;"><i>{{ reglamentoSelected }}</i></span>
                                         </div>
                                     </div>
                                 </ng-template>

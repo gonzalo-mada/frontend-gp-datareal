@@ -445,11 +445,12 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
       this.filesChanged(files);
       return files;
     } catch (e: any) {
-      this.errorTemplateHandler.processError(e, {
-        notifyMethod: 'alert',
-        summary: 'Error al obtener documentos',
-        message: e.detail.error.message.message
-      });
+        this.errorTemplateHandler.processError(e, {
+          notifyMethod: 'alert',
+          summary: 'Error al obtener documentos',
+          message: e.detail.error.message.message
+        }
+      );
     }
   }
 

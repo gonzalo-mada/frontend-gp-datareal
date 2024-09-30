@@ -35,6 +35,7 @@ export class TableEstadosAcreditacionComponent implements OnInit, OnChanges, OnD
     this.subscription = this.tableCrudService.resetSelectedRowsSubject$.subscribe( () => this.selectedRow = []);
     
     this.cols = [
+      { field: 'Cod_acreditacion', header: 'ID' },
       { field: 'Acreditado', header: 'Acreditado' },
       { field: 'Certificado', header: 'Certificado' },
       { field: 'tiempo.Fecha_inicio', header: 'Fechas acreditación' },

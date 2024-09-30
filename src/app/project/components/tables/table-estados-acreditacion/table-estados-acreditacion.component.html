@@ -65,6 +65,10 @@
             <td>
                 <p-tableCheckbox [value]="data"></p-tableCheckbox>
             </td>
+            <td>
+                <span class="p-column-title">ID</span>
+                {{data.Cod_acreditacion}}
+            </td>
             <td *ngIf="configModeService.config().isPostgrado">
                 <span class="p-column-title">Acreditado</span>
                 <div class="flex flex-row flex-wrap">

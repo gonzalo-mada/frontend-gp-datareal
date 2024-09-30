@@ -62,7 +62,8 @@ export class AgregarProgramaComponent {
   from = {};
   keyPopups: string = 'programa'
   estadoAcreditacion! : EstadosAcreditacion;
-  estadoMaestroSelected : string = ''
+  estadoMaestroSelected : string = '';
+  reglamentoSelected: string = '';
   private subscription: Subscription = new Subscription();
 
   public fbForm : FormGroup = this.fb.group({
@@ -107,6 +108,9 @@ export class AgregarProgramaComponent {
         }
         if (programa.Suspension) {
           this.estadoMaestroSelected = programa.Suspension.Descripcion_TipoSuspension!;          
+        }
+        if (programa.Reglamento) {
+          this.reglamentoSelected = programa.Reglamento.Descripcion_regla!;          
         }
       }
     }))
@@ -315,6 +319,8 @@ export class AgregarProgramaComponent {
 
   async submitNewSuspension(){
     try {
+      console.log("entre aki123");
+      
       const result: any = await new Promise((resolve: Function, reject: Function) => {
         this.suspensionesService.setModeForm('insert',null,resolve, reject);
       })
