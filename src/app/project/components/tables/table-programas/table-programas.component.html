@@ -94,10 +94,10 @@
             </td>
             <td>
                 <span class="p-column-title">Estado maestro</span>
-                <ng-container *ngIf="data.Estado_maestro.Cod_EstadoMaestro !== 3 ">
-                    <span>{{data.EstadoMaestro.Descripcion_EstadoMaestro}}</span>
+                <ng-container *ngIf="data.Estado_maestro.Cod_EstadoMaestro !== 2 ">
+                    <span>{{data.Estado_maestro.Descripcion_EstadoMaestro}}</span>
                 </ng-container>
-                <ng-container *ngIf="data.Estado_maestro.Cod_EstadoMaestro === 3 ">
+                <ng-container *ngIf="data.Estado_maestro.Cod_EstadoMaestro === 2 ">
                     <span>
                         Suspendido <br/>
                         <strong>Motivo:</strong> {{data.Suspension.Descripcion_TipoSuspension}}

@@ -1,4 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { Programa } from 'src/app/project/models/Programa';
+import { ProgramasService } from 'src/app/project/services/programas.service';
 
 @Component({
   selector: 'app-editar-programa',
@@ -6,6 +10,16 @@ import { Component } from '@angular/core';
   styles: [
   ]
 })
-export class EditarProgramaComponent {
+export class EditarProgramaComponent implements OnInit {
+  constructor(private activatedRoute: ActivatedRoute,
+    private programasService: ProgramasService
+  ){}
+
+  programa: Programa = {};
+
+  ngOnInit(): void {
+    this.activatedRoute.params.subscribe( ({cod_programa}) => console.log("cod_programa:",cod_programa))
+
+  }
 
 }

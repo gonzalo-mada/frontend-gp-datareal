@@ -22,7 +22,7 @@ const routes: Routes = [
         data: {title:'Agregar programa'}
       },
       {
-        path: 'show',
+        path: 'show/:cod_programa',
         component: VerProgramaComponent,
         data: {title:'Ver programa'}
       },

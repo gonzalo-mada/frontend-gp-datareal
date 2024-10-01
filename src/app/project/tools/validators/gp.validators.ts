@@ -14,7 +14,6 @@ export class GPValidator {
 
     static notValueNegativeYearsAcredit(): ValidatorFn {
         return (control: AbstractControl) : ValidationErrors | null => {
-            // console.log("control.value",control.value);
             if (control.value <= 0 && control.value !== null) {
                 return { notValueNegativeYearsAcredit: true }
             }else{

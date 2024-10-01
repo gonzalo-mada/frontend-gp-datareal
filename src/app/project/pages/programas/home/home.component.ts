@@ -41,8 +41,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.subscription.add(this.tableCrudService.onClickRefreshTable$.subscribe(() => this.getProgramas()));
     this.subscription.add(
       this.programasService.crudUpdate$.subscribe( crud => {
-        console.log("crud",crud);
-        
         if (crud && crud.mode) {
           if (crud.data) {
             this.programa = {};
@@ -66,7 +64,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   async getProgramas(){
     try {
       this.programas = await this.programasService.getProgramas();
-      console.log("programas",this.programas);
+      console.log("PROGRAMAS:",this.programas);
       
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
@@ -76,25 +74,25 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  async showForm(){
-    try {
-      this.router.navigate([`/programa/show`])
-      const data = this.programa;
-      const result : any = await new Promise((resolve,reject) => {
-        this.programasService.setModeForm('show', data, resolve, reject);
-      })
-      console.log("result",result);
-    } catch (e:any) {
-      this.errorTemplateHandler.processError(e, {
-        notifyMethod: 'alert',
-        summary: `Error al visualizar formulario de ${this.namesCrud.articulo_singular}`,
-        message: e.message,
-        }
-      );
-    }
-  }
+  // async showForm(){
+  //   try {
+  //     const data = this.programa;
+  //     const result : any = await new Promise((resolve,reject) => {
+  //       this.programasService.setModeForm('show', data, resolve, reject);
+  //     })
+  //     this.router.navigate([`/programa/show`])
+  //     console.log("result",result);
+  //   } catch (e:any) {
+  //     this.errorTemplateHandler.processError(e, {
+  //       notifyMethod: 'alert',
+  //       summary: `Error al visualizar formulario de ${this.namesCrud.articulo_singular}`,
+  //       message: e.message,
+  //       }
+  //     );
+  //   }
+  // }
 
-  showFormRouter(){
+  showForm(){
     const cod_programa = this.programa.Cod_Programa;
     this.router.navigate([`/programa/show/${cod_programa}`])
   }
@@ -103,5 +101,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const cod_programa = this.programa.Cod_Programa;
     this.router.navigate([`/programa/edit/${cod_programa}`])
   }
+
+
 
 }
