@@ -287,7 +287,7 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
           let reglamentoToDelete = []
           reglamentoToDelete.push(data);
           try {
-            await this.deleteReglamentos(data);
+            await this.deleteReglamentos(reglamentoToDelete);
           } catch (e:any) {
             this.errorTemplateHandler.processError(
               e, {
