@@ -45,7 +45,7 @@ export class FacultadService {
   //servicios para mongodb
 
   async getDocumentosWithBinary(Cod_facultad: string) {
-    return await this.invoker.httpInvoke('facultades/getDocumentosWithBinary',{Cod_facultad: Cod_facultad});
+    return await this.invoker.httpInvoke(generateServiceMongo('facultades/getDocumentosWithBinary'),{Cod_facultad: Cod_facultad});
   }
 
   async getArchiveDoc(idDocumento: string) {

@@ -1,9 +1,10 @@
-import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FileUtils } from '../../tools/utils/file.utils';
 import { FileUpload } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { UploaderFilesService } from '../../services/components/uploader-files.service';
+import { Context } from '../../models/shared/Context';
 
 @Component({
   selector: 'app-uploader-files',
@@ -16,7 +17,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
 
   @ViewChild('uploader') uploader!: FileUpload;
   @Input() mode: string = '';
-  @Input() from: any = {}
+  // @Input() context!: Context;
 
   docsToUpload : any[] = [];
   leyendas: any[] = [];
@@ -26,6 +27,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
   dialogVisorPDF: boolean = false;
   doc: any ;
   extrasDocs: any;
+  context!: Context;
 
   private subscription: Subscription = new Subscription();
 
@@ -44,7 +46,11 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
       { label: ' Archivo en línea' , icon:'pi-cloud' , color:'estado-cloud'},
       { label: ' Archivo por subir' , icon:'pi-cloud-upload' , color:'estado-upload'}
     ];
-
+    this.subscription.add(this.uploaderFilesService.contextUpdate$.subscribe( context => {
+      if (context.module && context.component) {       
+        this.context = context;
+      }
+    }))
     this.subscription.add(this.uploaderFilesService.actionUploader$.subscribe( updateUploader => {
       // console.log("updateUploader",updateUploader);
       if (updateUploader) {
@@ -91,7 +97,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
         tipo: newFile.type, 
         extras:{pesoDocumento: newFile.size ,comentarios:''} , 
         origFile: newFile , 
-        from: this.from.section
+        from: this.context.component.label
       }
     
       this.files.push(fileToSelect)
@@ -204,7 +210,8 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
   }
 
   downloadDoc(event: any){
-    this.uploaderFilesService.triggerDownloadDoc(event);
+    console.log("from downloadDoc uploaderfiles!!!",this.context);
+    this.uploaderFilesService.triggerDownloadDoc(this.context, event);
   }
 
 }

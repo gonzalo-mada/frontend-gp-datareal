@@ -23,7 +23,6 @@ export interface Programa {
     Estado_maestro?: number,
     Campus?: number,
     Unidad_academica?: number,
-    Codigo_FlN700?: number,
     Grado_academico?: string,
     EstadosAreditacion?: EstadosAcreditacion ,
     EstadoMaestro?: EstadoMaestro ,

@@ -1,5 +1,6 @@
-import {  Injectable } from '@angular/core';
+import {  effect, Injectable, signal } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
+import { Context, LabelComponent, Module, NameComponent } from '../../models/shared/Context';
 
 type ActionUploader = 'upload' | 'reset'
 
@@ -13,6 +14,16 @@ interface LayoutUploader {
 
 export class UploaderFilesService {
 
+  _context : Context = {
+    module: undefined,
+    component: {
+      name: undefined,
+      label: undefined
+    }
+  }
+
+  context = signal<Context>(this._context);
+
   stateLayout : LayoutUploader = {
     stateButtonSeleccionarArchivos: null
   }
@@ -20,7 +31,10 @@ export class UploaderFilesService {
   private actionSubject = new BehaviorSubject<{action: ActionUploader , resolve?: Function, reject?: Function } | null>(null);
   actionUploader$ = this.actionSubject.asObservable();
 
-  private downloadDocSubject = new Subject<{file:any}>();
+  private contextUpdate = new BehaviorSubject<Context>(this._context);
+  contextUpdate$ = this.contextUpdate.asObservable();
+
+  private downloadDocSubject = new BehaviorSubject<{context: Context, file:any} | null>(null);
   downloadDoc$ = this.downloadDocSubject.asObservable();
 
   private validatorFilesSubject = new Subject<{file:any} | null>();
@@ -28,6 +42,17 @@ export class UploaderFilesService {
 
   private filesSubject = new Subject<any[] | null>();
   files$ = this.filesSubject.asObservable();
+
+  constructor(){
+      effect(()=>{
+        this.onContextUpdate();
+    })
+  }
+
+  onContextUpdate(){
+    this._context = { ...this.context() };
+    this.contextUpdate.next(this.context());
+  }
 
   disabledButtonSeleccionar(){
     this.stateLayout.stateButtonSeleccionarArchivos = true;
@@ -37,8 +62,9 @@ export class UploaderFilesService {
     this.stateLayout.stateButtonSeleccionarArchivos = false;
   }
 
-  triggerDownloadDoc(file: any){
-    this.downloadDocSubject.next(file);
+  triggerDownloadDoc(context: Context, file: any){
+    this.downloadDocSubject.next({context, file});
+    this.downloadDocSubject.next(null);
   }
 
   updateValidatorFiles(files: any){
@@ -53,6 +79,17 @@ export class UploaderFilesService {
 
   setFiles(files: any[] | null){
     this.filesSubject.next(files);
+  }
+
+  setContext(moduleName: Module, name: NameComponent, label?: LabelComponent){
+    this.context.update((context) => ({
+        ...context,
+        module: moduleName,
+        component: {
+          name: name,
+          label: label
+        }
+    }))
   }
 
 }

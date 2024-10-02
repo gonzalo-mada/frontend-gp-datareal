@@ -12,6 +12,7 @@ import { generateMessage } from 'src/app/project/tools/utils/form.utils';
 import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { Reglamento } from 'src/app/project/models/Reglamento';
+import { Context } from 'src/app/project/models/shared/Context';
 
 @Component({
   selector: 'app-form-reglamentos',
@@ -47,6 +48,7 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
+    this.uploaderFilesService.setContext('mantenedores','reglamentos');
     this.namesCrud = {
       singular: 'reglamento',
       plural: 'reglamentos',
@@ -57,7 +59,13 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
 
     this.subscription.add(this.fbForm.statusChanges.subscribe(status => { this.reglamentosService.stateForm = status as StateValidatorForm;}));
     this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
-    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(file => {file && this.downloadDoc(file)}));
+    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
+      if (from) {
+        if (from.context.component.name === 'reglamentos') {
+          this.downloadDoc(from.file)
+        }
+      }
+    }));
     this.subscription.add(
       this.reglamentosService.formUpdate$.subscribe( form => {
         if (form && form.mode){

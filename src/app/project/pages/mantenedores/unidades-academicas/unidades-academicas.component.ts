@@ -13,6 +13,7 @@ import { TableCrudService } from 'src/app/project/services/components/table-crud
 import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
 import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
+import { Context } from 'src/app/project/models/shared/Context';
 // import { noWhitespaceValidator } from '../../configs/form'
 
 @Component({
@@ -60,7 +61,8 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
     files: [[], this.filesValidator.bind(this)]
   })
 
-  async ngOnInit() { 
+  async ngOnInit() {
+    this.uploaderFilesService.setContext('mantenedores','unidadAcad') ;
     this.namesCrud = {
       singular: 'unidad académica',
       plural: 'unidades académicas',
@@ -72,7 +74,13 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
     await this.getUnidadesAcademicas();
     this.subscription.add(this.menuButtonsTableService.onClickButtonAgregar$.subscribe(() => this.openCreate()));
     this.subscription.add(this.tableCrudService.onClickRefreshTable$.subscribe(() => this.getUnidadesAcademicas()));
-    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(file => {file && this.downloadDoc(file)}));
+    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
+      if (from) {
+        if (from.context.component.name === 'unidadAcad') {
+          this.downloadDoc(from.file)
+        }
+      }
+    }));
     this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
     this.subscription.add(this.menuButtonsTableService.onClickDeleteSelected$.subscribe(() => this.openConfirmationDeleteSelected(this.tableCrudService.getSelectedRows()) ))
     

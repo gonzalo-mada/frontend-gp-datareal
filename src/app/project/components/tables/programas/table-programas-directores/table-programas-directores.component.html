@@ -3,10 +3,8 @@
 >
     <ng-template pTemplate="header">
         <tr>
-            <th>RUT</th>
-            <th>Nombre</th>
-            <th>Correo</th>
-            <th>Anexo</th>
+            <th>Director</th>
+            <th>Contacto</th>
             <th>Facultad</th>
             <th>Acción</th>
         </tr>
@@ -14,10 +12,8 @@
 
     <ng-template pTemplate="body" let-data>
         <tr>
-            <td>{{ data.rutcompleto }}</td>
-            <td>{{ data.Nombres }} {{ data.Paterno }} {{ data.Materno }}</td>
-            <td>{{ data.FiceMail }}</td>
-            <td>{{ data.DirFono || '' }}</td>
+            <td>{{ data.Nombres }} {{ data.Paterno }} {{ data.Materno }} <br/> RUT: {{ data.rutcompleto }}</td>
+            <td>{{ data.FiceMail }} <br/> Anexo: {{ data.DirFono || '' }}</td>
             <td>{{ data.Facultad }}</td>
             <td>
                 <p-button  

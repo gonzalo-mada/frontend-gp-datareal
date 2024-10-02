@@ -36,7 +36,6 @@ export class ProgramasService {
     Estado_maestro: undefined,
     Campus: undefined,
     Unidad_academica: undefined,
-    Codigo_FlN700: undefined,
     Grado_academico: '',
     EstadosAreditacion: undefined,
     EstadoMaestro: undefined,

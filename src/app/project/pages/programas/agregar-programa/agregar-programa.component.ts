@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { MenuItem, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { RutValidator } from 'src/app/base/tools/validators/rut.validator';
@@ -19,6 +18,8 @@ import { SuspensionesService } from 'src/app/project/services/suspensiones.servi
 import { groupDataTipoPrograma, groupDataUnidadesAcademicas } from 'src/app/project/tools/utils/dropwdown.utils';
 import { ReglamentosService } from 'src/app/project/services/reglamentos.service';
 import { Reglamento } from 'src/app/project/models/Reglamento';
+import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
+import { LabelComponent } from 'src/app/project/models/shared/Context';
 
 @Component({
   selector: 'app-agregar-programa',
@@ -29,6 +30,7 @@ import { Reglamento } from 'src/app/project/models/Reglamento';
 export class AgregarProgramaComponent {
   constructor(
               public configModeService: ConfigModeService,
+              private commonUtils: CommonUtils,
               public estadosAcreditacionService: EstadosAcreditacionService,
               public estadoMaestroService: EstadoMaestroService,
               private errorTemplateHandler: ErrorTemplateHandler,
@@ -47,7 +49,7 @@ export class AgregarProgramaComponent {
   directores: any[] = [];
   directoresAlternos: any[] = [];
   estadosAcreditacion: any[] = [];
-  estadosMaestros: any[] = [];
+  estadosMaestros: EstadoMaestro[] = [];
   instituciones: any[] = [];
   suspensiones: Suspension[] = [];
   reglamentos: Reglamento[] = [];
@@ -59,7 +61,6 @@ export class AgregarProgramaComponent {
   newSuspensionDialog: boolean = false;
   newReglamentoDialog: boolean = false;
   showAsterisk: boolean = false;
-  from = {};
   keyPopups: string = 'programa'
   estadoAcreditacion! : EstadosAcreditacion;
   estadoMaestroSelected : string = '';
@@ -67,11 +68,13 @@ export class AgregarProgramaComponent {
   private subscription: Subscription = new Subscription();
 
   public fbForm : FormGroup = this.fb.group({
+    Centro_costo: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
     Nombre_programa: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/)]],
     Grupo_correo: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/)]],
     Cod_programa: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
     Codigo_SIES: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/)]],
-    Codigo_FIN700: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
+    Creditos_totales: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
+    Horas_totales: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
     Tipo_programa: ['', [Validators.required]],
     Graduacion_Conjunta_Switch: [false],
     Instituciones: [{value:'', disabled: true}, [Validators.required]],
@@ -100,6 +103,17 @@ export class AgregarProgramaComponent {
     this.subscription.add(this.programasService.actionDirectorAlternoSelected$.subscribe(actionTriggered => {actionTriggered && this.setDirectorAlternoSelected()}))
     this.subscription.add(this.programasService.buttonRefreshTableEA$.subscribe( () => {this.getEstadosAcreditacion()}))
     this.subscription.add(this.programasService.buttonRefreshTableReglamento$.subscribe( () => {this.getReglamentos()}))
+    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe( from => {
+      if (from) {
+        switch (from.context.component.name) {
+          case 'suspension': this.downloadDocSuspension(from.file); break;
+          case 'estado-acreditacion': this.downloadDocEA(from.file); break;
+          case 'reglamentos': this.downloadDocReglamento(from.file); break;
+          default: break;
+        }
+      }
+      
+    }))
     this.subscription.add(this.programasService.programaUpdate$.subscribe( programa => {
       if (programa) {
         
@@ -167,6 +181,7 @@ export class AgregarProgramaComponent {
   async getEstadosMaestros(){
     try {
       this.estadosMaestros = await this.estadoMaestroService.getEstadosMaestros();
+      this.estadosMaestros = this.estadosMaestros.filter( e => e.Cod_EstadoMaestro !== 2 )
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
@@ -239,12 +254,9 @@ export class AgregarProgramaComponent {
     this.directorAlternoSelected = this.programasService.signalGetDirectorAlterno();
   }
 
-  chooseDocs(from: string){
+  chooseDocs(label: LabelComponent){
     this.showDialogDocs = true;
-    this.from = {
-      from: 'programa',
-      section: from
-    };
+    this.uploaderFilesService.setContext('programa','agregar-programa', label)
   }
 
   async addNewEstadoAcreditacion(){
@@ -404,6 +416,48 @@ export class AgregarProgramaComponent {
       this.errorTemplateHandler.processError(e, {
         notifyMethod: 'alert',
         message: e.detail.error.message
+      });
+    }
+  }
+
+  async downloadDocSuspension(documento: any){
+    try {
+      let blob: Blob = await this.suspensionesService.getArchiveDoc(documento.id);
+      this.commonUtils.downloadBlob(blob, documento.nombre);      
+    } catch (e:any) {
+      this.errorTemplateHandler.processError(
+        e, {
+          notifyMethod: 'alert',
+          summary: 'Error al descargar documento de tipos de suspensiones.',
+          message: e.message,
+      });
+    }
+  }
+
+  async downloadDocReglamento(documento: any){
+    try {
+      let blob: Blob = await this.reglamentosService.getArchiveDoc(documento.id);
+      this.commonUtils.downloadBlob(blob, documento.nombre);      
+    } catch (e:any) {
+      this.errorTemplateHandler.processError(
+        e, {
+          notifyMethod: 'alert',
+          summary: 'Error al descargar documento de reglamento.',
+          message: e.message,
+      });
+    }
+  }
+
+  async downloadDocEA(documento: any){
+    try {
+      let blob: Blob = await this.estadosAcreditacionService.getArchiveDoc(documento.id);
+      this.commonUtils.downloadBlob(blob, documento.nombre);      
+    } catch (e:any) {
+      this.errorTemplateHandler.processError(
+        e, {
+          notifyMethod: 'alert',
+          summary: 'Error al descargar documento de estado de acreditación.',
+          message: e.message,
       });
     }
   }

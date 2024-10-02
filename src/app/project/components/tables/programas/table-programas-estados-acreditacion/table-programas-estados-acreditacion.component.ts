@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 import { Table, TableRowExpandEvent } from 'primeng/table';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { EstadosAcreditacion } from 'src/app/project/models/EstadosAcreditacion';
+import { Context } from 'src/app/project/models/shared/Context';
 import { ConfigModeService } from 'src/app/project/services/components/config-mode.service';
 import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
 import { EstadosAcreditacionService } from 'src/app/project/services/estados-acreditacion.service';
@@ -24,7 +25,6 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnCha
   ){}
   
   @Input() data: any[] = [];
-  mode: string = '';
   searchValue: string | undefined;
   originalData: any[] = [];
   cols: any[] = []
@@ -33,6 +33,7 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnCha
   expandedRows = {};
 
   ngOnInit(): void {
+    this.uploaderFilesService.setContext('mantenedores','estado-acreditacion');
     this.cols = [
       { field: 'Cod_acreditacion', header: 'ID' },
       { field: 'Acreditado', header: 'Acreditado' },

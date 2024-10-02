@@ -10,7 +10,8 @@ import { MenuButtonsTableService } from 'src/app/project/services/components/men
 import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
 import { generateMessage } from 'src/app/project/tools/utils/form.utils';
 import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
-type ModeCrud = undefined | 'create' | 'edit' | 'show' | 'insert' | 'update' | 'delete'
+import { Context } from 'src/app/project/models/shared/Context';
+
 @Component({
   selector: 'app-estado-acreditacion',
   templateUrl: './estados-acreditacion.component.html',
@@ -44,7 +45,6 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
   private subscription: Subscription = new Subscription();
   
   async ngOnInit() {
-
     this.namesCrud = {
       singular: 'estado de acreditación',
       plural: 'estados de acreditación',
@@ -56,7 +56,7 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
     this.keyPopups = 'estadoacreditacion'
 
     await this.getEstadosAcreditacion();
-    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(file => {file && this.downloadDoc(file)}));
+
     //ACTION AGREGAR DESDE MANTENEDOR EA
     this.subscription.add(this.menuButtonsTableService.onClickButtonAgregar$.subscribe(() => this.createForm()));
     this.subscription.add(this.tableCrudService.onClickRefreshTable$.subscribe(() => this.getEstadosAcreditacion()));
@@ -197,20 +197,6 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
           message: e.detail.error.message.message
       });
     } 
-  }
-
-  async downloadDoc(documento: any) {
-    try {
-      let blob: Blob = await this.estadosAcreditacionService.getArchiveDoc(documento.id);
-      this.commonUtils.downloadBlob(blob, documento.nombre);      
-    } catch (e:any) {
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: 'Error al descargar documento',
-          message: e.detail.error.message.message,
-      });
-    }
   }
 
   async createForm(){

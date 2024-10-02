@@ -12,6 +12,7 @@ import { generateMessage } from 'src/app/project/tools/utils/form.utils';
 import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 import { DataUpdated } from 'src/app/project/models/shared/DataUpdated';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
+import { Context } from 'src/app/project/models/shared/Context';
 
 @Component({
   selector: 'app-form-suspension',
@@ -44,6 +45,7 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
   })
 
   ngOnInit(): void {
+    this.uploaderFilesService.setContext('mantenedores','suspension')
     this.namesCrud = {
       singular: 'tipo de suspensión',
       plural: 'tipo de suspensión',
@@ -54,7 +56,13 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
 
     this.subscription.add(this.fbForm.statusChanges.subscribe(status => { this.suspensionesService.stateForm = status as StateValidatorForm }))
     this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
-    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(file => {file && this.downloadDoc(file)}));
+    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
+      if (from) {
+        if (from.context.component.name === 'suspension') {
+          this.downloadDoc(from.file)
+        }
+      }
+    }));
     this.subscription.add(
       this.suspensionesService.formUpdate$.subscribe( form => {
         if (form && form.mode) {

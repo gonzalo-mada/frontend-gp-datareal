@@ -11,6 +11,7 @@ import { TableCrudService } from 'src/app/project/services/components/table-crud
 import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
 import { MenuButtonsTableService } from 'src/app/project/services/components/menu-buttons-table.service';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
+import { Context } from 'src/app/project/models/shared/Context';
 
 
 @Component({
@@ -36,7 +37,6 @@ export class FacultadComponent implements OnInit, OnDestroy {
   facultadesBruto: Facultad[] = [];
   facultad: Facultad = {};
   namesCrud!: NamesCrud;
-
   keyPopups: string = '';
   dialog: boolean = false;
   showAsterisk : boolean = true;
@@ -57,7 +57,7 @@ export class FacultadComponent implements OnInit, OnDestroy {
   })
 
   async ngOnInit( ) {
-    
+    this.uploaderFilesService.setContext('mantenedores','facultad');
     this.namesCrud = {
       singular: 'facultad',
       plural: 'facultades',
@@ -70,7 +70,13 @@ export class FacultadComponent implements OnInit, OnDestroy {
     await this.getFacultades();
     this.subscription.add(this.menuButtonsTableService.onClickButtonAgregar$.subscribe(() => this.openCreate()));
     this.subscription.add(this.tableCrudService.onClickRefreshTable$.subscribe(() => this.getFacultades()));
-    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(file => {file && this.downloadDoc(file)}));
+    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
+      if (from) {
+        if (from.context.component.name === 'facultad') {
+          this.downloadDoc(from.file)
+        }
+      }
+    }));
     this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
     this.subscription.add(this.menuButtonsTableService.onClickDeleteSelected$.subscribe(() => this.openConfirmationDeleteSelected(this.tableCrudService.getSelectedRows()) ))
     this.subscription.add(

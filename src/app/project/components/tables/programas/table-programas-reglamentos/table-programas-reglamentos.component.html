@@ -1,3 +1,15 @@
+<p-overlayPanel #op>
+    <ng-template pTemplate>
+        <div class="flex flex-row flex-wrap">
+            <div class="flex align-items-center justify-content-center">
+                <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
+            </div>
+            <div class="flex align-items-center justify-content-center">
+                <span class="mx-1" style="font-weight: 100;">Permite ver documentos adjuntos</span>
+            </div>
+        </div>
+    </ng-template>
+</p-overlayPanel>
 <p-table
     #dt
     [rows]="10"
@@ -10,6 +22,8 @@
     [globalFilterFields]="globalFiltros"
     [dataKey]="dataKeyTable" 
     autoLayout="true"
+    [expandedRowKeys]="expandedRows"
+    (onRowExpand)="onRowExpand($event)"
 >
 
     <ng-template pTemplate="caption">
@@ -27,8 +41,18 @@
             </p-button>
             </div>
 
+            <div class="hidden md:flex align-items-center">
+                <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
+                <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
+            </div>
                             
             <div class="flex">
+            <p-button 
+                pTooltip="Muestra la leyenda de íconos" 
+                icon="pi pi-question-circle"
+                styleClass="p-button-sm p-button-warning mr-2 md:hidden" 
+                (click)="op.toggle($event)">
+            </p-button>
             <p-button 
                 pRipple 
                 label="Actualizar" 
@@ -42,6 +66,7 @@
 
     <ng-template pTemplate="header">
         <tr>
+            <th style="width: 5rem"></th>
             <ng-container *ngFor="let col of cols">
                 <ng-container *ngIf="col.field !== 'accion'; else actionsColumn">
                     <th pSortableColumn="{{col.field}}">
@@ -57,6 +82,9 @@
 
     <ng-template pTemplate="body" let-data let-expanded="expanded">
         <tr>
+            <td>
+                <p-button type="button" pRipple [pRowToggler]="data" [text]="true" [rounded]="true" [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
+            </td>
             <td style="width: 50%;">
                 <span class="p-column-title">Nombre</span>
                 {{data.Descripcion_regla}}
@@ -80,6 +108,15 @@
                     >
                     </p-button>
                 </div>
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="rowexpansion" let-data>
+        <tr>
+            <td colspan="4">
+                <h4>Documento(s) adjunto(s).</h4>
+                <app-uploader-files mode="show"></app-uploader-files>
             </td>
         </tr>
     </ng-template>

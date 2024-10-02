@@ -56,7 +56,7 @@ export class ReglamentosService {
 
   // Servicios relacionados con documentos en MongoDB
   async getDocumentosWithBinary(Cod_reglamento: number) {
-    return await this.invoker.httpInvoke('reglamentos/getDocumentosWithBinary', { Cod_reglamento });
+    return await this.invoker.httpInvoke(generateServiceMongo('reglamentos/getDocumentosWithBinary'), { Cod_reglamento });
   }
 
   async getArchiveDoc(idDocumento: string) {

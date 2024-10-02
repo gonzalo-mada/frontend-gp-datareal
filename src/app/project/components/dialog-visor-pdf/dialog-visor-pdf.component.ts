@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 import { UploaderFilesService } from '../../services/components/uploader-files.service';
+import { Context } from '../../models/shared/Context';
 
 @Component({
   selector: 'app-dialog-visor-pdf',
@@ -13,6 +14,7 @@ export class DialogVisorPdfComponent implements OnChanges {
   @Input() visible: boolean = false;
   @Input() archivo!: any;
   @Input() id!: string;
+  @Input() context!: Context;
   @Output() visibleChange = new EventEmitter<boolean>();
 
   nameArchive : string = '';
@@ -57,7 +59,7 @@ export class DialogVisorPdfComponent implements OnChanges {
   }
 
   downloadMongo(){
-    this.uploaderFilesService.triggerDownloadDoc(this.archivo);
+    this.uploaderFilesService.triggerDownloadDoc(this.context,this.archivo);
   }
 
   print() {

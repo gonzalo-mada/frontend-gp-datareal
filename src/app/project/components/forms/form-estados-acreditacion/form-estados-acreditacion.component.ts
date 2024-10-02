@@ -13,8 +13,6 @@ import { UploaderFilesService } from 'src/app/project/services/components/upload
 import { MenuButtonsTableService } from 'src/app/project/services/components/menu-buttons-table.service';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 
-
-
 @Component({
   selector: 'app-form-estados-acreditacion',
   templateUrl: './form-estados-acreditacion.component.html',
@@ -35,7 +33,6 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
   showAsterisk: boolean = false;
   estadoAcreditacion: EstadosAcreditacion = {};
   namesCrud!: NamesCrud;
-  mode : string = '';
   private subscription: Subscription = new Subscription();
 
   get modeForm() {
@@ -61,7 +58,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
   
   ngOnInit() {
     this.menuButtonsTableService.setContext('form-ea','dialog');
-
+    this.uploaderFilesService.setContext('mantenedores','estado-acreditacion');
     this.namesCrud = {
       singular: 'estado de acreditación',
       plural: 'estados de acreditación',
@@ -91,7 +88,13 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
         }
     }));
     this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
-    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(file => {file && this.downloadDoc(file)}));
+    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
+      if (from) {
+        if (from.context.component.name === 'estado-acreditacion') {
+          this.downloadDoc(from.file)
+        }
+      }
+    }));
     this.subscription.add(this.fbForm.get('tiempo.Fecha_inicio')?.valueChanges.subscribe(() => this.calculateYearsDifference()))
     this.subscription.add(this.fbForm.get('tiempo.Fecha_termino')?.valueChanges.subscribe(() => this.calculateYearsDifference()))
     this.subscription.add(this.fbForm.get('Acreditado')?.valueChanges.subscribe(status => {
@@ -172,6 +175,10 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
 
   async editForm(resolve: Function, reject: Function){
     try {
+      const isPostgrado = this.configModeService.config().isPostgrado
+      console.log("data::::",this.estadoAcreditacion);
+      console.log("isPostgrado::::",isPostgrado);
+
       const formValues =  this.estadoAcreditacion;
       
       if (formValues.tiempo?.Fecha_inicio === '01-01-1900' && formValues.tiempo?.Fecha_termino === '01-01-1900') {
@@ -183,17 +190,17 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
       this.fbForm.get('Evaluacion_interna')?.enable()
       this.enableSwitch();
 
-      switch (this.estadoAcreditacion.Acreditado) {
-        case 'SI': this.enableForm('acred'); break;
-        case 'NO': this.disableForm('acred'); break;
-      }
-
-      switch (this.estadoAcreditacion.Certificado) {
-        case 'SI': this.enableForm('certif'); break;
-        case 'NO': this.disableForm('certif'); break;
-      }
-
-            
+      if (isPostgrado) {
+        switch (this.estadoAcreditacion.Acreditado) {
+          case 'SI': this.enableForm('acred'); break;
+          case 'NO': this.disableForm('acred'); break;
+        }
+      }else{
+        switch (this.estadoAcreditacion.Certificado) {
+          case 'SI': this.enableForm('certif'); break;
+          case 'NO': this.disableForm('certif'); break;
+        }
+      }            
       await this.loadDocsWithBinary(this.estadoAcreditacion);
       resolve(true)
     } catch (e) {
@@ -207,6 +214,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
   }
 
   enableForm(typeForm : 'acred' | 'certif'){
+    
     if (typeForm === 'acred') {
       this.fbForm.get('Nombre_ag_acredit')?.enable();
     } else {

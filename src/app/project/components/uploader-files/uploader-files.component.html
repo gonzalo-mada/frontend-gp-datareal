@@ -13,6 +13,7 @@
     [(visible)]="dialogVisorPDF"
     [archivo]="doc"
     [id]="'visorReporte'"
+    [context]="context"
     *ngIf="doc"
 ></app-dialog-visor-pdf>
 
@@ -63,7 +64,7 @@
                 <div *ngIf="files.length > 0">
                     <!-- <h5>Pendientes</h5> -->
                     <p-table [value]="files" [tableStyle]="{'min-width': '18.75rem'}">
-                        <ng-template pTemplate="header" *ngIf="from.from === 'programa' ">
+                        <ng-template pTemplate="header" *ngIf="context.component.name === 'agregar-programa' ">
                             <tr>
                                 <th>Adjuntado desde</th>
                                 <th>Archivo</th>
@@ -74,7 +75,7 @@
                         </ng-template>
                         <ng-template pTemplate="body" let-fileWithExtras let-i="rowIndex">
                             <tr>
-                                <td *ngIf="from.from === 'programa' ">
+                                <td *ngIf="context.component.name === 'agregar-programa' ">
                                     <span> {{  fileWithExtras.from }} </span>
                                 </td>
                                 <td style="min-width: 17rem;">

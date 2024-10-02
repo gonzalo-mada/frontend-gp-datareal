@@ -49,7 +49,7 @@ export class EstadosAcreditacionService {
 
   //servicios para mongodb
   async getDocumentosWithBinary(params: any) {
-    return await this.invoker.httpInvoke('estados_acreditacion/getDocumentosWithBinary',params);
+    return await this.invoker.httpInvoke(generateServiceMongo('estados_acreditacion/getDocumentosWithBinary'),params);
   }
 
   async getArchiveDoc(idDocumento: string) {
