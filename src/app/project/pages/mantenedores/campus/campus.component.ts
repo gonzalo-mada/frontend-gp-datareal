@@ -76,7 +76,13 @@ export class CampusComponent implements OnInit, OnDestroy {
         }
       }
     }));
-    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
+    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( from => {
+      if (from) {
+        if (from.context.component.name === 'campus') {
+          this.filesChanged(from.files)
+        }
+      }
+    }));
     this.subscription.add(this.menuButtonsTableService.onClickDeleteSelected$.subscribe(() => this.openConfirmationDeleteSelected(this.tableCrudService.getSelectedRows()) ))
 
     this.subscription.add(
@@ -104,7 +110,7 @@ export class CampusComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
     this.tableCrudService.resetSelectedRows();
-    this.uploaderFilesService.updateValidatorFiles(null);
+    this.uploaderFilesService.resetValidatorFiles();
     this.uploaderFilesService.setFiles(null);
   }
 

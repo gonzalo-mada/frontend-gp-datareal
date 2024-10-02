@@ -77,7 +77,13 @@ export class FacultadComponent implements OnInit, OnDestroy {
         }
       }
     }));
-    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
+    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( from => {
+      if (from) {
+        if (from.context.component.name === 'facultad') {
+          this.filesChanged(from.files)
+        }
+      }
+    }));
     this.subscription.add(this.menuButtonsTableService.onClickDeleteSelected$.subscribe(() => this.openConfirmationDeleteSelected(this.tableCrudService.getSelectedRows()) ))
     this.subscription.add(
       this.facultadService.crudUpdate$.subscribe( crud => {
@@ -104,7 +110,7 @@ export class FacultadComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
     this.tableCrudService.resetSelectedRows();
     this.uploaderFilesService.setFiles(null);
-    this.uploaderFilesService.updateValidatorFiles(null);
+    this.uploaderFilesService.resetValidatorFiles();
   }
 
   filesValidator(control: any): { [key: string]: boolean } | null {   

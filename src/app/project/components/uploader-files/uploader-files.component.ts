@@ -105,7 +105,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
     });
 
     // this.filesChange.emit(this.files)    
-    this.uploaderFilesService.updateValidatorFiles(this.files);
+    this.uploaderFilesService.updateValidatorFiles(this.context,this.files);
     
   }
 
@@ -178,7 +178,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
       this.files.splice(index, 1);
     }
     // this.filesChange.emit(this.files)
-    this.uploaderFilesService.updateValidatorFiles(this.files);
+    this.uploaderFilesService.updateValidatorFiles(this.context, this.files);
   }
 
   cancelDeleteFile(file: any, uploader: FileUpload, index: number){
@@ -193,7 +193,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
         detail: `El documento con nombre ${file.nombre} no es posible cancelar su eliminación ya que está como documento adjunto.`,
       });
     }
-    this.uploaderFilesService.updateValidatorFiles(this.files);
+    this.uploaderFilesService.updateValidatorFiles(this.context, this.files);
   }
 
   resetQueueUploader(){   
@@ -201,7 +201,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
     this.filesToDelete = []; 
     this.docsToUpload = [];  
     this.uploader?.clear();
-    this.uploaderFilesService.updateValidatorFiles(null);
+    this.uploaderFilesService.resetValidatorFiles();
   }
 
   showVisorPDF(event: any){   

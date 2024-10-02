@@ -58,7 +58,13 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
     };
 
     this.subscription.add(this.fbForm.statusChanges.subscribe(status => { this.reglamentosService.stateForm = status as StateValidatorForm;}));
-    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
+    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( from => {
+      if (from) {
+        if (from.context.component.name === 'reglamentos') {
+          this.filesChanged(from.files)
+        }
+      }
+    }));
     this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
       if (from) {
         if (from.context.component.name === 'reglamentos') {
@@ -90,7 +96,7 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
-    this.uploaderFilesService.updateValidatorFiles(null);
+    this.uploaderFilesService.resetValidatorFiles();
     this.uploaderFilesService.setFiles(null);
   }
 
@@ -228,7 +234,7 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
     this.fbForm.get('anio')?.enable();
     this.fbForm.get('vigencia')?.enable();
     this.uploaderFilesService.setAction('reset');
-    this.uploaderFilesService.updateValidatorFiles(null);
+    this.uploaderFilesService.resetValidatorFiles();
     this.fbForm.controls['files'].updateValueAndValidity();
   }
 

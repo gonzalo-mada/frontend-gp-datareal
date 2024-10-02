@@ -37,7 +37,7 @@ export class UploaderFilesService {
   private downloadDocSubject = new BehaviorSubject<{context: Context, file:any} | null>(null);
   downloadDoc$ = this.downloadDocSubject.asObservable();
 
-  private validatorFilesSubject = new Subject<{file:any} | null>();
+  private validatorFilesSubject = new BehaviorSubject<{context: Context, files:any} | null>(null);
   validatorFiles$ = this.validatorFilesSubject.asObservable();
 
   private filesSubject = new Subject<any[] | null>();
@@ -67,8 +67,12 @@ export class UploaderFilesService {
     this.downloadDocSubject.next(null);
   }
 
-  updateValidatorFiles(files: any){
-    this.validatorFilesSubject.next(files);
+  updateValidatorFiles(context: Context, files: any){
+    this.validatorFilesSubject.next({context, files});
+    this.validatorFilesSubject.next(null);
+  }
+
+  resetValidatorFiles(){
     this.validatorFilesSubject.next(null);
   }
 

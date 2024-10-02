@@ -55,7 +55,13 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
     };
 
     this.subscription.add(this.fbForm.statusChanges.subscribe(status => { this.suspensionesService.stateForm = status as StateValidatorForm }))
-    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
+    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( from => {
+      if (from) {
+        if (from.context.component.name === 'suspension') {
+          this.filesChanged(from.files)
+        }
+      }
+    }));
     this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
       if (from) {
         if (from.context.component.name === 'suspension') {
@@ -84,7 +90,7 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
-    this.uploaderFilesService.updateValidatorFiles(null);
+    this.uploaderFilesService.resetValidatorFiles();
     this.uploaderFilesService.setFiles(null);
   }
 

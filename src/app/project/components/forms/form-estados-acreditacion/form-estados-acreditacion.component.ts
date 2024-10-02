@@ -87,7 +87,13 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
 
         }
     }));
-    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
+    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( from => {
+      if (from) {
+        if (from.context.component.name === 'estado-acreditacion') {
+          this.filesChanged(from.files)
+        }
+      }
+    }));
     this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
       if (from) {
         if (from.context.component.name === 'estado-acreditacion') {
@@ -113,7 +119,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
   }
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
-    this.uploaderFilesService.updateValidatorFiles(null);
+    this.uploaderFilesService.resetValidatorFiles();
     this.uploaderFilesService.setFiles(null);
     this.uploaderFilesService.enabledButtonSeleccionar();
   }
@@ -342,7 +348,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
       files: []
     });
     this.uploaderFilesService.setAction('reset');
-    this.uploaderFilesService.updateValidatorFiles(null);
+    this.uploaderFilesService.resetValidatorFiles();
     this.fbForm.controls['files'].updateValueAndValidity();
   }
 
