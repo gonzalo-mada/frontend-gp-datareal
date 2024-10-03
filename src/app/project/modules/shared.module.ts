@@ -59,7 +59,7 @@ const componentsGp = [
   TableProgramasSuspensionesComponent,
   TableReglamentosComponent,
   TableSuspensionesComponent,
-  TableUnidadesAcademicasComponent
+  TableUnidadesAcademicasComponent,
 ]
 
 @NgModule({

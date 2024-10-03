@@ -35,7 +35,7 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
     private unidadesAcademicasService: UnidadesAcademicasService,
     private uploaderFilesService: UploaderFilesService
   ){}
-
+  
   unidadesAcademicas: UnidadAcademica[] = [];
   unidadAcademica: UnidadAcademica = {};
   facultades: Facultad[] = [];

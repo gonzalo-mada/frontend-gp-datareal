@@ -16,6 +16,11 @@ const routes: Routes = [
     path: 'mantenedores',
     loadChildren: () => import('../pages/mantenedores/mantenedores.module').then((m) => m.MantenedoresModule),
     data: {title:'Mantenedores'} 
+  },
+  {
+    path: 'mantenedores-plan',
+    loadChildren: () => import('../pages/mantenedores-plan/mantenedores-plan.module').then((m) => m.MantenedoresPlanModule),
+    data: {title:'Mantenedores plan de estudio'} 
   }
 ];
 
