@@ -45,7 +45,7 @@ export class JornadaComponent implements OnInit, OnDestroy {
   }
 
   public fbForm : FormGroup = this.fb.group({
-    Descripcion_ua: ['', [Validators.required , Validators.pattern(/^(?!\s*$).+/)]]
+    Descripcion_jornada: ['', [Validators.required , Validators.pattern(/^(?!\s*$).+/)]]
   })
 
   async ngOnInit() {
@@ -57,10 +57,22 @@ export class JornadaComponent implements OnInit, OnDestroy {
       genero: 'femenino'
     };
     this.keyPopups = 'jornadas'
-    await this.jornadasService.getJornadas();
+    await this.getJornadas();
+    console.log("Jornadas",this.jornadas);
+
   }
 
   ngOnDestroy(): void {
 
+  }
+  async getJornadas(){
+    try {
+      this.jornadas = <Jornada[]> await this.jornadasService.getJornadas();
+    } catch (error) {
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al obtener los registros. Intente nuevamente.',
+      });
+    }
   }
 }

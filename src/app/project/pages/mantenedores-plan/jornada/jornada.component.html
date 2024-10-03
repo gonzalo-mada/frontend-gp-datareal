@@ -1,1 +1,13 @@
-<p>jornada works!</p>
+<p-toast [key]="keyPopups"></p-toast>
+<p-confirmDialog [key]="keyPopups" [style]="{ width: '500px' }"></p-confirmDialog>
+
+<div class="grid">
+    <div class="col-12">
+        <app-card header="Mantenedor de jornadas"
+            subheader="Permite ver, crear, actualizar y eliminar jornadas.">
+            <app-menu-buttons-table></app-menu-buttons-table>
+            <app-table-jornadas [data]="jornadas"></app-table-jornadas>
+        </app-card>
+
+    </div>
+</div>
