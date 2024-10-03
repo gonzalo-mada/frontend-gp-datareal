@@ -2,6 +2,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { JornadaRoutingModule } from './jornada-routing.module';
+import { PrimengModule } from '../../../modules/primeng.module';
+import { SharedModule } from '../../../modules/shared.module';
 import { JornadaComponent } from './jornada.component';
 
 
@@ -11,7 +13,9 @@ import { JornadaComponent } from './jornada.component';
   ],
   imports: [
     CommonModule,
-    JornadaRoutingModule
+    JornadaRoutingModule,
+    PrimengModule,
+    SharedModule
   ]
 })
 export class JornadaModule { }

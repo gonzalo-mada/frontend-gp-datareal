@@ -34,6 +34,8 @@ import { TableProgramasComponent } from '../components/tables/table-programas/ta
 import { TableReglamentosComponent } from '../components/tables/table-reglamentos/table-reglamentos.component';
 import { FormReglamentosComponent } from '../components/forms/form-reglamentos/form-reglamentos.component';
 import { TableProgramasReglamentosComponent } from '../components/tables/programas/table-programas-reglamentos/table-programas-reglamentos.component';
+import { TableJornadasComponent } from '../components/plan-de-estudio/tables/table-jornadas/table-jornadas/table-jornadas.component';
+import { FormJornadasComponent } from '../components/plan-de-estudio/forms/form-jornadas/form-jornadas/form-jornadas.component';
 
 const componentsGp = [
   BreadcrumbgpComponent,
@@ -45,6 +47,7 @@ const componentsGp = [
   FormEstadosAcreditacionComponent,
   FormReglamentosComponent,
   FormSuspensionComponent,
+  FormJornadasComponent,
   MenuButtonsTableComponent,
   UploaderFilesComponent,
   TableCampusComponent,
@@ -60,6 +63,7 @@ const componentsGp = [
   TableReglamentosComponent,
   TableSuspensionesComponent,
   TableUnidadesAcademicasComponent,
+  TableJornadasComponent
 ]
 
 @NgModule({

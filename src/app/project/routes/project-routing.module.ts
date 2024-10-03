@@ -18,8 +18,8 @@ const routes: Routes = [
     data: {title:'Mantenedores'} 
   },
   {
-    path: 'mantenedores-plan',
-    loadChildren: () => import('../pages/mantenedores-plan/mantenedores-plan.module').then((m) => m.MantenedoresPlanModule),
+    path: 'asignaturas',
+    loadChildren: () => import('../pages/mantenedores-plan/jornada/jornada.module').then((m) => m.JornadaModule),
     data: {title:'Mantenedores plan de estudio'} 
   }
 ];
