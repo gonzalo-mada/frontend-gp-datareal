@@ -1,0 +1,13 @@
+<p-toast [key]="keyPopups"></p-toast>
+<p-confirmDialog [key]="keyPopups" [style]="{ width: '500px' }"></p-confirmDialog>
+
+<div class="grid">
+    <div class="col-12">
+        <app-card header="Mantenedor de modalidades"
+            subheader="Permite ver, crear, actualizar y eliminar modalidades.">
+            <app-menu-buttons-table></app-menu-buttons-table>
+            <app-table-modalidades [data]="modalidades"></app-table-modalidades>
+        </app-card>
+
+    </div>
+</div>

@@ -21,6 +21,11 @@ const routes: Routes = [
     path: 'asignaturas',
     loadChildren: () => import('../pages/mantenedores-plan/jornada/jornada.module').then((m) => m.JornadaModule),
     data: {title:'Mantenedor jornadas'} 
+  },
+  {
+    path: 'planes',
+    loadChildren: () => import('../pages/mantenedores-plan/modalidades/modalidades.module').then((m) => m.ModalidadesModule),
+    data: {title:'Mantenedor modalidades'} 
   }
 ];
 

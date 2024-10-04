@@ -8,16 +8,16 @@ import { TableCrudService } from 'src/app/project/services/components/table-crud
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
 import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { Context } from 'src/app/project/models/shared/Context';
-import { Jornada } from 'src/app/project/models/plan-de-estudio/Jornada';
-import { JornadaService } from 'src/app/project/services/plan-de-estudio/jornada.service';
+import { Modalidad } from 'src/app/project/models/plan-de-estudio/Modalidad';
+import { ModalidadesService } from 'src/app/project/services/plan-de-estudio/modalidades.service';
 
 @Component({
-  selector: 'app-jornada',
-  templateUrl: './jornada.component.html',
+  selector: 'app-modalidad',
+  templateUrl: './modalidades.component.html',
   styles: [
   ]
 })
-export class JornadaComponent implements OnInit, OnDestroy {
+export class ModalidadesComponent implements OnInit, OnDestroy {
 
   constructor(private confirmationService: ConfirmationService,
     private errorTemplateHandler: ErrorTemplateHandler,
@@ -25,11 +25,11 @@ export class JornadaComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private menuButtonsTableService: MenuButtonsTableService,
     private tableCrudService: TableCrudService,
-    private jornadasService: JornadaService
+    private modalidadesService: ModalidadesService
   ){}
 
-  jornadas: Jornada[] = [];
-  jornada: Jornada = {};
+  modalidades: Modalidad[] = [];
+  modalidad: Modalidad = {};
   namesCrud! : NamesCrud;
   keyPopups: string = '';
   dialog: boolean = false;
@@ -37,39 +37,38 @@ export class JornadaComponent implements OnInit, OnDestroy {
   private subscription: Subscription = new Subscription();
 
   get modeForm() {
-    return this.jornadasService.modeForm
+    return this.modalidadesService.modeForm
   }
 
   set modeForm(_val){
-    this.jornadasService.modeForm = _val;
+    this.modalidadesService.modeForm = _val;
   }
 
   public fbForm : FormGroup = this.fb.group({
-    Descripcion_jornada: ['', [Validators.required , Validators.pattern(/^(?!\s*$).+/)]]
+    Descripcion_modalidad: ['', [Validators.required , Validators.pattern(/^(?!\s*$).+/)]]
   })
 
-  async ngOnInit() {
+  async ngOnInit(){
     this.namesCrud = {
-      singular: 'jornada',
-      plural: 'jornadas',
-      articulo_singular: 'la jornada',
-      articulo_plural: 'las jornadas',
+      singular: 'modalidad',
+      plural: 'modalidades',
+      articulo_singular: 'la modalidad',
+      articulo_plural: 'las modalidades',
       genero: 'femenino'
     };
     this.keyPopups = 'jornadas'
-    await this.getJornadas();
-    console.log("Jornadas",this.jornadas);
+    await this.getModalidades();
+    console.log("Modalidades",this.modalidades);
 
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy(){
 
   }
 
-  
-  async getJornadas(){
+  async getModalidades(){
     try {
-      this.jornadas = <Jornada[]> await this.jornadasService.getJornadas();
+      this.modalidades = <Modalidad[]> await this.modalidadesService.getModalidades();
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
