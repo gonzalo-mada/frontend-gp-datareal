@@ -134,7 +134,6 @@ export class JornadaComponent implements OnInit, OnDestroy {
     }finally{
       this.dialog = true;
     }
-
   }
 
   reset() {

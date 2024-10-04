@@ -16,6 +16,9 @@ export class ModalidadesService {
   private crudUpdate = new BehaviorSubject<{mode: ModeForm, data?: Modalidad | null, resolve?: Function, reject?: Function} | null>(null);
   crudUpdate$ = this.crudUpdate.asObservable();
 
+  private formUpdate = new BehaviorSubject<{mode: ModeForm, data?: Modalidad | null, resolve?: Function, reject?: Function  } | null>(null);
+  formUpdate$ = this.formUpdate.asObservable();
+
   constructor(private invoker: InvokerService) { }
 
   setModeCrud(mode: ModeForm, data?: Modalidad | null, resolve?: Function, reject?: Function){
@@ -24,7 +27,17 @@ export class ModalidadesService {
     this.crudUpdate.next(null);
   }
 
+  setModeForm(mode: ModeForm, data?: Modalidad | null, resolve?: Function, reject?: Function){
+    this.modeForm = mode;
+    this.formUpdate.next({mode, data, resolve, reject});
+    this.formUpdate.next(null);
+  }
+
   async getModalidades(){
     return await this.invoker.httpInvoke('modalidades/getModalidades');
+  }
+
+  async insertModalidad(params: any) {
+    return await this.invoker.httpInvoke('modalidades/insertModalidad', params);
   }
 }

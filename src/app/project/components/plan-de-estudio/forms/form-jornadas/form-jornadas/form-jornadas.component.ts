@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { DataInserted } from 'src/app/project/models/shared/DataInserted';
@@ -42,7 +42,6 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
       genero: 'femenino'
     };
 
-    this.subscription.add(this.fbForm.statusChanges.subscribe(status => { this.jornadaService.stateForm = status as StateValidatorForm;}));
     this.subscription.add(
       this.jornadaService.formUpdate$.subscribe( form => {
         if (form && form.mode){
