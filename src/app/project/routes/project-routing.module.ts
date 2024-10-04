@@ -20,7 +20,7 @@ const routes: Routes = [
   {
     path: 'asignaturas',
     loadChildren: () => import('../pages/mantenedores-plan/jornada/jornada.module').then((m) => m.JornadaModule),
-    data: {title:'Mantenedores plan de estudio'} 
+    data: {title:'Mantenedor jornadas'} 
   }
 ];
 
