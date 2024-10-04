@@ -1,1 +1,15 @@
-<p>form-jornadas works!</p>
+<div class="grid" *ngIf="modeForm !== 'show' ">
+    <div class="col-12">
+        <app-form-isvalid [valid]="fbForm.valid"></app-form-isvalid>
+    </div>
+</div>
+<form [formGroup]="fbForm">
+
+    <div class="formgrid grid">
+        <div class="field col-12">
+            <label><strong>Nombre *</strong></label>
+            <input type="text" pInputText formControlName="Descripcion_jornada" maxlength="50" class="w-full" placeholder="Ingrese nombre de jornada"/>
+            <app-form-control [control]="fbForm.controls['Descripcion_jornada']" [validators]="['required', 'pattern']"></app-form-control>
+        </div>
+    </div>
+</form>
