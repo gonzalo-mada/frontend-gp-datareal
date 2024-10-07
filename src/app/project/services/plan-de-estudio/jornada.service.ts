@@ -44,4 +44,8 @@ export class JornadaService {
   async updateJornada(params: any) {
     return await this.invoker.httpInvoke('jornadas/updateJornada', params);
   }
+
+  async deleteJornada(params: any) {
+    return await this.invoker.httpInvoke('jornadas/deleteJornada', { jornadaToDelete:params });
+  }
 }

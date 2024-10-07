@@ -7,6 +7,7 @@ import { TableCrudService } from 'src/app/project/services/components/table-crud
 import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { Jornada } from 'src/app/project/models/plan-de-estudio/Jornada';
 import { JornadaService } from 'src/app/project/services/plan-de-estudio/jornada.service';
+import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
 
 @Component({
   selector: 'app-jornada',
@@ -66,7 +67,7 @@ export class JornadaComponent implements OnInit, OnDestroy {
               case 'edit': this.editForm(); break;
               case 'insert': this.insertJornada(); break;
               case 'update': this.updateJornada(); break;
-              // case 'delete': this.openConfirmationDelete(crud.data); break;
+              case 'delete': this.openConfirmationDelete(crud.data); break;
           }
         }
       })
@@ -146,6 +147,38 @@ export class JornadaComponent implements OnInit, OnDestroy {
       this.dialog = true
     }
   }
+
+  async deleteJornada(dataToDelete: Jornada[]){
+    try {
+      const deleted:{ dataWasDeleted: boolean, dataDeleted: [] } = await this.jornadaService.deleteJornada(dataToDelete);
+      const message = mergeNames(null,deleted.dataDeleted,false,'Descripcion_jornada')
+      if ( deleted.dataWasDeleted ) {
+        this.getJornadas();
+        if ( dataToDelete.length > 1 ){
+          this.messageService.add({
+            key: this.keyPopups,
+            severity: 'success',
+            detail: generateMessage(this.namesCrud,message,'eliminados',true, true)
+          });
+        }else{
+          this.messageService.add({
+            key: this.keyPopups,
+            severity: 'success',
+            detail: generateMessage(this.namesCrud,message,'eliminado',true, false)
+          });
+        }
+        this.reset();
+      }
+    } catch (e:any) {
+      this.errorTemplateHandler.processError(
+        e, {
+          notifyMethod: 'alert',
+          summary: `Error al eliminar ${this.namesCrud.singular}`,
+          message: e.detail.error.message.message
+      });
+    }
+  }
+
 
   async createForm(){
     try {
@@ -228,6 +261,59 @@ export class JornadaComponent implements OnInit, OnDestroy {
       } finally {
         this.dialog = false;
       }
+    }
+
+    async openConfirmationDeleteSelected(data: any){
+      const message = mergeNames(this.namesCrud,data,true,'Descripcion_jornada'); 
+      this.confirmationService.confirm({
+        header: "Confirmar",
+        message: `Es necesario confirmar la acción para eliminar ${message}. ¿Desea confirmar?`,
+        acceptLabel: 'Si',
+        rejectLabel: 'No',
+        icon: 'pi pi-exclamation-triangle',
+        key: this.keyPopups,
+        acceptButtonStyleClass: 'p-button-danger p-button-sm',
+        rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
+        accept: async () => {
+          try {
+            await this.deleteJornada(data);
+          } catch (e:any) {
+            this.errorTemplateHandler.processError(
+              e, {
+                notifyMethod: 'alert',
+                summary: `Error al eliminar ${this.namesCrud.singular}`,
+                message: e.message,
+            });
+          }
+        }
+      })
+    }
+  
+    async openConfirmationDelete(data: any){
+      this.confirmationService.confirm({
+        header: 'Confirmar',
+        message: `Es necesario confirmar la acción para eliminar ${this.namesCrud.articulo_singular} <b>${data.Descripcion_jornada}</b>. ¿Desea confirmar?`,
+        acceptLabel: 'Si',
+        rejectLabel: 'No',
+        icon: 'pi pi-exclamation-triangle',
+        key: this.keyPopups,
+        acceptButtonStyleClass: 'p-button-danger p-button-sm',
+        rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
+        accept: async () => {
+            let jornadaToDelete = []
+            jornadaToDelete.push(data);
+            try {
+              await this.deleteJornada(jornadaToDelete);
+            } catch (e:any) {
+              this.errorTemplateHandler.processError(
+                e, {
+                  notifyMethod: 'alert',
+                  summary: `Error al eliminar ${this.namesCrud.singular}`,
+                  message: e.message,
+              });
+            }
+        }
+      })
     }
 
 }
