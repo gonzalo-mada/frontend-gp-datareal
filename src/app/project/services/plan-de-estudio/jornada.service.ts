@@ -40,4 +40,8 @@ export class JornadaService {
   async insertJornada(params: any) {
     return await this.invoker.httpInvoke('jornadas/insertJornada', params);
   }
+
+  async updateJornada(params: any) {
+    return await this.invoker.httpInvoke('jornadas/updateJornada', params);
+  }
 }
