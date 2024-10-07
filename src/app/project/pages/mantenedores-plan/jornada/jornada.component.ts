@@ -51,7 +51,6 @@ export class JornadaComponent implements OnInit, OnDestroy {
     };
     this.keyPopups = 'jornadas'
     await this.getJornadas();
-    console.log("Jornadas",this.jornadas);
 
     this.subscription.add(this.menuButtonsTableService.onClickButtonAgregar$.subscribe(() => this.createForm()));
     this.subscription.add(this.tableCrudService.onClickRefreshTable$.subscribe(() => this.getJornadas()));

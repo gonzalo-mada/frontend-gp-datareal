@@ -51,7 +51,6 @@ export class ModalidadesComponent implements OnInit, OnDestroy {
     };
     this.keyPopups = 'modalidades'
     await this.getModalidades();
-    console.log("Modalidades",this.modalidades);
 
     this.subscription.add(this.menuButtonsTableService.onClickButtonAgregar$.subscribe(() => this.createForm()));
     this.subscription.add(this.tableCrudService.onClickRefreshTable$.subscribe(() => this.getModalidades()));
