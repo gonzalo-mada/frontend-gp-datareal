@@ -40,4 +40,12 @@ export class ModalidadesService {
   async insertModalidad(params: any) {
     return await this.invoker.httpInvoke('modalidades/insertModalidad', params);
   }
+
+  async updateModalidad(params: any) {
+    return await this.invoker.httpInvoke('modalidades/updateModalidad', params);
+  }
+
+  async deleteModalidad(params: any) {
+    return await this.invoker.httpInvoke('modalidades/deleteModalidad', { modalidadToDelete:params });
+  }
 }

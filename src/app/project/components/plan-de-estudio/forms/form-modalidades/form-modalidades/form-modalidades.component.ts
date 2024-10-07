@@ -51,10 +51,10 @@ export class FormModalidadesComponent implements OnInit, OnDestroy{
           }
           switch (form.mode) {
             case 'create': this.createForm(form.resolve! , form.reject!); break;
-            // case 'show': this.showForm(form.resolve! , form.reject!); break;
-            // case 'edit': this.editForm(form.resolve! , form.reject!); break;
+            case 'show': this.showForm(form.resolve! , form.reject!); break;
+            case 'edit': this.editForm(form.resolve! , form.reject!); break;
             case 'insert': this.insertForm(form.resolve! , form.resolve!); break;
-            // case 'update': this.updateForm(form.resolve! , form.resolve!); break;
+            case 'update': this.updateForm(form.resolve! , form.resolve!); break;
           
           }
         }
@@ -87,9 +87,49 @@ export class FormModalidadesComponent implements OnInit, OnDestroy{
     }
   }
 
-  createForm(resolve: Function, reject: Function){
+  async updateForm(resolve: Function, reject: Function){
+    try {
+      let params = {}
+      const { ...formData } = this.fbForm.value ; 
+        params = {
+          ...formData,
+          Cod_modalidad: this.modalidad.Cod_modalidad,
+        }
+        const updated = await this.modalidadesService.updateModalidad(params)
+        if ( updated.dataWasUpdated ) {
+          const messageGp = generateMessage(this.namesCrud, null , 'actualizado', true,false)
+          resolve({success:true , dataWasUpdated: updated.dataWasUpdated, messageGp})
+          this.resetForm()
+        }
+      } catch (e) {
+        reject(e)
+        this.resetForm();
+      }
+  }
+
+  async createForm(resolve: Function, reject: Function){
     try {
       this.resetForm();
+      resolve(true)
+    } catch (e) {
+      reject(e)
+    }
+  }
+
+  async showForm(resolve: Function, reject: Function){
+    try {
+      this.fbForm.patchValue({...this.modalidad});
+      this.fbForm.get('Descripcion_modalidad')?.disable();
+      resolve(true)
+    } catch (e) {      
+      reject(e)
+    }  
+  }
+
+  async editForm(resolve: Function, reject: Function){
+    try {
+      this.fbForm.patchValue({...this.modalidad});
+      this.fbForm.get('Descripcion_modalidad')?.enable();
       resolve(true)
     } catch (e) {
       reject(e)
