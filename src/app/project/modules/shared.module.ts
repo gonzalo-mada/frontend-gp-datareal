@@ -34,6 +34,10 @@ import { TableProgramasComponent } from '../components/tables/table-programas/ta
 import { TableReglamentosComponent } from '../components/tables/table-reglamentos/table-reglamentos.component';
 import { FormReglamentosComponent } from '../components/forms/form-reglamentos/form-reglamentos.component';
 import { TableProgramasReglamentosComponent } from '../components/tables/programas/table-programas-reglamentos/table-programas-reglamentos.component';
+import { TableJornadasComponent } from '../components/plan-de-estudio/tables/table-jornadas/table-jornadas/table-jornadas.component';
+import { FormJornadasComponent } from '../components/plan-de-estudio/forms/form-jornadas/form-jornadas/form-jornadas.component';
+import { FormModalidadesComponent } from '../components/plan-de-estudio/forms/form-modalidades/form-modalidades/form-modalidades.component';
+import { TableModalidadesComponent } from '../components/plan-de-estudio/tables/table-modalidades/table-modalidades/table-modalidades.component';
 import { StateFormComponent } from '../components/state-form/state-form.component';
 import { FormProgramasStepOneComponent } from '../components/forms/programas/form-programas-step-one/form-programas-step-one.component';
 import { FormProgramasStepTwoComponent } from '../components/forms/programas/form-programas-step-two/form-programas-step-two.component';
@@ -44,6 +48,7 @@ import { TableProgramasGradoAcademicoComponent } from '../components/tables/prog
 import { TableProgramasRexeComponent } from '../components/tables/programas/table-programas-rexe/table-programas-rexe.component';
 import { TableProgramasDirectorComponent } from '../components/tables/programas/table-programas-director/table-programas-director.component';
 import { TableProgramasDirectorAlternoComponent } from '../components/tables/programas/table-programas-director-alterno/table-programas-director-alterno.component';
+
 
 const componentsGp = [
   BreadcrumbgpComponent,
@@ -58,6 +63,8 @@ const componentsGp = [
   FormProgramasViewAndEditComponent,
   FormReglamentosComponent,
   FormSuspensionComponent,
+  FormJornadasComponent,
+  FormModalidadesComponent,
   MenuButtonsTableComponent,
   UploaderFilesComponent,
   StateFormComponent,
@@ -79,7 +86,9 @@ const componentsGp = [
   TableProgramasTituloComponent,
   TableReglamentosComponent,
   TableSuspensionesComponent,
-  TableUnidadesAcademicasComponent
+  TableUnidadesAcademicasComponent,
+  TableJornadasComponent,
+  TableModalidadesComponent
 ]
 
 @NgModule({

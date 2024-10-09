@@ -1,7 +1,7 @@
 import {  effect, Injectable, signal } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 
-export type Mantenedor = undefined | 'programa' | 'form-ea' | 'campus' | 'facultad' | 'unidadAcad' | 'form-susp' | 'categorias-tp' | 'tp' | 'suspension' | 'reglamento'
+export type Mantenedor = undefined | 'programa' | 'form-ea' | 'campus' | 'facultad' | 'unidadAcad' | 'form-susp' | 'categorias-tp' | 'tp' | 'suspension' | 'reglamento' | 'jornada' | 'modalidad'
 export type Mode = undefined | 'dialog' | 'page' 
 
 interface Context {
