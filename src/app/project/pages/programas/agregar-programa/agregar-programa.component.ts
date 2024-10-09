@@ -108,6 +108,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
     }))
 
     this.programasService.setModeCrud('create');
+    // this.programasService.resetFormPrograma();
 
   }
 
