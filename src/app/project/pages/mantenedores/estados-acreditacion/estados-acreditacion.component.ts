@@ -202,6 +202,7 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
   async createForm(){
     try {
       this.reset();
+      this.uploaderFilesService.setContext('create','mantenedores','estado-acreditacion');
       await new Promise((resolve,reject) => {
         this.estadosAcreditacionService.setModeForm('create', null, resolve, reject);
       })
@@ -221,6 +222,7 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
   async showForm(){
     try {
       this.reset();
+      this.uploaderFilesService.setContext('show','mantenedores','estado-acreditacion');
       const data = this.estadoAcreditacion;
       await new Promise((resolve,reject) => {
         this.estadosAcreditacionService.setModeForm('show', data, resolve, reject);
@@ -241,6 +243,7 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
   async editForm(){
     try {
       this.reset();
+      this.uploaderFilesService.setContext('edit','mantenedores','estado-acreditacion');
       const data = this.estadoAcreditacion;
       await new Promise((resolve,reject) => {
         this.estadosAcreditacionService.setModeForm('edit', data, resolve, reject);

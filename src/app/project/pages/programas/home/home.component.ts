@@ -69,7 +69,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
-        message: 'Hubo un error al obtener estados maestros. Intente nuevamente.',
+        message: 'Hubo un error al obtener programas. Intente nuevamente.',
       });
     }
   }

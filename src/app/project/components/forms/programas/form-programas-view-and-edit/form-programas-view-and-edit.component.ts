@@ -1,4 +1,5 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { SystemService } from 'src/app/base/services/system.service';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { Programa } from 'src/app/project/models/Programa';
 import { Reglamento } from 'src/app/project/models/Reglamento';
@@ -19,6 +20,7 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
     public configModeService: ConfigModeService,
     private errorTemplateHandler: ErrorTemplateHandler,
     public programasService: ProgramasService,
+    private systemService: SystemService,
     public tableCrudService: TableCrudService
   ){}
 
@@ -39,14 +41,19 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
   directorAlterno: any[] = [];
   reglamentos: Reglamento[] = [];
   showAsterisk: boolean = false;
+  showComponent: boolean = false
 
   async ngOnInit() {
+    this.systemService.loading(true);
     console.log("ESTAMOS EN MODO:",this.mode);
-    this.programasService.setFormPrograma(this.data);
     console.log("DATA: ",this.data);
+    this.programasService.setFormPrograma(this.data);
     this.programasService.fbForm.disable();
     await this.getData();
+    this.showComponent = true; 
+
   }
+  
   ngOnChanges(changes: SimpleChanges): void {
     
   }
@@ -54,28 +61,27 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
     
   }
 
-  getData(){
-    this.getTiposProgramas();
-    this.getCampus();
-    this.getUnidadesAcademicas();
-    this.getInstituciones();
-    this.getInstitucionesSelected();
-    this.getReglamentos();
-    this.getEstadosAcreditacion();
-    this.getEstadosMaestros();
+  async getData(){
+    let get_tp = this.getTiposProgramas();
+    await Promise.all([get_tp])
+    await this.getCampus();
+    await this.getUnidadesAcademicas();
+    await this.getInstituciones();
+    await this.getInstitucionesSelected();
+    await this.getReglamentos();
+    await this.getEstadosAcreditacion();
+    await this.getEstadosMaestros();
     this.getTitulo();
     this.getGradoAcademico();
     this.getRexe();
-    this.getDirector();
-    this.getDirectorAlterno();
+    await this.getDirector();
+    await this.getDirectorAlterno();
   }
 
   async getTiposProgramas(){
     try {
       this.tiposProgramas =  await this.programasService.getTiposProgramas();
       this.tiposProgramas = groupDataTipoPrograma(this.tiposProgramas);
-      console.log("asi viene",this.tiposProgramas);
-      
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
@@ -220,8 +226,8 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
 
   async getDirectorAlterno(){
     try {
-      const rut_director = this.data.Director_alterno!.split('-');
-      this.directorAlterno = await this.programasService.getDirector({rut: parseInt(rut_director[0])});
+      const rut_director_alterno = this.data.Director_alterno!.split('-');
+      this.directorAlterno = await this.programasService.getDirector({rut: parseInt(rut_director_alterno[0])});
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
