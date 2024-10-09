@@ -1,0 +1,28 @@
+.layout-container {
+    position: relative;
+    min-height: 54rem;
+}
+
+.layout-container .layout-content-wrapper {
+    margin-right: 20rem;
+    transition: margin-right 0.2s;
+}
+
+.layout-container .layout-sidebar {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 20rem;
+    height: 100%;
+    transition: transform 0.2s;
+}
+
+.layout-container.layout-overlay .layout-content-wrapper {
+    margin-right: 0;
+    transition: margin-right 0.2s;
+}
+
+.layout-container.layout-overlay .layout-sidebar {
+    transform: translateX(100%);
+    transition: margin-right 0.2s;
+}

@@ -51,6 +51,7 @@ export class TableCampusComponent implements OnInit ,OnChanges, OnDestroy {
 
   onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+    this.resetSelectedRows();
   }
 
   refresh(){

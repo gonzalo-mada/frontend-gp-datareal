@@ -71,7 +71,7 @@
                 <span class="p-column-title">Nombre</span>
                 {{data.Nombre_programa}}
             </td>
-            <td>
+            <!-- <td>
                 <span class="p-column-title">Tipo de programa</span>
                 <span pTooltip="Categoría de tipo de programa" tooltipPosition="bottom">{{data.Tipo_programa.Categoria.Descripcion_categoria}} > </span>
                 <span pTooltip="Tipo de programa" tooltipPosition="bottom">{{data.Tipo_programa.Descripcion_tp}}</span>
@@ -79,14 +79,12 @@
             <td>
                 <span class="p-column-title">Estado de {{ isPostgrado ? 'acreditación' : 'certificación' }} </span>
                 <ng-container *ngIf="isPostgrado">
-                    <!-- Mostrar Acreditado -->
                     <span [ngClass]="data.Acreditacion.Acreditado == 'SI' ? 'estado-badge estado-activo' : 'estado-badge estado-desactivo'">
                         {{ data.Acreditacion.Acreditado == 'SI' ? 'acreditado' : 'no acreditado' }}
                     </span>
 
                 </ng-container>
                 <ng-container *ngIf="!isPostgrado">
-                    <!-- Mostrar Certificado -->
                     <span [ngClass]="data.Acreditacion.Certificado == 'SI' ? 'estado-badge estado-activo' : 'estado-badge estado-desactivo'">
                         {{ data.Acreditacion.Certificado == 'SI' ? 'certificado' : 'no certificado' }}
                     </span>
@@ -104,7 +102,7 @@
                     </span>
                 </ng-container>
                 
-            </td>
+            </td> -->
             <td>
                 <div class="flex">
                     <p-button 

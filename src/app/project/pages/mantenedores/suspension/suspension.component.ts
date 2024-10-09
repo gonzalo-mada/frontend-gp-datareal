@@ -182,6 +182,7 @@ export class SuspensionComponent implements OnInit, OnDestroy {
   async createForm(){
     try {
       this.reset();
+      this.uploaderFilesService.setContext('create','mantenedores','suspension');
       await new Promise((resolve,reject) => {
         this.suspensionesService.setModeForm('create',null,resolve,reject)
       })
@@ -200,6 +201,7 @@ export class SuspensionComponent implements OnInit, OnDestroy {
 
   async showForm(){
     try {
+      this.uploaderFilesService.setContext('show','mantenedores','suspension');
       const data = this.suspension;
       await new Promise((resolve, reject) => {
         this.suspensionesService.setModeForm('show',data,resolve,reject);
@@ -220,6 +222,7 @@ export class SuspensionComponent implements OnInit, OnDestroy {
 
   async editForm(){
     try {
+      this.uploaderFilesService.setContext('edit','mantenedores','suspension');
       const data = this.suspension;
       await new Promise((resolve, reject) => {
         this.suspensionesService.setModeForm('edit',data,resolve,reject);

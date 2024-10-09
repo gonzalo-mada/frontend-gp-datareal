@@ -52,6 +52,7 @@ export class TableUnidadesAcademicasComponent implements OnInit, OnChanges, OnDe
  
   onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+    this.resetSelectedRows();
   }
  
   refresh(){

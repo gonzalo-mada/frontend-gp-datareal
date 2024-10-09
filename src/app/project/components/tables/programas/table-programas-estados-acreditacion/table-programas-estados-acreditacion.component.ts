@@ -1,9 +1,11 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { Table, TableRowExpandEvent } from 'primeng/table';
+import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { EstadosAcreditacion } from 'src/app/project/models/EstadosAcreditacion';
 import { Context } from 'src/app/project/models/shared/Context';
 import { ConfigModeService } from 'src/app/project/services/components/config-mode.service';
+import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
 import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
 import { EstadosAcreditacionService } from 'src/app/project/services/estados-acreditacion.service';
 import { ProgramasService } from 'src/app/project/services/programas.service';
@@ -15,25 +17,30 @@ import { ProgramasService } from 'src/app/project/services/programas.service';
   ]
 })
 
-export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnChanges {
+export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnChanges, OnDestroy {
 
   constructor(public configModeService: ConfigModeService,
               private errorTemplateHandler: ErrorTemplateHandler,
               private estadosAcreditacionService: EstadosAcreditacionService,
               private programasService: ProgramasService, 
+              private tableCrudService: TableCrudService,
               private uploaderFilesService: UploaderFilesService,
   ){}
+
   
   @Input() data: any[] = [];
+  @Input() mode: string = '';
+
   searchValue: string | undefined;
   originalData: any[] = [];
   cols: any[] = []
   globalFiltros: any[] = []
   dataKeyTable: string = ''
   expandedRows = {};
+  showUploader : boolean = false;
+  private subscription: Subscription = new Subscription();
 
   ngOnInit(): void {
-    this.uploaderFilesService.setContext('mantenedores','estado-acreditacion');
     this.cols = [
       { field: 'Cod_acreditacion', header: 'ID' },
       { field: 'Acreditado', header: 'Acreditado' },
@@ -60,6 +67,7 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnCha
       'tiempo.Cantidad_anios' 
     ]
     this.dataKeyTable = 'Cod_acreditacion';
+    this.subscription.add(this.tableCrudService.resetExpandedRowsTableSubject$.subscribe( () => {this.resetExpandedRows()} ));
 
   }
 
@@ -69,8 +77,15 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnCha
     }
   }
 
+  ngOnDestroy(): void {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  }
+
   onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+    
   }
 
   refresh(){
@@ -78,9 +93,14 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnCha
   }
 
   clear(table: Table){
-    this.searchValue = ''
+    this.expandedRows = {}; 
+    this.searchValue = '';
     this.data = [...this.originalData];
     table.reset();
+  }
+
+  resetExpandedRows(){
+    this.expandedRows = {} 
   }
 
   showColumn(field: string): boolean {
@@ -97,6 +117,7 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnCha
 
   async onRowExpand(event: TableRowExpandEvent) {
     try {
+      this.uploaderFilesService.setContext('show','mantenedores','estado-acreditacion');
       const files = await this.estadosAcreditacionService.getDocumentosWithBinary({Cod_acreditacion: event.data.Cod_acreditacion});
       this.uploaderFilesService.setFiles(files);
     } catch (e:any) {
@@ -106,7 +127,14 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnCha
         message: e.detail.error.message.message
       }
     );
+    }finally{
+      this.showUploader = true;
     }
+  }
+
+  onRowCollapse(event: any){
+    this.resetExpandedRows();
+    this.showUploader = false;
   }
 
 }

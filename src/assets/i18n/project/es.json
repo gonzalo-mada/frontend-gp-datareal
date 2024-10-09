@@ -1,6 +1,7 @@
 {
     "form" : {
         "notMinusOneCategory": "Seleccione categoría válida",
-        "notValueNegativeYearsAcredit": "Selecciones fechas válidas"
+        "notValueNegativeYearsAcredit": "Selecciones fechas válidas",
+        "num_y_letras": "Escriba al menos una letra"
     }
 }

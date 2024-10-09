@@ -12,6 +12,7 @@ import { TableCrudService } from 'src/app/project/services/components/table-crud
 import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
 import { Context } from 'src/app/project/models/shared/Context';
+import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
 
 @Component({
   selector: 'app-campus',
@@ -52,12 +53,11 @@ export class CampusComponent implements OnInit, OnDestroy {
 
   public fbForm : FormGroup = this.fb.group({
     Estado_campus: [true, Validators.required],
-    Descripcion_campus: ['', [Validators.required , Validators.pattern(/^(?!\s*$).+/)]],
+    Descripcion_campus: ['', [Validators.required , GPValidator.regexPattern('num_y_letras')]],
     files: [[], this.filesValidator.bind(this)]
   })
 
   async ngOnInit() {
-    this.uploaderFilesService.setContext('mantenedores','campus');
     this.namesCrud = {
       singular: 'campus',
       plural: 'campus',
@@ -76,7 +76,13 @@ export class CampusComponent implements OnInit, OnDestroy {
         }
       }
     }));
-    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
+    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( from => {
+      if (from) {
+        if (from.context.component.name === 'campus') {
+          this.filesChanged(from.files)
+        }
+      }
+    }));
     this.subscription.add(this.menuButtonsTableService.onClickDeleteSelected$.subscribe(() => this.openConfirmationDeleteSelected(this.tableCrudService.getSelectedRows()) ))
 
     this.subscription.add(
@@ -104,7 +110,7 @@ export class CampusComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
     this.tableCrudService.resetSelectedRows();
-    this.uploaderFilesService.updateValidatorFiles(null);
+    this.uploaderFilesService.resetValidatorFiles();
     this.uploaderFilesService.setFiles(null);
   }
 
@@ -116,18 +122,15 @@ export class CampusComponent implements OnInit, OnDestroy {
     }
 
     const state = formGroup.get('Estado_campus')?.value;
-    const files = formGroup.get('files')?.value;   
+    const files = formGroup.get('files')?.value; 
     
-    if ( this.modeForm == 'create' ){
-      if (files.length === 0 && state === true) {
-        return { required: true };
-      }
-    }else if ( this.modeForm == 'edit'){
-      if (files.length === 0 && state === true) {
+    if ( this.modeForm === 'create' || this.modeForm === 'edit' ){
+      if (files.length === 0 && state === true ) {
         return { required: true };
       }
     }
     return null;
+    
   }
 
   async getCampuses(){
@@ -173,7 +176,9 @@ export class CampusComponent implements OnInit, OnDestroy {
             summary: `Error al guardar ${this.namesCrud.singular}`,
             message: e.detail.error.message.message
           });
-      }
+    }finally{
+      this.reset();
+    }
   }
 
   async updateCampus(isFromChangeState = false ){
@@ -202,7 +207,6 @@ export class CampusComponent implements OnInit, OnDestroy {
             severity: 'success',
             detail: generateMessage(this.namesCrud,updated.dataUpdated,'actualizado',true,false)
           });
-          this.reset();
         }
       } 
 
@@ -213,6 +217,8 @@ export class CampusComponent implements OnInit, OnDestroy {
           summary: `Error al actualizar ${this.namesCrud.singular}`,
           message: e.detail.error.message.message
       });
+    }finally{
+      this.reset();
     }
   }
 
@@ -278,6 +284,7 @@ export class CampusComponent implements OnInit, OnDestroy {
 
   openCreate(){
     this.campusService.setModeCrud('create')
+    this.uploaderFilesService.setContext('create','mantenedores','campus');
     this.reset();
     this.campus = {};
     this.dialog = true; 
@@ -286,6 +293,7 @@ export class CampusComponent implements OnInit, OnDestroy {
   async showForm(){
     try {
       this.reset();
+      this.uploaderFilesService.setContext('show','mantenedores','campus');
       this.fbForm.patchValue({...this.campus});
       this.fbForm.get('Estado_campus')?.disable();
       this.fbForm.get('Descripcion_campus')?.disable();
@@ -305,6 +313,7 @@ export class CampusComponent implements OnInit, OnDestroy {
   async editForm(){
     try {
       this.reset();
+      this.uploaderFilesService.setContext('edit','mantenedores','campus');
       this.fbForm.patchValue({...this.campus});
       this.campus.Estado_campus === true ? this.showAsterisk = true : this.showAsterisk = false;
       await this.loadDocsWithBinary(this.campus);

@@ -109,7 +109,7 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
           severity: 'success',
           detail: actionForm.messageGp
         });
-        this.reset();
+        
       }
     } catch (e:any) {
       this.errorTemplateHandler.processError(
@@ -120,6 +120,7 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
         });
     }finally{
       this.dialog = true
+      this.reset();
     }
   }
 
@@ -138,7 +139,6 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
           severity: 'success',
           detail: actionForm.messageGp
         });
-        this.reset();  // Reseteamos el formulario y el estado
       }
     } catch (e: any) {
       // Manejo de errores en la promesa
@@ -150,6 +150,7 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
       });
     }finally{
       this.dialog = true
+      this.reset();
     }
   }
 
@@ -188,6 +189,7 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
   async createForm(){
     try {
       this.reset();
+      this.uploaderFilesService.setContext('create','mantenedores','reglamentos');
       await new Promise((resolve,reject) => {
         this.reglamentosService.setModeForm('create', null, resolve, reject);
       })
@@ -206,7 +208,7 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
 
   async showForm(){
     try {
-      this.reset();
+      this.uploaderFilesService.setContext('show','mantenedores','reglamentos');
       const data = this.reglamento;
       await new Promise((resolve,reject) => {
         this.reglamentosService.setModeForm('show', data, resolve, reject);
@@ -225,7 +227,7 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
 
   async editForm(){
     try {
-      this.reset();
+      this.uploaderFilesService.setContext('edit','mantenedores','reglamentos');
       const data = this.reglamento;
       await new Promise((resolve,reject) => {
         this.reglamentosService.setModeForm('edit', data, resolve, reject);

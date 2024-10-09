@@ -38,6 +38,17 @@ import { TableJornadasComponent } from '../components/plan-de-estudio/tables/tab
 import { FormJornadasComponent } from '../components/plan-de-estudio/forms/form-jornadas/form-jornadas/form-jornadas.component';
 import { FormModalidadesComponent } from '../components/plan-de-estudio/forms/form-modalidades/form-modalidades/form-modalidades.component';
 import { TableModalidadesComponent } from '../components/plan-de-estudio/tables/table-modalidades/table-modalidades/table-modalidades.component';
+import { StateFormComponent } from '../components/state-form/state-form.component';
+import { FormProgramasStepOneComponent } from '../components/forms/programas/form-programas-step-one/form-programas-step-one.component';
+import { FormProgramasStepTwoComponent } from '../components/forms/programas/form-programas-step-two/form-programas-step-two.component';
+import { FormProgramasViewAndEditComponent } from '../components/forms/programas/form-programas-view-and-edit/form-programas-view-and-edit.component';
+import { TableProgramasEstadoMaestroComponent } from '../components/tables/programas/table-programas-estado-maestro/table-programas-estado-maestro.component';
+import { TableProgramasTituloComponent } from '../components/tables/programas/table-programas-titulo/table-programas-titulo.component';
+import { TableProgramasGradoAcademicoComponent } from '../components/tables/programas/table-programas-grado-academico/table-programas-grado-academico.component';
+import { TableProgramasRexeComponent } from '../components/tables/programas/table-programas-rexe/table-programas-rexe.component';
+import { TableProgramasDirectorComponent } from '../components/tables/programas/table-programas-director/table-programas-director.component';
+import { TableProgramasDirectorAlternoComponent } from '../components/tables/programas/table-programas-director-alterno/table-programas-director-alterno.component';
+
 
 const componentsGp = [
   BreadcrumbgpComponent,
@@ -47,22 +58,32 @@ const componentsGp = [
   DialogVisorPdfComponent,
   FormCategoriasTpComponent,
   FormEstadosAcreditacionComponent,
+  FormProgramasStepOneComponent,
+  FormProgramasStepTwoComponent,
+  FormProgramasViewAndEditComponent,
   FormReglamentosComponent,
   FormSuspensionComponent,
   FormJornadasComponent,
   FormModalidadesComponent,
   MenuButtonsTableComponent,
   UploaderFilesComponent,
+  StateFormComponent,
   TableCampusComponent,
   TableCategoriasTpComponent,
   TableEstadosAcreditacionComponent,
   TableFacultadComponent,
   TableTiposProgramasComponent,
   TableProgramasComponent,
+  TableProgramasDirectorComponent,
+  TableProgramasDirectorAlternoComponent,
   TableProgramasDirectoresComponent,
   TableProgramasEstadosAcreditacionComponent,
+  TableProgramasEstadoMaestroComponent,
+  TableProgramasGradoAcademicoComponent,
   TableProgramasReglamentosComponent,
+  TableProgramasRexeComponent,
   TableProgramasSuspensionesComponent,
+  TableProgramasTituloComponent,
   TableReglamentosComponent,
   TableSuspensionesComponent,
   TableUnidadesAcademicasComponent,

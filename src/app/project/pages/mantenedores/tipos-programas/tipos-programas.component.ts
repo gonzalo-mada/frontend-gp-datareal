@@ -46,7 +46,7 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
   }
 
   public fbForm : FormGroup = this.fb.group({
-    Descripcion_tp: ['', [Validators.required , Validators.pattern(/^(?!\s*$).+/)]],
+    Descripcion_tp: ['', [Validators.required , GPValidator.regexPattern('num_y_letras')]],
     Categoria: this.fb.group({
       Cod_CategoriaTP: ['', [Validators.required , GPValidator.notMinusOneCategory()]]
     })

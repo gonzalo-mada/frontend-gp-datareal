@@ -19,7 +19,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   constructor(private errorTemplateHandler: ErrorTemplateHandler,
     private menuButtonsTableService: MenuButtonsTableService,
     private router: Router, 
-    private programasService: ProgramasService,
+    public programasService: ProgramasService,
     private tableCrudService: TableCrudService)
   {}
 

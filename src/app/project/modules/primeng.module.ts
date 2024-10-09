@@ -29,7 +29,8 @@ import { SidebarModule } from 'primeng/sidebar';
 import { StepperModule } from 'primeng/stepper';
 import { StepsModule } from 'primeng/steps';
 import { TabViewModule } from 'primeng/tabview';
-import { TableModule } from 'primeng/table'
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 
@@ -56,6 +57,7 @@ const primeGp = [
   StepperModule,
   TableModule,
   TabViewModule,
+  TagModule,
   ToastModule,
   ToolbarModule
 ]

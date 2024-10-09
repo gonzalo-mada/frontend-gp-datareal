@@ -14,6 +14,7 @@ import { UploaderFilesService } from 'src/app/project/services/components/upload
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
 import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { Context } from 'src/app/project/models/shared/Context';
+import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
 // import { noWhitespaceValidator } from '../../configs/form'
 
 @Component({
@@ -54,7 +55,7 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
   }
  
   public fbForm : FormGroup = this.fb.group({
-    Descripcion_ua: ['', [Validators.required , Validators.pattern(/^(?!\s*$).+/)]],
+    Descripcion_ua: ['', [Validators.required , GPValidator.regexPattern('num_y_letras')]],
     Facultad: this.fb.group({
       Cod_facultad: ['', Validators.required],
     }),
@@ -62,7 +63,6 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
   })
 
   async ngOnInit() {
-    this.uploaderFilesService.setContext('mantenedores','unidadAcad') ;
     this.namesCrud = {
       singular: 'unidad académica',
       plural: 'unidades académicas',
@@ -81,7 +81,13 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
         }
       }
     }));
-    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
+    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( from => {
+      if (from) {
+        if (from.context.component.name === 'unidadAcad') {
+          this.filesChanged(from.files)
+        }
+      }
+    }));
     this.subscription.add(this.menuButtonsTableService.onClickDeleteSelected$.subscribe(() => this.openConfirmationDeleteSelected(this.tableCrudService.getSelectedRows()) ))
     
     this.subscription.add(
@@ -107,7 +113,7 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
     this.tableCrudService.resetSelectedRows();
-    this.uploaderFilesService.updateValidatorFiles(null);
+    this.uploaderFilesService.resetValidatorFiles();
     this.uploaderFilesService.setFiles(null);
   }
  
@@ -121,11 +127,7 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
  
     const files = formGroup.get('files')?.value;  
    
-    if ( this.modeForm == 'create' ){
-      if (files.length === 0 ) {
-        return { required: true };
-      }
-    }else if ( this.modeForm == 'edit'){
+    if ( this.modeForm === 'create' || this.modeForm === 'edit' ){
       if (files.length === 0 ) {
         return { required: true };
       }
@@ -280,6 +282,7 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
  
   openCreate(){
     this.unidadesAcademicasService.setModeCrud('create')
+    this.uploaderFilesService.setContext('create','mantenedores','unidadAcad');
     this.reset();
     this.unidadAcademica = {};
     this.dialog = true;
@@ -288,6 +291,7 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
   async showForm(){
     try {
       this.reset();
+      this.uploaderFilesService.setContext('show','mantenedores','unidadAcad');
       this.fbForm.patchValue({...this.unidadAcademica});
       this.fbForm.get('Descripcion_ua')?.disable();
       this.fbForm.get('Cod_facultad')?.disable();
@@ -307,6 +311,7 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
   async editForm(){
     try {
       this.reset();
+      this.uploaderFilesService.setContext('edit','mantenedores','unidadAcad');
       this.fbForm.patchValue({...this.unidadAcademica});
       await this.loadDocsWithBinary(this.unidadAcademica);
     } catch (e:any) {

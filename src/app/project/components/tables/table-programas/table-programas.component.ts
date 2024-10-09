@@ -36,14 +36,14 @@ export class TableProgramasComponent implements OnInit, OnChanges, OnDestroy {
     this.cols = [
       { field: 'Cod_Programa', header: 'Código' },
       { field: 'Nombre_programa', header: 'Nombre' },
-      { field: 'Tipo_programa', header: 'Tipo de programa' },
-      { field: 'Acreditado', header: 'Estado acreditación' },
-      { field: 'Certificado', header: 'Estado certificación' },
-      { field: 'EstadoMaestro', header: 'Estado maestro' },
+      // { field: 'Tipo_programa', header: 'Tipo de programa' },
+      // { field: 'Acreditado', header: 'Estado acreditación' },
+      // { field: 'Certificado', header: 'Estado certificación' },
+      // { field: 'EstadoMaestro', header: 'Estado maestro' },
       { field: 'accion', header: 'Acciones' }
     ];
 
-    this.globalFiltros = [ 'Cod_Programa' , 'Nombre_programa' , 'Tipo_programa', 'EstadosAcreditacion', 'EstadoMaestro' ];
+    this.globalFiltros = [ 'Cod_Programa' , 'Nombre_programa'  ];
 
     this.dataKeyTable = 'Cod_Programa';
   }
@@ -62,6 +62,7 @@ export class TableProgramasComponent implements OnInit, OnChanges, OnDestroy {
 
   onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+    this.resetSelectedRows();
   }
 
   refresh(){

@@ -1,6 +1,7 @@
 {
     "form" : {
         "notMinusOneCategory": "Select valid category",
-        "notValueNegativeYearsAcredit": "Select valid dates"
+        "notValueNegativeYearsAcredit": "Select valid dates",
+        "num_y_letras": "Must contain at least one letter"
     }
 }

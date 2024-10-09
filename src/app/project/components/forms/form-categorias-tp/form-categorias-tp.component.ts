@@ -6,6 +6,7 @@ import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 import { CategoriasTpService } from 'src/app/project/services/categorias-tp.service';
 import { generateMessage } from 'src/app/project/tools/utils/form.utils';
+import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
 
 @Component({
   selector: 'app-form-categorias-tp',
@@ -29,7 +30,7 @@ export class FormCategoriasTpComponent implements OnInit, OnDestroy {
   }
 
   public fbForm : FormGroup = this.fb.group({
-    Descripcion_categoria: ['', [Validators.required , Validators.pattern(/^(?!\s*$).+/)]],
+    Descripcion_categoria: ['', [Validators.required , GPValidator.regexPattern('num_y_letras')]],
   })
 
   async ngOnInit() {

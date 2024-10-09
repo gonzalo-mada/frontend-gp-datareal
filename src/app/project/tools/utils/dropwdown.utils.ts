@@ -6,7 +6,8 @@ export function groupDataTipoPrograma(data: any[]): any[]{
         if (existingGroup) {
           existingGroup.items.push({
             label: item.Descripcion_tp,
-            value: item.Cod_tipoPrograma
+            value: item.Cod_tipoPrograma,
+            parentLabel: category.Descripcion_categoria
           });
         }else{
           acc.push({
@@ -14,7 +15,8 @@ export function groupDataTipoPrograma(data: any[]): any[]{
             value: category.Cod_CategoriaTP, 
             items: [{
               label: item.Descripcion_tp,
-              value: item.Cod_tipoPrograma
+              value: item.Cod_tipoPrograma,
+              parentLabel: category.Descripcion_categoria
             }]
           })
         }
@@ -33,7 +35,8 @@ export function groupDataUnidadesAcademicas(data: any[]): any[]{
         if (existingGroup) {
           existingGroup.items.push({
             label: item.Descripcion_ua,
-            value: item.Cod_unidad_academica
+            value: item.Cod_unidad_academica,
+            parentLabel: category.Descripcion_facu
           });
         }else{
           acc.push({
@@ -41,7 +44,8 @@ export function groupDataUnidadesAcademicas(data: any[]): any[]{
             value: category.Cod_facultad, 
             items: [{
               label: item.Descripcion_ua,
-              value: item.Cod_unidad_academica
+              value: item.Cod_unidad_academica,
+              parentLabel: category.Descripcion_facu
             }]
           })
         }

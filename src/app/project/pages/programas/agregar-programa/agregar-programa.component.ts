@@ -1,9 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
-import { RutValidator } from 'src/app/base/tools/validators/rut.validator';
 import { EstadoMaestro } from 'src/app/project/models/EstadoMaestro';
 import { EstadosAcreditacion } from 'src/app/project/models/EstadosAcreditacion';
 import { DataInserted } from 'src/app/project/models/shared/DataInserted';
@@ -20,29 +19,40 @@ import { ReglamentosService } from 'src/app/project/services/reglamentos.service
 import { Reglamento } from 'src/app/project/models/Reglamento';
 import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 import { LabelComponent } from 'src/app/project/models/shared/Context';
+import { ActionUploadDoc } from 'src/app/project/models/shared/ActionUploadDoc';
+import { generateMessage } from 'src/app/project/tools/utils/form.utils';
+import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-agregar-programa',
   templateUrl: './agregar-programa.component.html',
-  styles: [
-  ]
+  styleUrls: ['./agregar-programa.component.css']
 })
-export class AgregarProgramaComponent {
+export class AgregarProgramaComponent implements OnInit, OnDestroy {
   constructor(
               public configModeService: ConfigModeService,
               private commonUtils: CommonUtils,
               public estadosAcreditacionService: EstadosAcreditacionService,
               public estadoMaestroService: EstadoMaestroService,
               private errorTemplateHandler: ErrorTemplateHandler,
-              private fb: FormBuilder,
               private messageService: MessageService,
               public reglamentosService: ReglamentosService,
+              private router: Router,
               public suspensionesService: SuspensionesService,
-              private programasService: ProgramasService,
+              public programasService: ProgramasService,
               private tableCrudService: TableCrudService,
               private uploaderFilesService: UploaderFilesService 
   ){}
 
+
+  get containerClass() {
+    return {
+      'layout-static': this.programasService.disposition === true,
+      'layout-overlay': this.programasService.disposition === false
+    };
+  }
+  
   tiposProgramas: any[] = [];
   campus: any[] = [];
   unidadesAcademicas: any[] = [];
@@ -65,42 +75,24 @@ export class AgregarProgramaComponent {
   estadoAcreditacion! : EstadosAcreditacion;
   estadoMaestroSelected : string = '';
   reglamentoSelected: string = '';
+  showUploader: boolean = false;
+  namesCrud!: NamesCrud;
   private subscription: Subscription = new Subscription();
 
-  public fbForm : FormGroup = this.fb.group({
-    Centro_costo: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
-    Nombre_programa: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/)]],
-    Grupo_correo: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/)]],
-    Cod_programa: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
-    Codigo_SIES: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/)]],
-    Creditos_totales: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
-    Horas_totales: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
-    Tipo_programa: ['', [Validators.required]],
-    Graduacion_Conjunta_Switch: [false],
-    Instituciones: [{value:'', disabled: true}, [Validators.required]],
-    Campus: ['', [Validators.required]],
-    Estado_maestro: ['', [Validators.required]],
-    Suspension: ['', [Validators.required]],
-    Unidad_academica: ['', [Validators.required]],
-    Titulo: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/)]],
-    Grado_academico: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/)]],
-    REXE: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/)]],
-    Director: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/), RutValidator.rut]],
-    Director_alterno: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/), RutValidator.rut]],
-  })
+
 
   ngOnInit(): void {
-
-    this.getTiposProgramas();
-    this.getCampus();
-    this.getUnidadesAcademicas();
+    this.namesCrud = {
+      singular: 'programa',
+      plural: 'programas',
+      articulo_singular: 'el programa',
+      articulo_plural: 'los programas',
+      genero: 'masculino'
+    };
     this.getEstadosAcreditacion();
     this.getEstadosMaestros();
     this.getSuspensiones();
-    this.getInstituciones();
     this.getReglamentos();
-    this.subscription.add(this.programasService.actionDirectorSelected$.subscribe(actionTriggered => {actionTriggered && this.setDirectorSelected()}))
-    this.subscription.add(this.programasService.actionDirectorAlternoSelected$.subscribe(actionTriggered => {actionTriggered && this.setDirectorAlternoSelected()}))
     this.subscription.add(this.programasService.buttonRefreshTableEA$.subscribe( () => {this.getEstadosAcreditacion()}))
     this.subscription.add(this.programasService.buttonRefreshTableReglamento$.subscribe( () => {this.getReglamentos()}))
     this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe( from => {
@@ -114,57 +106,14 @@ export class AgregarProgramaComponent {
       }
       
     }))
-    this.subscription.add(this.programasService.programaUpdate$.subscribe( programa => {
-      if (programa) {
-        
-        if (programa.Cod_acreditacion) {
-          this.estadoAcreditacion = programa.EstadosAreditacion as EstadosAcreditacion;          
-        }
-        if (programa.Suspension) {
-          this.estadoMaestroSelected = programa.Suspension.Descripcion_TipoSuspension!;          
-        }
-        if (programa.Reglamento) {
-          this.reglamentoSelected = programa.Reglamento.Descripcion_regla!;          
-        }
-      }
-    }))
+
+    this.programasService.setModeCrud('create');
 
   }
 
-  async getTiposProgramas(){
-    try {
-      this.tiposProgramas =  await this.programasService.getTiposProgramas();
-      this.tiposProgramas = groupDataTipoPrograma(this.tiposProgramas);
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener tipos de programas. Intente nuevamente.',
-      });
-    }
-  }
-
-  async getCampus(){
-    try {
-      this.campus =  await this.programasService.getCampus();            
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener campus. Intente nuevamente.',
-      });
-    }
-  }
-
-  async getUnidadesAcademicas(){
-    try {
-      this.unidadesAcademicas =  await this.programasService.getUnidadesAcademicas();
-      this.unidadesAcademicas = groupDataUnidadesAcademicas(this.unidadesAcademicas);
-            
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener unidades académicas. Intente nuevamente.',
-      });
-    }
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+    this.reset();
   }
 
   async getEstadosAcreditacion(){
@@ -180,7 +129,7 @@ export class AgregarProgramaComponent {
 
   async getEstadosMaestros(){
     try {
-      this.estadosMaestros = await this.estadoMaestroService.getEstadosMaestros();
+      this.estadosMaestros = await this.programasService.getEstadosMaestros();
       this.estadosMaestros = this.estadosMaestros.filter( e => e.Cod_EstadoMaestro !== 2 )
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
@@ -203,7 +152,7 @@ export class AgregarProgramaComponent {
 
   async getReglamentos(){
     try {
-      this.reglamentos = await this.reglamentosService.getReglamentos();      
+      this.reglamentos = await this.programasService.getReglamentos();      
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
@@ -212,26 +161,16 @@ export class AgregarProgramaComponent {
     }
   }
 
-  async getInstituciones(){
-    try {
-      this.instituciones = await this.programasService.getInstituciones();
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener instituciones. Intente nuevamente.',
-      });
-    }
-  }
 
   async searchDirector(tipo: string){
     try {
       if (tipo === 'director') {
-        const rut_director = this.fbForm.get('Director')!.value.split('-')
+        const rut_director = this.programasService.fbForm.get('Director')!.value.split('-')
         this.directores = await this.programasService.getDirector({rut: parseInt(rut_director[0])});
         
       }else{
         //tipo directoralterno
-        const rut_director = this.fbForm.get('Director_alterno')!.value.split('-')
+        const rut_director = this.programasService.fbForm.get('Director_alterno')!.value.split('-')
         this.directoresAlternos = await this.programasService.getDirector({rut: parseInt(rut_director[0])});
       }
 
@@ -246,24 +185,48 @@ export class AgregarProgramaComponent {
     
   }
 
-  setDirectorSelected(){
-    this.directorSelected = this.programasService.signalGetDirector();
-  }
-
-  setDirectorAlternoSelected(){
-    this.directorAlternoSelected = this.programasService.signalGetDirectorAlterno();
-  }
 
   chooseDocs(label: LabelComponent){
+
     this.showDialogDocs = true;
-    this.uploaderFilesService.setContext('programa','agregar-programa', label)
+    switch (label) {
+      case 'Título':
+        this.uploaderFilesService.setContext('select','programa','agregar-programa', label)
+      break;
+      case 'Grado académico':
+        this.uploaderFilesService.setContext('select','programa','agregar-programa', label);
+      break;
+      case 'REXE':
+        this.uploaderFilesService.setContext('select','programa','agregar-programa', label);
+      break;
+      case 'Director':
+        this.uploaderFilesService.setContext('select','programa','agregar-programa', label);
+      break;
+      case 'Director alterno':
+        this.uploaderFilesService.setContext('select','programa','agregar-programa', label);
+      break;
+      case 'Estado maestro':
+        this.uploaderFilesService.setContext('select','programa','agregar-programa', label);
+      break;
+    }
+    
   }
 
   async addNewEstadoAcreditacion(){
-    this.showDialogEstadoAcreditacion = true;
-    await new Promise((resolve,reject) => {
-      this.estadosAcreditacionService.setModeForm('create', null, resolve, reject);
-    })
+    try {
+      this.showDialogEstadoAcreditacion = true;
+      await new Promise((resolve,reject) => {
+        this.estadosAcreditacionService.setModeForm('create', null, resolve, reject);
+      })
+    } catch (e:any) {
+      this.errorTemplateHandler.processError(e, {
+        notifyMethod: 'alert',
+        summary: `Error al crear formulario de estado de acreditación.`,
+        message: e.message,
+        }
+      );
+    }
+
   }
 
   async submitNewEstadoAcreditacion(){
@@ -300,25 +263,44 @@ export class AgregarProgramaComponent {
     }
   }
 
+  async addNewReglamento(){
+    try {
+      this.newReglamentoDialog = true;
+      await new Promise((resolve,reject) => {
+        this.reglamentosService.setModeForm('create',null,resolve, reject);
+      })
+      
+    } catch (e:any) {
+      this.errorTemplateHandler.processError(e, {
+        notifyMethod: 'alert',
+        summary: `Error al crear formulario de reglamento.`,
+        message: e.message,
+        }
+      );
+    }
+    
+  }
+
   reset() {
     this.tableCrudService.resetSelectedRows();
+    this.uploaderFilesService.resetValidatorFiles();
     this.uploaderFilesService.setFiles(null);
   }
 
   onEstadoMaestroChange(event: any){
-    switch (event.value.Cod_EstadoMaestro) {
-      case 2:
-        this.estadoMaestroSelected = '';
-        this.showSuspension = true;
-        break;
+    // switch (event.value.Cod_EstadoMaestro) {
+    //   case 2:
+    //     this.estadoMaestroSelected = '';
+    //     this.showSuspension = true;
+    //     break;
 
-      default: 
-        this.estadoMaestroSelected = '';
-        this.programasService.setSelectSuspension(undefined)
-        this.showSuspension = false;
-        this.estadoMaestroSelected = event.value.Descripcion_EstadoMaestro 
-        break;
-    }
+    //   default: 
+    //     this.estadoMaestroSelected = '';
+    //     this.programasService.setSelectSuspension(undefined)
+    //     this.showSuspension = false;
+    //     this.estadoMaestroSelected = event.value.Descripcion_EstadoMaestro 
+    //     break;
+    // }
     this.programasService.setSelectEstadoMaestro(event.value as EstadoMaestro)
   }
 
@@ -369,7 +351,7 @@ export class AgregarProgramaComponent {
   }
 
   changeSwitch(event: any){
-    const Instituciones = this.fbForm.get('Instituciones');
+    const Instituciones = this.programasService.fbForm.get('Instituciones');
 
     switch (event.checked) {
       case 'SI': Instituciones?.enable(); this.showAsterisk = true; break;
@@ -378,10 +360,7 @@ export class AgregarProgramaComponent {
     }
   }
 
-  async addNewReglamento(){
-    this.newReglamentoDialog = true;
-    this.reglamentosService.setModeForm('create');
-  }
+
 
   async submitNewReglamento(){
     try {
@@ -460,6 +439,75 @@ export class AgregarProgramaComponent {
           message: e.message,
       });
     }
+  }
+
+  changeDisposition(){
+    this.programasService.disposition = !this.programasService.disposition;
+  }
+
+  submit(){
+    try {
+      this.insertPrograma();
+    } catch (error) {
+      
+    }
+  }
+
+  async insertPrograma(){
+    try {
+      
+      let params = {};
+
+      const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
+        this.uploaderFilesService.setAction('upload',resolve,reject);
+      });
+      
+      if (actionUploadDoc.success) {
+        
+        const { files_titulo, files_gradoacad, files_director, files_directorAlterno, files_estadomaestro, files_rexe, ...formData } = this.programasService.fbForm.value;
+        
+        params = {
+          ...formData,
+          docsToUpload: actionUploadDoc.docsToUpload
+        }
+
+        console.log("----PARAMS-----",params);
+        const inserted: DataInserted = await this.programasService.insertProgramaService(params);
+
+        if (inserted.dataWasInserted) {
+          this.router.navigate(['/programa/']);
+          this.messageService.add({
+            key: this.programasService.keyPopups,
+            severity: 'success',
+            detail: generateMessage(this.namesCrud,inserted.dataInserted,'creado',true,false)
+          });
+        }
+
+      };
+      
+      
+    } catch (e:any) {
+      console.log("error insert programa",e);
+      this.errorTemplateHandler.processError(
+        e, {
+          notifyMethod: 'alert',
+          summary: `Error al guardar ${this.namesCrud.singular}`,
+          message: e.detail.error.message.message,
+        }
+      );
+      
+    }finally{
+      this.reset();
+    }
+  }
+
+  openAccordion(){
+    this.uploaderFilesService.setFiles(null);
+    this.tableCrudService.emitResetExpandedRowsTable();
+  }
+
+  stepChange(value: number){
+    this.programasService.activeIndexStateForm = value;
   }
 
 

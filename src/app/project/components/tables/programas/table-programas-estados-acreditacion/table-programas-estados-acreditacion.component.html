@@ -13,7 +13,7 @@
 <p-table
     #dt
     [rows]="10"
-    [paginator]="true"
+    [paginator]=" mode !== 'show' "
     [rowsPerPageOptions]="[10,25,50]" 
     [showCurrentPageReport]="true"
     currentPageReportTemplate="{first} hasta {last} de {totalRecords} registros."
@@ -24,42 +24,58 @@
     autoLayout="true"
     [expandedRowKeys]="expandedRows"
     (onRowExpand)="onRowExpand($event)"
+    (onRowCollapse)="onRowCollapse($event)"
+    rowExpandMode="single"
 >
 
     <ng-template pTemplate="caption">
         <div class="flex flex-wrap flex-column md:flex-row justify-content-between align-items-center">
             <div class="flex mb-2 md:mb-0">
-            <span class="p-input-icon-left">
-                <i class="pi pi-search"></i>
-                <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)" />
-            </span>
-            <p-button 
-                styleClass="p-button-text p-button-sm ml-2" 
-                icon="pi pi-filter-slash" 
-                pTooltip="Limpiar filtros" 
-                (click)="clear(dt)">
-            </p-button>
+                <ng-container *ngIf="mode !== 'show'; else modeShow">
+                    <span class="p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)" />
+                    </span>
+                    <p-button 
+                        styleClass="p-button-text p-button-sm ml-2" 
+                        icon="pi pi-filter-slash" 
+                        pTooltip="Limpiar filtros" 
+                        (click)="clear(dt)">
+                    </p-button>
+                </ng-container>
+                <ng-template #modeShow>
+                    Estado de {{ configModeService.config().isPostgrado ? 'acreditación' : 'certificación' }} seleccionado
+                </ng-template>
+                
             </div>
 
-            <div class="hidden md:flex align-items-center">
+            <div *ngIf="mode !== 'show'" class="hidden md:flex align-items-center">
                 <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
                 <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
-              </div>
+            </div>
                             
             <div class="flex">
-            <p-button 
-                pTooltip="Muestra la leyenda de íconos" 
-                icon="pi pi-question-circle"
-                styleClass="p-button-sm p-button-warning mr-2 md:hidden" 
-                (click)="op.toggle($event)">
-            </p-button>
-            <p-button 
-                pRipple 
-                label="Actualizar" 
-                icon="pi pi-refresh" 
-                styleClass="p-button-sm p-button-info" 
-                (click)="refresh()">
-            </p-button>
+                <ng-container *ngIf="mode !== 'show'; else showLeyenda">
+                    <p-button 
+                        pTooltip="Muestra la leyenda de íconos" 
+                        icon="pi pi-question-circle"
+                        styleClass="p-button-sm p-button-warning mr-2 md:hidden" 
+                        (click)="op.toggle($event)">
+                    </p-button>
+                    <p-button 
+                        pRipple 
+                        label="Actualizar" 
+                        icon="pi pi-refresh" 
+                        styleClass="p-button-sm p-button-info" 
+                        (click)="refresh()">
+                    </p-button>
+                </ng-container>
+                <ng-template #showLeyenda>
+                    <div class="hidden md:flex align-items-center">
+                        <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
+                        <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
+                    </div>
+                </ng-template>
             </div>
         </div>
     </ng-template>
@@ -70,7 +86,7 @@
             <ng-container *ngFor="let col of cols">
                 <ng-container *ngIf="col.field !== 'accion'; else actionsColumn">
                     <th *ngIf="showColumn(col.field)" pSortableColumn="{{ col.field }}">
-                        {{ col.header }} <p-sortIcon *ngIf="col.field != 'tiempo.Fecha_inicio'" field="{{ col.field }}"></p-sortIcon>
+                        {{ col.header }} <p-sortIcon *ngIf="col.field != 'tiempo.Fecha_inicio' && mode !== 'show' " field="{{ col.field }}"></p-sortIcon>
                       </th>
                 </ng-container>
                 <ng-template #actionsColumn>
@@ -161,8 +177,9 @@
             <td>
                 <div class="flex">
                     <p-button 
-                        label="Seleccionar" 
+                        [label]="mode === 'show' ? 'Seleccionado' : 'Seleccionar' "
                         styleClass="p-button-sm p-button-info mr-2" 
+                        [disabled]="mode === 'show' "
                         (click)="onClickSelectEstadoAcreditacion(data)" 
                     >
                     </p-button>
@@ -173,7 +190,7 @@
 
     <ng-template pTemplate="rowexpansion" let-data>
         <tr>
-            <td colspan="9">
+            <td colspan="9" *ngIf="showUploader">
                 <h4>Documento(s) adjunto(s).</h4>
                 <app-uploader-files mode="show"></app-uploader-files>
             </td>

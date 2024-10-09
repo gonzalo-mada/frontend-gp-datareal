@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
@@ -13,6 +13,7 @@ import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { Reglamento } from 'src/app/project/models/Reglamento';
 import { Context } from 'src/app/project/models/shared/Context';
+import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
 
 @Component({
   selector: 'app-form-reglamentos',
@@ -24,15 +25,16 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
     private commonUtils: CommonUtils,
     private errorTemplateHandler: ErrorTemplateHandler,
     private fb: FormBuilder,
-    private menuButtonsTableService: MenuButtonsTableService,
     private reglamentosService: ReglamentosService,
     private uploaderFilesService: UploaderFilesService,
 
   ){}
-  
+  @Input() visibleUploader: boolean = false;
+
   reglamento: Reglamento = {};
   maxDate!: Date;
   namesCrud!: NamesCrud;
+  showUploader: boolean = false;
   private subscription: Subscription = new Subscription();
 
   get modeForm() {
@@ -41,14 +43,13 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
   
   // Definición del formulario reactivo
   public fbForm: FormGroup = this.fb.group({
-    Descripcion_regla: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/)]],
+    Descripcion_regla: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
     anio: ['', Validators.required],
     vigencia: [false],
     files: [[], this.filesValidator.bind(this)]  // Validación personalizada de archivos
   });
 
   ngOnInit(): void {
-    this.uploaderFilesService.setContext('mantenedores','reglamentos');
     this.namesCrud = {
       singular: 'reglamento',
       plural: 'reglamentos',
@@ -58,7 +59,13 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
     };
 
     this.subscription.add(this.fbForm.statusChanges.subscribe(status => { this.reglamentosService.stateForm = status as StateValidatorForm;}));
-    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( event => { event && this.filesChanged(event)} ));
+    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( from => {
+      if (from) {
+        if (from.context.component.name === 'reglamentos') {
+          this.filesChanged(from.files)
+        }
+      }
+    }));
     this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
       if (from) {
         if (from.context.component.name === 'reglamentos') {
@@ -90,7 +97,7 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
-    this.uploaderFilesService.updateValidatorFiles(null);
+    this.uploaderFilesService.resetValidatorFiles();
     this.uploaderFilesService.setFiles(null);
   }
 
@@ -103,11 +110,7 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
     }
     const files = formGroup.get('files')?.value;
 
-    if ( this.modeForm == 'create' ){
-      if (files.length === 0 ) {
-        return { required: true };
-      }
-    }else if ( this.modeForm == 'edit'){
+    if ( this.modeForm === 'create' || this.modeForm === 'edit' ){
       if (files.length === 0 ) {
         return { required: true };
       }
@@ -119,6 +122,8 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
   createForm(resolve: Function, reject: Function){
     try {
       this.resetForm();
+      this.uploaderFilesService.setContext('create','mantenedores','reglamentos');
+      this.showUploader = true;
       resolve(true)
     } catch (e) {
       reject(e)
@@ -127,6 +132,8 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
 
   async showForm(resolve: Function, reject: Function){
     try {
+      this.uploaderFilesService.setContext('show','mantenedores','reglamentos');
+      this.showUploader = true;
       this.fbForm.patchValue({...this.reglamento});
       this.fbForm.get('Descripcion_regla')?.disable();
       this.fbForm.get('vigencia')?.disable();
@@ -140,6 +147,8 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
 
   async editForm(resolve: Function, reject: Function){
     try {
+      this.uploaderFilesService.setContext('edit','mantenedores','reglamentos');
+      this.showUploader = true;
       this.fbForm.patchValue({...this.reglamento});
       this.fbForm.get('Descripcion_regla')?.enable();
       this.fbForm.get('vigencia')?.enable();
@@ -171,7 +180,8 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
       }
       // Insertar los reglamentos utilizando el servicio      
       const inserted: DataInserted = await this.reglamentosService.insertReglamento(params);
-  
+      console.log("inserted ttt",inserted);
+      
       if (inserted.dataWasInserted) {
         // Generar mensaje de éxito y resolver la promesa
         const messageGp = generateMessage(this.namesCrud, inserted.dataInserted, 'creado', true, false);
@@ -227,8 +237,10 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
     this.fbForm.get('Descripcion_regla')?.enable();
     this.fbForm.get('anio')?.enable();
     this.fbForm.get('vigencia')?.enable();
+    this.showUploader = false;
     this.uploaderFilesService.setAction('reset');
-    this.uploaderFilesService.updateValidatorFiles(null);
+    this.uploaderFilesService.enabledButtonSeleccionar();
+    this.uploaderFilesService.resetValidatorFiles();
     this.fbForm.controls['files'].updateValueAndValidity();
   }
 
