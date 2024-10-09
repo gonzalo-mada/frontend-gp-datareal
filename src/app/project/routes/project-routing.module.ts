@@ -18,9 +18,9 @@ const routes: Routes = [
     data: {title:'Mantenedores'} 
   },
   {
-    path: 'asignaturas',
-    loadChildren: () => import('../pages/mantenedores-plan/jornada/jornada.module').then((m) => m.JornadaModule),
-    data: {title:'Mantenedor jornadas'} 
+    path: 'mantePE',
+    loadChildren: () => import('../pages/mantenedores-plan/mantenedores-plan.module').then((m) => m.MantenedoresPlanModule),
+    data: {title:'Mantenedores plan estudio'} 
   },
   {
     path: 'planes',
