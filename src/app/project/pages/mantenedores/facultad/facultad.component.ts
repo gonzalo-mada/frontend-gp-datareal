@@ -12,6 +12,7 @@ import { UploaderFilesService } from 'src/app/project/services/components/upload
 import { MenuButtonsTableService } from 'src/app/project/services/components/menu-buttons-table.service';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
 import { Context } from 'src/app/project/models/shared/Context';
+import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
 
 
 @Component({
@@ -52,12 +53,11 @@ export class FacultadComponent implements OnInit, OnDestroy {
 
   public fbForm : FormGroup = this.fb.group({
     Estado_facu: [true, Validators.required],
-    Descripcion_facu: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/)]],
+    Descripcion_facu: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
     files: [[], this.filesValidator.bind(this)]
   })
 
   async ngOnInit( ) {
-    this.uploaderFilesService.setContext('mantenedores','facultad');
     this.namesCrud = {
       singular: 'facultad',
       plural: 'facultades',
@@ -123,12 +123,8 @@ export class FacultadComponent implements OnInit, OnDestroy {
     const state = formGroup.get('Estado_facu')?.value;
     const files = formGroup.get('files')?.value;   
     
-    if ( this.modeForm == 'create' ){
-      if (files.length === 0 && state === true) {
-        return { required: true };
-      }
-    }else if ( this.modeForm == 'edit'){
-      if (files.length === 0 && state === true) {
+    if ( this.modeForm === 'create' || this.modeForm === 'edit' ){
+      if (files.length === 0 && state === true ) {
         return { required: true };
       }
     }
@@ -176,7 +172,8 @@ export class FacultadComponent implements OnInit, OnDestroy {
             notifyMethod: 'alert',
             summary: `Error al guardar ${this.namesCrud.singular}`,
             message: e.detail.error.message.message,
-          });
+          }
+        );
       }
   }
 
@@ -281,7 +278,8 @@ export class FacultadComponent implements OnInit, OnDestroy {
   }
 
   openCreate(){
-    this.facultadService.setModeCrud('create')
+    this.facultadService.setModeCrud('create');
+    this.uploaderFilesService.setContext('create','mantenedores','facultad');
     this.reset();
     this.facultad = {};
     this.dialog = true; 
@@ -290,6 +288,7 @@ export class FacultadComponent implements OnInit, OnDestroy {
   async showForm(){
     try {
       this.reset();
+      this.uploaderFilesService.setContext('show','mantenedores','facultad');
       this.fbForm.patchValue({...this.facultad});
       this.fbForm.get('Estado_facu')?.disable();
       this.fbForm.get('Descripcion_facu')?.disable();
@@ -309,6 +308,7 @@ export class FacultadComponent implements OnInit, OnDestroy {
   async editForm(){
     try {
       this.reset();
+      this.uploaderFilesService.setContext('edit','mantenedores','facultad');
       this.fbForm.patchValue({...this.facultad});
       this.facultad.Estado_facu === true ? this.showAsterisk = true : this.showAsterisk = false;
       await this.loadDocsWithBinary(this.facultad);

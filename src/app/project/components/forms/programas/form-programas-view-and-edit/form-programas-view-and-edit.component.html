@@ -1,0 +1,191 @@
+<form [formGroup]="programasService.fbForm">
+    <div class="formgrid grid">
+        <div class="field col-12 lg:col-4">
+            <label><strong>Centro costo {{ programasService.showAsterisk ? '*' : '' }} </strong></label>
+            <input type="number" pInputText formControlName="Centro_costo" maxlength="80" class="w-full" placeholder="Ingrese centro costo de programa"/>
+            <app-form-control [control]="programasService.fbForm.controls['Centro_costo']" [validators]="['required', 'pattern']"></app-form-control>
+        </div>
+        <div class="field col-12 lg:col-4">
+            <label><strong>Nombre {{ programasService.showAsterisk ? '*' : '' }} </strong></label>
+            <input type="text" pInputText formControlName="Nombre_programa" maxlength="80" class="w-full" placeholder="Ingrese nombre de programa"/>
+            <app-form-control [control]="programasService.fbForm.controls['Nombre_programa']" [validators]="['required', 'pattern']"></app-form-control>
+        </div>
+        <div class="field col-12 lg:col-4">
+            <label><strong>Grupo de correo en LDAP {{ programasService.showAsterisk ? '*' : '' }} </strong></label>
+            <input type="text" pInputText formControlName="Grupo_correo" maxlength="80" class="w-full" placeholder="Ingrese correo LDAP"/>
+            <app-form-control [control]="programasService.fbForm.controls['Grupo_correo']" [validators]="['required', 'pattern']"></app-form-control>
+        </div>
+    </div>
+
+    <div class="formgrid grid">
+        <div class="field col-12 lg:col-4">
+            <label><strong>Código de programa {{ programasService.showAsterisk ? '*' : '' }} </strong></label>
+            <input type="number" pInputText formControlName="Cod_Programa" min="0" maxlength="50" class="w-full" placeholder="Ingrese código de programa"/>
+            <app-form-control [control]="programasService.fbForm.controls['Cod_Programa']" [validators]="['required', 'pattern']"></app-form-control>
+        </div>
+        <div class="field col-12 lg:col-4">
+            <label><strong>Código SIES {{ programasService.showAsterisk ? '*' : '' }} </strong></label>
+            <input type="text" pInputText formControlName="Codigo_SIES" maxlength="50" class="w-full" placeholder="Ingrese código SIES"/>
+            <app-form-control [control]="programasService.fbForm.controls['Codigo_SIES']" [validators]="['required', 'pattern']"></app-form-control>
+        </div>
+        <div class="field col-12 lg:col-2">
+            <label><strong>Créditos totales {{ programasService.showAsterisk ? '*' : '' }} </strong></label>
+            <input type="number" pInputText formControlName="Creditos_totales" min="0" maxlength="50" class="w-full" placeholder="Ingrese créditos totales"/>
+            <app-form-control [control]="programasService.fbForm.controls['Creditos_totales']" [validators]="['required', 'pattern']"></app-form-control>
+        </div>
+        <div class="field col-12 lg:col-2">
+            <label><strong>Horas totales {{ programasService.showAsterisk ? '*' : '' }} </strong></label>
+            <input type="number" pInputText formControlName="Horas_totales" maxlength="50" class="w-full" placeholder="Ingrese horas totales"/>
+            <app-form-control [control]="programasService.fbForm.controls['Horas_totales']" [validators]="['required', 'pattern']"></app-form-control>
+        </div>
+    </div>
+
+    <div class="formgrid grid">
+        <div class="field col-12 lg:col-4">
+            <label>
+                <strong>
+                    {{ mode === 'edit' ? 'Tipo de programa' : 'Categoría de tipo de programa - Tipo de programa' }} 
+                    {{ programasService.showAsterisk ? '*' : '' }} 
+                </strong>
+            </label>
+            <br>
+            <p-dropdown
+                [options]="tiposProgramas"
+                [group]="true"
+                formControlName="Tipo_programa"
+                placeholder="Seleccione tipo de programa"
+                [style]="{ width: '100%', 'min-width': '100%' }"
+            >
+                <ng-template let-group pTemplate="{{ mode === 'edit' ? 'group' : 'selectedItem' }}">
+                    <div class="flex align-items-center">
+                        <span *ngIf="mode === 'show' ">{{ group.parentLabel }} - {{ group.label }}</span>
+                        <span *ngIf="mode === 'edit' ">{{ group.label }}</span>
+                    </div>
+                </ng-template>
+            </p-dropdown>
+            <app-form-control [control]="programasService.fbForm.controls['Tipo_programa']" [validators]="['required']"></app-form-control>
+        </div>
+        <div class="field col-12 lg:col-4">
+            <label><strong>Campus {{ programasService.showAsterisk ? '*' : '' }}</strong></label>
+            <br>
+            <p-dropdown
+                [options]="campus"
+                [style]="{ width: '100%', 'min-width': '100%' }"
+                formControlName="Campus"
+                placeholder="Seleccione campus"
+                optionLabel="Descripcion_campus"
+                optionValue="Cod_campus"
+            >
+            </p-dropdown>
+            <app-form-control [control]="programasService.fbForm.controls['Campus']" [validators]="['required']"></app-form-control>
+        </div>
+        <div class="field col-12 lg:col-4">
+            <label>
+                <strong>
+                    {{ mode === 'edit' ? 'Unidad académica' : 'Facultad - Unidad académica' }} 
+                    {{ programasService.showAsterisk ? '*' : '' }} 
+                </strong>
+            </label>
+            <br>
+            <p-dropdown
+                [options]="unidadesAcademicas"
+                [group]="true"
+                formControlName="Unidad_academica"
+                placeholder="Seleccione unidad académica"
+                [style]="{ width: '100%', 'min-width': '100%' }"
+            >
+                <ng-template let-group pTemplate="{{ mode === 'edit' ? 'group' : 'selectedItem' }}">
+                    <div class="flex align-items-center">
+                        <span *ngIf="mode === 'show' ">{{ group.parentLabel }} - {{ group.label }}</span>
+                        <span *ngIf="mode === 'edit' ">{{ group.label }}</span>
+                    </div>
+                </ng-template>
+            </p-dropdown>
+            <app-form-control [control]="programasService.fbForm.controls['Unidad_academica']" [validators]="['required']"></app-form-control>
+        </div>
+    </div>
+
+    <div class="formgrid grid">
+        <div class="field col-12 lg:col-4">
+            <label><strong>¿Tiene graduación conjunta?</strong></label>
+            <div class="flex flex-row justify-content-start flex-wrap">
+                <div class="flex align-items-center justify-content-center">
+                    <span>No</span>
+                </div>
+                <div class="flex align-items-center justify-content-center mx-2">
+                    <p-inputSwitch formControlName="Graduacion_Conjunta_Switch"  (onChange)="changeSwitch($event)" styleClass="mt-1 mx-1"/>
+                </div>
+                <div class="flex align-items-center justify-content-center">
+                    <span>Si</span>
+                </div>
+            </div>
+        </div>
+        
+        <ng-container *ngIf="mode === 'show' ">
+            <ng-container *ngIf="programasService.fbForm.get('Graduacion_Conjunta_Switch')!.value">
+                <div class="field col-12 lg:col-8" >
+                    <label><strong>Instituciones asociadas</strong></label>
+                    <div class="flex flex-row justify-content-start flex-wrap">
+                        <ng-container *ngFor="let item of institucionesSelected">
+                            <p-tag severity="secondary" value="{{item.Descripcion_institucion}}" styleClass="m-1"/>
+                        </ng-container>
+                    </div>
+                </div>
+            </ng-container>
+        </ng-container>
+        <ng-container *ngIf="mode === 'edit' ">
+            <div class="field col-12 lg:col-4">
+                <label><strong>Instituciones {{ showAsterisk ? '*' : '' }}</strong></label>
+                <br>
+                <p-multiSelect
+                    [options]="instituciones"
+                    formControlName="Instituciones"
+                    placeholder="Seleccione instituciones"
+                    [style]="{ width: '100%', 'min-width': '100%' }"
+                    optionLabel="nombreInstitucion"
+                    appendTo="body"
+                    [virtualScroll]="true"
+                    [virtualScrollItemSize]="43"
+                >
+                </p-multiSelect>
+                <app-form-control [control]="programasService.fbForm.controls['Instituciones']" [validators]="['required']"></app-form-control>
+            </div>
+        </ng-container>
+        
+    </div>
+
+    <p-tabView styleClass="mt-7" (onChange)="tableCrudService.emitResetExpandedRowsTable()">
+
+        <p-tabPanel header="Título">
+            <app-table-programas-titulo [data]="titulo" [mode]="mode"></app-table-programas-titulo>
+        </p-tabPanel>
+
+        <p-tabPanel header="Grado académico">
+            <app-table-programas-grado-academico [data]="grado_academico" [mode]="mode" ></app-table-programas-grado-academico>
+        </p-tabPanel>
+
+        <p-tabPanel header="REXE">
+            <app-table-programas-rexe [data]="rexe" [mode]="mode" ></app-table-programas-rexe>
+        </p-tabPanel>
+
+        <p-tabPanel header="Reglamento">
+            <app-table-programas-reglamentos [data]="reglamentos" [mode]="mode" ></app-table-programas-reglamentos>
+        </p-tabPanel>
+
+        <p-tabPanel header="Director">
+            <app-table-programas-director [data]="director" [mode]="mode" ></app-table-programas-director>
+        </p-tabPanel>
+
+        <p-tabPanel header="Director alterno">
+            <app-table-programas-director-alterno [data]="directorAlterno" [mode]="mode" ></app-table-programas-director-alterno>
+        </p-tabPanel>
+
+        <p-tabPanel header="Estado maestro">
+            <app-table-programas-estado-maestro [data]="estadosMaestros" [mode]="mode"></app-table-programas-estado-maestro>
+        </p-tabPanel>
+
+        <p-tabPanel header="Estado {{ configModeService.config().isPostgrado ? 'acreditación' : 'certificación' }}">
+            <app-table-programas-estados-acreditacion [data]="estadosAcreditacion" [mode]="mode"></app-table-programas-estados-acreditacion>
+        </p-tabPanel>
+    </p-tabView>
+</form>

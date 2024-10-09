@@ -23,6 +23,9 @@ export class TableCrudService {
     private resetSelectedRowsSubject = new Subject<void>();
     resetSelectedRowsSubject$ = this.resetSelectedRowsSubject.asObservable();
 
+    private resetExpandedRowsTableSubject = new Subject<void>();
+    resetExpandedRowsTableSubject$ = this.resetExpandedRowsTableSubject.asObservable();
+
     constructor(){
         effect(() => {
             this.onSelectedRowsUpdate();
@@ -49,6 +52,10 @@ export class TableCrudService {
 
     getSelectedRows(){
         return this.selectedRows()
+    }
+
+    emitResetExpandedRowsTable(){
+        this.resetExpandedRowsTableSubject.next();
     }
 
 }

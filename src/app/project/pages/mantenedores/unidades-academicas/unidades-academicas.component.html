@@ -35,7 +35,7 @@
                                         class="w-full" placeholder="Ingrese nombre de unidad académica" autofocus />
 
                                     <app-form-control [control]="fbForm.controls['Descripcion_ua']"
-                                        [validators]="['required' , 'pattern']"></app-form-control>
+                                        [validators]="['required' , 'num_y_letras']"></app-form-control>
                                 </div>
                             </div>
                             <div class="col-12 lg:col-6">
@@ -49,7 +49,7 @@
                                                 formControlName="Cod_facultad"></p-dropdown>
                                         </div>
                                         <div *ngIf="modeForm != 'show'" class="flex align-items-center">
-                                            <app-form-control [control]="fbForm.controls['Cod_facultad']"
+                                            <app-form-control [control]="fbForm.get('Facultad.Cod_facultad')"
                                                 [validators]="['required']"></app-form-control>
                                         </div>
                                         <div *ngIf="modeForm=='show'" class="flex align-items-center">

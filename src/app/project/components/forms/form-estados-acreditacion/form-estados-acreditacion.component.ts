@@ -29,10 +29,13 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
               private uploaderFilesService: UploaderFilesService,
               private menuButtonsTableService: MenuButtonsTableService,
   ){}
+  @Input() visibleUploader: boolean = false;
+  
   yearsDifference: number | null = null;
   showAsterisk: boolean = false;
   estadoAcreditacion: EstadosAcreditacion = {};
   namesCrud!: NamesCrud;
+  showUploader: boolean = false;
   private subscription: Subscription = new Subscription();
 
   get modeForm() {
@@ -42,15 +45,15 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
   public fbForm : FormGroup = this.fb.group({
     Acreditado: [false],
     Certificado: [false],
-    Nombre_ag_acredit: [{value:'', disabled: true}, [Validators.required , Validators.pattern(/^(?!\s*$).+/)]], //string
-    Nombre_ag_certif: [{value:'', disabled: true}, [Validators.required , Validators.pattern(/^(?!\s*$).+/)]], //string
+    Nombre_ag_acredit: [{value:'', disabled: true}, [Validators.required , GPValidator.regexPattern('num_y_letras')]], //string
+    Nombre_ag_certif: [{value:'', disabled: true}, [Validators.required , GPValidator.regexPattern('num_y_letras')]], //string
     Evaluacion_interna: [false], // si/no
     Fecha_informe: ['', [Validators.required]], //date
     tiempo: this.fb.group({
       Cod_tiempoacredit: [],
       Fecha_inicio: [{value:'', disabled: true}, [Validators.required]],
       Fecha_termino: [{value:'', disabled: true}, [Validators.required]],
-      Cantidad_anios: [{disabled: true}, [GPValidator.notValueNegativeYearsAcredit()]]
+      Cantidad_anios: [{disabled: true}, [GPValidator.notValueNegativeYearsAcredit(),GPValidator.notUpTo15YearsAcredit()]]
     }), //number , positivo
     files: [[], this.filesValidator.bind(this)]
   })
@@ -58,7 +61,6 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
   
   ngOnInit() {
     this.menuButtonsTableService.setContext('form-ea','dialog');
-    this.uploaderFilesService.setContext('mantenedores','estado-acreditacion');
     this.namesCrud = {
       singular: 'estado de acreditación',
       plural: 'estados de acreditación',
@@ -68,7 +70,6 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
     };
 
     this.subscription.add(this.fbForm.statusChanges.subscribe( status => { this.estadosAcreditacionService.stateForm = status as StateValidatorForm}));
-    this.uploaderFilesService.disabledButtonSeleccionar();
     this.subscription.add(
       this.estadosAcreditacionService.formUpdate$.subscribe( form => {
         if (form && form.mode){
@@ -154,8 +155,10 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
   }
 
   createForm(resolve: Function, reject: Function){
-    try {
+    try {   
       this.resetForm();
+      this.uploaderFilesService.setContext('create','mantenedores','estado-acreditacion');
+      this.showUploader = true;
       resolve(true)
     } catch (e) {
       reject(e)
@@ -164,6 +167,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
 
   async showForm(resolve: Function, reject: Function){
     try {
+      this.uploaderFilesService.setContext('show','mantenedores','estado-acreditacion');
       this.fbForm.patchValue({...this.estadoAcreditacion});
       this.yearsDifference = this.estadoAcreditacion.tiempo?.Cantidad_anios!;
       this.fbForm.get('Acreditado')?.disable();
@@ -173,6 +177,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
       this.fbForm.get('Nombre_ag_certif')?.disable();
       this.showAsterisk = false;
       await this.loadDocsWithBinary(this.estadoAcreditacion);
+      this.showUploader = true;
       resolve(true)
     } catch (e) {      
       reject(e)
@@ -181,9 +186,8 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
 
   async editForm(resolve: Function, reject: Function){
     try {
+      this.uploaderFilesService.setContext('edit','mantenedores','estado-acreditacion');
       const isPostgrado = this.configModeService.config().isPostgrado
-      console.log("data::::",this.estadoAcreditacion);
-      console.log("isPostgrado::::",isPostgrado);
 
       const formValues =  this.estadoAcreditacion;
       
@@ -208,6 +212,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
         }
       }            
       await this.loadDocsWithBinary(this.estadoAcreditacion);
+      this.showUploader = true;
       resolve(true)
     } catch (e) {
       reject(e)

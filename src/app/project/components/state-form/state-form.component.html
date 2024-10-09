@@ -1,0 +1,230 @@
+<p-accordion [activeIndex]="programasService.activeIndexStateForm">
+    <p-accordionTab>
+        <ng-template pTemplate="header">
+            <div class="flex justify-content-between flex-wrap w-full">
+                <div>
+                    <span>Paso 1:</span>
+                </div>
+                <div>
+                    <i *ngIf="!programasService.stateStepOne" class="pi pi-times" style="color: red"></i>
+                    <i *ngIf="programasService.stateStepOne" class="pi pi-check" style="color: green"></i>
+                </div>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="body">
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('Centro_costo')!.invalid , 
+                'text-valid':  programasService.fbForm.get('Centro_costo')!.valid }">
+                Centro costo
+            </span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('Nombre_programa')!.invalid , 
+                'text-valid':  programasService.fbForm.get('Nombre_programa')!.valid }">
+                Nombre de programa
+            </span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('Grupo_correo')!.invalid , 
+                'text-valid':  programasService.fbForm.get('Grupo_correo')!.valid }">
+                Correo LDAP
+            </span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('Cod_Programa')!.invalid , 
+                'text-valid':  programasService.fbForm.get('Cod_Programa')!.valid }">
+                Código de programa
+            </span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('Codigo_SIES')!.invalid , 
+                'text-valid':  programasService.fbForm.get('Codigo_SIES')!.valid }">
+                Código SIES
+            </span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('Creditos_totales')!.invalid , 
+                'text-valid':  programasService.fbForm.get('Creditos_totales')!.valid }">
+                Créditos totales
+            </span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('Horas_totales')!.invalid , 
+                'text-valid':  programasService.fbForm.get('Horas_totales')!.valid }">
+                Horas totales
+            </span>
+        </ng-template>
+    </p-accordionTab>
+
+    <p-accordionTab>
+        <ng-template pTemplate="header">
+            <div class="flex justify-content-between flex-wrap w-full">
+                <div>
+                    <span>Paso 2:</span>
+                </div>
+                <div>
+                    <i *ngIf="!programasService.stateStepTwo" class="pi pi-times" style="color: red"></i>
+                    <i *ngIf="programasService.stateStepTwo" class="pi pi-check" style="color: green"></i>
+                </div>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="body">
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('Tipo_programa')!.invalid , 
+                'text-valid':  programasService.fbForm.get('Tipo_programa')!.valid }">
+                Tipo de programa
+            </span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('Campus')!.invalid , 
+                'text-valid':  programasService.fbForm.get('Campus')!.valid }">
+                Campus
+            </span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('Unidad_academica')!.invalid , 
+                'text-valid':  programasService.fbForm.get('Unidad_academica')!.valid }">
+                Unidad académica
+            </span>
+            <br>
+            <ng-container *ngIf="programasService.fbForm.get('Graduacion_Conjunta_Switch')!.value !== null">
+                <ng-container *ngIf="programasService.fbForm.get('Graduacion_Conjunta_Switch')!.value === true">
+                    <span [ngClass]="{  
+                        'text-error':  programasService.fbForm.get('Instituciones')!.invalid , 
+                        'text-valid':  programasService.fbForm.get('Instituciones')!.valid }">
+                        Instituciones
+                    </span>
+                </ng-container>
+            </ng-container>
+        </ng-template>
+    </p-accordionTab>
+
+    <p-accordionTab>
+        <ng-template pTemplate="header">
+            <div class="flex justify-content-between flex-wrap w-full">
+                <div>
+                    <span>Paso 3:</span>
+                </div>
+                <div>
+                    <i *ngIf="!programasService.stateStepThree" class="pi pi-times" style="color: red"></i>
+                    <i *ngIf="programasService.stateStepThree" class="pi pi-check" style="color: green"></i>
+                </div>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="body">
+            <span>Título:</span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('Titulo')!.invalid , 
+                'text-valid':  programasService.fbForm.get('Titulo')!.valid }">
+                Nombre de título
+            </span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('files_titulo')!.invalid , 
+                'text-valid':  programasService.fbForm.get('files_titulo')!.valid }">
+                Documentos de título
+            </span>
+            <br>
+
+
+            <span>Grado académico:</span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('Grado_academico')!.invalid , 
+                'text-valid':  programasService.fbForm.get('Grado_academico')!.valid }">
+                Nombre de grado académico
+            </span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('files_gradoacad')!.invalid , 
+                'text-valid':  programasService.fbForm.get('files_gradoacad')!.valid }">
+                Documentos de grado académico
+            </span>
+            <br>
+
+            <span>REXE:</span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('REXE')!.invalid , 
+                'text-valid':  programasService.fbForm.get('REXE')!.valid }">
+                Código REXE
+            </span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('files_rexe')!.invalid , 
+                'text-valid':  programasService.fbForm.get('files_rexe')!.valid }">
+                Documentos de REXE
+            </span>
+            <br>
+
+            <span>Reglamento:</span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('Cod_Reglamento')!.invalid , 
+                'text-valid':  programasService.fbForm.get('Cod_Reglamento')!.valid }">
+                Reglamento seleccionado
+            </span>
+            <br>
+
+
+            <span>Director:</span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('Director_selected')!.invalid , 
+                'text-valid':  programasService.fbForm.get('Director_selected')!.valid }">
+                Director seleccionado
+            </span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('files_director')!.invalid , 
+                'text-valid':  programasService.fbForm.get('files_director')!.valid }">
+                Documentos de director seleccionado
+            </span>
+            <br>
+
+
+
+            <span>Director alterno:</span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('DirectorAlterno_selected')!.invalid , 
+                'text-valid':  programasService.fbForm.get('DirectorAlterno_selected')!.valid }">
+                Director alterno seleccionado
+            </span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('files_directorAlterno')!.invalid , 
+                'text-valid':  programasService.fbForm.get('files_directorAlterno')!.valid }">
+                Documentos de director alterno seleccionado
+            </span>
+            <br>
+
+            <span>Estado maestro:</span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('Cod_EstadoMaestro')!.invalid , 
+                'text-valid':  programasService.fbForm.get('Cod_EstadoMaestro')!.valid }">
+                Estado maestro seleccionado
+            </span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('files_estadomaestro')!.invalid , 
+                'text-valid':  programasService.fbForm.get('files_estadomaestro')!.valid }">
+                Documentos de estado maestro seleccionado
+            </span>
+            <br>
+
+            <span>Estado acreditación:</span>
+            <br>
+            <span [ngClass]="{  
+                'text-error':  programasService.fbForm.get('Cod_acreditacion')!.invalid , 
+                'text-valid':  programasService.fbForm.get('Cod_acreditacion')!.valid }">
+                Estado acreditación seleccionado
+            </span>
+            <br>
+        </ng-template>
+    </p-accordionTab>
+</p-accordion>
+
+

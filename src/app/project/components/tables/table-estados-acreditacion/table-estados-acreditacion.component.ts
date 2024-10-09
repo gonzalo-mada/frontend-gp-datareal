@@ -76,6 +76,7 @@ export class TableEstadosAcreditacionComponent implements OnInit, OnChanges, OnD
 
   onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+    this.resetSelectedRows();
   }
 
   refresh(){

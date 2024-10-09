@@ -29,7 +29,7 @@ export class TableProgramasSuspensionesComponent implements OnInit, OnChanges {
   expandedRows = {};
 
   ngOnInit(): void {
-    this.uploaderFilesService.setContext('mantenedores','suspension')
+    this.uploaderFilesService.setContext('show','mantenedores','suspension')
     this.cols = [
       { field: 'Nombre', header: 'Nombre' },
       { field: 'accion', header: 'Acciones' }

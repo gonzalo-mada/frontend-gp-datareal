@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
@@ -13,6 +13,7 @@ import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 import { DataUpdated } from 'src/app/project/models/shared/DataUpdated';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { Context } from 'src/app/project/models/shared/Context';
+import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
 
 @Component({
   selector: 'app-form-suspension',
@@ -28,7 +29,7 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
     public suspensionesService: SuspensionesService,  
     private uploaderFilesService: UploaderFilesService
   ){}
-
+  @Input() visibleUploader: boolean = false;
   
   showAsterisk: boolean = false;
   namesCrud!: NamesCrud;
@@ -40,12 +41,11 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
   }
 
   public fbForm: FormGroup = this.fb.group({
-    Descripcion_TipoSuspension: ['', [Validators.required , Validators.pattern(/^(?!\s*$).+/)]],
+    Descripcion_TipoSuspension: ['', [Validators.required , GPValidator.regexPattern('num_y_letras')]],
     files: [[], this.filesValidator.bind(this)]
   })
 
   ngOnInit(): void {
-    this.uploaderFilesService.setContext('mantenedores','suspension')
     this.namesCrud = {
       singular: 'tipo de suspensión',
       plural: 'tipo de suspensión',
@@ -102,11 +102,7 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
     }
     const files = formGroup.get('files')?.value;
 
-    if ( this.modeForm == 'create' ){
-      if (files.length === 0 ) {
-        return { required: true };
-      }
-    }else if ( this.modeForm == 'edit'){
+    if ( this.modeForm === 'create' || this.modeForm === 'edit' ){
       if (files.length === 0 ) {
         return { required: true };
       }
@@ -116,6 +112,7 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
 
   createForm(resolve: Function, reject: Function){
     try {
+      this.uploaderFilesService.setContext('create','mantenedores','suspension')
       this.resetForm();
       resolve(true)
     } catch (e) {
@@ -125,6 +122,7 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
 
   async showForm(resolve: Function, reject: Function){
     try {
+      this.uploaderFilesService.setContext('show','mantenedores','suspension')
       this.fbForm.patchValue({...this.suspension});
       this.fbForm.get('Descripcion_TipoSuspension')?.disable();
       this.showAsterisk = false;
@@ -137,6 +135,7 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
 
   async editForm(resolve: Function, reject: Function){
     try {
+      this.uploaderFilesService.setContext('edit','mantenedores','suspension')
       this.fbForm.patchValue({...this.suspension});
       this.fbForm.get('Descripcion_TipoSuspension')?.enable();
       this.showAsterisk = true;

@@ -12,26 +12,12 @@ export class TableProgramasDirectoresComponent  {
   constructor(private programasService: ProgramasService){}
 
   @Input() data: any[] = []
-  @Input() mode: string = '';
+  @Input() mode!: 'director' | 'alterno';
 
   setDirector(rut: string, nombres: string, paterno: string, materno: string){
-    if (this.mode === 'director') {
-      const nombreCompleto = nombres + ' ' + paterno.trim() + ' ' + materno.trim();   
-      this.programasService.programa.update((programa) => ({
-        ...programa,
-        Director: rut,
-        Nombre_Director: nombreCompleto
-      }))
-      this.programasService.triggerDirectorSelected();
-    }else{
-      const nombreCompleto = nombres + ' ' + paterno.trim() + ' ' + materno.trim();   
-      this.programasService.programa.update((programa) => ({
-        ...programa,
-        Director_alterno: rut,
-        Nombre_Director_alterno: nombreCompleto
-      }))
-      this.programasService.triggerDirectorAlternoSelected();
-    }
+    const nombreCompleto = nombres + ' ' + paterno.trim() + ' ' + materno.trim();
+    this.programasService.setSelectDirector(this.mode, nombreCompleto, rut)
+
 
   }
 

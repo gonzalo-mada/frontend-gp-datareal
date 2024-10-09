@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FileUtils } from '../../tools/utils/file.utils';
 import { FileUpload } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
@@ -33,12 +33,13 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
 
   constructor(private fileUtils: FileUtils, 
               private messageService: MessageService,
-              private uploaderFilesService: UploaderFilesService
+              public uploaderFilesService: UploaderFilesService
   ){}
+
   
   
   get disabled(): boolean | null {
-    return this.uploaderFilesService.stateLayout.stateButtonSeleccionarArchivos;
+    return this.uploaderFilesService.disabledButtonSeleccionarArchivos;
   }
 
   async ngOnInit() {
@@ -47,8 +48,11 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
       { label: ' Archivo por subir' , icon:'pi-cloud-upload' , color:'estado-upload'}
     ];
     this.subscription.add(this.uploaderFilesService.contextUpdate$.subscribe( context => {
-      if (context.module && context.component) {       
-        this.context = context;
+      if (context) {
+        if (context.module && context.component) {
+          // console.log("CONTEXT FROM UPLOADER",context);       
+          this.context = context;
+        }
       }
     }))
     this.subscription.add(this.uploaderFilesService.actionUploader$.subscribe( updateUploader => {
@@ -60,10 +64,13 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
         }
       }
     }));
-    this.subscription.add(this.uploaderFilesService.files$.subscribe(files => { files && ( this.files = files ) } ));
+    // this.subscription.add(this.uploaderFilesService.files$.subscribe(files => { files && ( this.files = files ) } ));
   }
 
+
   ngOnDestroy(): void {
+    console.log("me destrui");
+    
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
@@ -74,10 +81,12 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
   }
 
   onSelect(event: any, uploader: FileUpload){
+    // Filtrar los archivos nuevos, verificando que no estén ya en la lista
     const uniqueFiles = event.currentFiles.filter((newFile: File) => {
-      return !this.files.some(fileWithComment => fileWithComment.nombre === newFile.name && fileWithComment.extras.pesoDocumento === newFile.size);
+      return !this.uploaderFilesService.files.some(fileWithComment => fileWithComment.nombre === newFile.name && fileWithComment.extras.pesoDocumento === newFile.size);
     });
 
+    // Si no hay archivos únicos (ya existen), mostrar mensaje de error y remover el último archivo
     if (uniqueFiles.length == 0) {
       let lastFile = event.currentFiles[event.currentFiles.length - 1 ];
       this.messageService.add({
@@ -85,12 +94,15 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
         severity: 'error',
         detail: `El documento con nombre ${lastFile.name} ya existe.`,
       });
+
+      // Buscar y remover el archivo duplicado del uploader
       const fileIndex = uploader.files.findIndex(file => file === lastFile);
       if (fileIndex !== -1) {
         uploader.remove(event.originalEvent, fileIndex);
       }
     }
-      
+    
+    // Agregar los archivos únicos a la lista 'files'
     uniqueFiles.forEach((newFile: File) => {  
       const fileToSelect = {
         nombre: newFile.name , 
@@ -100,22 +112,23 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
         from: this.context.component.label
       }
     
-      this.files.push(fileToSelect)
+      this.uploaderFilesService.filesToUpload.push(fileToSelect)
+      // this.uploaderFilesService.setFiles(this.files);
       
-    });
-
-    // this.filesChange.emit(this.files)    
-    this.uploaderFilesService.updateValidatorFiles(this.context,this.files);
+    });    
+    // this.filesChange.emit(this.files)
+    this.uploaderFilesService.setConfigModeUploader();    
+    this.uploaderFilesService.updateValidatorFiles(this.context,this.uploaderFilesService.files);
     
   }
 
   async newUploadHandler(resolve: Function, reject: Function){
     try {
-      if (this.files.length != 0) {
+      if (this.uploaderFilesService.files.length != 0) {
         //subieron docs
         
-        for (let i = 0; i < this.files.length; i++) {
-          const doc = this.files[i];        
+        for (let i = 0; i < this.uploaderFilesService.files.length; i++) {
+          const doc = this.uploaderFilesService.files[i];        
           if (!doc.id) {
             //modo subir nuevo archivo
             
@@ -131,6 +144,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
               archivo: file.binary,
               tipo: file.format,
               extras: extras,
+              from: doc.from
             };
             this.docsToUpload.push(documento)
             
@@ -148,6 +162,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
               dataBase64: doc.dataBase64,
               tipo: doc.tipo,
               extras: extras,
+              from: doc.from
             };
             
             this.docsToUpload.push(documento)
@@ -159,32 +174,35 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
       }
     } catch (e) {
       reject(e);
-    }finally{
-      this.resetQueueUploader();
     }
   }
 
   onCommentChange(index: number, comment: string) {
-    this.files[index].extras.comentarios = comment;
+    this.uploaderFilesService.files[index].extras.comentarios = comment;
   }
 
-  async onRemoveTemplatingFile(file: any, uploader: FileUpload, index: number) {
+  async onRemoveTemplatingFile(file: any, uploader: FileUpload, index: number) {    
     if (file.id) {
       this.filesToDelete.push(file);
-      this.files.splice(index, 1);
+      this.uploaderFilesService.filesUploaded.splice(index, 1);
     }else{
       //eliminar de memoria navegador
       uploader.files = uploader.files.filter((f) => f != file.origFile);
-      this.files.splice(index, 1);
+      this.uploaderFilesService.filesToUpload = this.uploaderFilesService.filesToUpload.filter((f) => f.origFile != file.origFile)
     }
     // this.filesChange.emit(this.files)
-    this.uploaderFilesService.updateValidatorFiles(this.context, this.files);
+    this.uploaderFilesService.setConfigModeUploader();
+    this.uploaderFilesService.updateValidatorFiles(this.context, this.uploaderFilesService.files);
   }
 
   cancelDeleteFile(file: any, uploader: FileUpload, index: number){
-    const fileExists = this.files.some(existingFile => existingFile.nombre === file.nombre);
+    const fileExists = this.uploaderFilesService.files.some(existingFile => existingFile.nombre === file.nombre);
     if (!fileExists) {
-      this.files.push(file);
+      if (file.id) {
+        this.uploaderFilesService.filesUploaded.push(file);
+      }else{
+        this.uploaderFilesService.filesToUpload.push(file);
+      }
       this.filesToDelete.splice(index, 1);
     } else {
       this.messageService.add({
@@ -193,15 +211,17 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
         detail: `El documento con nombre ${file.nombre} no es posible cancelar su eliminación ya que está como documento adjunto.`,
       });
     }
-    this.uploaderFilesService.updateValidatorFiles(this.context, this.files);
+    this.uploaderFilesService.setConfigModeUploader();
+    this.uploaderFilesService.updateValidatorFiles(this.context, this.uploaderFilesService.files);
   }
 
-  resetQueueUploader(){   
-    this.files = []; 
+  resetQueueUploader(){
+    console.log("me llamaron reset queue uploader");
     this.filesToDelete = []; 
     this.docsToUpload = [];  
     this.uploader?.clear();
     this.uploaderFilesService.resetValidatorFiles();
+    this.uploaderFilesService.resetUploader();
   }
 
   showVisorPDF(event: any){   
@@ -210,8 +230,14 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
   }
 
   downloadDoc(event: any){
-    console.log("from downloadDoc uploaderfiles!!!",this.context);
     this.uploaderFilesService.triggerDownloadDoc(this.context, event);
+  }
+
+  test(){
+    console.log("FILES:",this.uploaderFilesService.files);
+    console.log("FILES TO UPLOAD:",this.uploaderFilesService.filesToUpload);
+    console.log("FILES UPLOADED:",this.uploaderFilesService.filesUploaded);
+    
   }
 
 }
