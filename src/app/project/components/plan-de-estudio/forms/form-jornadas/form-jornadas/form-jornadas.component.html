@@ -9,7 +9,7 @@
         <div class="field col-12">
             <label><strong>Nombre *</strong></label>
             <input type="text" pInputText formControlName="Descripcion_jornada" maxlength="50" class="w-full" placeholder="Ingrese nombre de la jornada"/>
-            <app-form-control [control]="fbForm.controls['Descripcion_jornada']" [validators]="['required', 'pattern']"></app-form-control>
+            <app-form-control [control]="fbForm.controls['Descripcion_jornada']" [validators]="['required', 'num_y_letras']"></app-form-control>
         </div>
     </div>
 </form>

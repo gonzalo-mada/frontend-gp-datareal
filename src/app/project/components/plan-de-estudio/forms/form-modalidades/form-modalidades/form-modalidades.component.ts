@@ -7,6 +7,7 @@ import { StateValidatorForm } from 'src/app/project/models/shared/StateValidator
 import { generateMessage } from 'src/app/project/tools/utils/form.utils';
 import { ModalidadesService } from 'src/app/project/services/plan-de-estudio/modalidades.service';
 import { Modalidad } from 'src/app/project/models/plan-de-estudio/Modalidad';
+import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
 
 @Component({
   selector: 'app-form-modalidades',
@@ -30,7 +31,7 @@ export class FormModalidadesComponent implements OnInit, OnDestroy{
   }
 
   public fbForm: FormGroup = this.fb.group({
-    Descripcion_modalidad: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/)]],
+    Descripcion_modalidad: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
   });
 
   ngOnInit(): void {

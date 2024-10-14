@@ -7,6 +7,7 @@ import { StateValidatorForm } from 'src/app/project/models/shared/StateValidator
 import { JornadaService } from 'src/app/project/services/plan-de-estudio/jornada.service';
 import { generateMessage } from 'src/app/project/tools/utils/form.utils';
 import { Jornada } from 'src/app/project/models/plan-de-estudio/Jornada';
+import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
 
 @Component({
   selector: 'app-form-jornadas',
@@ -30,7 +31,7 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
   }
 
   public fbForm: FormGroup = this.fb.group({
-    Descripcion_jornada: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/)]],
+    Descripcion_jornada: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
   });
 
   ngOnInit(): void {
