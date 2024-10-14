@@ -180,7 +180,6 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
       }
       // Insertar los reglamentos utilizando el servicio      
       const inserted: DataInserted = await this.reglamentosService.insertReglamento(params);
-      console.log("inserted ttt",inserted);
       
       if (inserted.dataWasInserted) {
         // Generar mensaje de éxito y resolver la promesa
