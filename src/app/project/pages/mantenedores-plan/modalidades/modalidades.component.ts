@@ -54,6 +54,7 @@ export class ModalidadesComponent implements OnInit, OnDestroy {
 
     this.subscription.add(this.menuButtonsTableService.onClickButtonAgregar$.subscribe(() => this.createForm()));
     this.subscription.add(this.tableCrudService.onClickRefreshTable$.subscribe(() => this.getModalidades()));
+    this.subscription.add(this.menuButtonsTableService.onClickDeleteSelected$.subscribe(() => this.openConfirmationDeleteSelected(this.tableCrudService.getSelectedRows()) ))
     this.subscription.add(
       this.modalidadesService.crudUpdate$.subscribe(crud => {
         if (crud && crud.mode) {

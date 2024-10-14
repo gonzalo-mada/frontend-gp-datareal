@@ -1,4 +1,4 @@
-<form [formGroup]="programasService.fbForm">
+<form [formGroup]="programasService.fbForm" *ngIf="showComponent">
     <div class="formgrid grid">
         <div class="field col-12 lg:col-4">
             <label><strong>Centro costo {{ programasService.showAsterisk ? '*' : '' }} </strong></label>

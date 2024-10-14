@@ -314,37 +314,43 @@ export class ProgramasService {
 
   setFormPrograma(form: Programa){
     this.fbForm.patchValue({...form, Graduacion_Conjunta_Switch: form.Graduacion_Conjunta === 1 ? true : false});
+    console.log("ASI QUEDA EL FORM",this.fbForm.value);
+    
+  }
+
+  resetFormPrograma(){
+    this.fbForm.reset();
   }
 
 
 
 
-  async getTiposProgramas(){
-    return await this.invoker.httpInvoke('tiposprogramas/getTiposProgramas');
+  async getTiposProgramas(loading = true){
+    return await this.invoker.httpInvoke({service: 'tiposprogramas/getTiposProgramas', loading: loading});
   }
 
-  async getCampus(){
-    return await this.invoker.httpInvoke('campus/logica_getCampus');
+  async getCampus(loading = true){
+    return await this.invoker.httpInvoke({service: 'campus/logica_getCampus', loading: loading});
   }
 
-  async getUnidadesAcademicas(){
-    return await this.invoker.httpInvoke('unidadesAcademicas/logica_getUnidadesAcademicas');
+  async getUnidadesAcademicas(loading = true){
+    return await this.invoker.httpInvoke({service: 'unidadesAcademicas/logica_getUnidadesAcademicas', loading: loading});
   }
 
-  async getDirector(params: any){
-    return await this.invoker.httpInvoke('programas/getDirector', params);
+  async getDirector( params: any , loading = true,){
+    return await this.invoker.httpInvoke({service: 'programas/getDirector', loading: loading},params);
   }
 
-  async getInstituciones(){
-    return await this.invoker.httpInvoke('programas/getInstituciones');
+  async getInstituciones(loading = true){
+    return await this.invoker.httpInvoke({service: 'programas/getInstituciones', loading: loading});
   }
 
-  async getReglamentos() {
-    return await this.invoker.httpInvoke('reglamentos/getReglamentos');
+  async getReglamentos(loading = true) {
+    return await this.invoker.httpInvoke({service: 'reglamentos/getReglamentos', loading: loading});
   }
 
-  async getInstitucionesSelected(params: any){
-    return await this.invoker.httpInvoke('programas/getInstitucionesSelected', params);
+  async getInstitucionesSelected(params: any, loading = true){
+    return await this.invoker.httpInvoke({service: 'programas/getInstitucionesSelected', loading: loading}, params);
   }
 
   async getProgramas(){
@@ -355,12 +361,12 @@ export class ProgramasService {
     return await this.invoker.httpInvoke(generateServiceMongo('programas/getPrograma'),params);
   }
 
-  async getEstadosMaestros(){
-    return await this.invoker.httpInvoke('estado_maestro/getEstadosMaestros');
+  async getEstadosMaestros(loading = true){
+    return await this.invoker.httpInvoke({service: 'estado_maestro/getEstadosMaestros', loading: loading});
   }
 
-  async getEstadosAcreditacion(){
-    return await this.invoker.httpInvoke('estados_acreditacion/getEstadosAcreditacion');
+  async getEstadosAcreditacion(loading = true){
+    return await this.invoker.httpInvoke({service: 'estados_acreditacion/getEstadosAcreditacion', loading: loading});
   }
 
   async getArchiveDoc(idDocumento: string, from: 'titulo' | 'REXE' | 'gradoAcad' | 'estadoMaestro') {

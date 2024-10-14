@@ -31,6 +31,7 @@ export class VerProgramaComponent implements OnInit {
   async getPrograma(){
     try {
       this.programa = await this.programasService.getPrograma({Cod_Programa: this.cod_programa});
+      
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
