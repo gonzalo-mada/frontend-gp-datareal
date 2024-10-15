@@ -1,6 +1,6 @@
 <app-breadcrumbgp></app-breadcrumbgp>
 <app-config-mode></app-config-mode>
-<p-toast [key]="keyPopups"></p-toast>
+<p-toast [key]="programasService.keyPopups"></p-toast>
 
 <app-dialog [(visible)]="showDialogDocs">
     <div header>
@@ -19,7 +19,7 @@
         <span class="text-xl">Agregar estado de acreditación</span>
     </div>
     <div content>
-        <app-form-estados-acreditacion [visibleUploader]="showDialogEstadoAcreditacion"></app-form-estados-acreditacion>
+        <app-form-estados-acreditacion></app-form-estados-acreditacion>
     </div>
     <div footer>
         <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
@@ -62,7 +62,7 @@
         <span class="text-xl">Agregar reglamento</span>
     </div>
     <div content>
-        <app-form-reglamentos [visibleUploader]="newReglamentoDialog"></app-form-reglamentos>
+        <app-form-reglamentos></app-form-reglamentos>
     </div>
     <div footer>
         <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
@@ -87,9 +87,15 @@
 
             </div>
             <div>
+                <!-- <p-button 
+                    label="test" 
+                    icon="pi pi-times" 
+                    styleClass="p-button-sm p-button-secondary mr-2" 
+                    (click)="test()" [text]="true"></p-button> -->
+                <button pButton icon="pi pi-upload" label="Adjuntar documento maestro" (click)="chooseDocs('Maestro')"></button>
                 <button 
                     pButton 
-                    class="{{ programasService.stateFormPrograma ? 'p-button-success' : 'p-button-danger' }} p-button-outlined" 
+                    class="{{ programasService.stateFormPrograma ? 'p-button-success' : 'p-button-danger' }} p-button-outlined ml-2" 
                     icon="pi {{ programasService.stateFormPrograma ? 'pi-check' : 'pi-times' }}" 
                     label="Estado formulario"
                     iconPos="right"
@@ -127,94 +133,6 @@
                             <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback">
                                 <div class="flex flex-column">
                                     <p-accordion class="w-full" [activeIndex]="0" (onOpen)="openAccordion()">
-
-                                        <p-accordionTab id="titulo">
-                                            <ng-template pTemplate="header">
-                                                <div class="flex justify-content-between flex-wrap w-full">
-                                                    <div>
-                                                        <span><strong>Título</strong></span>
-                                                    </div>
-                                                    <div>
-                                                        <span style="font-weight: 100;"><i>{{ programasService.fbForm.get('Titulo')?.value }}</i></span>
-                                                    </div>
-                                                </div>
-                                            </ng-template>
-                                            <ng-template pTemplate="body">
-                                                <!-- <app-form-programas-titulo></app-form-programas-titulo> -->
-                                                <div class="formgrid grid">
-                                                    <div class="field col-12 lg:col-4">
-                                                        <label><strong>Título *</strong></label>
-                                                        <input type="text" pInputText formControlName="Titulo" maxlength="50" class="w-full" placeholder="Ingrese nombre de título"/>
-                                                        <app-form-control [control]="programasService.fbForm.controls['Titulo']" [validators]="['required', 'num_y_letras']"></app-form-control>
-                                                    </div>
-                                                    <div class="field col-12" >
-                                                        <span><strong>Adjunte documento(s) de resolución *</strong></span>
-                                                        <div class="mt-2">
-                                                            <p-button icon="pi pi-upload" label="Adjuntar documentos" (click)="chooseDocs('Título')"></p-button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </ng-template>
-
-                                        </p-accordionTab>
-
-                                        <p-accordionTab id="gradoacademico">
-                                            <ng-template pTemplate="header">
-                                                <div class="flex justify-content-between flex-wrap w-full">
-                                                    <div>
-                                                        <span><strong>Grado académico</strong></span>
-                                                    </div>
-                                                    <div>
-                                                        <span style="font-weight: 100;"><i>{{ programasService.fbForm.get('Grado_academico')?.value }}</i></span>
-                                                    </div>
-                                                </div>
-                                            </ng-template>
-                                            <ng-template pTemplate="body">
-                                                <!-- <app-form-programas-gradoacad></app-form-programas-gradoacad> -->
-                                                <div class="formgrid grid">
-                                                    <div class="field col-12 lg:col-4">
-                                                        <label><strong>Grado académico *</strong></label>
-                                                        <input type="text" pInputText formControlName="Grado_academico" maxlength="50" class="w-full" placeholder="Ingrese nombre de grado académico"/>
-                                                        <app-form-control [control]="programasService.fbForm.controls['Grado_academico']" [validators]="['required', 'num_y_letras']"></app-form-control>
-                                                    </div>
-                                                    <div class="field col-12" >
-                                                        <span><strong>Adjunte documento(s) de resolución *</strong></span>
-                                                        <div class="mt-2">
-                                                            <p-button icon="pi pi-upload" label="Adjuntar documentos" (click)="chooseDocs('Grado académico')"></p-button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </ng-template>
-                                        </p-accordionTab>
-
-                                        <p-accordionTab id="REXE">
-                                            <ng-template pTemplate="header">
-                                                <div class="flex justify-content-between flex-wrap w-full">
-                                                    <div>
-                                                        <span><strong>REXE</strong></span>
-                                                    </div>
-                                                    <div>
-                                                        <span style="font-weight: 100;"><i>{{ programasService.fbForm.get('REXE')?.value }}</i></span>
-                                                    </div>
-                                                </div>
-                                            </ng-template>
-                                            <ng-template pTemplate="body">
-                                                <!-- <app-form-programas-rexe></app-form-programas-rexe> -->
-                                                <div class="formgrid grid">
-                                                    <div class="field col-12 lg:col-4">
-                                                        <label><strong>REXE *</strong></label>
-                                                        <input type="text" pInputText formControlName="REXE" maxlength="50" class="w-full" placeholder="Ingrese REXE del programa"/>
-                                                        <app-form-control [control]="programasService.fbForm.controls['REXE']" [validators]="['required', 'num_y_letras']"></app-form-control>
-                                                    </div>
-                                                    <div class="field col-12" >
-                                                        <span><strong>Adjunte documento(s) de resolución *</strong></span>
-                                                        <div class="mt-2">
-                                                            <p-button icon="pi pi-upload" label="Adjuntar documentos" (click)="chooseDocs('REXE')"></p-button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </ng-template>
-                                        </p-accordionTab>
 
                                         <p-accordionTab id="reglamento">
                                             <ng-template pTemplate="header">
@@ -279,12 +197,6 @@
                                                             <app-table-programas-directores mode="director" [data]="directores"></app-table-programas-directores>
                                                         </div>
                                                     </div>
-                                                    <div class="field col-12" >
-                                                        <span><strong>Adjunte documento(s) de resolución *</strong></span>
-                                                        <div class="mt-2">
-                                                            <p-button icon="pi pi-upload" label="Adjuntar documentos" (click)="chooseDocs('Director')"></p-button>
-                                                        </div>
-                                                    </div>
                                                 </div>
                                             </ng-template>
                                         </p-accordionTab>
@@ -320,75 +232,11 @@
                                                             <app-table-programas-directores mode="alterno" [data]="directoresAlternos"></app-table-programas-directores>
                                                         </div>
                                                     </div>
-                                                    <div class="field col-12" >
-                                                        <span><strong>Adjunte documento(s) de resolución *</strong></span>
-                                                        <div class="mt-2">
-                                                            <p-button icon="pi pi-upload" label="Adjuntar documentos" (click)="chooseDocs('Director alterno')"></p-button>
-                                                        </div>
-                                                    </div>
                                                 </div>
                                             </ng-template>
                                         </p-accordionTab>
 
-                                        <p-accordionTab id="estadoMaestro_Suspensiones">
-                                            <ng-template pTemplate="header">
-                                                <div class="flex justify-content-between flex-wrap w-full">
-                                                    <div>
-                                                        <span><strong>Estado maestro</strong></span>
-                                                    </div>
-                                                        
-                                                    <div *ngIf="programasService.estadoMaestroSelected !== '' ">
-                                                        <span style="font-weight: 100;"><i>{{ programasService.estadoMaestroSelected }}</i></span>
-                                                    </div>
-                                                    
-                                                    
-                                                </div>
-                                            </ng-template>
-                                            <ng-template pTemplate="body">
-                                                <div class="formgrid grid">
-                                                    <div class="field col-12 lg:col-4">
-                                                        <label><strong>Estado maestro *</strong></label>
-                                                        <br>
-                                                        <p-dropdown
-                                                            [options]="estadosMaestros"
-                                                            [style]="{ width: '100%', 'min-width': '100%' }"
-                                                            formControlName="EstadoMaestro"
-                                                            placeholder="Seleccione estado maestro"
-                                                            optionLabel="Descripcion_EstadoMaestro"
-                                                            (onChange)="onEstadoMaestroChange($event)"
-                                                        >
-                                                        </p-dropdown>
-                                                        <app-form-control [control]="programasService.fbForm.controls['EstadoMaestro']" [validators]="['required']"></app-form-control>
-                                                    </div>
-                                                    <div class="field col-12" >
-                                                        <span><strong>Adjunte documento(s) de resolución *</strong></span>
-                                                        <div class="mt-2">
-                                                            <p-button icon="pi pi-upload" label="Adjuntar documentos" (click)="chooseDocs('Estado maestro')"></p-button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- <app-form-programas-estadomaestro></app-form-programas-estadomaestro> -->
-                                                <!-- <div class="field col-12" *ngIf="showSuspension">
-                                                            <div class="flex flex-wrap justify-content-between align-items-center m-1">
-                                                                <div>
-                                                                    <span>
-                                                                        Seleccione un tipo de suspensión registrados en la tabla. <br/> Si no está registrado, agregue uno nuevo presionando el botón <strong>Agregar</strong>. <br>
-                                                                    </span>
-                                                                </div>
-                                                                <div>
-                                                                    <p-button
-                                                                    label="Agregar"
-                                                                    icon="pi pi-plus"
-                                                                    styleClass="p-button-success p-button-sm"
-                                                                    (click)="addNewSuspension()"
-                                                                    ></p-button>
-                                                                </div>
-                                                            </div>
-                                                            <app-table-programas-suspensiones [data]="suspensiones"></app-table-programas-suspensiones>
-                                                        </div> -->
 
-                                            </ng-template>
-                                        </p-accordionTab>
 
                                         <p-accordionTab id="estadoacreditacion">
                                             <ng-template pTemplate="header">
@@ -427,7 +275,7 @@
                                 </div>
                                 <div class="flex pt-4 justify-content-between">
                                     <p-button label="Atrás" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()" />
-                                    <p-button label="Agregar" icon="pi pi-check" iconPos="right" (onClick)="submit()" />
+                                    <p-button label="Agregar" icon="pi pi-check" iconPos="right" (onClick)="submit()" [disabled]="!programasService.stateFormPrograma" />
                                 </div>
                             </ng-template>
                         </p-stepperPanel>
@@ -435,7 +283,20 @@
                 </form>
             </div>
             <div class="layout-sidebar" *ngIf="programasService.disposition">
-                <p-card header="Estado del formulario" styleClass="border-1 surface-border border-round rounded-lg">
+                <p-card  styleClass="border-1 surface-border border-round rounded-lg">
+                    <ng-template pTemplate="header">
+                        <div class="flex flex-row flex-wrap"  [style]="{ 'padding-left': '1.5rem' , 'padding-top': '1.5rem' , 'padding-right': '1.5rem'}">
+                            <div class="align-items-center">
+                                <div class="p-card-title">Estado formulario</div>
+                            </div>
+                            <div class="align-items-center ml-2" [style]="{'margin-top': '0.1rem !important'}">
+                                <i class="pi pi-question-circle" [pTooltip]='tooltipContent' tooltipPosition="top"></i>
+                                <ng-template #tooltipContent>
+                                    <small>Indica el estado de validación de cada campo del formulario. Para cerrar, presione el botón "Estado formulario".</small>
+                                </ng-template>
+                            </div>
+                        </div>
+                    </ng-template>
                     <app-state-form></app-state-form>
                 </p-card>
             </div>

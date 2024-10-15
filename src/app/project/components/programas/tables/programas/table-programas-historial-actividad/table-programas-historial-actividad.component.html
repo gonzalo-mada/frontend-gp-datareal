@@ -1,0 +1,58 @@
+<p-table
+    [value]="data" 
+    [dataKey]="dataKeyTable" 
+    autoLayout="true"
+
+>
+    <ng-template pTemplate="caption">
+        <div class="flex align-items-center justify-content-between">
+            Historial de actividad del programa
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+        <tr>
+            <th style="width:45%;">Actividad</th>
+            <th style="width:20%;">Tipo de actividad</th>
+            <th style="width:15%;">Fecha</th>
+            <th style="width:20%;">Realizada por</th>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-data>
+        <tr>
+            <td>
+                <span class="p-column-title">Actividad</span>
+                {{data.descripcion}}
+            </td>
+            <td>
+                <span class="p-column-title">Tipo de actividad</span>
+                <ng-container [ngSwitch]="data.tipo_movimiento">
+                    <ng-container *ngSwitchCase="'C'">
+                        <span>Creación de programa</span>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="'U'">
+                        <span>Actualización en el programa</span>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="'D'">
+                        <span>Eliminación en el programa</span>
+                    </ng-container>
+                </ng-container>
+
+            </td>
+            <td>
+                <span class="p-column-title">Fecha</span>
+                {{data.fecha}}
+            </td>
+            <td>
+                <span class="p-column-title">Tipo de actividad</span>
+                <span> {{data.nombre_usuario}}  <br> </span>
+                <span style="font-size: 0.8rem;">
+                    <strong>RUT:</strong> {{data.usuario}}<br>
+                    <strong>Correo:</strong> {{data.correo_usuario}}<br>
+                </span>
+            </td>
+        </tr>
+    </ng-template>
+
+</p-table>

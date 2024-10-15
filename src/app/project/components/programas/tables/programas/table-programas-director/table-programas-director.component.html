@@ -1,0 +1,57 @@
+<p-table
+    [value]="data" 
+    [dataKey]="dataKeyTable"
+    autoLayout="true"
+    [expandedRowKeys]="expandedRows"
+    (onRowExpand)="onRowExpand($event)"
+    (onRowCollapse)="onRowCollapse($event)"
+    rowExpandMode="single"
+>
+
+    <ng-template pTemplate="caption">
+        <div class="flex align-items-center justify-content-between">
+            <span class="font-light">Información y documentos adjuntos de: <strong>Director</strong> </span>
+            <div class="flex align-items-center">
+                <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
+                <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+        <tr>
+            <th style="width: 5rem"></th>
+            <th style="width:33%;">Director</th>
+            <th style="width:33%;">Contacto</th>
+            <th style="width:33%;">Facultad</th>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-data let-expanded="expanded">
+        <tr>
+            <td>
+                <p-button type="button" pRipple [pRowToggler]="data" [text]="true" [rounded]="true" [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
+            </td>
+            <td>{{ data.Nombres }} {{ data.Paterno }} {{ data.Materno }} <br/> RUT: {{ data.rutcompleto }}</td>
+            <td>{{ data.FiceMail }} <br/> Anexo: {{ data.DirFono || '' }}</td>
+            <td>{{ data.Facultad }}</td>
+
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="rowexpansion" let-data>
+        <tr>
+            <td colspan="4">
+                <h4>Documentos adjuntos</h4>
+                <app-uploader-files mode="show"></app-uploader-files>
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td [attr.colspan]="4">Sin registros</td>
+        </tr>
+    </ng-template>
+
+</p-table>

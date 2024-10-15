@@ -1,6 +1,7 @@
 import {  effect, Injectable, signal } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { Context, LabelComponent, ModeUploader, Module, NameComponent } from '../../models/shared/Context';
+import { LoadinggpService } from './loadinggp.service';
 
 type ActionUploader = 'upload' | 'reset'
 
@@ -23,6 +24,7 @@ export class UploaderFilesService {
   context = signal<Context>(this._context);
 
   disabledButtonSeleccionarArchivos : boolean | null = null;
+  loading : boolean = false ;
 
   private actionSubject = new BehaviorSubject<{action: ActionUploader , resolve?: Function, reject?: Function } | null>(null);
   actionUploader$ = this.actionSubject.asObservable();
@@ -44,9 +46,9 @@ export class UploaderFilesService {
   public filesUploaded: any[] = [];
   private auxComponent : string = '';
 
-  constructor(){
-      effect(()=>{
-        this.onContextUpdate();
+  constructor(private loadingGpService: LoadinggpService){
+    effect(()=>{
+      this.onContextUpdate();
     })
   }
 
@@ -80,7 +82,7 @@ export class UploaderFilesService {
 
   setAction(action: ActionUploader, resolve?: Function, reject?: Function){
     this.actionSubject.next({action, resolve, reject});
-    // this.actionSubject.next(null);
+    this.actionSubject.next(null);
   }
 
   // setFiles(files: any[] | null){
@@ -123,6 +125,25 @@ export class UploaderFilesService {
           label: label
         }
     }))
+  }
+
+  setLoading(loading: boolean, showMessage = false){
+    switch (loading) {
+      case true:
+        if (showMessage) {
+          this.loading = true;
+          this.loadingGpService.loading(true,{msgs: 'Cargando documentos, espere por favor...'})
+        }else{
+          this.loading = true;
+          this.loadingGpService.loading(true)
+        }
+      break;
+
+      case false:
+        this.loading = false;
+        this.loadingGpService.loading(false)
+      break;
+    }
   }
 
   setConfigModeUploader(){

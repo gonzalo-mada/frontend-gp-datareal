@@ -1,11 +1,11 @@
 import {  effect, Injectable, signal } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
+import { NameComponent } from '../../models/shared/Context';
 
-export type Mantenedor = undefined | 'programa' | 'form-ea' | 'campus' | 'facultad' | 'unidadAcad' | 'form-susp' | 'categorias-tp' | 'tp' | 'suspension' | 'reglamento' | 'jornada' | 'modalidad'
 export type Mode = undefined | 'dialog' | 'page' 
 
-interface Context {
-    mantenedor: Mantenedor,
+export interface ContextMenuButtons {
+    mantenedor: NameComponent,
     mode: Mode
 }
 
@@ -15,14 +15,14 @@ interface Context {
 
 export class MenuButtonsTableService {
 
-    _context : Context = {
+    _context : ContextMenuButtons = {
         mantenedor: undefined,
         mode: undefined
     }
 
-    context = signal<Context>(this._context);
+    context = signal<ContextMenuButtons>(this._context);
 
-    private contextUpdate = new BehaviorSubject<Context>(this._context);
+    private contextUpdate = new BehaviorSubject<ContextMenuButtons>(this._context);
     contextUpdate$ = this.contextUpdate.asObservable();
 
     private onClickButtonAgregar = new Subject<void>();
@@ -42,7 +42,7 @@ export class MenuButtonsTableService {
         this.contextUpdate.next(this.context());
     }
 
-    setContext(mantenedor: Mantenedor, mode: Mode){
+    setContext(mantenedor: NameComponent, mode: Mode){
         this.context.update((context) => ({
             ...context,
             mantenedor: mantenedor,
