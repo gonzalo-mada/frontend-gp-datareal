@@ -2,11 +2,11 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
-import { Programa } from 'src/app/project/models/Programa';
+import { Programa } from 'src/app/project/models/programas/Programa';
 import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { MenuButtonsTableService } from 'src/app/project/services/components/menu-buttons-table.service';
 import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
-import { ProgramasService } from 'src/app/project/services/programas.service';
+import { ProgramasService } from 'src/app/project/services/programas/programas.service';
 
 @Component({
   selector: 'app-home',
@@ -64,7 +64,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   async getProgramas(){
     try {
       this.programas = await this.programasService.getProgramas();
-      console.log("PROGRAMAS:",this.programas);
       
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
@@ -73,24 +72,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
     }
   }
-
-  // async showForm(){
-  //   try {
-  //     const data = this.programa;
-  //     const result : any = await new Promise((resolve,reject) => {
-  //       this.programasService.setModeForm('show', data, resolve, reject);
-  //     })
-  //     this.router.navigate([`/programa/show`])
-  //     console.log("result",result);
-  //   } catch (e:any) {
-  //     this.errorTemplateHandler.processError(e, {
-  //       notifyMethod: 'alert',
-  //       summary: `Error al visualizar formulario de ${this.namesCrud.articulo_singular}`,
-  //       message: e.message,
-  //       }
-  //     );
-  //   }
-  // }
 
   showForm(){
     const cod_programa = this.programa.Cod_Programa;
@@ -101,7 +82,5 @@ export class HomeComponent implements OnInit, OnDestroy {
     const cod_programa = this.programa.Cod_Programa;
     this.router.navigate([`/programa/edit/${cod_programa}`])
   }
-
-
 
 }

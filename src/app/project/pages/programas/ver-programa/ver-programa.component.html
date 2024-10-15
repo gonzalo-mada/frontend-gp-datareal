@@ -1,5 +1,5 @@
 <app-card header="Ver programa" subheader="Permite visualizar un programa.">
-    <ng-container *ngIf="showForm">
-        <app-form-programas-view-and-edit [mode]="mode" [data]="programa" ></app-form-programas-view-and-edit>
+    <ng-container>
+        <app-form-programas-view-and-edit [mode]="mode" [cod_programa]="cod_programa" ></app-form-programas-view-and-edit>
     </ng-container>
 </app-card>

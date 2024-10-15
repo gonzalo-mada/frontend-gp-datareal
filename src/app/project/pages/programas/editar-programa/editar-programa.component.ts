@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { Programa } from 'src/app/project/models/Programa';
-import { ProgramasService } from 'src/app/project/services/programas.service';
+import { Programa } from 'src/app/project/models/programas/Programa';
+import { ProgramasService } from 'src/app/project/services/programas/programas.service';
 
 @Component({
   selector: 'app-editar-programa',
