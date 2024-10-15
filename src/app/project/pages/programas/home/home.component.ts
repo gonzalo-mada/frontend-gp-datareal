@@ -2,11 +2,11 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
-import { Programa } from 'src/app/project/models/Programa';
+import { Programa } from 'src/app/project/models/programas/Programa';
 import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { MenuButtonsTableService } from 'src/app/project/services/components/menu-buttons-table.service';
 import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
-import { ProgramasService } from 'src/app/project/services/programas.service';
+import { ProgramasService } from 'src/app/project/services/programas/programas.service';
 
 @Component({
   selector: 'app-home',

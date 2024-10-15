@@ -14,7 +14,7 @@ const routes: Routes = [
   },
   {
     path: 'mantenedores',
-    loadChildren: () => import('../pages/mantenedores/mantenedores.module').then((m) => m.MantenedoresModule),
+    loadChildren: () => import('../pages/mantenedores-programas/mantenedores.module').then((m) => m.MantenedoresModule),
     data: {title:'Mantenedores programa'} 
   },
   {

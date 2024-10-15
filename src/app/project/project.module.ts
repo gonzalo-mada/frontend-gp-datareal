@@ -4,7 +4,7 @@ import { ProjectRoutingModule } from './routes/project-routing.module';
 import { SharedModule } from './modules/shared.module';
 import { PrimengModule } from './modules/primeng.module';
 import { HomeComponent } from './pages/home/home.component';
-import { HomeMenuButtonsComponent } from './components/home-menu-buttons/home-menu-buttons.component';
+import { HomeMenuButtonsComponent } from './components/shared/home-menu-buttons/home-menu-buttons.component';
 
 @NgModule({
   declarations: [HomeComponent, HomeMenuButtonsComponent],

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Programa } from 'src/app/project/models/Programa';
+import { Programa } from 'src/app/project/models/programas/Programa';
 
 @Component({
   selector: 'app-ver-programa',
