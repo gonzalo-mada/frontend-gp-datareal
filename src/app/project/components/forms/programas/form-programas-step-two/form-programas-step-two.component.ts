@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
+import { EstadoMaestro } from 'src/app/project/models/EstadoMaestro';
 import { ProgramasService } from 'src/app/project/services/programas.service';
 import { groupDataTipoPrograma, groupDataUnidadesAcademicas } from 'src/app/project/tools/utils/dropwdown.utils';
 
@@ -20,19 +21,32 @@ export class FormProgramasStepTwoComponent implements OnInit  {
   campus: any[] = [];
   instituciones: any[] = [];
   unidadesAcademicas: any[] = [];
-
+  estadosMaestros: EstadoMaestro[] = [];
   showAsterisk: boolean = false;
 
-  ngOnInit(): void {
-    this.getTiposProgramas();
-    this.getCampus();
-    this.getUnidadesAcademicas();
-    this.getInstituciones();
+  async ngOnInit() {
+    await this.getData();
   }
   // ngOnDestroy(): void {
   //   throw new Error('Method not implemented.');
   // }
 
+  async getData(){
+    try {
+      await Promise.all([
+        this.getTiposProgramas(),
+        this.getCampus(),
+        this.getUnidadesAcademicas(),
+        this.getInstituciones(),
+        this.getEstadosMaestros()
+      ]);
+    } catch (error) {
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al obtener datos del segundo paso. Intente nuevamente.',
+      });
+    }
+  }  
   async getTiposProgramas(){
     try {
       this.tiposProgramas =  await this.programasService.getTiposProgramas();
@@ -78,6 +92,35 @@ export class FormProgramasStepTwoComponent implements OnInit  {
         message: 'Hubo un error al obtener instituciones. Intente nuevamente.',
       });
     }
+  }
+
+  async getEstadosMaestros(){
+    try {
+      this.estadosMaestros = await this.programasService.getEstadosMaestros();
+      this.estadosMaestros = this.estadosMaestros.filter( e => e.Cod_EstadoMaestro !== 2 )
+    } catch (error) {
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al obtener estados maestros. Intente nuevamente.',
+      });
+    }
+  }
+
+  onEstadoMaestroChange(event: any){
+    // switch (event.value.Cod_EstadoMaestro) {
+    //   case 2:
+    //     this.estadoMaestroSelected = '';
+    //     this.showSuspension = true;
+    //     break;
+
+    //   default: 
+    //     this.estadoMaestroSelected = '';
+    //     this.programasService.setSelectSuspension(undefined)
+    //     this.showSuspension = false;
+    //     this.estadoMaestroSelected = event.value.Descripcion_EstadoMaestro 
+    //     break;
+    // }
+    this.programasService.setSelectEstadoMaestro(event.value as EstadoMaestro)
   }
 
   changeSwitch(event: any){

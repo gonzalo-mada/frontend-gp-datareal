@@ -35,11 +35,9 @@ export class TableEstadosAcreditacionComponent implements OnInit, OnChanges, OnD
     this.subscription = this.tableCrudService.resetSelectedRowsSubject$.subscribe( () => this.selectedRow = []);
     
     this.cols = [
-      { field: 'Cod_acreditacion', header: 'ID' },
-      { field: 'Acreditado', header: 'Acreditado' },
-      { field: 'Certificado', header: 'Certificado' },
-      { field: 'tiempo.Fecha_inicio', header: 'Fechas acreditación' },
-      { field: 'tiempo.Cantidad_anios', header: 'Años acreditado' },
+      { field: 'Sigla', header: 'Identificador' },
+      { field: 'Acreditado', header: 'Estado' },
+      { field: 'Certificado', header: 'Estado' },
       { field: 'Nombre_ag_acredit', header: 'Nombre agencia' },
       { field: 'Nombre_ag_certif', header: 'Nombre agencia' },
       { field: 'Evaluacion_interna', header: 'Evaluación interna' },
@@ -48,7 +46,8 @@ export class TableEstadosAcreditacionComponent implements OnInit, OnChanges, OnD
       { field: 'accion', header: 'Acciones' }
     ];
     
-    this.globalFiltros = [ 
+    this.globalFiltros = [
+      'Sigla', 
       'Acreditado' , 
       'Certificado' , 
       'Nombre_ag_acredit' , 

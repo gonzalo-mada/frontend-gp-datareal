@@ -44,7 +44,7 @@ export class UnidadesAcademicasService {
   //servicios para mongodb
  
   async getDocumentosWithBinary(Cod_unidad_academica: number) {
-    return await this.invoker.httpInvoke(generateServiceMongo('unidadesAcademicas/getDocumentosWithBinary'),{Cod_unidad_academica: Cod_unidad_academica});
+    return await this.invoker.httpInvoke(generateServiceMongo('unidadesAcademicas/getDocumentosWithBinary',false),{Cod_unidad_academica: Cod_unidad_academica});
   }
  
   async getArchiveDoc(idDocumento: string) {

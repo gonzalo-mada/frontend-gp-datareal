@@ -29,7 +29,6 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
     public suspensionesService: SuspensionesService,  
     private uploaderFilesService: UploaderFilesService
   ){}
-  @Input() visibleUploader: boolean = false;
   
   showAsterisk: boolean = false;
   namesCrud!: NamesCrud;
@@ -46,6 +45,7 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
   })
 
   ngOnInit(): void {
+    
     this.namesCrud = {
       singular: 'tipo de suspensión',
       plural: 'tipo de suspensión',
@@ -55,20 +55,6 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
     };
 
     this.subscription.add(this.fbForm.statusChanges.subscribe(status => { this.suspensionesService.stateForm = status as StateValidatorForm }))
-    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( from => {
-      if (from) {
-        if (from.context.component.name === 'suspension') {
-          this.filesChanged(from.files)
-        }
-      }
-    }));
-    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
-      if (from) {
-        if (from.context.component.name === 'suspension') {
-          this.downloadDoc(from.file)
-        }
-      }
-    }));
     this.subscription.add(
       this.suspensionesService.formUpdate$.subscribe( form => {
         if (form && form.mode) {
@@ -86,6 +72,21 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
         }
       })
     );
+    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( from => {
+      if (from) {
+        if (from.context.component.name === 'suspension') {
+          this.filesChanged(from.files)
+        }
+      }
+    }));
+    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
+      if (from) {
+        if (from.context.component.name === 'suspension') {
+          this.downloadDoc(from.file)
+        }
+      }
+    }));
+
   }
 
   ngOnDestroy(): void {
@@ -226,6 +227,7 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
 
   async loadDocsWithBinary(suspension: Suspension){
     try {
+      this.uploaderFilesService.setLoading(true,true);
       const files = await this.suspensionesService.getDocumentosWithBinary({ID_TipoSuspension: suspension.ID_TipoSuspension});
       this.uploaderFilesService.setFiles(files);
       this.filesChanged(files);
@@ -236,6 +238,8 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
         summary: 'Error al obtener documentos',
         message: e.detail.error.message.message
       });
+    }finally{
+      this.uploaderFilesService.setLoading(false);
     }
   }
 

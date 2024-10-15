@@ -29,12 +29,10 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
     private uploaderFilesService: UploaderFilesService,
 
   ){}
-  @Input() visibleUploader: boolean = false;
 
   reglamento: Reglamento = {};
   maxDate!: Date;
   namesCrud!: NamesCrud;
-  showUploader: boolean = false;
   private subscription: Subscription = new Subscription();
 
   get modeForm() {
@@ -59,20 +57,6 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
     };
 
     this.subscription.add(this.fbForm.statusChanges.subscribe(status => { this.reglamentosService.stateForm = status as StateValidatorForm;}));
-    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( from => {
-      if (from) {
-        if (from.context.component.name === 'reglamentos') {
-          this.filesChanged(from.files)
-        }
-      }
-    }));
-    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
-      if (from) {
-        if (from.context.component.name === 'reglamentos') {
-          this.downloadDoc(from.file)
-        }
-      }
-    }));
     this.subscription.add(
       this.reglamentosService.formUpdate$.subscribe( form => {
         if (form && form.mode){
@@ -90,7 +74,21 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
           }
         }
     }));
-    
+    this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( from => {
+      if (from) {
+        if (from.context.component.name === 'reglamentos') {
+          this.filesChanged(from.files)
+        }
+      }
+    }));
+    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
+      if (from) {
+        if (from.context.component.name === 'reglamentos') {
+          this.downloadDoc(from.file)
+        }
+      }
+    }));
+
     const currentYear = new Date().getFullYear();
     this.maxDate = new Date(currentYear, 11, 31);
   }
@@ -121,9 +119,8 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
   // Crear formulario (nueva entrada)
   createForm(resolve: Function, reject: Function){
     try {
-      this.resetForm();
       this.uploaderFilesService.setContext('create','mantenedores','reglamentos');
-      this.showUploader = true;
+      this.resetForm(); 
       resolve(true)
     } catch (e) {
       reject(e)
@@ -133,7 +130,6 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
   async showForm(resolve: Function, reject: Function){
     try {
       this.uploaderFilesService.setContext('show','mantenedores','reglamentos');
-      this.showUploader = true;
       this.fbForm.patchValue({...this.reglamento});
       this.fbForm.get('Descripcion_regla')?.disable();
       this.fbForm.get('vigencia')?.disable();
@@ -148,7 +144,6 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
   async editForm(resolve: Function, reject: Function){
     try {
       this.uploaderFilesService.setContext('edit','mantenedores','reglamentos');
-      this.showUploader = true;
       this.fbForm.patchValue({...this.reglamento});
       this.fbForm.get('Descripcion_regla')?.enable();
       this.fbForm.get('vigencia')?.enable();
@@ -237,7 +232,6 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
     this.fbForm.get('Descripcion_regla')?.enable();
     this.fbForm.get('anio')?.enable();
     this.fbForm.get('vigencia')?.enable();
-    this.showUploader = false;
     this.uploaderFilesService.setAction('reset');
     this.uploaderFilesService.enabledButtonSeleccionar();
     this.uploaderFilesService.resetValidatorFiles();
@@ -250,8 +244,9 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
   }
 
   async loadDocsWithBinary(reglamento: Reglamento){
-    try {    
-      const files = await this.reglamentosService.getDocumentosWithBinary(reglamento.Cod_reglamento!)  
+    try {  
+      this.uploaderFilesService.setLoading(true,true);  
+      const files = await this.reglamentosService.getDocumentosWithBinary(reglamento.Cod_reglamento!)        
       this.uploaderFilesService.setFiles(files);      
       this.filesChanged(files);
       return files
@@ -261,6 +256,8 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
         summary: 'Error al obtener documentos',
         message: e.detail.error.message.message
       });
+    }finally{
+      this.uploaderFilesService.setLoading(false); 
     }
   }
 

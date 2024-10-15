@@ -58,7 +58,23 @@
         </div>
     </div>
     <div class="formgrid grid">
-        <div class="field col-12 lg:col-3">
+
+        <div class="field col-12 lg:col-4">
+            <label><strong>Estado maestro *</strong></label>
+            <br>
+            <p-dropdown
+                [options]="estadosMaestros"
+                [style]="{ width: '100%', 'min-width': '100%' }"
+                formControlName="EstadoMaestro"
+                placeholder="Seleccione estado maestro"
+                optionLabel="Descripcion_EstadoMaestro"
+                (onChange)="onEstadoMaestroChange($event)"
+            >
+            </p-dropdown>
+            <app-form-control [control]="programasService.fbForm.controls['EstadoMaestro']" [validators]="['required']"></app-form-control>
+        </div>
+
+        <div class="field col-12 lg:col-4">
             <label><strong>¿Tiene graduación conjunta?</strong></label>
             <div class="flex flex-row justify-content-start flex-wrap">
                 <div class="flex align-items-center justify-content-center">
@@ -72,7 +88,7 @@
                 </div>
             </div>
         </div>
-        <div class="field col-12 lg:col-5">
+        <div class="field col-12 lg:col-4">
             <label><strong>Instituciones {{ showAsterisk ? '*' : '' }}</strong></label>
             <br>
             <p-multiSelect

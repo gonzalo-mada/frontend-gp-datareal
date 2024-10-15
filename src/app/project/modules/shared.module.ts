@@ -9,6 +9,7 @@ import { FileExtensionPipe } from '../tools/pipes/file-extension.pipe';
 // components base to gp
 import { FormIsvalidComponent } from 'src/app/base/components/form-isvalid/form-isvalid.component';
 import { FormControlComponent } from 'src/app/base/components/form-control/form-control.component';
+import { NgxSpinnerModule } from 'ngx-spinner';
 //components gp
 import { CardComponent } from '../components/card/card.component';
 import { MenuButtonsTableComponent } from '../components/menu-buttons-table/menu-buttons-table.component';
@@ -48,6 +49,8 @@ import { TableProgramasGradoAcademicoComponent } from '../components/tables/prog
 import { TableProgramasRexeComponent } from '../components/tables/programas/table-programas-rexe/table-programas-rexe.component';
 import { TableProgramasDirectorComponent } from '../components/tables/programas/table-programas-director/table-programas-director.component';
 import { TableProgramasDirectorAlternoComponent } from '../components/tables/programas/table-programas-director-alterno/table-programas-director-alterno.component';
+import { TableProgramasHistorialActividadComponent } from '../components/tables/programas/table-programas-historial-actividad/table-programas-historial-actividad.component';
+import { LoadinggpComponent } from '../components/loadinggp/loadinggp.component';
 
 
 const componentsGp = [
@@ -65,6 +68,7 @@ const componentsGp = [
   FormSuspensionComponent,
   FormJornadasComponent,
   FormModalidadesComponent,
+  LoadinggpComponent,
   MenuButtonsTableComponent,
   UploaderFilesComponent,
   StateFormComponent,
@@ -80,6 +84,7 @@ const componentsGp = [
   TableProgramasEstadosAcreditacionComponent,
   TableProgramasEstadoMaestroComponent,
   TableProgramasGradoAcademicoComponent,
+  TableProgramasHistorialActividadComponent,
   TableProgramasReglamentosComponent,
   TableProgramasRexeComponent,
   TableProgramasSuspensionesComponent,
@@ -107,6 +112,7 @@ const componentsGp = [
     //components base to gp
     FormIsvalidComponent,
     FormControlComponent,
+    NgxSpinnerModule
   ],
   exports: [
     CommonModule,

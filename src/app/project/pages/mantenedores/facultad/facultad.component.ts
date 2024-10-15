@@ -57,7 +57,8 @@ export class FacultadComponent implements OnInit, OnDestroy {
     files: [[], this.filesValidator.bind(this)]
   })
 
-  async ngOnInit( ) {
+  async ngOnInit() {
+    this.uploaderFilesService.setContext('init-component','mantenedores','facultad');
     this.namesCrud = {
       singular: 'facultad',
       plural: 'facultades',
@@ -249,7 +250,8 @@ export class FacultadComponent implements OnInit, OnDestroy {
   }
 
   async loadDocsWithBinary(facultad: Facultad){
-    try {     
+    try {    
+      this.uploaderFilesService.setLoading(true,true);  
       const files = await this.facultadService.getDocumentosWithBinary(facultad.Cod_facultad!)  
       this.uploaderFilesService.setFiles(files);     
       this.filesChanged(files);
@@ -260,6 +262,8 @@ export class FacultadComponent implements OnInit, OnDestroy {
         summary: 'Error al obtener documentos',
         message: e.detail.error.message.message
       });
+    }finally{
+      this.uploaderFilesService.setLoading(false);
     }
   }
 
@@ -287,8 +291,8 @@ export class FacultadComponent implements OnInit, OnDestroy {
 
   async showForm(){
     try {
-      this.reset();
       this.uploaderFilesService.setContext('show','mantenedores','facultad');
+      this.dialog = true;
       this.fbForm.patchValue({...this.facultad});
       this.fbForm.get('Estado_facu')?.disable();
       this.fbForm.get('Descripcion_facu')?.disable();
@@ -300,16 +304,16 @@ export class FacultadComponent implements OnInit, OnDestroy {
         message: e.message,
         }
       );
-    }finally{
-      this.dialog = true;
     }
   }
 
   async editForm(){
     try {
-      this.reset();
       this.uploaderFilesService.setContext('edit','mantenedores','facultad');
+      this.dialog = true;
       this.fbForm.patchValue({...this.facultad});
+      this.fbForm.get('Estado_facu')?.enable();
+      this.fbForm.get('Descripcion_facu')?.enable();
       this.facultad.Estado_facu === true ? this.showAsterisk = true : this.showAsterisk = false;
       await this.loadDocsWithBinary(this.facultad);
     } catch (e:any) {
@@ -319,8 +323,6 @@ export class FacultadComponent implements OnInit, OnDestroy {
         message: e.message,
         }
       );
-    } finally{
-      this.dialog = true;
     }
   }
 

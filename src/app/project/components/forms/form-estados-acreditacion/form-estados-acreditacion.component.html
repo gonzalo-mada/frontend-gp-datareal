@@ -112,7 +112,7 @@
         </div>
     </div>
 
-    <div formGroupName="tiempo">
+    <div formGroupName="tiempo" *ngIf="configModeService.config().isPostgrado">
         <div class="formgrid grid">
             <div class="field col-12 md:col-4">
                 <div class="flex flex-wrap">
@@ -120,24 +120,18 @@
                         <div class="mb-2">
                             <label><strong>{{ configModeService.config().isPostgrado ? 'Acreditado' : 'Certificado' }} desde {{ showAsterisk ? '*' : '' }}</strong></label>
                         </div>
-                        <ng-container *ngIf="modeForm != 'show'">
-                            <p-calendar
-                                formControlName="Fecha_inicio"
-                                dateFormat="dd-mm-yy"
-                                placeholder="Seleccione fecha de inicio..."
-                                [monthNavigator]="true" [yearNavigator]="true"
-                                class="w-full p-d-flex p-flex-column"
-                                readonlyInput="true"
-                                appendTo="body"
-                                [style]="{ width: '100%', 'min-width': '100%' }"
-                                dataType="string"
-                            ></p-calendar>
-                            <app-form-control [control]="fbForm.controls['Fecha_inicio']" [validators]="['required']"></app-form-control>
-                        </ng-container>
-                        <ng-container *ngIf="modeForm == 'show'">
-                            <input pInputText type="text" class="w-full mt-1" value="{{ estadoAcreditacion.tiempo!.Fecha_inicio == '01-01-1900' ? 'N/A' : estadoAcreditacion.tiempo!.Fecha_inicio }}" disabled />
-                        </ng-container>
-    
+                        <p-calendar
+                            formControlName="Fecha_inicio"
+                            dateFormat="dd-mm-yy"
+                            placeholder="Seleccione fecha de inicio..."
+                            [monthNavigator]="true" [yearNavigator]="true"
+                            class="w-full p-d-flex p-flex-column"
+                            readonlyInput="true"
+                            appendTo="body"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
+                            dataType="string"
+                        ></p-calendar>
+                        <app-form-control [control]="fbForm.controls['Fecha_inicio']" [validators]="['required']"></app-form-control>
                     </div>
                 </div>
             </div>
@@ -147,23 +141,18 @@
                         <div class="mb-2">
                             <label><strong>{{ configModeService.config().isPostgrado ? 'Acreditado' : 'Certificado' }} hasta {{ showAsterisk ? '*' : '' }}</strong></label>
                         </div>
-                        <ng-container *ngIf="modeForm != 'show' ">
-                            <p-calendar
-                                formControlName="Fecha_termino"
-                                dateFormat="dd-mm-yy"
-                                placeholder="Seleccione fecha de término..."
-                                [monthNavigator]="true" [yearNavigator]="true"
-                                class="w-full p-d-flex p-flex-column"
-                                readonlyInput="true"
-                                appendTo="body"
-                                [style]="{ width: '100%', 'min-width': '100%' }"
-                                dataType="string"
-                            ></p-calendar>
-                            <app-form-control [control]="fbForm.controls['Fecha_termino']" [validators]="['required']"></app-form-control>
-                        </ng-container>
-                        <ng-container *ngIf="modeForm == 'show'">
-                            <input pInputText type="text" class="w-full mt-1" value="{{ estadoAcreditacion.tiempo!.Fecha_termino == '01-01-1900' ? 'N/A' : estadoAcreditacion.tiempo!.Fecha_termino }}" disabled />
-                        </ng-container>
+                        <p-calendar
+                            formControlName="Fecha_termino"
+                            dateFormat="dd-mm-yy"
+                            placeholder="Seleccione fecha de término..."
+                            [monthNavigator]="true" [yearNavigator]="true"
+                            class="w-full p-d-flex p-flex-column"
+                            readonlyInput="true"
+                            appendTo="body"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
+                            dataType="string"
+                        ></p-calendar>
+                        <app-form-control [control]="fbForm.controls['Fecha_termino']" [validators]="['required']"></app-form-control>
                     </div>
                 </div>
             </div>
@@ -255,7 +244,7 @@
     </div>
     
     
-    <div class="grid" *ngIf="visibleUploader">
+    <div class="grid">
         <div class="col-12 ">
             <div class="mb-2">
                 <label>

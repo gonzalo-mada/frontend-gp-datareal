@@ -42,8 +42,8 @@ export class CampusService {
   }
 
   //servicios para mongodb
-  async getDocumentosWithBinary(Cod_campus: string, loading = true) {
-    return await this.invoker.httpInvoke({service:'campus/getDocumentosWithBinary' , loading: loading},{Cod_campus: Cod_campus});
+  async getDocumentosWithBinary(Cod_campus: string) {
+    return await this.invoker.httpInvoke(generateServiceMongo('campus/getDocumentosWithBinary',false),{Cod_campus: Cod_campus});
   }
 
   async getArchiveDoc(idDocumento: string) {

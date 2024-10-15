@@ -44,7 +44,7 @@
                     </p-button>
                 </ng-container>
                 <ng-template #modeShow>
-                    Estado de {{ configModeService.config().isPostgrado ? 'acreditación' : 'certificación' }} seleccionado
+                    <span class="font-light">Información y documentos adjuntos de: <strong>Estado de {{ configModeService.config().isPostgrado ? 'acreditación' : 'certificación' }}</strong> </span>
                 </ng-template>
                 
             </div>
@@ -59,14 +59,14 @@
                     <p-button 
                         pTooltip="Muestra la leyenda de íconos" 
                         icon="pi pi-question-circle"
-                        styleClass="p-button-sm p-button-warning mr-2 md:hidden" 
+                        styleClass="p-button-warning mr-2 md:hidden" 
                         (click)="op.toggle($event)">
                     </p-button>
                     <p-button 
                         pRipple 
                         label="Actualizar" 
                         icon="pi pi-refresh" 
-                        styleClass="p-button-sm p-button-info" 
+                        styleClass="p-button-info" 
                         (click)="refresh()">
                     </p-button>
                 </ng-container>
@@ -85,12 +85,12 @@
             <th style="width: 5rem"></th>
             <ng-container *ngFor="let col of cols">
                 <ng-container *ngIf="col.field !== 'accion'; else actionsColumn">
-                    <th *ngIf="showColumn(col.field)" pSortableColumn="{{ col.field }}">
+                    <th [ngStyle]="getColStyle(col)" *ngIf="showColumn(col.field)" pSortableColumn="{{ col.field }}"  >
                         {{ col.header }} <p-sortIcon *ngIf="col.field != 'tiempo.Fecha_inicio' && mode !== 'show' " field="{{ col.field }}"></p-sortIcon>
                       </th>
                 </ng-container>
                 <ng-template #actionsColumn>
-                    <th style="min-width: 10rem; ">{{ col.header }}</th>
+                    <th [ngStyle]="getColStyle(col)" *ngIf="mode !== 'show' " style="min-width: 10rem; ">{{ col.header }}</th>
                 </ng-template>
             </ng-container>
         </tr>
@@ -102,43 +102,38 @@
                 <p-button type="button" pRipple [pRowToggler]="data" [text]="true" [rounded]="true" [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
             </td>
             <td>
-                <span class="p-column-title">ID</span>
-                {{data.Cod_acreditacion}}
+                <span class="p-column-title">Identificador</span>
+                {{data.Sigla}}
             </td>
             <td *ngIf="configModeService.config().isPostgrado">
-                <span class="p-column-title">Acreditado</span>
+                <span class="p-column-title">Estado</span>
                 <div class="flex flex-row flex-wrap">
                     <div class="flex align-items-center justify-content-center">
                         <span [ngClass]="data.Acreditado == 'SI' ? 'estado-badge estado-activo' : 'estado-badge estado-desactivo'">
-                            {{ data.Acreditado == 'SI' ? 'si' : 'no' }}
+                            {{ data.Acreditado == 'SI' ? 'acreditado' : 'no acreditado' }}
                         </span>
                     </div>
                 </div>
-            </td>
 
-            <td *ngIf="!configModeService.config().isPostgrado">
-                <span class="p-column-title">Certificado</span>
-                <div class="flex flex-row flex-wrap">
-                    <div class="flex align-items-center justify-content-center">
-                        <span [ngClass]="data.Certificado == 'SI' ? 'estado-badge estado-activo' : 'estado-badge estado-desactivo'">
-                            {{ data.Certificado == 'SI' ? 'si' : 'no' }}
-                        </span>
-                    </div>
-                </div>
-            </td>
-
-            <td>
-                <span class="p-column-title">Fecha_inicio</span>
-                <ng-container *ngIf="data.tiempo.Fecha_inicio == '01-01-1900'">N/A</ng-container>
-                <ng-container *ngIf="data.tiempo.Fecha_inicio != '01-01-1900'">
-                    <span><strong>Desde:</strong> {{data.tiempo.Fecha_inicio}} </span><br>
-                    <span><strong>Hasta:</strong> {{data.tiempo.Fecha_termino}} </span>
+                <ng-container *ngIf="data.tiempo.Fecha_inicio !== '01-01-1900' && data.tiempo.Fecha_termino !== '01-01-1900' ">
+                    <span style="font-size: 0.8rem;">
+                        <strong>INICIO:</strong> {{data.tiempo.Fecha_inicio}} <br>
+                        <strong>TÉRMINO:</strong> {{data.tiempo.Fecha_termino}} <br>
+                        <strong>AÑOS:</strong> {{data.tiempo.Cantidad_anios}} años
+                        <strong></strong>
+                    </span>
                 </ng-container>
             </td>
 
-            <td>
-                <span class="p-column-title">Cantidad_anios</span>
-                {{data.tiempo.Cantidad_anios}} años
+            <td *ngIf="!configModeService.config().isPostgrado">
+                <span class="p-column-title">Estado</span>
+                <div class="flex flex-row flex-wrap">
+                    <div class="flex align-items-center justify-content-center">
+                        <span [ngClass]="data.Certificado == 'SI' ? 'estado-badge estado-activo' : 'estado-badge estado-desactivo'">
+                            {{ data.Certificado == 'SI' ? 'Certificado' : 'no Certificado' }}
+                        </span>
+                    </div>
+                </div>
             </td>
 
             <td *ngIf="configModeService.config().isPostgrado">
@@ -174,12 +169,11 @@
                 {{data.tiempo.Fecha_termino == '01-01-1900' ? 'N/A' : data.tiempo.Fecha_termino}}
             </td> -->
 
-            <td>
+            <td *ngIf="mode !== 'show'">
                 <div class="flex">
                     <p-button 
-                        [label]="mode === 'show' ? 'Seleccionado' : 'Seleccionar' "
+                    label="Seleccionar" 
                         styleClass="p-button-sm p-button-info mr-2" 
-                        [disabled]="mode === 'show' "
                         (click)="onClickSelectEstadoAcreditacion(data)" 
                     >
                     </p-button>
@@ -190,8 +184,8 @@
 
     <ng-template pTemplate="rowexpansion" let-data>
         <tr>
-            <td colspan="9" *ngIf="showUploader">
-                <h4>Documento(s) adjunto(s).</h4>
+            <td [attr.colspan]="mode !== 'show' ? 9 : 8">
+                <h4>Documentos adjuntos.</h4>
                 <app-uploader-files mode="show"></app-uploader-files>
             </td>
         </tr>
@@ -199,7 +193,7 @@
 
     <ng-template pTemplate="emptymessage">
         <tr>
-            <td [attr.colspan]="cols.length + 1">Sin registros</td>
+            <td [attr.colspan]="mode !== 'show' ? (cols.length + 1) : (cols.length)" >Sin registros</td>
         </tr>
     </ng-template>
 

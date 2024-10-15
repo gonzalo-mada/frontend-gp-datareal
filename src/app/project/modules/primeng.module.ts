@@ -26,6 +26,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { SidebarModule } from 'primeng/sidebar';
+import { SkeletonModule } from 'primeng/skeleton';
 import { StepperModule } from 'primeng/stepper';
 import { StepsModule } from 'primeng/steps';
 import { TabViewModule } from 'primeng/tabview';
@@ -53,6 +54,7 @@ const primeGp = [
   OverlayPanelModule,
   SelectButtonModule,
   SidebarModule,
+  SkeletonModule,
   StepsModule,
   StepperModule,
   TableModule,

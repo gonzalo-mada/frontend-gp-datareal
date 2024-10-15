@@ -33,7 +33,6 @@ export class TableProgramasReglamentosComponent implements OnInit, OnChanges, On
   globalFiltros: any[] = []
   dataKeyTable: string = '';
   expandedRows = {};
-  showUploader : boolean = false;
   private subscription: Subscription = new Subscription();
 
   ngOnInit(): void {
@@ -86,6 +85,7 @@ export class TableProgramasReglamentosComponent implements OnInit, OnChanges, On
 
   async onRowExpand(event: TableRowExpandEvent) {
     try {
+      this.uploaderFilesService.setLoading(true,true);
       this.uploaderFilesService.setContext('show','mantenedores','reglamentos');
       const files = await this.reglamentosService.getDocumentosWithBinary(event.data.Cod_reglamento);
       this.uploaderFilesService.setFiles(files);
@@ -97,13 +97,12 @@ export class TableProgramasReglamentosComponent implements OnInit, OnChanges, On
       }
     );
     }finally{
-      this.showUploader = true;
+      this.uploaderFilesService.setLoading(false);
     }
   }
 
   onRowCollapse(event: any){
     this.resetExpandedRows();
-    this.showUploader = false;
   }
 
 }

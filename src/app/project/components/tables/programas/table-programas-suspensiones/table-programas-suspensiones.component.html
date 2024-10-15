@@ -50,14 +50,14 @@
             <p-button 
                 pTooltip="Muestra la leyenda de íconos" 
                 icon="pi pi-question-circle"
-                styleClass="p-button-sm p-button-warning mr-2 md:hidden" 
+                styleClass="p-button-warning mr-2 md:hidden" 
                 (click)="op.toggle($event)">
             </p-button>
             <p-button 
                 pRipple 
                 label="Actualizar" 
                 icon="pi pi-refresh" 
-                styleClass="p-button-sm p-button-info" 
+                styleClass="p-button-info" 
                 (click)="refresh()">
             </p-button>
             </div>
@@ -106,7 +106,7 @@
     <ng-template pTemplate="rowexpansion" let-data>
         <tr>
             <td colspan="3">
-                <h4>Documento(s) adjunto(s).</h4>
+                <h4>Documentos adjuntos.</h4>
                 <app-uploader-files mode="show"></app-uploader-files>
             </td>
         </tr>

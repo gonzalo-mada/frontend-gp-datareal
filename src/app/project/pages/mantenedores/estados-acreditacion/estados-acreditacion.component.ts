@@ -5,12 +5,9 @@ import { Subscription } from 'rxjs';
 import { EstadosAcreditacionService } from '../../../services/estados-acreditacion.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
-import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 import { MenuButtonsTableService } from 'src/app/project/services/components/menu-buttons-table.service';
 import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
 import { generateMessage } from 'src/app/project/tools/utils/form.utils';
-import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
-import { Context } from 'src/app/project/models/shared/Context';
 
 @Component({
   selector: 'app-estado-acreditacion',
@@ -24,10 +21,8 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
     public estadosAcreditacionService: EstadosAcreditacionService,
     private errorTemplateHandler: ErrorTemplateHandler,
     private messageService: MessageService,
-    private commonUtils: CommonUtils,
     private menuButtonsTableService: MenuButtonsTableService,
     private tableCrudService: TableCrudService,
-    private uploaderFilesService: UploaderFilesService
   ){}
 
   estadosAcreditacion: EstadosAcreditacion[] = [];
@@ -78,7 +73,7 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
         }
     }))
     this.subscription.add(this.menuButtonsTableService.onClickDeleteSelected$.subscribe(() => this.openConfirmationDeleteSelected(this.tableCrudService.getSelectedRows()) ))
-    
+    this.menuButtonsTableService.setContext('estado-acreditacion','dialog');
   }
 
   ngOnDestroy(): void {
@@ -189,7 +184,7 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
         }
         this.reset();
       }
-    } catch (e:any) {     
+    } catch (e:any) {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
@@ -202,7 +197,6 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
   async createForm(){
     try {
       this.reset();
-      this.uploaderFilesService.setContext('create','mantenedores','estado-acreditacion');
       await new Promise((resolve,reject) => {
         this.estadosAcreditacionService.setModeForm('create', null, resolve, reject);
       })
@@ -222,7 +216,7 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
   async showForm(){
     try {
       this.reset();
-      this.uploaderFilesService.setContext('show','mantenedores','estado-acreditacion');
+      this.dialog = true;
       const data = this.estadoAcreditacion;
       await new Promise((resolve,reject) => {
         this.estadosAcreditacionService.setModeForm('show', data, resolve, reject);
@@ -235,7 +229,7 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
         }
       );
     }finally{
-      this.dialog = true;
+      
     }
 
   }
@@ -243,7 +237,6 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
   async editForm(){
     try {
       this.reset();
-      this.uploaderFilesService.setContext('edit','mantenedores','estado-acreditacion');
       const data = this.estadoAcreditacion;
       await new Promise((resolve,reject) => {
         this.estadosAcreditacionService.setModeForm('edit', data, resolve, reject);
@@ -261,9 +254,9 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
 
   }
 
-  reset() {
+
+  reset(){
     this.tableCrudService.resetSelectedRows();
-    this.uploaderFilesService.setAction('reset')
   }
 
   async openConfirmationDeleteSelected(data: any){

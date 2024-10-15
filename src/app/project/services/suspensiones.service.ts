@@ -50,7 +50,7 @@ export class SuspensionesService {
 
   //servicios para mongodb
   async getDocumentosWithBinary(params: any) {
-    return await this.invoker.httpInvoke(generateServiceMongo('suspensiones/getDocumentosWithBinary'),params);
+    return await this.invoker.httpInvoke(generateServiceMongo('suspensiones/getDocumentosWithBinary',false),params);
   }
 
   async getArchiveDoc(idDocumento: string) {

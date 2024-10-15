@@ -77,7 +77,8 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
       })
     );
     
-    this.menuButtonsTableService.setContext('reglamento', 'dialog');}
+    this.menuButtonsTableService.setContext('reglamentos', 'dialog');
+  }
   
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
@@ -123,7 +124,6 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
       this.reset();
     }
   }
-
 
   async updateReglamento() {
     try {
@@ -185,11 +185,10 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
     }
   }
 
-
   async createForm(){
     try {
       this.reset();
-      this.uploaderFilesService.setContext('create','mantenedores','reglamentos');
+      this.dialog = true;
       await new Promise((resolve,reject) => {
         this.reglamentosService.setModeForm('create', null, resolve, reject);
       })
@@ -200,15 +199,14 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
         message: e.message,
         }
       );
-    }finally{
-      this.dialog = true;
     }
 
   }
 
   async showForm(){
     try {
-      this.uploaderFilesService.setContext('show','mantenedores','reglamentos');
+      this.reset();
+      this.dialog = true;
       const data = this.reglamento;
       await new Promise((resolve,reject) => {
         this.reglamentosService.setModeForm('show', data, resolve, reject);
@@ -220,14 +218,13 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
         message: e.message,
         }
       );
-    }finally{
-      this.dialog = true;
     }
   }
 
   async editForm(){
     try {
-      this.uploaderFilesService.setContext('edit','mantenedores','reglamentos');
+      this.reset();
+      this.dialog = true;
       const data = this.reglamento;
       await new Promise((resolve,reject) => {
         this.reglamentosService.setModeForm('edit', data, resolve, reject);
@@ -239,14 +236,11 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
         message: e.message,
         }
       );
-    }finally{
-      this.dialog = true;
     }
   }
 
   reset() {
     this.tableCrudService.resetSelectedRows();
-    this.uploaderFilesService.setAction('reset')
   }
 
   async openConfirmationDeleteSelected(data: any){

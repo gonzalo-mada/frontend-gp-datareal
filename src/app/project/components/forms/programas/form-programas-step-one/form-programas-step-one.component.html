@@ -17,8 +17,8 @@
         </div>
         <div class="field col-12 lg:col-4">
             <label><strong>Grupo de correo en LDAP *</strong></label>
-            <input type="text" pInputText formControlName="Grupo_correo" maxlength="80" class="w-full" placeholder="Ingrese correo LDAP"/>
-            <app-form-control [control]="programasService.fbForm.controls['Grupo_correo']" [validators]="['required', 'num_y_letras']"></app-form-control>
+            <input type="email" pInputText formControlName="Grupo_correo" maxlength="80" class="w-full" placeholder="Ingrese correo LDAP"/>
+            <app-form-control [control]="programasService.fbForm.controls['Grupo_correo']" [validators]="['required', 'checkCorreoUV']"></app-form-control>
         </div>
     </div>
 
@@ -44,4 +44,24 @@
             <app-form-control [control]="programasService.fbForm.controls['Horas_totales']" [validators]="['required']"></app-form-control>
         </div>
     </div>
+
+    <div class="formgrid grid">
+        <div class="field col-12 lg:col-4">
+            <label><strong>Título *</strong></label>
+            <input type="text" pInputText formControlName="Titulo" maxlength="50" class="w-full" placeholder="Ingrese nombre de título"/>
+            <app-form-control [control]="programasService.fbForm.controls['Titulo']" [validators]="['required', 'num_y_letras']"></app-form-control>
+        </div>
+        <div class="field col-12 lg:col-4">
+            <label><strong>Grado académico *</strong></label>
+            <input type="text" pInputText formControlName="Grado_academico" maxlength="50" class="w-full" placeholder="Ingrese nombre de grado académico"/>
+            <app-form-control [control]="programasService.fbForm.controls['Grado_academico']" [validators]="['required', 'num_y_letras']"></app-form-control>
+        </div>
+        <div class="field col-12 lg:col-4">
+            <label><strong>REXE *</strong></label>
+            <input type="text" pInputText formControlName="REXE" maxlength="50" class="w-full" placeholder="Ingrese REXE del programa"/>
+            <app-form-control [control]="programasService.fbForm.controls['REXE']" [validators]="['required', 'num_o_letras']"></app-form-control>
+        </div>
+    </div>
+
+    
 </form>

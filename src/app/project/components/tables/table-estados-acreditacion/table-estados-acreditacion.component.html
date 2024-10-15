@@ -35,7 +35,7 @@
                 pRipple 
                 label="Actualizar" 
                 icon="pi pi-refresh" 
-                styleClass="p-button-sm p-button-info" 
+                styleClass="p-button-info" 
                 (click)="refresh()">
               </p-button>
             </div>
@@ -66,44 +66,41 @@
                 <p-tableCheckbox [value]="data"></p-tableCheckbox>
             </td>
             <td>
-                <span class="p-column-title">ID</span>
-                {{data.Cod_acreditacion}}
+                <span class="p-column-title">Identificador</span>
+                <span>
+                    {{data.Sigla}}
+                </span>
             </td>
             <td *ngIf="configModeService.config().isPostgrado">
-                <span class="p-column-title">Acreditado</span>
+                <span class="p-column-title">Estado</span>
                 <div class="flex flex-row flex-wrap">
                     <div class="flex align-items-center justify-content-center">
                         <span [ngClass]="data.Acreditado == 'SI' ? 'estado-badge estado-activo' : 'estado-badge estado-desactivo'">
-                            {{ data.Acreditado == 'SI' ? 'si' : 'no' }}
+                            {{ data.Acreditado == 'SI' ? 'acreditado' : 'no acreditado' }}
                         </span>
                     </div>
                 </div>
-            </td>
 
-            <td *ngIf="!configModeService.config().isPostgrado">
-                <span class="p-column-title">Certificado</span>
-                <div class="flex flex-row flex-wrap">
-                    <div class="flex align-items-center justify-content-center">
-                        <span [ngClass]="data.Certificado == 'SI' ? 'estado-badge estado-activo' : 'estado-badge estado-desactivo'">
-                            {{ data.Certificado == 'SI' ? 'si' : 'no' }}
-                        </span>
-                    </div>
-                </div>
-            </td>
-
-            <td>
-                <span class="p-column-title">Fecha_inicio</span>
-                <ng-container *ngIf="data.tiempo.Fecha_inicio == '01-01-1900' && data.tiempo.Fecha_termino == '01-01-1900' ">N/A</ng-container>
                 <ng-container *ngIf="data.tiempo.Fecha_inicio !== '01-01-1900' && data.tiempo.Fecha_termino !== '01-01-1900' ">
-                    <span *ngIf="!data.tiempo.Fecha_inicio || !data.tiempo.Fecha_termino"> N/A </span>
-                    <span *ngIf="data.tiempo.Fecha_inicio"><strong>Desde:</strong> {{data.tiempo.Fecha_inicio}} </span><br>
-                    <span *ngIf="data.tiempo.Fecha_termino"><strong>Hasta:</strong> {{data.tiempo.Fecha_termino}} </span>
+                    <span style="font-size: 0.8rem;">
+                        <strong>INICIO:</strong> {{data.tiempo.Fecha_inicio}} <br>
+                        <strong>TÉRMINO:</strong> {{data.tiempo.Fecha_termino}} <br>
+                        <strong>AÑOS:</strong> {{data.tiempo.Cantidad_anios}} años
+                        <strong></strong>
+                    </span>
                 </ng-container>
             </td>
 
-            <td>
-                <span class="p-column-title">Cantidad_anios</span>
-                {{data.tiempo.Cantidad_anios == null ? '0' : data.tiempo.Cantidad_anios}} años
+            <td *ngIf="!configModeService.config().isPostgrado">
+                <span class="p-column-title">Estado</span>
+                <div class="flex flex-row flex-wrap">
+                    <div class="flex align-items-center justify-content-center">
+                        <span [ngClass]="data.Certificado == 'SI' ? 'estado-badge estado-activo' : 'estado-badge estado-desactivo'">
+                            {{ data.Certificado == 'SI' ? 'Certificado' : 'no Certificado' }}
+                        </span>
+                    </div>
+                </div>
+                
             </td>
 
             <td *ngIf="configModeService.config().isPostgrado">

@@ -107,7 +107,7 @@ export class SuspensionComponent implements OnInit, OnDestroy {
           severity: 'success',
           detail: actionForm.messageGp
         });
-        this.reset();
+        
       }
     } catch (e: any) {
       this.errorTemplateHandler.processError(
@@ -117,7 +117,8 @@ export class SuspensionComponent implements OnInit, OnDestroy {
           message: e.detail.error.message.message,
         });
     }finally{
-      this.dialog = true
+      this.dialog = true;
+      this.reset();
     }
   }
 
@@ -134,7 +135,7 @@ export class SuspensionComponent implements OnInit, OnDestroy {
           severity: 'success',
           detail: actionForm.messageGp
         });
-        this.reset();
+        
       }
     } catch (e:any) {
       this.errorTemplateHandler.processError(
@@ -145,6 +146,7 @@ export class SuspensionComponent implements OnInit, OnDestroy {
       });
     }finally{
       this.dialog = true
+      this.reset();
     }
   }
 
@@ -182,7 +184,7 @@ export class SuspensionComponent implements OnInit, OnDestroy {
   async createForm(){
     try {
       this.reset();
-      this.uploaderFilesService.setContext('create','mantenedores','suspension');
+      this.dialog = true;
       await new Promise((resolve,reject) => {
         this.suspensionesService.setModeForm('create',null,resolve,reject)
       })
@@ -194,14 +196,13 @@ export class SuspensionComponent implements OnInit, OnDestroy {
           message: e.error,
         }
       );
-    }finally{
-      this.dialog = true;
     }
   }
 
   async showForm(){
     try {
-      this.uploaderFilesService.setContext('show','mantenedores','suspension');
+      this.reset();
+      this.dialog = true;
       const data = this.suspension;
       await new Promise((resolve, reject) => {
         this.suspensionesService.setModeForm('show',data,resolve,reject);
@@ -215,14 +216,12 @@ export class SuspensionComponent implements OnInit, OnDestroy {
         }
       );
     }
-    finally{
-      this.dialog = true;
-    }
   }
 
   async editForm(){
     try {
-      this.uploaderFilesService.setContext('edit','mantenedores','suspension');
+      this.reset();
+      this.dialog = true;
       const data = this.suspension;
       await new Promise((resolve, reject) => {
         this.suspensionesService.setModeForm('edit',data,resolve,reject);
@@ -235,14 +234,11 @@ export class SuspensionComponent implements OnInit, OnDestroy {
           message: e.error,
         }
       );
-    }finally{
-      this.dialog = true;
     }
   }
 
   reset() {
     this.tableCrudService.resetSelectedRows();
-    this.uploaderFilesService.setAction('reset')
   }
 
   async openConfirmationDeleteSelected(data: any){

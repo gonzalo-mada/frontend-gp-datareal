@@ -58,6 +58,7 @@ export class CampusComponent implements OnInit, OnDestroy {
   })
 
   async ngOnInit() {
+    this.uploaderFilesService.setContext('init-component','mantenedores','campus');
     this.namesCrud = {
       singular: 'campus',
       plural: 'campus',
@@ -224,6 +225,7 @@ export class CampusComponent implements OnInit, OnDestroy {
 
   async deleteCampus(campusToDelete: Campus[]){
     try {
+      this.uploaderFilesService.setContext('delete','mantenedores','campus');
       const deleted:{ dataWasDeleted: boolean, dataDeleted: [] } = await this.campusService.deleteCampusService(campusToDelete);
       const message = mergeNames(null,deleted.dataDeleted,false,'Descripcion_campus')
       if ( deleted.dataWasDeleted ) {
@@ -253,9 +255,10 @@ export class CampusComponent implements OnInit, OnDestroy {
     } 
   }
 
-  async loadDocsWithBinary(campus: Campus, loading = true ){
-    try {     
-      const files = await this.campusService.getDocumentosWithBinary(campus.Cod_campus! , loading)      
+  async loadDocsWithBinary(campus: Campus){
+    try {    
+      this.uploaderFilesService.setLoading(true,true); 
+      const files = await this.campusService.getDocumentosWithBinary(campus.Cod_campus!)      
       this.uploaderFilesService.setFiles(files);     
       this.filesChanged(files);
       return files
@@ -265,6 +268,8 @@ export class CampusComponent implements OnInit, OnDestroy {
         summary: 'Error al obtener documentos',
         message: e.message,
       });
+    }finally{
+      this.uploaderFilesService.setLoading(false);
     }
   }
 
@@ -292,8 +297,8 @@ export class CampusComponent implements OnInit, OnDestroy {
 
   async showForm(){
     try {
-      this.reset();
       this.uploaderFilesService.setContext('show','mantenedores','campus');
+      this.dialog = true;
       this.fbForm.patchValue({...this.campus});
       this.fbForm.get('Estado_campus')?.disable();
       this.fbForm.get('Descripcion_campus')?.disable();
@@ -305,19 +310,18 @@ export class CampusComponent implements OnInit, OnDestroy {
         message: e.message,
         }
       );
-    }finally{
-      this.dialog = true;
     }
   }
 
   async editForm(){
     try {
-      this.reset();
       this.uploaderFilesService.setContext('edit','mantenedores','campus');
+      this.dialog = true;
       this.fbForm.patchValue({...this.campus});
+      this.fbForm.get('Estado_campus')?.enable();
+      this.fbForm.get('Descripcion_campus')?.enable();
       this.campus.Estado_campus === true ? this.showAsterisk = true : this.showAsterisk = false;
       await this.loadDocsWithBinary(this.campus);
-      
     } catch (e:any) {
       this.errorTemplateHandler.processError(e, {
         notifyMethod: 'alert',
@@ -325,8 +329,6 @@ export class CampusComponent implements OnInit, OnDestroy {
         message: e.message,
         }
       );
-    } finally{
-      this.dialog = true;
     }
   }
 

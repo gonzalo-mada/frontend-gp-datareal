@@ -44,7 +44,7 @@
                     </p-button>
                 </ng-container>
                 <ng-template #modeShow>
-                    Reglamento seleccionado
+                    <span class="font-light">Información y documentos adjuntos de: <strong>Reglamento</strong> </span>
                 </ng-template>
                 
             </div>
@@ -59,14 +59,14 @@
                     <p-button 
                         pTooltip="Muestra la leyenda de íconos" 
                         icon="pi pi-question-circle"
-                        styleClass="p-button-sm p-button-warning mr-2 md:hidden" 
+                        styleClass="p-button-warning mr-2 md:hidden" 
                         (click)="op.toggle($event)">
                     </p-button>
                     <p-button 
                         pRipple 
                         label="Actualizar" 
                         icon="pi pi-refresh" 
-                        styleClass="p-button-sm p-button-info" 
+                        styleClass="p-button-info" 
                         (click)="refresh()">
                     </p-button>
                 </ng-container>
@@ -90,7 +90,7 @@
                     </th>
                 </ng-container>
                 <ng-template #actionsColumn>
-                    <th style="min-width: 10rem; ">{{ col.header }}</th>
+                    <th *ngIf="mode !== 'show' " style="min-width: 10rem; ">{{ col.header }}</th>
                 </ng-template>
             </ng-container>
         </tr>
@@ -101,11 +101,11 @@
             <td>
                 <p-button type="button" pRipple [pRowToggler]="data" [text]="true" [rounded]="true" [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
             </td>
-            <td style="width: 33%;">
+            <td style="width: 50%;">
                 <span class="p-column-title">Nombre</span>
                 {{data.Descripcion_regla}}
             </td>
-            <td style="width:33%; min-width:10rem;">
+            <td style="width:25%; min-width:10rem;">
                 <span class="p-column-title">Vigencia</span>
                 <div class="flex flex-row flex-wrap">
                     <div class="flex align-items-center justify-content-center">
@@ -115,16 +115,15 @@
                     </div>
                 </div>
             </td>
-            <td style="width: 33%;">
+            <td style="width: 25%;">
                 <span class="p-column-title">Año</span>
                 {{data.anio}}
             </td>
-            <td>
+            <td *ngIf="mode !== 'show' ">
                 <div class="flex">
                     <p-button 
-                        [label]="mode === 'show' ? 'Seleccionado' : 'Seleccionar' " 
-                        styleClass="p-button-sm p-button-info mr-2"
-                        [disabled]="mode === 'show' " 
+                        label="Seleccionar" 
+                        styleClass="p-button-sm p-button-info mr-2" 
                         (click)="onClickSelectSuspension(data)" 
                     >
                     </p-button>
@@ -135,8 +134,8 @@
 
     <ng-template pTemplate="rowexpansion" let-data>
         <tr>
-            <td colspan="5" *ngIf="showUploader">
-                <h4>Documento(s) adjunto(s).</h4>
+            <td [attr.colspan]="mode !== 'show' ? 5 : 4" >
+                <h4>Documentos adjuntos.</h4>
                 <app-uploader-files mode="show"></app-uploader-files>
             </td>
         </tr>
@@ -144,7 +143,7 @@
 
     <ng-template pTemplate="emptymessage">
         <tr>
-            <td [attr.colspan]="cols.length + 1">Sin registros</td>
+            <td [attr.colspan]="mode !== 'show' ? (cols.length + 1) : (cols.length)" >Sin registros</td>
         </tr>
     </ng-template>
 

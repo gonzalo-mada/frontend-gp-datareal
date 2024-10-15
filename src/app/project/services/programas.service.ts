@@ -29,7 +29,7 @@ export class ProgramasService {
 
   modeForm: ModeForm = undefined;
   stateForm: StateValidatorForm = undefined;
-  disposition: boolean = false;
+  disposition: boolean = true;
   showAsterisk: boolean = false;
   activeIndexStateForm: number | undefined = 0;
   keyPopups: string = 'programas'
@@ -62,7 +62,7 @@ export class ProgramasService {
 
   public fbForm: FormGroup;
   directorSelected!: Director;
-  directorAlternoSelected!: Director
+  directorAlternoSelected!: Director;
   reglamentoSelected: string = '';
   estadoMaestroSelected: string = '';
   estadoAcreditacionSelected: string = '';
@@ -78,6 +78,7 @@ export class ProgramasService {
           case 'Director': this.filesChanged(from.files, 'Director'); break;
           case 'Director alterno': this.filesChanged(from.files, 'Director alterno'); break;
           case 'Estado maestro': this.filesChanged(from.files, 'Estado maestro'); break; 
+          case 'Maestro': this.filesChanged(from.files, 'Maestro'); break; 
           default:
             break;
         }
@@ -87,37 +88,34 @@ export class ProgramasService {
       //paso 1
       Centro_costo: ['', [Validators.required]],
       Nombre_programa: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
-      Grupo_correo: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
+      Grupo_correo: ['', [Validators.required, GPValidator.checkCorreoUV()]],
       Cod_Programa: ['', [Validators.required]],
       Codigo_SIES: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
       Creditos_totales: ['', [Validators.required]],
       Horas_totales: ['', [Validators.required]],
+      Titulo: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
+      Grado_academico: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
+      REXE: ['', [Validators.required, GPValidator.regexPattern('num_o_letras')]],
       
       //paso 2
       Tipo_programa: ['', [Validators.required]],
       Campus: ['', [Validators.required]],
       Unidad_academica: ['', [Validators.required]],
+      EstadoMaestro: ['', [Validators.required]],
+      Cod_EstadoMaestro: ['', [Validators.required]],
       Graduacion_Conjunta_Switch: [false],
       Instituciones: [{value:'', disabled: true}, [Validators.required]],
 
       //paso 3 
-      Titulo: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
-      files_titulo: [[], this.filesValidator('files_titulo')],
-      Grado_academico: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
-      files_gradoacad: [[], this.filesValidator('files_gradoacad')],
-      REXE: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
-      files_rexe: [[], this.filesValidator('files_rexe')],
       Cod_Reglamento: ['', [Validators.required]],
       Director: ['', [Validators.required, RutValidator.rut]],
       Director_selected: ['', [Validators.required]],
-      files_director: [[], this.filesValidator('files_director')],
       Director_alterno: ['', [Validators.required, RutValidator.rut]],
       DirectorAlterno_selected: ['', [Validators.required]],
-      files_directorAlterno: [[], this.filesValidator('files_directorAlterno')],
-      EstadoMaestro: ['', [Validators.required]],
-      Cod_EstadoMaestro: ['', [Validators.required]],
-      files_estadomaestro: [[], this.filesValidator('files_estadomaestro')],
       Cod_acreditacion: ['', [Validators.required]],
+
+      //file maestro
+      file_maestro: [[], this.filesValidator('file_maestro')],
     });
 
   }
@@ -130,7 +128,10 @@ export class ProgramasService {
           this.fbForm.get('Cod_Programa')!.invalid || 
           this.fbForm.get('Codigo_SIES')!.invalid || 
           this.fbForm.get('Creditos_totales')!.invalid || 
-          this.fbForm.get('Horas_totales')!.invalid 
+          this.fbForm.get('Horas_totales')!.invalid ||
+          this.fbForm.get('Titulo')!.invalid ||
+          this.fbForm.get('Grado_academico')!.invalid || 
+          this.fbForm.get('REXE')!.invalid 
         ) {
       return false;
     } else {
@@ -143,6 +144,7 @@ export class ProgramasService {
           this.fbForm.get('Tipo_programa')!.invalid || 
           this.fbForm.get('Campus')!.invalid || 
           this.fbForm.get('Unidad_academica')!.invalid || 
+          this.fbForm.get('Cod_EstadoMaestro')!.invalid || 
           this.fbForm.get('Instituciones')!.invalid 
         ) {
       return false;
@@ -153,19 +155,9 @@ export class ProgramasService {
 
   get stateStepThree() {
     if (
-          this.fbForm.get('Titulo')!.invalid || 
-          this.fbForm.get('files_titulo')!.invalid || 
-          this.fbForm.get('Grado_academico')!.invalid || 
-          this.fbForm.get('files_gradoacad')!.invalid || 
-          this.fbForm.get('REXE')!.invalid || 
-          this.fbForm.get('files_rexe')!.invalid || 
           this.fbForm.get('Cod_Reglamento')!.invalid || 
           this.fbForm.get('Director_selected')!.invalid || 
-          this.fbForm.get('files_director')!.invalid || 
           this.fbForm.get('DirectorAlterno_selected')!.invalid || 
-          this.fbForm.get('files_directorAlterno')!.invalid || 
-          this.fbForm.get('Cod_EstadoMaestro')!.invalid || 
-          this.fbForm.get('files_estadomaestro')!.invalid || 
           this.fbForm.get('Cod_acreditacion')!.invalid
         ) {
       return false;
@@ -174,11 +166,19 @@ export class ProgramasService {
     }
   }
 
-  get stateFormPrograma() {
-    return this.stateStepOne && this.stateStepTwo && this.stateStepThree;
+  get stateFileMaestro(){
+    if (this.fbForm.get('file_maestro')!.invalid) {
+      return false;
+    }else{
+      return true;
+    }
   }
 
-  filesValidator(fileKey: 'files_titulo' | 'files_gradoacad' | 'files_rexe' | 'files_director' | 'files_directorAlterno' | 'files_estadomaestro' ) {
+  get stateFormPrograma() {
+    return this.stateStepOne && this.stateStepTwo && this.stateStepThree && this.stateFileMaestro;
+  }
+
+  filesValidator(fileKey: 'files_titulo' | 'files_gradoacad' | 'files_rexe' | 'files_director' | 'files_directorAlterno' | 'files_estadomaestro' | 'file_maestro' ) {
     return (control: AbstractControl): { [key: string]: boolean } | null => {
       const formGroup = control.parent as FormGroup;
       
@@ -223,6 +223,10 @@ export class ProgramasService {
       case 'Estado maestro':
         this.fbForm.patchValue({ files_estadomaestro: files });
         this.fbForm.controls['files_estadomaestro'].updateValueAndValidity();
+      break;
+      case 'Maestro':
+        this.fbForm.patchValue({ file_maestro: files });
+        this.fbForm.controls['file_maestro'].updateValueAndValidity();
       break;
     }
   }
@@ -319,7 +323,49 @@ export class ProgramasService {
   }
 
   resetFormPrograma(){
-    this.fbForm.reset();
+    this.resetFormProgramaCreate();
+    this.activeIndexStateForm = 0;
+    // this.fbForm.clearValidators();
+    this.fbForm.enable();
+    this.fbForm.get('Instituciones')?.disable();
+    
+  }
+
+  resetFormProgramaCreate(){
+    this.fbForm.reset({
+      Centro_costo: '',
+      Nombre_programa: '',
+      Grupo_correo: '',
+      Cod_Programa: '',
+      Codigo_SIES: '',
+      Creditos_totales: '',
+      Horas_totales: '',
+      Titulo: '',
+      Grado_academico: '',
+      REXE: '',
+      
+      Tipo_programa: '',
+      Campus: '',
+      Unidad_academica: '',
+      EstadoMaestro: '',
+      Cod_EstadoMaestro: '',
+      Graduacion_Conjunta_Switch: false,
+      Instituciones: {value:'', disabled: true},
+
+      Cod_Reglamento: '',
+      Director: '',
+      Director_selected: '',
+      Director_alterno: '',
+      DirectorAlterno_selected: '',
+      Cod_acreditacion: '',
+
+      file_maestro: []
+    })
+    this.directorSelected = {nombre: '', rut: ''};
+    this.directorAlternoSelected = {nombre: '', rut: ''};
+    this.reglamentoSelected = '';
+    this.estadoMaestroSelected = '';
+    this.estadoAcreditacionSelected = '';
   }
 
 
@@ -353,12 +399,21 @@ export class ProgramasService {
     return await this.invoker.httpInvoke({service: 'programas/getInstitucionesSelected', loading: loading}, params);
   }
 
+  async getLogPrograma(params: any, loading = true){
+    return await this.invoker.httpInvoke({service: 'programas/getLogPrograma', loading: loading}, params);
+  }
+
   async getProgramas(){
     return await this.invoker.httpInvoke('programas/getProgramas');
   }
 
-  async getPrograma(params: any){
-    return await this.invoker.httpInvoke(generateServiceMongo('programas/getPrograma'),params);
+  async getPrograma(params: any, loading = true){
+    return await this.invoker.httpInvoke({
+      service: 'programas/getPrograma',
+      loading: loading,
+      retry: 0,
+      timeout: 30000
+    },params);
   }
 
   async getEstadosMaestros(loading = true){
@@ -369,12 +424,18 @@ export class ProgramasService {
     return await this.invoker.httpInvoke({service: 'estados_acreditacion/getEstadosAcreditacion', loading: loading});
   }
 
-  async getArchiveDoc(idDocumento: string, from: 'titulo' | 'REXE' | 'gradoAcad' | 'estadoMaestro') {
+  async getArchiveDoc(idDocumento: string, from: string) {
     return await this.invoker.httpInvokeReport('programas/getArchiveDoc','pdf',{id: idDocumento, from: from});
   }
 
-  async getDocumentosWithBinary(cod_programa: number, from: 'titulo' | 'REXE' | 'grado_academico' | 'estado_maestro' | 'director' | 'directorAlterno') {
-    return await this.invoker.httpInvoke(generateServiceMongo('programas/getDocumentosWithBinary'),{Cod_Programa: cod_programa , from: from});
+  async getDocumentosWithBinary(cod_programa: number, from: 'titulo' | 'REXE' | 'grado_academico' | 'estado_maestro' | 'director' | 'directorAlterno' | 'maestro', loading = true) {
+    // return await this.invoker.httpInvoke(generateServiceMongo('programas/getDocumentosWithBinary'),{Cod_Programa: cod_programa , from: from});
+    return await this.invoker.httpInvoke({
+      service: 'programas/getDocumentosWithBinary',
+      loading: loading,
+      retry: 0,
+      timeout: 30000
+    },{Cod_Programa: cod_programa , from: from});
   }
 
   async insertProgramaService(params: any){

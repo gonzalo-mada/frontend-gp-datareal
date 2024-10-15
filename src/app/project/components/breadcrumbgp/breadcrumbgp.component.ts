@@ -54,7 +54,7 @@ export class BreadcrumbgpComponent implements OnInit {
             if (url.includes(item.metodo)) {
               
               breadcrumbItems.push({
-                label: menuActive.descripcion,
+                label: menuActive.nombre,
                 route: '/'+menuActive.metodo
               });
               breadcrumbItems.push({

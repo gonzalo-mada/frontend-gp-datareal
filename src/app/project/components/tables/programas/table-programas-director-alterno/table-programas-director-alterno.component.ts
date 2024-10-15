@@ -25,7 +25,6 @@ export class TableProgramasDirectorAlternoComponent implements OnInit, OnDestroy
 
   dataKeyTable: string = '';
   expandedRows = {};
-  showUploader : boolean = false;
   private subscription: Subscription = new Subscription();
 
   ngOnInit(): void {
@@ -45,8 +44,9 @@ export class TableProgramasDirectorAlternoComponent implements OnInit, OnDestroy
 
   async onRowExpand(event: TableRowExpandEvent) {
     try {
+      this.uploaderFilesService.setLoading(true,true);
       const cod_programa = this.programasService.fbForm.get('Cod_Programa')!.value
-      this.uploaderFilesService.setContext('show','mantenedores','estado-acreditacion');
+      this.uploaderFilesService.setContext('show','programa','ver-programa','Director alterno');
       const files = await this.programasService.getDocumentosWithBinary(parseInt(cod_programa),'directorAlterno');
       this.uploaderFilesService.setFiles(files);
     } catch (e:any) {
@@ -57,12 +57,11 @@ export class TableProgramasDirectorAlternoComponent implements OnInit, OnDestroy
       }
     );
     }finally{
-      this.showUploader = true;
+      this.uploaderFilesService.setLoading(false);
     }
   }
 
   onRowCollapse(event: any){
     this.resetExpandedRows();
-    this.showUploader = false;
   }
 }

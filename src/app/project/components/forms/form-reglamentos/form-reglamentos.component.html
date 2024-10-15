@@ -5,7 +5,7 @@
 </div>
 <form [formGroup]="fbForm">
     <div class="formgrid grid">
-        <div class="col-12 lg:col-9">
+        <div class="col-12">
             <div class="field">
                 <label><strong>Nombre {{ modeForm !== 'show' ? '*' : '' }}</strong></label>
                 <input type="text" pInputText formControlName="Descripcion_regla" maxlength="50"
@@ -15,8 +15,10 @@
                     [validators]="['required', 'num_y_letras']"></app-form-control>
             </div>
         </div>
-        <div class="col-12 lg:col-3">
-            <div class="flex flex-wrap justify-content-start lg:justify-content-center align-items-center">
+    </div>
+    <div class="formgrid grid">
+        <div class="col-12 md:col-2">
+            <div class="flex flex-wrap justify-content-start">
                 <div class="field">
                     <label for="Estado"><strong>¿Está vigente?</strong></label>
                     <br>
@@ -36,34 +38,32 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="formgrid grid">
         <div class="field col-12 md:col-4">
             <div class="flex flex-wrap">
                 <div class="w-full">
                     <div class="mb-2">
                         <label><strong>Año {{ modeForm !== 'show' ? '*' : '' }}</strong></label>
                     </div>
+                    <ng-container *ngIf="modeForm !== 'show' ">
+                        <p-calendar 
+                            formControlName="anio" 
+                            placeholder="Seleccione año" 
+                            view="year" 
+                            dateFormat="yy" 
+                            [maxDate]="maxDate"
+                            dataType="string"
+                        >
+                        </p-calendar>
+                        <app-form-control [control]="fbForm.controls['anio']" [validators]="['required']"></app-form-control>
+                    </ng-container>
+                    <ng-container *ngIf="modeForm == 'show'">
+                        <input pInputText type="text" class="w-full mt-1" value="{{ reglamento.anio  }}" disabled />
+                    </ng-container>
                 </div>
-                <ng-container *ngIf="modeForm !== 'show' ">
-                    <p-calendar 
-                        formControlName="anio" 
-                        placeholder="Seleccione año" 
-                        view="year" 
-                        dateFormat="yy" 
-                        [maxDate]="maxDate"
-                        dataType="string"
-                    >
-                    </p-calendar>
-                    <app-form-control [control]="fbForm.controls['anio']" [validators]="['required']"></app-form-control>
-                </ng-container>
-                <ng-container *ngIf="modeForm == 'show'">
-                    <input pInputText type="text" class="w-full mt-1" value="{{ reglamento.anio  }}" disabled />
-                </ng-container>
             </div>
         </div>
     </div>
-    <div class="grid" *ngIf="visibleUploader">
+    <div class="grid">
         <div class="col-12 ">
             <div class="mb-2">
                 <label>

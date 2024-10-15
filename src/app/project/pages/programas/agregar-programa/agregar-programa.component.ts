@@ -53,32 +53,20 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
     };
   }
   
-  tiposProgramas: any[] = [];
-  campus: any[] = [];
-  unidadesAcademicas: any[] = [];
   directores: any[] = [];
   directoresAlternos: any[] = [];
   estadosAcreditacion: any[] = [];
-  estadosMaestros: EstadoMaestro[] = [];
-  instituciones: any[] = [];
+  
   suspensiones: Suspension[] = [];
   reglamentos: Reglamento[] = [];
-  directorSelected: string = '';
-  directorAlternoSelected: string = '';
   showDialogDocs: boolean = false;
   showDialogEstadoAcreditacion: boolean = false;
   showSuspension : boolean = false;
   newSuspensionDialog: boolean = false;
   newReglamentoDialog: boolean = false;
   showAsterisk: boolean = false;
-  keyPopups: string = 'programa'
-  estadoAcreditacion! : EstadosAcreditacion;
-  estadoMaestroSelected : string = '';
-  reglamentoSelected: string = '';
-  showUploader: boolean = false;
   namesCrud!: NamesCrud;
   private subscription: Subscription = new Subscription();
-
 
 
   ngOnInit(): void {
@@ -90,25 +78,13 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
       genero: 'masculino'
     };
     this.getEstadosAcreditacion();
-    this.getEstadosMaestros();
-    this.getSuspensiones();
+    // this.getSuspensiones();
     this.getReglamentos();
     this.subscription.add(this.programasService.buttonRefreshTableEA$.subscribe( () => {this.getEstadosAcreditacion()}))
     this.subscription.add(this.programasService.buttonRefreshTableReglamento$.subscribe( () => {this.getReglamentos()}))
-    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe( from => {
-      if (from) {
-        switch (from.context.component.name) {
-          case 'suspension': this.downloadDocSuspension(from.file); break;
-          case 'estado-acreditacion': this.downloadDocEA(from.file); break;
-          case 'reglamentos': this.downloadDocReglamento(from.file); break;
-          default: break;
-        }
-      }
-      
-    }))
 
     this.programasService.setModeCrud('create');
-    // this.programasService.resetFormPrograma();
+    this.programasService.resetFormPrograma();
 
   }
 
@@ -124,18 +100,6 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
         message: 'Hubo un error al obtener estados de acreditación. Intente nuevamente.',
-      });
-    }
-  }
-
-  async getEstadosMaestros(){
-    try {
-      this.estadosMaestros = await this.programasService.getEstadosMaestros();
-      this.estadosMaestros = this.estadosMaestros.filter( e => e.Cod_EstadoMaestro !== 2 )
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener estados maestros. Intente nuevamente.',
       });
     }
   }
@@ -162,7 +126,6 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
     }
   }
 
-
   async searchDirector(tipo: string){
     try {
       if (tipo === 'director') {
@@ -174,8 +137,6 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
         const rut_director = this.programasService.fbForm.get('Director_alterno')!.value.split('-')
         this.directoresAlternos = await this.programasService.getDirector({rut: parseInt(rut_director[0])});
       }
-
-
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
@@ -186,29 +147,32 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
     
   }
 
-
   chooseDocs(label: LabelComponent){
 
     this.showDialogDocs = true;
+    this.tableCrudService.emitResetExpandedRowsTable();
     switch (label) {
-      case 'Título':
+      case 'Maestro':
         this.uploaderFilesService.setContext('select','programa','agregar-programa', label)
       break;
-      case 'Grado académico':
-        this.uploaderFilesService.setContext('select','programa','agregar-programa', label);
-      break;
-      case 'REXE':
-        this.uploaderFilesService.setContext('select','programa','agregar-programa', label);
-      break;
-      case 'Director':
-        this.uploaderFilesService.setContext('select','programa','agregar-programa', label);
-      break;
-      case 'Director alterno':
-        this.uploaderFilesService.setContext('select','programa','agregar-programa', label);
-      break;
-      case 'Estado maestro':
-        this.uploaderFilesService.setContext('select','programa','agregar-programa', label);
-      break;
+      // case 'Título':
+      //   this.uploaderFilesService.setContext('select','programa','agregar-programa', label)
+      // break;
+      // case 'Grado académico':
+      //   this.uploaderFilesService.setContext('select','programa','agregar-programa', label);
+      // break;
+      // case 'REXE':
+      //   this.uploaderFilesService.setContext('select','programa','agregar-programa', label);
+      // break;
+      // case 'Director':
+      //   this.uploaderFilesService.setContext('select','programa','agregar-programa', label);
+      // break;
+      // case 'Director alterno':
+      //   this.uploaderFilesService.setContext('select','programa','agregar-programa', label);
+      // break;
+      // case 'Estado maestro':
+      //   this.uploaderFilesService.setContext('select','programa','agregar-programa', label);
+      // break;
     }
     
   }
@@ -216,6 +180,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
   async addNewEstadoAcreditacion(){
     try {
       this.showDialogEstadoAcreditacion = true;
+      this.tableCrudService.emitResetExpandedRowsTable();
       await new Promise((resolve,reject) => {
         this.estadosAcreditacionService.setModeForm('create', null, resolve, reject);
       })
@@ -240,7 +205,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
         //insert exitoso
         this.getEstadosAcreditacion();
         this.messageService.add({
-          key: this.keyPopups,
+          key: this.programasService.keyPopups,
           severity: 'success',
           detail: result.messageGp
         });
@@ -267,6 +232,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
   async addNewReglamento(){
     try {
       this.newReglamentoDialog = true;
+      this.tableCrudService.emitResetExpandedRowsTable();
       await new Promise((resolve,reject) => {
         this.reglamentosService.setModeForm('create',null,resolve, reject);
       })
@@ -279,7 +245,40 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
         }
       );
     }
-    
+  }
+
+  async submitNewReglamento(){
+    try {
+      const result: any = await new Promise((resolve: Function, reject: Function) => {
+        this.reglamentosService.setModeForm('insert',null,resolve, reject);
+      })
+      
+      if (result.success) {
+        //insert exitoso
+        this.getReglamentos();
+        this.messageService.add({
+          key: this.programasService.keyPopups,
+          severity: 'success',
+          detail: result.messageGp
+        });
+        
+      }else{
+        this.errorTemplateHandler.processError(
+          result, {
+            notifyMethod: 'alert',
+            summary: result.messageGp,
+            message: result.e.detail.error.message,
+        });
+      }
+      this.reset();
+      this.newReglamentoDialog = false;
+    } catch (e: any) {
+      this.newReglamentoDialog = false;
+      this.errorTemplateHandler.processError(e, {
+        notifyMethod: 'alert',
+        message: e.detail.error.message
+      });
+    }
   }
 
   reset() {
@@ -287,24 +286,6 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
     this.uploaderFilesService.resetValidatorFiles();
     this.uploaderFilesService.setFiles(null);
   }
-
-  onEstadoMaestroChange(event: any){
-    // switch (event.value.Cod_EstadoMaestro) {
-    //   case 2:
-    //     this.estadoMaestroSelected = '';
-    //     this.showSuspension = true;
-    //     break;
-
-    //   default: 
-    //     this.estadoMaestroSelected = '';
-    //     this.programasService.setSelectSuspension(undefined)
-    //     this.showSuspension = false;
-    //     this.estadoMaestroSelected = event.value.Descripcion_EstadoMaestro 
-    //     break;
-    // }
-    this.programasService.setSelectEstadoMaestro(event.value as EstadoMaestro)
-  }
-
 
   async addNewSuspension(){
     this.newSuspensionDialog = true;
@@ -325,7 +306,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
         //insert exitoso
         this.getSuspensiones();
         this.messageService.add({
-          key: this.keyPopups,
+          key: this.programasService.keyPopups,
           severity: 'success',
           detail: result.messageGp
         });
@@ -347,97 +328,6 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
       this.errorTemplateHandler.processError(e, {
         notifyMethod: 'alert',
         message: e.detail.error.message
-      });
-    }
-  }
-
-  changeSwitch(event: any){
-    const Instituciones = this.programasService.fbForm.get('Instituciones');
-
-    switch (event.checked) {
-      case 'SI': Instituciones?.enable(); this.showAsterisk = true; break;
-      case 'NO': Instituciones?.disable(); this.showAsterisk = false; break;
-      default: Instituciones?.disable(); this.showAsterisk = false; break;
-    }
-  }
-
-
-
-  async submitNewReglamento(){
-    try {
-      const result: any = await new Promise((resolve: Function, reject: Function) => {
-        this.reglamentosService.setModeForm('insert',null,resolve, reject);
-      })
-      console.log("resulttt",result);
-      
-      if (result.success) {
-        //insert exitoso
-        this.getReglamentos();
-        this.messageService.add({
-          key: this.keyPopups,
-          severity: 'success',
-          detail: result.messageGp
-        });
-        
-      }else{
-        this.errorTemplateHandler.processError(
-          result, {
-            notifyMethod: 'alert',
-            summary: result.messageGp,
-            message: result.e.detail.error.message,
-        });
-      }
-      this.reset();
-      this.newReglamentoDialog = false;
-    } catch (e: any) {
-      console.log("eeeee",e);
-      
-      this.newReglamentoDialog = false;
-      this.errorTemplateHandler.processError(e, {
-        notifyMethod: 'alert',
-        message: e.detail.error.message
-      });
-    }
-  }
-
-  async downloadDocSuspension(documento: any){
-    try {
-      let blob: Blob = await this.suspensionesService.getArchiveDoc(documento.id);
-      this.commonUtils.downloadBlob(blob, documento.nombre);      
-    } catch (e:any) {
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: 'Error al descargar documento de tipos de suspensiones.',
-          message: e.message,
-      });
-    }
-  }
-
-  async downloadDocReglamento(documento: any){
-    try {
-      let blob: Blob = await this.reglamentosService.getArchiveDoc(documento.id);
-      this.commonUtils.downloadBlob(blob, documento.nombre);      
-    } catch (e:any) {
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: 'Error al descargar documento de reglamento.',
-          message: e.message,
-      });
-    }
-  }
-
-  async downloadDocEA(documento: any){
-    try {
-      let blob: Blob = await this.estadosAcreditacionService.getArchiveDoc(documento.id);
-      this.commonUtils.downloadBlob(blob, documento.nombre);      
-    } catch (e:any) {
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: 'Error al descargar documento de estado de acreditación.',
-          message: e.message,
       });
     }
   }
@@ -465,7 +355,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
       
       if (actionUploadDoc.success) {
         
-        const { files_titulo, files_gradoacad, files_director, files_directorAlterno, files_estadomaestro, files_rexe, ...formData } = this.programasService.fbForm.value;
+        const { files_titulo, files_gradoacad, files_director, files_directorAlterno, files_estadomaestro, files_rexe, file_maestro, ...formData } = this.programasService.fbForm.value;
         
         params = {
           ...formData,
@@ -476,17 +366,16 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
         const inserted: DataInserted = await this.programasService.insertProgramaService(params);
 
         if (inserted.dataWasInserted) {
-          this.router.navigate(['/programa/']);
           this.messageService.add({
             key: this.programasService.keyPopups,
             severity: 'success',
             detail: generateMessage(this.namesCrud,inserted.dataInserted,'creado',true,false)
           });
+          setTimeout(() => {
+            this.router.navigate(['/programa/']);
+          }, 2000);
         }
-
       };
-      
-      
     } catch (e:any) {
       console.log("error insert programa",e);
       this.errorTemplateHandler.processError(
@@ -509,6 +398,15 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
 
   stepChange(value: number){
     this.programasService.activeIndexStateForm = value;
+  }
+
+  test(){
+    Object.keys(this.programasService.fbForm.controls).forEach(key => {
+      const control = this.programasService.fbForm.get(key);
+      if (control?.invalid) {
+        console.log(`Errores en ${key}:`, control.errors);
+      }
+    });
   }
 
 

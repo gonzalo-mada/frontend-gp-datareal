@@ -26,7 +26,6 @@ export class TableProgramasTituloComponent implements OnInit, OnDestroy {
 
   dataKeyTable: string = '';
   expandedRows = {};
-  showUploader : boolean = false;
   private subscription: Subscription = new Subscription();
 
   ngOnInit(): void {
@@ -46,8 +45,9 @@ export class TableProgramasTituloComponent implements OnInit, OnDestroy {
 
   async onRowExpand(event: TableRowExpandEvent) {
     try {
+      this.uploaderFilesService.setLoading(true,true);
       const cod_programa = this.programasService.fbForm.get('Cod_Programa')!.value
-      this.uploaderFilesService.setContext('show','mantenedores','estado-acreditacion');
+      this.uploaderFilesService.setContext('show','programa','ver-programa','Título');
       const files = await this.programasService.getDocumentosWithBinary(parseInt(cod_programa),'titulo');
       this.uploaderFilesService.setFiles(files);
     } catch (e:any) {
@@ -58,12 +58,11 @@ export class TableProgramasTituloComponent implements OnInit, OnDestroy {
       }
     );
     }finally{
-      this.showUploader = true;
+      this.uploaderFilesService.setLoading(false);
     }
   }
 
   onRowCollapse(event: any){
     this.resetExpandedRows();
-    this.showUploader = false;
   }
 }

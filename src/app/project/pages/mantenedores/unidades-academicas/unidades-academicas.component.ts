@@ -252,7 +252,8 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
   }
  
   async loadDocsWithBinary(unidadAcademica: UnidadAcademica){
-    try {    
+    try { 
+      this.uploaderFilesService.setLoading(true,true);   
       const files = await this.unidadesAcademicasService.getDocumentosWithBinary(unidadAcademica.Cod_unidad_academica!)  
       this.uploaderFilesService.setFiles(files);      
       this.filesChanged(files);
@@ -263,6 +264,8 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
         summary: 'Error al obtener documentos',
         message: e.detail.error.message.message
       });
+    }finally{
+      this.uploaderFilesService.setLoading(false);
     }
   }
  
@@ -290,8 +293,8 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
  
   async showForm(){
     try {
-      this.reset();
       this.uploaderFilesService.setContext('show','mantenedores','unidadAcad');
+      this.dialog = true;
       this.fbForm.patchValue({...this.unidadAcademica});
       this.fbForm.get('Descripcion_ua')?.disable();
       this.fbForm.get('Cod_facultad')?.disable();
@@ -303,15 +306,13 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
         message: e.message,
         }
       );
-    }finally{
-      this.dialog = true;
     }
   }
 
   async editForm(){
     try {
-      this.reset();
       this.uploaderFilesService.setContext('edit','mantenedores','unidadAcad');
+      this.dialog = true;
       this.fbForm.patchValue({...this.unidadAcademica});
       await this.loadDocsWithBinary(this.unidadAcademica);
     } catch (e:any) {
@@ -321,8 +322,6 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
         message: e.message,
         }
       );
-    } finally{
-      this.dialog = true;
     }
   }
 

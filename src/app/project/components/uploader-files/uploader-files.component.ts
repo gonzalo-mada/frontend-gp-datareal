@@ -60,7 +60,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
       if (updateUploader) {
         switch (updateUploader.action) {
           case 'upload': this.newUploadHandler(updateUploader.resolve! , updateUploader.reject!); break;
-          case 'reset': this.resetQueueUploader();
+          case 'reset': this.resetQueueUploader(this.context);
         }
       }
     }));
@@ -124,6 +124,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
 
   async newUploadHandler(resolve: Function, reject: Function){
     try {
+      this.docsToUpload = [];
       if (this.uploaderFilesService.files.length != 0) {
         //subieron docs
         
@@ -215,8 +216,8 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
     this.uploaderFilesService.updateValidatorFiles(this.context, this.uploaderFilesService.files);
   }
 
-  resetQueueUploader(){
-    console.log("me llamaron reset queue uploader");
+  resetQueueUploader(context: Context){
+    console.log("me llamaron reset queue uploader desde:", context);
     this.filesToDelete = []; 
     this.docsToUpload = [];  
     this.uploader?.clear();

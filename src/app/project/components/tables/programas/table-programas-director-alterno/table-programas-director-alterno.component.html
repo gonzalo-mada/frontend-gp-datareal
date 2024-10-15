@@ -10,7 +10,7 @@
 
     <ng-template pTemplate="caption">
         <div class="flex align-items-center justify-content-between">
-            Director alterno seleccionado
+            <span class="font-light">Información y documentos adjuntos de: <strong>Director alterno</strong> </span>
             <div class="flex align-items-center">
                 <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
                 <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
@@ -24,7 +24,6 @@
             <th style="width:33%;">Director alterno</th>
             <th style="width:33%;">Contacto</th>
             <th style="width:33%;">Facultad</th>
-            <th style="min-width: 10rem; ">Acciones</th>
         </tr>
     </ng-template>
 
@@ -36,24 +35,13 @@
             <td>{{ data.Nombres }} {{ data.Paterno }} {{ data.Materno }} <br/> RUT: {{ data.rutcompleto }}</td>
             <td>{{ data.FiceMail }} <br/> Anexo: {{ data.DirFono || '' }}</td>
             <td>{{ data.Facultad }}</td>
-
-            <td>
-                <div class="flex">
-                    <p-button 
-                        [label]="mode === 'show' ? 'Seleccionado' : 'Seleccionar' "
-                        styleClass="p-button-sm p-button-info mr-2" 
-                        [disabled]="mode === 'show' "
-                    >
-                    </p-button>
-                </div>
-            </td>
         </tr>
     </ng-template>
 
     <ng-template pTemplate="rowexpansion" let-data>
         <tr>
-            <td colspan="5" *ngIf="showUploader">
-                <h4>Documento(s) adjunto(s).</h4>
+            <td colspan="4">
+                <h4>Documentos adjuntos.</h4>
                 <app-uploader-files mode="show"></app-uploader-files>
             </td>
         </tr>
@@ -61,7 +49,7 @@
 
     <ng-template pTemplate="emptymessage">
         <tr>
-            <td [attr.colspan]="5">Sin registros</td>
+            <td [attr.colspan]="4">Sin registros</td>
         </tr>
     </ng-template>
 

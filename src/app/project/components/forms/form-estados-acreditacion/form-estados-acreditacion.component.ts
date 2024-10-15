@@ -27,15 +27,13 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
               public estadosAcreditacionService: EstadosAcreditacionService, 
               private fb: FormBuilder,
               private uploaderFilesService: UploaderFilesService,
-              private menuButtonsTableService: MenuButtonsTableService,
   ){}
-  @Input() visibleUploader: boolean = false;
+  // @Input() visibleUploader: boolean = false;
   
   yearsDifference: number | null = null;
   showAsterisk: boolean = false;
   estadoAcreditacion: EstadosAcreditacion = {};
   namesCrud!: NamesCrud;
-  showUploader: boolean = false;
   private subscription: Subscription = new Subscription();
 
   get modeForm() {
@@ -60,7 +58,6 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
 
   
   ngOnInit() {
-    this.menuButtonsTableService.setContext('form-ea','dialog');
     this.namesCrud = {
       singular: 'estado de acreditación',
       plural: 'estados de acreditación',
@@ -76,6 +73,8 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
           if (form.data) {
             this.estadoAcreditacion = {};
             this.estadoAcreditacion = form.data;
+            console.log("data",this.estadoAcreditacion);
+            
           }
           switch (form.mode) {
             case 'create': this.createForm(form.resolve! , form.reject!); break;
@@ -118,6 +117,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
     //NUEVO.
     
   }
+  
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
     this.uploaderFilesService.resetValidatorFiles();
@@ -156,9 +156,8 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
 
   createForm(resolve: Function, reject: Function){
     try {   
-      this.resetForm();
       this.uploaderFilesService.setContext('create','mantenedores','estado-acreditacion');
-      this.showUploader = true;
+      this.resetForm();
       resolve(true)
     } catch (e) {
       reject(e)
@@ -177,7 +176,6 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
       this.fbForm.get('Nombre_ag_certif')?.disable();
       this.showAsterisk = false;
       await this.loadDocsWithBinary(this.estadoAcreditacion);
-      this.showUploader = true;
       resolve(true)
     } catch (e) {      
       reject(e)
@@ -212,7 +210,6 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
         }
       }            
       await this.loadDocsWithBinary(this.estadoAcreditacion);
-      this.showUploader = true;
       resolve(true)
     } catch (e) {
       reject(e)
@@ -358,7 +355,6 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
   }
 
   changeSwitch(nameSwitch:string , event: any){
-    
     const inputAcred = this.fbForm.get('Nombre_ag_acredit');
     const fechaInicio = this.fbForm.get('tiempo.Fecha_inicio');
     const fechaFin = this.fbForm.get('tiempo.Fecha_termino');
@@ -459,6 +455,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
 
   async loadDocsWithBinary(estadoAcreditacion: EstadosAcreditacion){
     try {
+      this.uploaderFilesService.setLoading(true,true);
       const files = await this.estadosAcreditacionService.getDocumentosWithBinary({Cod_acreditacion: estadoAcreditacion.Cod_acreditacion});
       this.uploaderFilesService.setFiles(files);
       this.filesChanged(files);
@@ -470,6 +467,8 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
           message: e.detail.error.message.message
         }
       );
+    }finally{
+      this.uploaderFilesService.setLoading(false); 
     }
   }
 

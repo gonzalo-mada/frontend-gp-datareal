@@ -10,7 +10,8 @@
 
     <ng-template pTemplate="caption">
         <div class="flex align-items-center justify-content-between">
-            Estado maestro seleccionado
+            <span class="font-light">Información y documentos adjuntos de: <strong>Estado maestro</strong> </span>
+
             <div class="flex align-items-center">
                 <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
                 <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
@@ -22,7 +23,6 @@
         <tr>
             <th style="width: 5rem"></th>
             <th style="width:100%;"> Estado </th>
-            <th style="min-width: 10rem; ">Acciones</th>
         </tr>
     </ng-template>
 
@@ -36,23 +36,13 @@
                 {{data.Descripcion_EstadoMaestro}}
             </td>
 
-            <td>
-                <div class="flex">
-                    <p-button 
-                        [label]="mode === 'show' ? 'Seleccionado' : 'Seleccionar' "
-                        styleClass="p-button-sm p-button-info mr-2" 
-                        [disabled]="mode === 'show' "
-                    >
-                    </p-button>
-                </div>
-            </td>
         </tr>
     </ng-template>
 
     <ng-template pTemplate="rowexpansion" let-data>
         <tr>
-            <td colspan="3" *ngIf="showUploader">
-                <h4>Documento(s) adjunto(s).</h4>
+            <td colspan="2">
+                <h4>Documentos adjuntos.</h4>
                 <app-uploader-files mode="show"></app-uploader-files>
             </td>
         </tr>
@@ -60,7 +50,7 @@
 
     <ng-template pTemplate="emptymessage">
         <tr>
-            <td [attr.colspan]="3">Sin registros</td>
+            <td [attr.colspan]="2">Sin registros</td>
         </tr>
     </ng-template>
 

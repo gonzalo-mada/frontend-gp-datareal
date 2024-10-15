@@ -37,25 +37,23 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnCha
   globalFiltros: any[] = []
   dataKeyTable: string = ''
   expandedRows = {};
-  showUploader : boolean = false;
   private subscription: Subscription = new Subscription();
 
   ngOnInit(): void {
     this.cols = [
-      { field: 'Cod_acreditacion', header: 'ID' },
-      { field: 'Acreditado', header: 'Acreditado' },
-      { field: 'Certificado', header: 'Certificado' },
-      { field: 'tiempo.Fecha_inicio', header: 'Fechas acreditación' },
-      { field: 'tiempo.Cantidad_anios', header: 'Años acreditado' },
-      { field: 'Nombre_ag_acredit', header: 'Nombre agencia' },
-      { field: 'Nombre_ag_certif', header: 'Nombre agencia' },
-      { field: 'Evaluacion_interna', header: 'Evaluación interna' },
-      { field: 'Fecha_informe', header: 'Fecha informe' },
+      { field: 'Sigla', header: 'Identificador', width: '350px', useMinWidth: true },
+      { field: 'Acreditado', header: 'Estado', width: '180px', useMinWidth: true },
+      { field: 'Certificado', header: 'Estado', width: 'auto', useMinWidth: false },
+      { field: 'Nombre_ag_acredit', header: 'Nombre agencia', width: 'auto', useMinWidth: false },
+      { field: 'Nombre_ag_certif', header: 'Nombre agencia', width: 'auto', useMinWidth: false },
+      { field: 'Evaluacion_interna', header: 'Evaluación interna', width: 'auto', useMinWidth: false },
+      { field: 'Fecha_informe', header: 'Fecha informe', width: 'auto', useMinWidth: false },
       // { field: 'tiempo.Fecha_termino', header: 'Fecha_termino' },
-      { field: 'accion', header: 'Acciones' }
+      { field: 'accion', header: 'Acciones', width: 'auto', useMinWidth: false }
     ];
 
-    this.globalFiltros = [ 
+    this.globalFiltros = [
+      'Sigla', 
       'Acreditado' , 
       'Certificado' , 
       'Nombre_ag_acredit' , 
@@ -67,6 +65,7 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnCha
       'tiempo.Cantidad_anios' 
     ]
     this.dataKeyTable = 'Cod_acreditacion';
+
     this.subscription.add(this.tableCrudService.resetExpandedRowsTableSubject$.subscribe( () => {this.resetExpandedRows()} ));
 
   }
@@ -117,6 +116,7 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnCha
 
   async onRowExpand(event: TableRowExpandEvent) {
     try {
+      this.uploaderFilesService.setLoading(true,true);
       this.uploaderFilesService.setContext('show','mantenedores','estado-acreditacion');
       const files = await this.estadosAcreditacionService.getDocumentosWithBinary({Cod_acreditacion: event.data.Cod_acreditacion});
       this.uploaderFilesService.setFiles(files);
@@ -128,13 +128,20 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnCha
       }
     );
     }finally{
-      this.showUploader = true;
+      this.uploaderFilesService.setLoading(false);
     }
   }
 
   onRowCollapse(event: any){
     this.resetExpandedRows();
-    this.showUploader = false;
+  }
+
+  getColStyle(col: any) {
+    if (col.useMinWidth) {
+      return { 'min-width': col.width };
+    } else {
+      return { 'width': col.width };
+    }
   }
 
 }

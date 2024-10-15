@@ -2,6 +2,7 @@
     "form" : {
         "notMinusOneCategory": "Seleccione categoría válida",
         "notValueNegativeYearsAcredit": "Selecciones fechas válidas",
-        "num_y_letras": "Escriba al menos una letra"
+        "num_y_letras": "Escriba al menos una letra",
+        "num_o_letras": "No se aceptan espacios en blanco"
     }
 }
