@@ -1,8 +1,11 @@
 {
     "form" : {
         "notMinusOneCategory": "Seleccione categoría válida",
-        "notValueNegativeYearsAcredit": "Selecciones fechas válidas",
-        "num_y_letras": "Escriba al menos una letra",
-        "num_o_letras": "No se aceptan espacios en blanco"
+        "notValueNegativeYearsAcredit": "Seleccione fechas válidas",
+        "num_y_letras": "Campo debe contener al menos una letra",
+        "num_o_letras": "Campo no debe contener espacios en blanco",
+        "solo_num": "Campo solo acepta números",
+        "solo_letras": "Campo solo acepta letras",
+        "checkCorreoUV": "Campo solo acepta correos @uv.cl, @postgrado.uv.cl"
     }
 }

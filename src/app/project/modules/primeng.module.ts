@@ -20,6 +20,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { FileUploadModule } from 'primeng/fileupload';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -48,6 +49,7 @@ const primeGp = [
   FileUploadModule,
   InputGroupAddonModule, 
   InputGroupModule,
+  InputNumberModule,
   InputTextareaModule,
   InputSwitchModule,
   MultiSelectModule,

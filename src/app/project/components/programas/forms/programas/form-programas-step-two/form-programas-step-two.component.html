@@ -1,12 +1,7 @@
-<!-- <div class="grid" *ngIf="modeForm !== 'show' ">
-    <div class="col-12">
-        <app-form-isvalid [valid]="programasService.fbForm.valid"></app-form-isvalid>
-    </div>
-</div> -->
 
 <form [formGroup]="programasService.fbForm">
     <div class="formgrid grid">
-        <div class="field col-12 lg:col-4">
+        <div class="field col-12 md:col-6 lg:col-4">
             <label><strong>Tipo de programa *</strong></label>
             <br>
             <p-dropdown
@@ -24,7 +19,7 @@
             </p-dropdown>
             <app-form-control [control]="programasService.fbForm.controls['Tipo_programa']" [validators]="['required']"></app-form-control>
         </div>
-        <div class="field col-12 lg:col-4">
+        <div class="field col-12 md:col-6 lg:col-4">
             <label><strong>Campus *</strong></label>
             <br>
             <p-dropdown
@@ -38,7 +33,7 @@
             </p-dropdown>
             <app-form-control [control]="programasService.fbForm.controls['Campus']" [validators]="['required']"></app-form-control>
         </div>
-        <div class="field col-12 lg:col-4">
+        <div class="field col-12 md:col-6 lg:col-4">
             <label><strong>Unidad académica *</strong></label>
             <br>
             <p-dropdown
@@ -56,10 +51,7 @@
             </p-dropdown>
             <app-form-control [control]="programasService.fbForm.controls['Unidad_academica']" [validators]="['required']"></app-form-control>
         </div>
-    </div>
-    <div class="formgrid grid">
-
-        <div class="field col-12 lg:col-4">
+        <div class="field col-12 md:col-6 lg:col-4">
             <label><strong>Estado maestro *</strong></label>
             <br>
             <p-dropdown
@@ -74,7 +66,7 @@
             <app-form-control [control]="programasService.fbForm.controls['EstadoMaestro']" [validators]="['required']"></app-form-control>
         </div>
 
-        <div class="field col-12 lg:col-4">
+        <div class="field col-12 md:col-6 lg:col-4">
             <label><strong>¿Tiene graduación conjunta?</strong></label>
             <div class="flex flex-row justify-content-start flex-wrap">
                 <div class="flex align-items-center justify-content-center">
@@ -88,7 +80,7 @@
                 </div>
             </div>
         </div>
-        <div class="field col-12 lg:col-4">
+        <div class="field col-12 md:col-6 lg:col-4">
             <label><strong>Instituciones {{ showAsterisk ? '*' : '' }}</strong></label>
             <br>
             <p-multiSelect

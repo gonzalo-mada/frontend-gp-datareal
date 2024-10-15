@@ -86,13 +86,13 @@ export class ProgramasService {
     }));
     this.fbForm = this.fb.group({
       //paso 1
-      Centro_costo: ['', [Validators.required]],
+      Centro_costo: ['', [Validators.required, GPValidator.regexPattern('solo_num')]],
       Nombre_programa: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
       Grupo_correo: ['', [Validators.required, GPValidator.checkCorreoUV()]],
-      Cod_Programa: ['', [Validators.required]],
+      Cod_Programa: ['', [Validators.required, GPValidator.regexPattern('solo_num')]],
       Codigo_SIES: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
-      Creditos_totales: ['', [Validators.required]],
-      Horas_totales: ['', [Validators.required]],
+      Creditos_totales: ['', [Validators.required, GPValidator.regexPattern('solo_num')]],
+      Horas_totales: ['', [Validators.required, GPValidator.regexPattern('solo_num')]],
       Titulo: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
       Grado_academico: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
       REXE: ['', [Validators.required, GPValidator.regexPattern('num_o_letras')]],

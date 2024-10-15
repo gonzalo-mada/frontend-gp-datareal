@@ -45,8 +45,8 @@ export class GPValidator {
                 switch (pattern) {
                     case 'num_y_letras': return { num_y_letras: true };
                     case 'num_o_letras': return { num_o_letras: true };
-                    case 'solo_num': return { num_y_letras: true };
-                    case 'solo_letras': return { num_y_letras: true };
+                    case 'solo_num': return { solo_num: true };
+                    case 'solo_letras': return { solo_letras: true };
                 }
                 
             } else {
@@ -59,7 +59,7 @@ export class GPValidator {
         return (control: AbstractControl): ValidationErrors | null => {
           if (!control.value) return null;
           if (
-            !/^[-!#$%&'*+\/0-9=?A-Z^_a-z{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@(?:(?:[a-zA-Z0-9-]+\.)?[a-zA-Z]+\.)?(uv.cl|alumnos.uv.cl|postgrado.uv.cl)+$/.test(
+            !/^[-!#$%&'*+\/0-9=?A-Z^_a-z{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@(?:(?:[a-zA-Z0-9-]+\.)?[a-zA-Z]+\.)?(uv.cl|postgrado.uv.cl)+$/.test(
               control.value.toLowerCase(),
             )
           ) {

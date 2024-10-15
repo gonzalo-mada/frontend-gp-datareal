@@ -5,5 +5,7 @@ export const project_form_validator = [
                                         'notValueNegativeYearsAcredit' , 
                                         'num_y_letras',
                                         'num_o_letras',
+                                        'solo_num',
+                                        'solo_letras',
                                         'checkCorreoUV'
                                     ];

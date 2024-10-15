@@ -5,58 +5,86 @@
 </div> -->
 <form [formGroup]="programasService.fbForm">
     <div class="formgrid grid">
-        <div class="field col-12 lg:col-4">
+        <div class="field col-12 md:col-6 lg:col-4">
             <label><strong>Centro costo *</strong></label>
-            <input type="number" pInputText formControlName="Centro_costo" maxlength="80" class="w-full" placeholder="Ingrese centro costo de programa"/>
-            <app-form-control [control]="programasService.fbForm.controls['Centro_costo']" [validators]="['required']"></app-form-control>
+            <p-inputNumber 
+                formControlName="Centro_costo"
+                format="false"
+                [allowEmpty]="true"
+                placeholder="Ingrese centro costo de programa"
+                maxlength="10"
+                class="w-full p-d-flex p-flex-column"
+                [style]="{ width: '100%', 'min-width': '100%' }"
+            />
+            <app-form-control [control]="programasService.fbForm.controls['Centro_costo']" [validators]="['required' , 'solo_num']"></app-form-control>
         </div>
-        <div class="field col-12 lg:col-4">
+        <div class="field col-12 md:col-6 lg:col-4">
             <label><strong>Nombre *</strong></label>
             <input type="text" pInputText formControlName="Nombre_programa" maxlength="80" class="w-full" placeholder="Ingrese nombre de programa"/>
             <app-form-control [control]="programasService.fbForm.controls['Nombre_programa']" [validators]="['required', 'num_y_letras']"></app-form-control>
         </div>
-        <div class="field col-12 lg:col-4">
+        <div class="field col-12 md:col-6 lg:col-4">
             <label><strong>Grupo de correo en LDAP *</strong></label>
             <input type="email" pInputText formControlName="Grupo_correo" maxlength="80" class="w-full" placeholder="Ingrese correo LDAP"/>
             <app-form-control [control]="programasService.fbForm.controls['Grupo_correo']" [validators]="['required', 'checkCorreoUV']"></app-form-control>
         </div>
-    </div>
 
-    <div class="formgrid grid">
-        <div class="field col-12 lg:col-4">
+        <div class="field col-12 md:col-6 lg:col-4">
             <label><strong>Código de programa *</strong></label>
-            <input type="number" pInputText formControlName="Cod_Programa" min="0" maxlength="50" class="w-full" placeholder="Ingrese código de programa"/>
-            <app-form-control [control]="programasService.fbForm.controls['Cod_Programa']" [validators]="['required']"></app-form-control>
+            <p-inputNumber 
+                formControlName="Cod_Programa"
+                format="false"
+                [allowEmpty]="true"
+                maxlength="10"
+                placeholder="Ingrese código de programa"
+                class="w-full p-d-flex p-flex-column"
+                [style]="{ width: '100%', 'min-width': '100%' }"
+            />
+            <app-form-control [control]="programasService.fbForm.controls['Cod_Programa']" [validators]="['required' , 'solo_num']"></app-form-control>
         </div>
-        <div class="field col-12 lg:col-4">
+        <div class="field col-12 md:col-6 lg:col-4">
             <label><strong>Código SIES *</strong></label>
             <input type="text" pInputText formControlName="Codigo_SIES" maxlength="50" class="w-full" placeholder="Ingrese código SIES"/>
             <app-form-control [control]="programasService.fbForm.controls['Codigo_SIES']" [validators]="['required', 'num_y_letras']"></app-form-control>
         </div>
-        <div class="field col-12 lg:col-2">
+        <div class="field col-12 md:col-6 lg:col-2">
             <label><strong>Créditos totales *</strong></label>
-            <input type="number" pInputText formControlName="Creditos_totales" min="0" maxlength="50" class="w-full" placeholder="Ingrese créditos totales"/>
-            <app-form-control [control]="programasService.fbForm.controls['Creditos_totales']" [validators]="['required']"></app-form-control>
+            <p-inputNumber 
+                formControlName="Creditos_totales"
+                format="false"
+                [allowEmpty]="true"
+                maxlength="10"
+                placeholder="Ingrese créditos totales"
+                class="w-full p-d-flex p-flex-column"
+                [style]="{ width: '100%', 'min-width': '100%' }"
+            />
+            <app-form-control [control]="programasService.fbForm.controls['Creditos_totales']" [validators]="['required' , 'solo_num']"></app-form-control>
         </div>
-        <div class="field col-12 lg:col-2">
+        <div class="field col-12 md:col-6 lg:col-2">
             <label><strong>Horas totales *</strong></label>
-            <input type="number" pInputText formControlName="Horas_totales" maxlength="50" class="w-full" placeholder="Ingrese horas totales"/>
-            <app-form-control [control]="programasService.fbForm.controls['Horas_totales']" [validators]="['required']"></app-form-control>
+            <p-inputNumber 
+                formControlName="Horas_totales"
+                format="false"
+                [allowEmpty]="true"
+                maxlength="10"
+                placeholder="Ingrese horas totales"
+                class="w-full p-d-flex p-flex-column"
+                [style]="{ width: '100%', 'min-width': '100%' }"
+            />
+            <app-form-control [control]="programasService.fbForm.controls['Horas_totales']" [validators]="['required' , 'solo_num']"></app-form-control>
         </div>
-    </div>
 
-    <div class="formgrid grid">
-        <div class="field col-12 lg:col-4">
+        <div class="field col-12 md:col-6 lg:col-4">
             <label><strong>Título *</strong></label>
             <input type="text" pInputText formControlName="Titulo" maxlength="50" class="w-full" placeholder="Ingrese nombre de título"/>
             <app-form-control [control]="programasService.fbForm.controls['Titulo']" [validators]="['required', 'num_y_letras']"></app-form-control>
         </div>
-        <div class="field col-12 lg:col-4">
+        <div class="field col-12 md:col-6 lg:col-4">
             <label><strong>Grado académico *</strong></label>
             <input type="text" pInputText formControlName="Grado_academico" maxlength="50" class="w-full" placeholder="Ingrese nombre de grado académico"/>
             <app-form-control [control]="programasService.fbForm.controls['Grado_academico']" [validators]="['required', 'num_y_letras']"></app-form-control>
         </div>
-        <div class="field col-12 lg:col-4">
+        <div class="field col-12 md:col-6 lg:col-4">
             <label><strong>REXE *</strong></label>
             <input type="text" pInputText formControlName="REXE" maxlength="50" class="w-full" placeholder="Ingrese REXE del programa"/>
             <app-form-control [control]="programasService.fbForm.controls['REXE']" [validators]="['required', 'num_o_letras']"></app-form-control>

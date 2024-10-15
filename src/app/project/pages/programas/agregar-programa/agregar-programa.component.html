@@ -283,7 +283,20 @@
                 </form>
             </div>
             <div class="layout-sidebar" *ngIf="programasService.disposition">
-                <p-card header="Estado del formulario" styleClass="border-1 surface-border border-round rounded-lg">
+                <p-card  styleClass="border-1 surface-border border-round rounded-lg">
+                    <ng-template pTemplate="header">
+                        <div class="flex flex-row flex-wrap"  [style]="{ 'padding-left': '1.5rem' , 'padding-top': '1.5rem' , 'padding-right': '1.5rem'}">
+                            <div class="align-items-center">
+                                <div class="p-card-title">Estado formulario</div>
+                            </div>
+                            <div class="align-items-center ml-2" [style]="{'margin-top': '0.1rem !important'}">
+                                <i class="pi pi-question-circle" [pTooltip]='tooltipContent' tooltipPosition="top"></i>
+                                <ng-template #tooltipContent>
+                                    <small>Indica el estado de validación de cada campo del formulario. Para cerrar, presione el botón "Estado formulario".</small>
+                                </ng-template>
+                            </div>
+                        </div>
+                    </ng-template>
                     <app-state-form></app-state-form>
                 </p-card>
             </div>

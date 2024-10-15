@@ -2,7 +2,10 @@
     "form" : {
         "notMinusOneCategory": "Select valid category",
         "notValueNegativeYearsAcredit": "Select valid dates",
-        "num_y_letras": "Must contain at least one letter",
-        "num_o_letras": "Blank spaces are not accepted."
+        "num_y_letras": "Field must contain at least one letter",
+        "num_o_letras": "Field must not contain blank spaces",
+        "solo_num": "Field only accepts numbers",
+        "solo_letras": "Field only accepts letters",
+        "checkCorreoUV": "Field only accepts emails from @uv.cl, @postgrado.uv.cl"
     }
 }
