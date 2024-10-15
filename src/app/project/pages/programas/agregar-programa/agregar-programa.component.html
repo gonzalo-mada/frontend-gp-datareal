@@ -275,7 +275,7 @@
                                 </div>
                                 <div class="flex pt-4 justify-content-between">
                                     <p-button label="Atrás" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()" />
-                                    <p-button label="Agregar" icon="pi pi-check" iconPos="right" (onClick)="submit()" />
+                                    <p-button label="Agregar" icon="pi pi-check" iconPos="right" (onClick)="submit()" [disabled]="!programasService.stateFormPrograma" />
                                 </div>
                             </ng-template>
                         </p-stepperPanel>
