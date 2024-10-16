@@ -1,4 +1,4 @@
-//sirve para saber desde que modulo y que componente se esta solicitando descargar un documento de mongo
+//sirve para saber desde que modulo y que componente se esta solicitando cargar/descargar un documento 
 
 export type Module = undefined | 'mantenedores' | 'programa' ;
 export type ModeUploader = undefined | 'show' | 'edit' | 'create' | 'select' | 'delete' | 'init-component';

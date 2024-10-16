@@ -41,10 +41,10 @@ export class UploaderFilesService {
   private filesSubject = new Subject<any[] | null>();
   files$ = this.filesSubject.asObservable();
 
-  public files: any[] = [];
-  public filesToUpload : any[] = [];
-  public filesUploaded: any[] = [];
-  private auxComponent : string = '';
+  public files: any[] = []; // los files en este arreglo son los que se muestran en el uploader
+  public filesUploaded: any[] = []; //este arreglo se llena cuando son files que vienen cargados de mongo (show/edit)
+  public filesFromModeSelect: any[] = []; //este arreglo se llena cuando el uploader se inicializa en modo select (agregar-programa)
+  public filesFromModeCreateOrEdit: any[] = []; // este arreglo se llena cuando el uploader se inicializa dentro de un mantenedor (modo: create/edit/show)
 
   constructor(private loadingGpService: LoadinggpService){
     effect(()=>{
@@ -85,10 +85,6 @@ export class UploaderFilesService {
     this.actionSubject.next(null);
   }
 
-  // setFiles(files: any[] | null){
-  //   this.filesSubject.next(files);
-  // }
-
   setFiles(newFiles: any[] | null) {
     // console.log("newFiles",newFiles);
     this.resetFilesUploaded();
@@ -105,13 +101,17 @@ export class UploaderFilesService {
   }
 
   resetFilesUploaded(){
-    this.files = [];
+    //esta funcion se llama cuando un mantenedor se destruye
+    // console.log("me llamaron: resetFilesUploaded");
     this.filesUploaded = [];
+    this.filesFromModeCreateOrEdit = [];
   }
 
   resetUploader(){
+    // console.log("me llamaron: resetUploader");
     this.files = [];
-    this.filesToUpload = [];
+    this.filesFromModeCreateOrEdit = [];
+    this.filesFromModeSelect = [];
     this.filesUploaded = [];
   }
 
@@ -132,7 +132,7 @@ export class UploaderFilesService {
       case true:
         if (showMessage) {
           this.loading = true;
-          this.loadingGpService.loading(true,{msgs: 'Cargando documentos, espere por favor...'})
+          this.loadingGpService.loading(true,{msgs: 'Cargando documentos. Espere, por favor...'})
         }else{
           this.loading = true;
           this.loadingGpService.loading(true)
@@ -148,23 +148,19 @@ export class UploaderFilesService {
 
   setConfigModeUploader(){
     let mode = this.context().mode ;
-    let component = this.context().component.name
-    // this.auxComponent = component!;
-    // if ( this.auxComponent === component){
-    //   this.filesToUpload = [];
-    // } 
+    // console.log("--> MODE:",mode);
     switch (mode) {
       case 'show':
         this.files = this.filesUploaded
       break;
       case 'create':
-        this.files = this.filesToUpload
+        this.files = this.filesFromModeCreateOrEdit
       break;
       case 'edit':
-        this.files = [...this.filesUploaded, ...this.filesToUpload]
+        this.files = [...this.filesUploaded, ...this.filesFromModeCreateOrEdit]
       break;
       case 'select':
-        this.files = this.filesToUpload
+        this.files = this.filesFromModeSelect 
       break;
     }
   }
