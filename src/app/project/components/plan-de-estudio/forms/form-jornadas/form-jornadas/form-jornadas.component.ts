@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { DataInserted } from 'src/app/project/models/shared/DataInserted';
+import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 import { JornadaService } from 'src/app/project/services/plan-de-estudio/jornada.service';
 import { generateMessage } from 'src/app/project/tools/utils/form.utils';
@@ -19,6 +20,7 @@ import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
 export class FormJornadasComponent implements OnInit, OnDestroy{
   constructor(
     private fb: FormBuilder,
+    private errorTemplateHandler: ErrorTemplateHandler,
     private jornadaService: JornadaService,
   ){}
 
@@ -81,9 +83,14 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
         resolve({ success: true, dataInserted: inserted.dataInserted, messageGp });
         this.resetForm();  // Resetear el formulario tras el éxito
       }
-    } catch (e) {
-      reject(e)
-      this.resetForm()
+    } catch (e: any) {
+        this.errorTemplateHandler.processError(
+          e, {
+            notifyMethod: 'alert',
+            summary: `Error al guardar ${this.namesCrud.singular}`,
+            message: e.detail.error.message.message
+          });
+    this.resetForm()
     }
   }
 
@@ -101,9 +108,14 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
           resolve({success:true , dataWasUpdated: updated.dataWasUpdated, messageGp})
           this.resetForm()
         }
-      } catch (e) {
-        reject(e)
-        this.resetForm();
+      }catch (e: any) {
+        this.errorTemplateHandler.processError(
+          e, {
+            notifyMethod: 'alert',
+            summary: `Error al guardar ${this.namesCrud.singular}`,
+            message: e.detail.error.message.message
+          });
+        this.resetForm()
       }
   }
 
