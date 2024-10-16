@@ -80,11 +80,11 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
       }));
       await this.getPrograma();
       await this.getData();
+      await this.getDocMaestro('init')
     } catch (error) {
       
     }finally{
       this.systemService.loading(false)
-      this.loading = false;
     }
   }
   
@@ -109,7 +109,6 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
         this.getDirectorAlterno(),
         this.getTiposProgramas(),
         this.getLogPrograma(),
-        this.getDocMaestro('init')
       ]);
       // Llamadas sincrónicas o que no necesitan espera
       this.getTitulo();
@@ -120,6 +119,8 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
         notifyMethod: 'alert',
         message: 'Hubo un error al obtener el programa. Intente nuevamente.',
       });
+    }finally{
+      this.loading = false;
     }
   }
 
@@ -252,7 +253,7 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
 
   async getDocMaestro(from: 'init' | 'tab'){
     try {
-      from === 'tab' ? this.uploaderFilesService.setLoading(true,true) : this.uploaderFilesService.setLoading(true)
+      this.uploaderFilesService.setLoading(true,true)
       this.uploaderFilesService.setContext('show','programa','ver-programa','Maestro');
       const files = await this.programasService.getDocumentosWithBinary(this.programa.Cod_Programa!,'maestro',false);
       this.uploaderFilesService.setFiles(files);

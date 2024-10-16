@@ -23,7 +23,7 @@ export class LoadinggpComponent implements OnInit{
 
 
   loading: any = {
-    msgs: this.config.get('system.name'),
+    msgs: 'Espere, por favor...',
   };
   theme: string = this.config.get('system.theme.themes.default');
 

@@ -180,6 +180,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
   async addNewEstadoAcreditacion(){
     try {
       this.showDialogEstadoAcreditacion = true;
+      this.uploaderFilesService.setContext('create','mantenedores','estado-acreditacion')
       this.tableCrudService.emitResetExpandedRowsTable();
       await new Promise((resolve,reject) => {
         this.estadosAcreditacionService.setModeForm('create', null, resolve, reject);
@@ -232,6 +233,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
   async addNewReglamento(){
     try {
       this.newReglamentoDialog = true;
+      this.uploaderFilesService.setContext('create','mantenedores','reglamentos')
       this.tableCrudService.emitResetExpandedRowsTable();
       await new Promise((resolve,reject) => {
         this.reglamentosService.setModeForm('create',null,resolve, reject);
@@ -338,6 +340,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
 
   submit(){
     try {
+      this.openAccordion();
       this.insertPrograma();
     } catch (error) {
       

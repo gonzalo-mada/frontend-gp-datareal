@@ -49,8 +49,8 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
     Fecha_informe: ['', [Validators.required]], //date
     tiempo: this.fb.group({
       Cod_tiempoacredit: [],
-      Fecha_inicio: [{value:'', disabled: true}, [Validators.required]],
-      Fecha_termino: [{value:'', disabled: true}, [Validators.required]],
+      Fecha_inicio: [{value:'', disabled: true}, this.postGradoDatesValidator.bind(this)],
+      Fecha_termino: [{value:'', disabled: true}, this.postGradoDatesValidator.bind(this)],
       Cantidad_anios: [{disabled: true}, [GPValidator.notValueNegativeYearsAcredit(),GPValidator.notUpTo15YearsAcredit()]]
     }), //number , positivo
     files: [[], this.filesValidator.bind(this)]
@@ -65,16 +65,16 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
       articulo_plural: 'los estados de acreditación',
       genero: 'masculino'
     };
-
+    this.uploaderFilesService.disabledButtonSeleccionar();
     this.subscription.add(this.fbForm.statusChanges.subscribe( status => { this.estadosAcreditacionService.stateForm = status as StateValidatorForm}));
     this.subscription.add(
       this.estadosAcreditacionService.formUpdate$.subscribe( form => {
+        console.log("form state ea",form);
+        
         if (form && form.mode){
           if (form.data) {
             this.estadoAcreditacion = {};
             this.estadoAcreditacion = form.data;
-            console.log("data",this.estadoAcreditacion);
-            
           }
           switch (form.mode) {
             case 'create': this.createForm(form.resolve! , form.reject!); break;
@@ -123,6 +123,35 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
     this.uploaderFilesService.resetValidatorFiles();
     this.uploaderFilesService.setFiles(null);
     this.uploaderFilesService.enabledButtonSeleccionar();
+  }
+
+  postGradoDatesValidator(control: AbstractControl): { [key: string]: boolean } | null {
+    const formGroup = control.parent as FormGroup;
+
+    if (!formGroup) {
+        return null;
+    }
+    const fechaInicio = formGroup.get('Fecha_inicio');
+    const fechaTermino = formGroup.get('Fecha_termino');
+    const isPostgrado = this.configModeService.config().isPostgrado;
+    if (isPostgrado) {
+      // Si es postgrado, ambas fechas son requeridas
+      if (!fechaInicio?.value) {
+        fechaInicio?.setErrors({ required: true });
+      }
+      if (!fechaTermino?.value) {
+        fechaTermino?.setErrors({ required: true });
+      }
+    } else {
+      // Si no es postgrado, quitamos la validación en ambas fechas
+      if (fechaInicio?.hasError('required')) {
+        fechaInicio.setErrors(null);
+      }
+      if (fechaTermino?.hasError('required')) {
+        fechaTermino.setErrors(null);
+      }
+    }
+    return null
   }
 
   filesValidator(control: AbstractControl): { [key: string]: boolean } | null {

@@ -233,7 +233,6 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
     this.fbForm.get('anio')?.enable();
     this.fbForm.get('vigencia')?.enable();
     this.uploaderFilesService.setAction('reset');
-    this.uploaderFilesService.enabledButtonSeleccionar();
     this.uploaderFilesService.resetValidatorFiles();
     this.fbForm.controls['files'].updateValueAndValidity();
   }

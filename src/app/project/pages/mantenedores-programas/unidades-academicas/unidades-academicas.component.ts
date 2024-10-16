@@ -63,6 +63,7 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
   })
 
   async ngOnInit() {
+    this.uploaderFilesService.setContext('init-component','mantenedores','unidadAcad');
     this.namesCrud = {
       singular: 'unidad académica',
       plural: 'unidades académicas',
@@ -314,6 +315,8 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
       this.uploaderFilesService.setContext('edit','mantenedores','unidadAcad');
       this.dialog = true;
       this.fbForm.patchValue({...this.unidadAcademica});
+      this.fbForm.get('Descripcion_ua')?.enable();
+      this.fbForm.get('Cod_facultad')?.enable();
       await this.loadDocsWithBinary(this.unidadAcademica);
     } catch (e:any) {
       this.errorTemplateHandler.processError(e, {

@@ -28,7 +28,7 @@
             <input type="email" pInputText formControlName="Grupo_correo" maxlength="80" class="w-full" placeholder="Ingrese correo LDAP"/>
             <app-form-control [control]="programasService.fbForm.controls['Grupo_correo']" [validators]="['required', 'checkCorreoUV']"></app-form-control>
         </div>
-
+<!-- 
         <div class="field col-12 md:col-6 lg:col-4">
             <label><strong>Código de programa *</strong></label>
             <p-inputNumber 
@@ -41,7 +41,7 @@
                 [style]="{ width: '100%', 'min-width': '100%' }"
             />
             <app-form-control [control]="programasService.fbForm.controls['Cod_Programa']" [validators]="['required' , 'solo_num']"></app-form-control>
-        </div>
+        </div> -->
         <div class="field col-12 md:col-6 lg:col-4">
             <label><strong>Código SIES *</strong></label>
             <input type="text" pInputText formControlName="Codigo_SIES" maxlength="50" class="w-full" placeholder="Ingrese código SIES"/>

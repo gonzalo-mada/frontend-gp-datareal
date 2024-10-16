@@ -89,7 +89,7 @@ export class ProgramasService {
       Centro_costo: ['', [Validators.required, GPValidator.regexPattern('solo_num')]],
       Nombre_programa: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
       Grupo_correo: ['', [Validators.required, GPValidator.checkCorreoUV()]],
-      Cod_Programa: ['', [Validators.required, GPValidator.regexPattern('solo_num')]],
+      Cod_Programa: ['', ],
       Codigo_SIES: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
       Creditos_totales: ['', [Validators.required, GPValidator.regexPattern('solo_num')]],
       Horas_totales: ['', [Validators.required, GPValidator.regexPattern('solo_num')]],

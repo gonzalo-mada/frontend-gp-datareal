@@ -69,11 +69,12 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
 
 
   ngOnDestroy(): void {
-    console.log("me destrui");
-    
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
+
+    // console.log("me destrui");
+    // this.test();
   }
 
   choose(callback: any){
@@ -109,10 +110,15 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
         tipo: newFile.type, 
         extras:{pesoDocumento: newFile.size ,comentarios:''} , 
         origFile: newFile , 
-        from: this.context.component.label
+        from: this.context.component.label,
+        mode: this.context.mode
       }
     
-      this.uploaderFilesService.filesToUpload.push(fileToSelect)
+      if (this.context.mode !== 'select') {
+        this.uploaderFilesService.filesFromModeCreateOrEdit.push(fileToSelect)
+      } else {
+        this.uploaderFilesService.filesFromModeSelect.push(fileToSelect)
+      }
       // this.uploaderFilesService.setFiles(this.files);
       
     });    
@@ -182,16 +188,19 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
     this.uploaderFilesService.files[index].extras.comentarios = comment;
   }
 
-  async onRemoveTemplatingFile(file: any, uploader: FileUpload, index: number) {    
+  async onRemoveTemplatingFile(file: any, uploader: FileUpload, index: number) { 
     if (file.id) {
       this.filesToDelete.push(file);
       this.uploaderFilesService.filesUploaded.splice(index, 1);
     }else{
       //eliminar de memoria navegador
       uploader.files = uploader.files.filter((f) => f != file.origFile);
-      this.uploaderFilesService.filesToUpload = this.uploaderFilesService.filesToUpload.filter((f) => f.origFile != file.origFile)
+      if (file.mode !== 'select') {
+        this.uploaderFilesService.filesFromModeCreateOrEdit = this.uploaderFilesService.filesFromModeCreateOrEdit.filter((f) => f.origFile != file.origFile);
+      } else {
+        this.uploaderFilesService.filesFromModeSelect = this.uploaderFilesService.filesFromModeSelect.filter((f) => f.origFile != file.origFile);
+      }
     }
-    // this.filesChange.emit(this.files)
     this.uploaderFilesService.setConfigModeUploader();
     this.uploaderFilesService.updateValidatorFiles(this.context, this.uploaderFilesService.files);
   }
@@ -202,7 +211,11 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
       if (file.id) {
         this.uploaderFilesService.filesUploaded.push(file);
       }else{
-        this.uploaderFilesService.filesToUpload.push(file);
+        if (file.mode !== 'select') {
+          this.uploaderFilesService.filesFromModeCreateOrEdit.push(file);
+        } else {
+          this.uploaderFilesService.filesFromModeSelect.push(file);
+        }
       }
       this.filesToDelete.splice(index, 1);
     } else {
@@ -236,8 +249,9 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
 
   test(){
     console.log("FILES:",this.uploaderFilesService.files);
-    console.log("FILES TO UPLOAD:",this.uploaderFilesService.filesToUpload);
     console.log("FILES UPLOADED:",this.uploaderFilesService.filesUploaded);
+    console.log("FILES SELECT:",this.uploaderFilesService.filesFromModeSelect);
+    console.log("FILES CREATE OR EDIT:",this.uploaderFilesService.filesFromModeCreateOrEdit);
     
   }
 

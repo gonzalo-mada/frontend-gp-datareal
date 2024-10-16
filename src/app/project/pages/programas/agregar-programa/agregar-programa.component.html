@@ -1,5 +1,4 @@
 <app-breadcrumbgp></app-breadcrumbgp>
-<app-config-mode></app-config-mode>
 <p-toast [key]="programasService.keyPopups"></p-toast>
 
 <app-dialog [(visible)]="showDialogDocs">
@@ -19,7 +18,7 @@
         <span class="text-xl">Agregar estado de acreditación</span>
     </div>
     <div content>
-        <app-form-estados-acreditacion></app-form-estados-acreditacion>
+        <app-form-estados-acreditacion *ngIf="showDialogEstadoAcreditacion"></app-form-estados-acreditacion>
     </div>
     <div footer>
         <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
@@ -35,34 +34,12 @@
     </div>
 </app-dialog>
 
-
-<!-- <app-dialog [dialogWidth]="'75vw'" [(visible)]="newSuspensionDialog">
-    <div header>
-        <span class="text-xl">Agregar suspensión</span>
-    </div>
-    <div content>
-        <app-form-suspension *ngIf="newSuspensionDialog"></app-form-suspension>
-    </div>
-    <div footer>
-        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
-            (click)="newSuspensionDialog = false" [text]="true"></p-button>
-
-        <p-button 
-            label="Guardar"
-            icon="pi pi-check"
-            styleClass="mr-2 p-button-success p-button-sm" 
-            [disabled]="suspensionesService.stateForm === 'INVALID' || suspensionesService.stateForm === undefined "
-            (click)="submitNewSuspension()">
-        </p-button>
-    </div>
-</app-dialog> -->
-
 <app-dialog [dialogWidth]="'75vw'" [(visible)]="newReglamentoDialog">
     <div header>
         <span class="text-xl">Agregar reglamento</span>
     </div>
     <div content>
-        <app-form-reglamentos></app-form-reglamentos>
+        <app-form-reglamentos *ngIf="newReglamentoDialog"></app-form-reglamentos>
     </div>
     <div footer>
         <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
@@ -172,7 +149,7 @@
                                                     <div>
                                                         <span><strong>Director</strong></span>
                                                     </div>
-                                                    <div *ngIf="programasService.directorSelected">
+                                                    <div *ngIf="programasService.directorSelected.nombre !== '' ">
                                                         <span style="font-weight: 100;"><i>{{ programasService.directorSelected.rut }} - {{ programasService.directorSelected.nombre }} </i></span>
                                                     </div>
                                                 </div>
@@ -207,7 +184,7 @@
                                                     <div>
                                                         <span><strong>Director alterno</strong></span>
                                                     </div>
-                                                    <div *ngIf="programasService.directorAlternoSelected">
+                                                    <div *ngIf="programasService.directorAlternoSelected.nombre !== '' ">
                                                         <span style="font-weight: 100;"><i>{{ programasService.directorAlternoSelected.rut }} - {{ programasService.directorAlternoSelected.nombre }} </i></span>
                                                     </div>
                                                 </div>
@@ -235,8 +212,6 @@
                                                 </div>
                                             </ng-template>
                                         </p-accordionTab>
-
-
 
                                         <p-accordionTab id="estadoacreditacion">
                                             <ng-template pTemplate="header">

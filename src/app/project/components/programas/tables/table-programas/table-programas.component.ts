@@ -50,6 +50,8 @@ export class TableProgramasComponent implements OnInit, OnChanges, OnDestroy {
     this.cols = [
       // { field: 'Nombre_programa', header: '', width: '10rem', useMinWidth: true },
       // { field: 'Programa', header: 'Programa', width: '500px', useMinWidth: true },
+      { field: 'Acreditacion', header: 'Acreditacion', width: '200px', useMinWidth: true },
+      { field: 'Tipo_programa', header: 'Tipo de programa', width: '200px', useMinWidth: true },
       { field: 'Centro_costo', header: 'Centro costo', width: 'auto', useMinWidth: false },
       { field: 'Titulo', header: 'Título', width: '300px', useMinWidth: true },
       { field: 'Rexe', header: 'REXE', width: 'auto', useMinWidth: false },
@@ -60,9 +62,7 @@ export class TableProgramasComponent implements OnInit, OnChanges, OnDestroy {
       { field: 'Grado_academico', header: 'Grado académico', width: '300px', useMinWidth: true },
       { field: 'Estado_maestro', header: 'Estado maestro', width: 'auto', useMinWidth: false },
       { field: 'Reglamento', header: 'Reglamento', width: 'auto', useMinWidth: false },
-      { field: 'Tipo_programa', header: 'Tipo de programa', width: '200px', useMinWidth: true },
-      { field: 'Unidad_academica', header: 'Unidad académica', width: '300px', useMinWidth: true },
-      { field: 'Acreditacion', header: 'Acreditacion', width: '200px', useMinWidth: true }
+      { field: 'Unidad_academica', header: 'Unidad académica', width: '300px', useMinWidth: true }
     ];
 
     const storedColumns = this.windowService.getItemSessionStorage('selectedCols-table-programa');

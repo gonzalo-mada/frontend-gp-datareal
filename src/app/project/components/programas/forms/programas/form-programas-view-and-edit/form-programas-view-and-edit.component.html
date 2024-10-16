@@ -136,18 +136,19 @@
             <p-skeleton *ngIf="loading" height="2.5rem" />
         </div>
         
-        <ng-container *ngIf="mode === 'show' ">
-            <ng-container *ngIf="programasService.fbForm.get('Graduacion_Conjunta_Switch')!.value">
-                <div class="field col-12 lg:col-8" >
+        <div class="field col-12 lg:col-8" >
+            <ng-container *ngIf="mode === 'show' ">
+                <ng-container *ngIf="programasService.fbForm.get('Graduacion_Conjunta_Switch')!.value">
                     <label><strong>Instituciones asociadas</strong></label>
-                    <div class="flex flex-row justify-content-start flex-wrap">
+                    <div *ngIf="!loading" class="flex flex-row justify-content-start flex-wrap">
                         <ng-container *ngFor="let item of institucionesSelected">
                             <p-tag severity="secondary" value="{{item.Descripcion_institucion}}" styleClass="m-1"/>
                         </ng-container>
                     </div>
-                </div>
+                </ng-container>
             </ng-container>
-        </ng-container>
+            <p-skeleton *ngIf="loading" [styleClass]="programasService.fbForm.get('Graduacion_Conjunta_Switch')!.value ? '' : 'mt-5'" height="2.5rem" />
+        </div>
         <ng-container *ngIf="mode === 'edit' ">
             <div class="field col-12 lg:col-4">
                 <label><strong>Instituciones {{ showAsterisk ? '*' : '' }}</strong></label>
@@ -166,6 +167,7 @@
                 <app-form-control [control]="programasService.fbForm.controls['Instituciones']" [validators]="['required']"></app-form-control>
             </div>
         </ng-container>
+        
         
     </div>
 

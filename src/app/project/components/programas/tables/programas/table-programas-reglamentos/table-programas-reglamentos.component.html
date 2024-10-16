@@ -30,7 +30,7 @@
 
     <ng-template pTemplate="caption">
         <div class="flex flex-wrap flex-column md:flex-row justify-content-between align-items-center">
-            <div class="flex mb-2 md:mb-0">
+            <div class="flex mb-2 lg:mb-0">
                 <ng-container *ngIf="mode !== 'show'; else modeShow">
                     <span class="p-input-icon-left">
                         <i class="pi pi-search"></i>
@@ -49,7 +49,7 @@
                 
             </div>
 
-            <div *ngIf="mode !== 'show'" class="hidden md:flex align-items-center">
+            <div *ngIf="mode !== 'show'" class="hidden lg:flex align-items-center">
                 <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
                 <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
             </div>
@@ -59,7 +59,7 @@
                     <p-button 
                         pTooltip="Muestra la leyenda de íconos" 
                         icon="pi pi-question-circle"
-                        styleClass="p-button-warning mr-2 md:hidden" 
+                        styleClass="p-button-warning mr-2 lg:hidden" 
                         (click)="op.toggle($event)">
                     </p-button>
                     <p-button 
