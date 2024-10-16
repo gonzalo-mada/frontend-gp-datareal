@@ -142,6 +142,11 @@ export class FormModalidadesComponent implements OnInit, OnDestroy{
   async editForm(resolve: Function, reject: Function){
     try {
       this.fbForm.patchValue({...this.modalidad});
+      let actualValue = this.fbForm.get('Descripcion_modalidad')?.value
+      this.fbForm.get('Descripcion_modalidad')?.setValidators([
+        Validators.required,  // Validador de requerido
+        GPValidator.existName(actualValue) 
+      ]);
       this.fbForm.get('Descripcion_modalidad')?.enable();
       resolve(true)
     } catch (e) {
