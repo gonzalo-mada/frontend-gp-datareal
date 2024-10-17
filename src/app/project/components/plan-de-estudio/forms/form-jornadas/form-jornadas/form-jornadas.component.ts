@@ -141,6 +141,11 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
   async editForm(resolve: Function, reject: Function){
     try {
       this.fbForm.patchValue({...this.jornada});
+      let actualValue = this.fbForm.get('Descripcion_jornada')?.value
+      this.fbForm.get('Descripcion_jornada')?.setValidators([
+        Validators.required,  // Validador de requerido
+        GPValidator.existName(actualValue) 
+      ]);
       this.fbForm.get('Descripcion_jornada')?.enable();
       resolve(true)
     } catch (e) {

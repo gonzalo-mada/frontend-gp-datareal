@@ -69,4 +69,12 @@ export class GPValidator {
           }
         };
       }
+
+      static existName(existName: string): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+          const nombre = control.value?.trim().toLowerCase();
+          const existe = existName.trim().toLowerCase() === nombre;
+          return existe ? { existName: true } : null;
+        };
+      }
 }
