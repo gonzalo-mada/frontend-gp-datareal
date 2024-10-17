@@ -202,8 +202,8 @@
 
             </p-fileUpload>
             
-            <div *ngIf="filesToDelete.length > 0" class="field mt-2">
-                <p-table [value]="filesToDelete" [tableStyle]="{'min-width': '18.75rem'}">
+            <div *ngIf="uploaderFilesService.filesToDelete.length > 0" class="field mt-2">
+                <p-table [value]="uploaderFilesService.filesToDelete" [tableStyle]="{'min-width': '18.75rem'}">
                     <ng-template pTemplate="caption">
                         <div class="flex align-items-center justify-content-between">
                             Documentos en línea que serán eliminados tras actualizar

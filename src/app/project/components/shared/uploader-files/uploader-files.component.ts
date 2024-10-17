@@ -22,7 +22,6 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
   docsToUpload : any[] = [];
   leyendas: any[] = [];
   files: any[] = [];
-  filesToDelete : any[] = [];
 
   dialogVisorPDF: boolean = false;
   doc: any ;
@@ -175,9 +174,9 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
             this.docsToUpload.push(documento)
           }
         }
-        resolve({success: true, docsToUpload: this.docsToUpload, docsToDelete: this.filesToDelete})
+        resolve({success: true, docsToUpload: this.docsToUpload, docsToDelete: this.uploaderFilesService.filesToDelete})
       }else{
-        resolve({success: true , docsToUpload: this.docsToUpload = [], docsToDelete: this.filesToDelete })
+        resolve({success: true , docsToUpload: this.docsToUpload = [], docsToDelete: this.uploaderFilesService.filesToDelete })
       }
     } catch (e) {
       reject(e);
@@ -190,7 +189,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
 
   async onRemoveTemplatingFile(file: any, uploader: FileUpload, index: number) { 
     if (file.id) {
-      this.filesToDelete.push(file);
+      this.uploaderFilesService.filesToDelete.push(file);
       this.uploaderFilesService.filesUploaded.splice(index, 1);
     }else{
       //eliminar de memoria navegador
@@ -217,7 +216,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
           this.uploaderFilesService.filesFromModeSelect.push(file);
         }
       }
-      this.filesToDelete.splice(index, 1);
+      this.uploaderFilesService.filesToDelete.splice(index, 1);
     } else {
       this.messageService.add({
         key: 'uploader-files',
@@ -231,7 +230,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
 
   resetQueueUploader(context: Context){
     console.log("me llamaron reset queue uploader desde:", context);
-    this.filesToDelete = []; 
+    // this.filesToDelete = []; 
     this.docsToUpload = [];  
     this.uploader?.clear();
     this.uploaderFilesService.resetValidatorFiles();
@@ -249,6 +248,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
 
   test(){
     console.log("FILES:",this.uploaderFilesService.files);
+    console.log("FILES TO DELETE:",this.uploaderFilesService.filesToDelete);
     console.log("FILES UPLOADED:",this.uploaderFilesService.filesUploaded);
     console.log("FILES SELECT:",this.uploaderFilesService.filesFromModeSelect);
     console.log("FILES CREATE OR EDIT:",this.uploaderFilesService.filesFromModeCreateOrEdit);

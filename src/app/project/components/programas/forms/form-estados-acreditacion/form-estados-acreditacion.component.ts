@@ -302,7 +302,6 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
           }
         }
       }
-      console.log("params",params);
       
       const inserted = await this.estadosAcreditacionService.insertEstadoAcreditacion(params)
       
@@ -312,8 +311,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
         this.resetForm()
       }
     } catch (e) {
-      const messageGp = generateMessage(this.namesCrud, null, 'creado', false,false)
-      reject({e , messageGp})
+      reject(e)
       this.resetForm()
     }
   }
@@ -357,8 +355,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
         this.resetForm()
       }
     } catch (e) {
-      const messageGp = generateMessage(this.namesCrud, null, 'actualizado', false,false)
-      reject({e, messageGp})
+      reject(e)
       this.resetForm();
     }
   }

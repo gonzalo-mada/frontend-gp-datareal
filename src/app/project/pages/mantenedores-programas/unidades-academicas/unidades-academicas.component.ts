@@ -162,13 +162,11 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
         }
         const inserted = await this.unidadesAcademicasService.logica_insertUnidadesAcademicas(params)
         if ( inserted.dataWasInserted ) {
-          this.getUnidadesAcademicas();
           this.messageService.add({
             key: this.keyPopups,
             severity: 'success',
             detail: generateMessage(this.namesCrud,inserted.dataInserted,'creado',true,false)
           });
-          this.reset();
         }
       }
     } catch (e:any) {
@@ -178,7 +176,10 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
             summary: `Error al guardar ${this.namesCrud.singular}`,
             message: e.detail.error.message.message
           });
-      }
+    }finally{
+      this.getUnidadesAcademicas();
+      this.reset();
+    }
   }
  
   async updateUnidadAcademica(){
@@ -200,13 +201,11 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
        
         const updated = await this.unidadesAcademicasService.logica_updateUnidadesAcademicas(params);
         if ( updated.dataWasUpdated ){
-          this.getUnidadesAcademicas();
           this.messageService.add({
             key: this.keyPopups,
             severity: 'success',
             detail: generateMessage(this.namesCrud,updated.dataUpdated,'actualizado',true,false)
           });
-          this.reset();
         }
       }
  
@@ -218,6 +217,9 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
           message: e.detail.error.message.message,
       });
      
+    }finally{
+      this.getUnidadesAcademicas();
+      this.reset();
     }
   }
  

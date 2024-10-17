@@ -104,13 +104,13 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
       })
       if (actionForm.success) {
         //insert exitoso
-        this.getReglamentos();
         this.messageService.add({
           key: this.keyPopups,
           severity: 'success',
           detail: actionForm.messageGp
         });
-        
+      }else{
+        throw actionForm;
       }
     } catch (e:any) {
       this.errorTemplateHandler.processError(
@@ -120,6 +120,7 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
           message: e.detail.error.message.message
         });
     }finally{
+      this.getReglamentos();
       this.dialog = true
       this.reset();
     }
@@ -133,12 +134,13 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
   
       if (actionForm.success) {
         // Si la actualización fue exitosa, recargamos la lista de reglamentos
-        this.getReglamentos();
         this.messageService.add({
           key: this.keyPopups,
           severity: 'success',
           detail: actionForm.messageGp
         });
+      }else{
+        throw actionForm;
       }
     } catch (e: any) {
       // Manejo de errores en la promesa
@@ -149,6 +151,7 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
           message: e.detail.error.message.message,
       });
     }finally{
+      this.getReglamentos();
       this.dialog = true
       this.reset();
     }
