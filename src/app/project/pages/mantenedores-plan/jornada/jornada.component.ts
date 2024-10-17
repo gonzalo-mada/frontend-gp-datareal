@@ -15,6 +15,7 @@ import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.ut
   styles: [
   ]
 })
+
 export class JornadaComponent implements OnInit, OnDestroy {
 
   constructor(private confirmationService: ConfirmationService,
@@ -99,7 +100,6 @@ export class JornadaComponent implements OnInit, OnDestroy {
       })
       if (actionForm.success) {
         //insert exitoso
-        this.getJornadas();
         this.messageService.add({
           key: this.keyPopups,
           severity: 'success',
@@ -115,7 +115,9 @@ export class JornadaComponent implements OnInit, OnDestroy {
           message: e.detail.error.message.message
         });
     }finally{
+      this.getJornadas();
       this.dialog = true
+      this.reset();    
     }
   }
 
@@ -144,7 +146,9 @@ export class JornadaComponent implements OnInit, OnDestroy {
           message: e.detail.error.message.message,
       });
     }finally{
+      this.getJornadas();
       this.dialog = true
+      this.reset();
     }
   }
 
@@ -185,6 +189,8 @@ export class JornadaComponent implements OnInit, OnDestroy {
       this.reset();
       await new Promise((resolve,reject) => {
         this.jornadaService.setModeForm('create', null, resolve, reject);
+        console.log(this.jornadaService.getJornadas());
+        
       })
     } catch (e:any ) {
       this.errorTemplateHandler.processError(e, {
