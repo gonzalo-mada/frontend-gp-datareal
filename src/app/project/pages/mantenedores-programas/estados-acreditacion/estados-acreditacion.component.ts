@@ -97,69 +97,63 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
   async insertEstadoAcreditacion(){
     try {
 
-      const result: any = await new Promise <void> ((resolve: Function, reject: Function) => {
+      const actionForm: any = await new Promise <void> ((resolve: Function, reject: Function) => {
         this.estadosAcreditacionService.setModeForm('insert',null, resolve, reject);
       })
       
-      if (result.success) {
+      if (actionForm.success) {
         //insert exitoso
-        this.getEstadosAcreditacion();
         this.messageService.add({
           key: this.keyPopups,
           severity: 'success',
-          detail: result.messageGp
+          detail: actionForm.messageGp
         });
-        this.reset();
       }else{
-        this.errorTemplateHandler.processError(
-          result, {
-            notifyMethod: 'alert',
-            summary: result.messageGp,
-            message: result.e.detail.error.message,
-        });
-        this.reset();
+        throw actionForm;
       }
       
     } catch (e:any) {
-      this.errorTemplateHandler.processError(e, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al insertar. Intente nuevamente.',
-      });
+      this.errorTemplateHandler.processError(
+        e, {
+          notifyMethod: 'alert',
+          summary: `Error al guardar ${this.namesCrud.singular}`,
+          message: e.detail.error.message.message
+        });
     }finally{
+      this.getEstadosAcreditacion();
       this.dialog = true;
+      this.reset();
     }
   }
 
   async updateEstadoAcreditacion(){
     
     try {
-      const result: any = await new Promise ((resolve,reject) => {
+      const actionForm: any = await new Promise ((resolve,reject) => {
         this.estadosAcreditacionService.setModeForm('update',null, resolve, reject);
-      })
+      })     
 
-      if (result.success) {
-        this.getEstadosAcreditacion();
+      if (actionForm.success) {
         this.messageService.add({
           key: this.keyPopups,
           severity: 'success',
-          detail: result.messageGp
+          detail: actionForm.messageGp
         });
-        this.reset();
       }else{
-        this.errorTemplateHandler.processError(
-          result, {
-            notifyMethod: 'alert',
-            summary: result.messageGp,
-            message: result.e.detail.error.message,
-        });
-        this.reset();
+        throw actionForm;
       }
 
     } catch (e:any) {
-      this.errorTemplateHandler.processError(e, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al actualizar. Intente nuevamente.',
+      this.errorTemplateHandler.processError(
+        e, {
+          notifyMethod: 'alert',
+          summary: `Error al actualizar ${this.namesCrud.singular}`,
+          message: e.detail.error.message.message,
       });
+    }finally{
+      this.getEstadosAcreditacion();
+      this.dialog = true
+      this.reset();
     }
   }
 
@@ -197,6 +191,7 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
   async createForm(){
     try {
       this.reset();
+      this.dialog = true;
       await new Promise((resolve,reject) => {
         this.estadosAcreditacionService.setModeForm('create', null, resolve, reject);
       })
@@ -207,8 +202,6 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
         message: e.message,
         }
       );
-    }finally{
-      this.dialog = true;
     }
 
   }
@@ -228,8 +221,6 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
         message: e.message,
         }
       );
-    }finally{
-      
     }
 
   }
@@ -237,6 +228,7 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
   async editForm(){
     try {
       this.reset();
+      this.dialog = true;
       const data = this.estadoAcreditacion;
       await new Promise((resolve,reject) => {
         this.estadosAcreditacionService.setModeForm('edit', data, resolve, reject);
@@ -248,8 +240,6 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
         message: e.message,
         }
       );
-    }finally{
-      this.dialog = true;
     }
 
   }

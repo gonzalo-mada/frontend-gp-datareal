@@ -124,13 +124,11 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
       }
       const inserted = await this.tipoProgramaService.insertTipoPrograma(params)
       if ( inserted.dataWasInserted ) {
-        this.getTiposProgramas();
         this.messageService.add({
           key: this.keyPopups,
           severity: 'success',
           detail: generateMessage(this.namesCrud,inserted.dataInserted,'creado',true,false)
         });
-        this.reset();
       } 
     } catch (e:any) {
         this.errorTemplateHandler.processError(
@@ -139,6 +137,9 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
             summary: `Error al guardar ${this.namesCrud.singular}`,
             message: e.detail.error.message.message,
           });
+    }finally{
+      this.getTiposProgramas();
+      this.reset();
     }
   }
 
@@ -150,19 +151,14 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
         Descripcion_tp: this.fbForm.get('Descripcion_tp')!.value == '' ? this.tipoPrograma.Descripcion_tp : this.fbForm.get('Descripcion_tp')!.value,
         Cod_CategoriaTP: this.fbForm.get('Categoria.Cod_CategoriaTP')!.value == '' ? this.tipoPrograma.Categoria?.Cod_CategoriaTP : this.fbForm.get('Categoria.Cod_CategoriaTP')!.value,
       }
-      
       const updated = await this.tipoProgramaService.updateTipoPrograma(params);
       if ( updated.dataWasUpdated ){
-        this.getTiposProgramas();
         this.messageService.add({
           key: this.keyPopups,
           severity: 'success',
           detail: generateMessage(this.namesCrud,updated.dataUpdated,'actualizado',true,false)
         });
-        this.reset();
       }
-
-
     } catch (e:any) {
       this.errorTemplateHandler.processError(
         e, {
@@ -170,6 +166,9 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
           summary: `Error al actualizar ${this.namesCrud.singular}`,
           message: e.detail.error.message.message,
       });
+    }finally{
+      this.getTiposProgramas();
+      this.reset();
     }
   }
 

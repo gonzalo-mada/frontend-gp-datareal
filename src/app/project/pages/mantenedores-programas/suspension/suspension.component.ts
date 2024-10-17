@@ -101,13 +101,13 @@ export class SuspensionComponent implements OnInit, OnDestroy {
       
       if (actionForm.success) {
         //insert exitoso
-        this.getSuspensiones();
         this.messageService.add({
           key: this.keyPopups,
           severity: 'success',
           detail: actionForm.messageGp
         });
-        
+      }else{
+        throw actionForm;
       }
     } catch (e: any) {
       this.errorTemplateHandler.processError(
@@ -117,6 +117,7 @@ export class SuspensionComponent implements OnInit, OnDestroy {
           message: e.detail.error.message.message,
         });
     }finally{
+      this.getSuspensiones();
       this.dialog = true;
       this.reset();
     }
@@ -129,13 +130,13 @@ export class SuspensionComponent implements OnInit, OnDestroy {
         this.suspensionesService.setModeForm('update',data,resolve,reject)
       })
       if (actionForm.success) {
-        this.getSuspensiones();
         this.messageService.add({
           key: this.keyPopups,
           severity: 'success',
           detail: actionForm.messageGp
         });
-        
+      }else{
+        throw actionForm;
       }
     } catch (e:any) {
       this.errorTemplateHandler.processError(
@@ -145,6 +146,7 @@ export class SuspensionComponent implements OnInit, OnDestroy {
           message: e.detail.error.message.message,
       });
     }finally{
+      this.getSuspensiones();
       this.dialog = true
       this.reset();
     }

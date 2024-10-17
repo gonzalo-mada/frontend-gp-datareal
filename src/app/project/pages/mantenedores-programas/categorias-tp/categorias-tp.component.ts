@@ -99,13 +99,13 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
       
       if (actionForm.success) {
         //insert exitoso
-        this.getCategoriasTp();
         this.messageService.add({
           key: this.keyPopups,
           severity: 'success',
           detail: actionForm.messageGp
         });
-        this.reset();
+      }else{
+        throw actionForm;
       }
     } catch (e: any) {
       this.errorTemplateHandler.processError(
@@ -115,7 +115,9 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
           message: e.detail.error.message.message,
         });
     }finally{
+      this.getCategoriasTp();
       this.dialog = true
+      this.reset();
     }
   }
 
@@ -126,13 +128,13 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
         this.categoriasTpService.setModeForm('update',data,resolve,reject)
       })
       if (actionForm.success) {
-        this.getCategoriasTp();
         this.messageService.add({
           key: this.keyPopups,
           severity: 'success',
           detail: actionForm.messageGp
         });
-        this.reset();
+      }else{
+        throw actionForm;
       }
     } catch (e:any) {
       this.errorTemplateHandler.processError(
@@ -142,7 +144,9 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
           message: e.detail.error.message.message,
       });
     }finally{
+      this.getCategoriasTp();
       this.dialog = true
+      this.reset();
     }
 
   }

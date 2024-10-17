@@ -42,6 +42,7 @@ export class UploaderFilesService {
   files$ = this.filesSubject.asObservable();
 
   public files: any[] = []; // los files en este arreglo son los que se muestran en el uploader
+  public filesToDelete: any[] = []; //este arreglo se llena cuando el usuario elimina un file que esta subido a mongo
   public filesUploaded: any[] = []; //este arreglo se llena cuando son files que vienen cargados de mongo (show/edit)
   public filesFromModeSelect: any[] = []; //este arreglo se llena cuando el uploader se inicializa en modo select (agregar-programa)
   public filesFromModeCreateOrEdit: any[] = []; // este arreglo se llena cuando el uploader se inicializa dentro de un mantenedor (modo: create/edit/show)
@@ -102,14 +103,16 @@ export class UploaderFilesService {
 
   resetFilesUploaded(){
     //esta funcion se llama cuando un mantenedor se destruye
-    // console.log("me llamaron: resetFilesUploaded");
+    console.log("me llamaron: resetFilesUploaded");
     this.filesUploaded = [];
+    this.filesToDelete = [];
     this.filesFromModeCreateOrEdit = [];
   }
 
   resetUploader(){
     // console.log("me llamaron: resetUploader");
     this.files = [];
+    this.filesToDelete = [];
     this.filesFromModeCreateOrEdit = [];
     this.filesFromModeSelect = [];
     this.filesUploaded = [];
