@@ -15,16 +15,14 @@
             <!-- Dialogo para crear, actualizar o ver reglamentos -->
             <app-dialog [(visible)]="dialog">
                 <div header>
-                    <ng-container [ngSwitch]="modeForm">
-                        <ng-container *ngSwitchCase="'create'">
-                            <span class="text-xl">Agregar {{ namesCrud.singular }}</span>
-                        </ng-container>
-                        <ng-container *ngSwitchCase="'edit'">
-                            <span class="text-xl">Actualizar {{ namesCrud.singular }}</span>
-                        </ng-container>
-                        <ng-container *ngSwitchCase="'show'">
-                            <span class="text-xl">Ver {{ namesCrud.singular }}</span>
-                        </ng-container>
+                    <ng-container *ngIf="modeForm === 'create' || modeForm === 'insert' ">
+                        <span class="text-xl">Agregar {{ namesCrud.singular }}</span>
+                    </ng-container>
+                    <ng-container *ngIf="modeForm === 'edit' || modeForm === 'update' ">
+                        <span class="text-xl">Actualizar {{ namesCrud.singular }}</span>
+                    </ng-container>
+                    <ng-container *ngIf="modeForm === 'show'">
+                        <span class="text-xl">Ver {{ namesCrud.singular }}</span>
                     </ng-container>
                 </div>
 

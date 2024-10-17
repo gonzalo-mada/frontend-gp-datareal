@@ -54,7 +54,8 @@ export class CampusComponent implements OnInit, OnDestroy {
   public fbForm : FormGroup = this.fb.group({
     Estado_campus: [true, Validators.required],
     Descripcion_campus: ['', [Validators.required , GPValidator.regexPattern('num_y_letras')]],
-    files: [[], this.filesValidator.bind(this)]
+    files: [[], this.filesValidator.bind(this)],
+    aux: ['']
   })
 
   async ngOnInit() {
@@ -161,13 +162,11 @@ export class CampusComponent implements OnInit, OnDestroy {
         const inserted = await this.campusService.insertCampusService( params )
         
         if ( inserted.dataWasInserted ) {
-          this.getCampuses();
           this.messageService.add({
             key: this.keyPopups,
             severity: 'success',
             detail: generateMessage(this.namesCrud,inserted.dataInserted,'creado',true,false)
           });
-          this.reset();
         }    
       }
     } catch (e:any) {
@@ -179,6 +178,7 @@ export class CampusComponent implements OnInit, OnDestroy {
           });
     }finally{
       this.reset();
+      this.getCampuses();
     }
   }
 
@@ -197,12 +197,14 @@ export class CampusComponent implements OnInit, OnDestroy {
           Estado_campus: this.modeForm == 'changeState' ? this.campus.Estado_campus : this.fbForm.get('Estado_campus')!.value,
           docsToUpload: actionUploadDoc.docsToUpload,
           docsToDelete: actionUploadDoc.docsToDelete,
-          isFromChangeState : isFromChangeState
+          isFromChangeState : isFromChangeState,
+          aux: this.fbForm.get('aux')!.value
         }
+        console.log("params",params);
+        
         const updated = await this.campusService.updateCampusService( params )
         
         if ( updated.dataWasUpdated ){
-          this.getCampuses();
           this.messageService.add({
             key: this.keyPopups,
             severity: 'success',
@@ -220,6 +222,7 @@ export class CampusComponent implements OnInit, OnDestroy {
       });
     }finally{
       this.reset();
+      this.getCampuses();
     }
   }
 
@@ -318,6 +321,7 @@ export class CampusComponent implements OnInit, OnDestroy {
       this.uploaderFilesService.setContext('edit','mantenedores','campus');
       this.dialog = true;
       this.fbForm.patchValue({...this.campus});
+      this.fbForm.patchValue({aux: this.campus});
       this.fbForm.get('Estado_campus')?.enable();
       this.fbForm.get('Descripcion_campus')?.enable();
       this.campus.Estado_campus === true ? this.showAsterisk = true : this.showAsterisk = false;

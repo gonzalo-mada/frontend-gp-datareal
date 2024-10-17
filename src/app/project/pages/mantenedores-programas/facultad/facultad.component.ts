@@ -158,13 +158,11 @@ export class FacultadComponent implements OnInit, OnDestroy {
         }
         const inserted = await this.facultadService.insertFacultadService(params)
         if ( inserted.dataWasInserted ) {
-          this.getFacultades();
           this.messageService.add({
             key: this.keyPopups,
             severity: 'success',
             detail: generateMessage(this.namesCrud,inserted.dataInserted,'creado',true,false)
           });
-          this.reset();
         }
       } 
     } catch (e:any) {
@@ -175,7 +173,11 @@ export class FacultadComponent implements OnInit, OnDestroy {
             message: e.detail.error.message.message,
           }
         );
-      }
+    }finally{
+      this.getFacultades();
+      this.reset();
+
+    }
   }
 
   async updateFacultad(isFromChangeState = false ){
@@ -198,13 +200,11 @@ export class FacultadComponent implements OnInit, OnDestroy {
         
         const updated = await this.facultadService.updateFacultadService(params);
         if ( updated.dataWasUpdated ){
-          this.getFacultades();
           this.messageService.add({
             key: this.keyPopups,
             severity: 'success',
             detail: generateMessage(this.namesCrud,updated.dataUpdated,'actualizado',true,false)
           });
-          this.reset();
         }
       } 
 
@@ -215,6 +215,9 @@ export class FacultadComponent implements OnInit, OnDestroy {
           summary: `Error al actualizar ${this.namesCrud.singular}`,
           message: e.detail.error.message.message,
       });
+    }finally{
+      this.getFacultades();
+      this.reset();
     }
   }
 
