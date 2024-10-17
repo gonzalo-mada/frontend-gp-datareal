@@ -45,6 +45,8 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
       genero: 'femenino'
     };
 
+    this.subscription.add(this.fbForm.statusChanges.subscribe(status => { this.jornadaService.stateForm = status as StateValidatorForm }))
+
     this.subscription.add(
       this.jornadaService.formUpdate$.subscribe( form => {
         if (form && form.mode){
@@ -122,6 +124,7 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
   async createForm(resolve: Function, reject: Function){
     try {
       this.resetForm();
+      console.log(this.jornadaService.modeForm);
       resolve(true)
     } catch (e) {
       reject(e)
@@ -130,12 +133,14 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
 
   async showForm(resolve: Function, reject: Function){
     try {
+      console.log(this.jornadaService.modeForm);
+
       this.fbForm.patchValue({...this.jornada});
       this.fbForm.get('Descripcion_jornada')?.disable();
       resolve(true)
     } catch (e) {      
       reject(e)
-    }  
+    }
   }
 
   async editForm(resolve: Function, reject: Function){

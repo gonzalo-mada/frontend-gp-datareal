@@ -15,6 +15,7 @@ import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.ut
   styles: [
   ]
 })
+
 export class JornadaComponent implements OnInit, OnDestroy {
 
   constructor(private confirmationService: ConfirmationService,
