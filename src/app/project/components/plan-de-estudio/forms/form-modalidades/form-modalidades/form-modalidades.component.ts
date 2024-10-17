@@ -92,6 +92,7 @@ export class FormModalidadesComponent implements OnInit, OnDestroy{
           summary: `Error al guardar ${this.namesCrud.singular}`,
           message: e.detail.error.message.message
         });
+      reject(e)
       this.resetForm();
     }
   }
@@ -117,6 +118,7 @@ export class FormModalidadesComponent implements OnInit, OnDestroy{
             summary: `Error al guardar ${this.namesCrud.singular}`,
             message: e.detail.error.message.message
           });
+        reject(e)
         this.resetForm();
       }
   }

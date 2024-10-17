@@ -92,6 +92,7 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
             summary: `Error al guardar ${this.namesCrud.singular}`,
             message: e.detail.error.message.message
           });
+    reject(e)
     this.resetForm()
     }
   }
@@ -117,6 +118,7 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
             summary: `Error al guardar ${this.namesCrud.singular}`,
             message: e.detail.error.message.message
           });
+        reject(e)
         this.resetForm()
       }
   }
@@ -124,7 +126,6 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
   async createForm(resolve: Function, reject: Function){
     try {
       this.resetForm();
-      console.log(this.jornadaService.modeForm);
       resolve(true)
     } catch (e) {
       reject(e)
