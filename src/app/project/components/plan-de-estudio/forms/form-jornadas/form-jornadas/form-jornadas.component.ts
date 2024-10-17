@@ -73,6 +73,15 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
     try {
       let params = {};
         const { ...formData } = this.fbForm.value;
+
+
+      // Limpiar los espacios en blanco de los campos de texto
+      Object.keys(formData).forEach(key => {
+      if (typeof formData[key] === 'string') {
+        formData[key] = formData[key].trim();  // Aplica trim a las cadenas
+      }
+      });
+
         params = {
           ...formData
         };
@@ -101,6 +110,14 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
     try {
       let params = {}
       const { ...formData } = this.fbForm.value ; 
+
+        // Limpiar los espacios en blanco de los campos de texto
+        Object.keys(formData).forEach(key => {
+          if (typeof formData[key] === 'string') {
+            formData[key] = formData[key].trim();  // Aplica trim a las cadenas
+          }
+        });
+
         params = {
           ...formData,
           Cod_jornada: this.jornada.Cod_jornada,
