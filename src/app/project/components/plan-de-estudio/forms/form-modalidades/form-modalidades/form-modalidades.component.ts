@@ -44,6 +44,7 @@ export class FormModalidadesComponent implements OnInit, OnDestroy{
       articulo_plural: 'las modalidades',
       genero: 'femenino'
     };
+    this.subscription.add(this.fbForm.statusChanges.subscribe(status => { this.modalidadesService.stateForm = status as StateValidatorForm }))
 
     this.subscription.add(
       this.modalidadesService.formUpdate$.subscribe( form => {
