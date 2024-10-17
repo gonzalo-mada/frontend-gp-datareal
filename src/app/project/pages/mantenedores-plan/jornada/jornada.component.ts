@@ -100,7 +100,6 @@ export class JornadaComponent implements OnInit, OnDestroy {
       })
       if (actionForm.success) {
         //insert exitoso
-        this.getJornadas();
         this.messageService.add({
           key: this.keyPopups,
           severity: 'success',
@@ -116,7 +115,9 @@ export class JornadaComponent implements OnInit, OnDestroy {
           message: e.detail.error.message.message
         });
     }finally{
+      this.getJornadas();
       this.dialog = true
+      this.reset();    
     }
   }
 
@@ -145,7 +146,9 @@ export class JornadaComponent implements OnInit, OnDestroy {
           message: e.detail.error.message.message,
       });
     }finally{
+      this.getJornadas();
       this.dialog = true
+      this.reset();
     }
   }
 

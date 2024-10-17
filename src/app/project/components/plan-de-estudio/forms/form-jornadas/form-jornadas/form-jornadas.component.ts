@@ -141,13 +141,13 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
   }
 
   async createForm(resolve: Function, reject: Function){
-    try {
-      this.resetForm();
-      resolve(true)
-    } catch (e) {
-      reject(e)
-    }
+  try {
+    this.resetForm(); // Llama al método resetForm para limpiar validadores
+    resolve(true);
+  } catch (e) {
+    reject(e);
   }
+}
 
   async showForm(resolve: Function, reject: Function){
     try {
@@ -164,22 +164,36 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
   async editForm(resolve: Function, reject: Function){
     try {
       this.fbForm.patchValue({...this.jornada});
-      let actualValue = this.fbForm.get('Descripcion_jornada')?.value
+      let actualValue = this.fbForm.get('Descripcion_jornada')?.value;
+  
+      // Asignar validadores específicos para el modo de edición
       this.fbForm.get('Descripcion_jornada')?.setValidators([
         Validators.required,  // Validador de requerido
-        GPValidator.existName(actualValue) 
+        GPValidator.existName(actualValue) // Validador personalizado para evitar duplicados en edición
       ]);
+      
       this.fbForm.get('Descripcion_jornada')?.enable();
-      resolve(true)
+      this.fbForm.updateValueAndValidity(); // Asegúrate de que los cambios de validación se apliquen
+      resolve(true);
     } catch (e) {
-      reject(e)
+      reject(e);
     }
   }
+  
 
   resetForm(): void {
     this.fbForm.reset({
       Descripcion_jornada: ''
     });
+  
+    // Restablecer los validadores a su estado inicial
+    this.fbForm.get('Descripcion_jornada')?.setValidators([
+      Validators.required,
+      GPValidator.regexPattern('num_y_letras') // Validador inicial
+    ]);
+  
     this.fbForm.get('Descripcion_jornada')?.enable();
+    this.fbForm.updateValueAndValidity(); // Asegúrate de que los cambios de validación se apliquen
   }
+  
 }
