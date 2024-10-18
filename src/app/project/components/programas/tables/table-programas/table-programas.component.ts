@@ -1,4 +1,5 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { SortEvent } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { Subscription } from 'rxjs';
 import { WindowService } from 'src/app/base/services/window.service';
@@ -46,7 +47,6 @@ export class TableProgramasComponent implements OnInit, OnChanges, OnDestroy {
   
   ngOnInit(): void {
     this.subscription = this.tableCrudService.resetSelectedRowsSubject$.subscribe( () => this.selectedRow = []);
-
     this.cols = [
       // { field: 'Nombre_programa', header: '', width: '10rem', useMinWidth: true },
       // { field: 'Programa', header: 'Programa', width: '500px', useMinWidth: true },
@@ -163,5 +163,58 @@ export class TableProgramasComponent implements OnInit, OnChanges, OnDestroy {
       return { 'width': col.width };
     }
   }
+
+  customSortAccreditation(event:any) {
+
+    switch (event.field) {
+
+      case 'Acreditacion':
+        event.data?.sort((data1:any , data2:any) => {
+          const value1 = data1.Acreditacion ? data1.Acreditacion.Acreditado : '';
+          const value2 = data2.Acreditacion ? data2.Acreditacion.Acreditado : '';
+          let result = 0;
+          if (value1 > value2) {
+            result = 1;
+          } else if (value1 < value2) {
+            result = -1;
+          }
+          return event.order * result;
+        })
+      break;
+
+      case 'Tipo_programa':
+        event.data?.sort((data1:any , data2:any) => {
+          const value1 = data1.Tipo_programa ? data1.Tipo_programa.Descripcion_tp : '';
+          const value2 = data2.Tipo_programa ? data2.Tipo_programa.Descripcion_tp : '';
+          let result = 0;
+          if (value1 > value2) {
+            result = 1;
+          } else if (value1 < value2) {
+            result = -1;
+          }
+          return event.order * result;
+        })
+      break
+    
+      default:
+        event.data?.sort((data1:any , data2:any) => {
+          let value1 = data1[event.field];
+          let value2 = data2[event.field];
+          let result = null;
+          if (value1 == null && value2 != null) result = -1;
+          else if (value1 != null && value2 == null) result = 1;
+          else if (value1 == null && value2 == null) result = 0;
+          else if (typeof value1 === 'string' && typeof value2 === 'string') result = value1.localeCompare(value2);
+          else result = value1 < value2 ? -1 : value1 > value2 ? 1 : 0;
+
+          return event.order * result;
+        })
+      break;
+    }
+
+
+  }
+
+
 
 }

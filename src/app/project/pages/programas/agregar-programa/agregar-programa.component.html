@@ -123,22 +123,29 @@
                                                 </div>
                                             </ng-template>
                                             <ng-template pTemplate="body">
-                                                <div class="flex flex-wrap justify-content-between align-items-center">
-                                                    <div>
-                                                        <span>
-                                                            Seleccione un reglamento registrado en la tabla. <br/> Si no está registrado, agregue uno nuevo presionando el botón <strong>Agregar</strong>. <br>
-                                                        </span>
+                                                <div class="grid flex justify-content-center align-items-center h-full">
+                                                    <div class="col-12 lg:col-10">
+                                                        <p-messages severity="info">
+                                                            <ng-template pTemplate>
+                                                                <i class="pi pi-info-circle mr-3"></i>
+                                                                <span>
+                                                                    Seleccione un reglamento registrado en la tabla. Si no está registrado, agregue uno presionando el botón <strong>Agregar</strong>.
+                                                                </span>
+                                                            </ng-template>
+                                                        </p-messages>
                                                     </div>
-                                                    <div>
-                                                        <p-button
-                                                        label="Agregar"
-                                                        icon="pi pi-plus"
-                                                        styleClass="p-button-success p-button-sm"
-                                                        (click)="addNewReglamento()"
-                                                        ></p-button>
+                                                    <div class="col-12 lg:col-2">
+                                                        <div class="flex justify-content-center align-items-center h-full">
+                                                            <p-button
+                                                                label="Agregar"
+                                                                icon="pi pi-plus"
+                                                                styleClass="p-button-success p-button-sm"
+                                                                (click)="addNewReglamento()"
+                                                            ></p-button>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <br>
+                                                
                                                 <app-table-programas-reglamentos [data]="reglamentos"></app-table-programas-reglamentos>
                                             </ng-template>
                                         </p-accordionTab>
@@ -157,7 +164,12 @@
                                             <ng-template pTemplate="body">
                                                 <div class="formgrid grid">
                                                     <div class="field col-12">
-                                                        <span>Ingrese RUT del director, luego presione el botón buscar y seleccione en la tabla.</span>
+                                                        <p-messages severity="info">
+                                                            <ng-template pTemplate>
+                                                                <i class="pi pi-info-circle mr-3"></i>
+                                                                <span>Ingrese RUT del director, luego presione el botón buscar y seleccione en la tabla.</span>
+                                                            </ng-template>
+                                                        </p-messages>
                                                     </div>
                                                     <div class="field col-12 lg:col-4">
                                                         <label><strong>RUT director *</strong></label>
@@ -192,7 +204,12 @@
                                             <ng-template pTemplate="body">
                                                 <div class="formgrid grid">
                                                     <div class="field col-12">
-                                                        <span>Ingrese RUT del director alterno, luego presione el botón buscar y seleccione en la tabla.</span>
+                                                        <p-messages severity="info">
+                                                            <ng-template pTemplate>
+                                                                <i class="pi pi-info-circle mr-3"></i>
+                                                                <span>Ingrese RUT del director alterno, luego presione el botón buscar y seleccione en la tabla.</span>
+                                                            </ng-template>
+                                                        </p-messages>
                                                     </div>
                                                     <div class="field col-12 lg:col-4">
                                                         <label><strong>RUT director alterno *</strong></label>
@@ -225,23 +242,28 @@
                                                 </div>
                                             </ng-template>
                                             <ng-template pTemplate="body">
-                                                <div class="flex flex-wrap justify-content-between align-items-center">
-                                                    <div>
-                                                        <span>
-                                                            Seleccione un estado de acreditación registrados en la tabla. <br/> Si no está registrado, agregue uno nuevo presionando el botón <strong>Agregar</strong>. <br>
-                                                        </span>
+                                                <div class="grid flex justify-content-center align-items-center h-full">
+                                                    <div class="col-12 lg:col-10">
+                                                        <p-messages severity="info">
+                                                            <ng-template pTemplate>
+                                                                <i class="pi pi-info-circle mr-3"></i>
+                                                                <span>
+                                                                    Seleccione un estado de acreditación registrado en la tabla. Si no está registrado, agregue uno presionando el botón <strong>Agregar</strong>.
+                                                                </span>
+                                                            </ng-template>
+                                                        </p-messages>
                                                     </div>
-                                                    <div>
-                                                        <p-button
-                                                        label="Agregar"
-                                                        icon="pi pi-plus"
-                                                        styleClass="p-button-success p-button-sm"
-                                                        (click)="addNewEstadoAcreditacion()"
-                                                        ></p-button>
+                                                    <div class="col-12 lg:col-2">
+                                                        <div class="flex justify-content-center align-items-center h-full">
+                                                            <p-button
+                                                                label="Agregar"
+                                                                icon="pi pi-plus"
+                                                                styleClass="p-button-success p-button-sm"
+                                                                (click)="addNewEstadoAcreditacion()"
+                                                            ></p-button>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                
-                                                <br>
                                                 <app-table-programas-estados-acreditacion [data]="estadosAcreditacion" ></app-table-programas-estados-acreditacion>
                                             </ng-template>
                                         </p-accordionTab>

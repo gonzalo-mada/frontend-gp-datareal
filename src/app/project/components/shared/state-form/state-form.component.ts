@@ -99,4 +99,13 @@ export class StateFormComponent  {
 
   dataForm: any[] = [];
 
+  getStateClass(state: boolean): string {
+    return state ? 'state-badge state-valid' : 'state-badge state-invalid';
+  }
+  
+  getStateText(state: boolean): string {
+    return state ? 'válido' : 'inválido';
+  }
+  
+
 }

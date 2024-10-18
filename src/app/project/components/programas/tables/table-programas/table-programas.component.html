@@ -42,6 +42,8 @@
     (selectionChange)="selectionChange()"
     scrollDirection="horizontal"
     autoLayout="true"
+    [customSort]="true"
+    (sortFunction)="customSortAccreditation($event)"
     >
 
     <ng-template pTemplate="caption">
@@ -98,23 +100,32 @@
           </div>
     </ng-template>
 
-    <ng-template pTemplate="header" let-columns>
+    <ng-template pTemplate="header" let-columns let-data>
         <tr>
             <th style="width: auto;" pFrozenColumn>
                 <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
             </th>
-            <th [ngStyle]="{'width': selectedColumns.length === 0 ? '100%' : 'auto'}" pFrozenColumn [frozen]="programaFrozen">Programa</th>
+            <th 
+                [ngStyle]="{'width': selectedColumns.length === 0 ? '100%' : 'auto'}" 
+                pFrozenColumn 
+                [frozen]="programaFrozen"
+                pSortableColumn="Nombre_programa"
+            >
+                Programa <p-sortIcon field="Nombre_programa" />
+            </th>
             <ng-container *ngFor="let col of columns">
-                <ng-container *ngIf="col.field === 'Programa'; else noMerged ">
-                    <th [ngStyle]="getColStyle(col)" pFrozenColumn >
-                        {{col.header}}
-                    </th>
+                <ng-container [ngSwitch]="col.field">
+                    <ng-container *ngSwitchCase="'Acreditacion'">
+                        <th pSortableColumn="{{col.field}}" [ngStyle]="getColStyle(col)"   >
+                            {{col.header}} <p-sortIcon field="{{col.field}}"></p-sortIcon>
+                        </th>
+                    </ng-container>
+                    <ng-container *ngSwitchDefault>
+                        <th pSortableColumn="{{col.field}}" [ngStyle]="getColStyle(col)">
+                            {{col.header}} <p-sortIcon field="{{col.field}}"></p-sortIcon>
+                        </th>
+                    </ng-container>
                 </ng-container>
-                <ng-template #noMerged>
-                    <th [ngStyle]="getColStyle(col)">
-                        {{col.header}}
-                    </th>
-                </ng-template>
             </ng-container>
             <th alignFrozen="right" pFrozenColumn>
                 Acciones
@@ -170,9 +181,9 @@
                             </td>
                         </ng-container>
                         <ng-template #notAcredited>
-                            <th [ngStyle]="getColStyle(col)">
-                                {{col.header}}
-                            </th>
+                            <td [ngStyle]="getColStyle(col)">
+                                <span>No acreditado</span>
+                            </td>
                         </ng-template>
                     </ng-container>
 
