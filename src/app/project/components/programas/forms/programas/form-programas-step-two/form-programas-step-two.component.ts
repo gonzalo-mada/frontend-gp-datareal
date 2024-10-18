@@ -128,7 +128,7 @@ export class FormProgramasStepTwoComponent implements OnInit  {
 
     switch (event.checked) {
       case true: Instituciones?.enable(); this.showAsterisk = true; break;
-      case false : Instituciones?.disable(); this.showAsterisk = false; break;
+      case false : Instituciones?.disable(); Instituciones?.reset(); this.showAsterisk = false; break;
       default: Instituciones?.disable(); this.showAsterisk = false; break;
     }
   }

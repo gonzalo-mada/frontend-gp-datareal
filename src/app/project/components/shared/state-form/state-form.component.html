@@ -8,30 +8,38 @@
                 </div>
                 <ng-container [ngSwitch]="item.step">
                     <ng-container *ngSwitchCase="1">
-                        <div>
-                            <i *ngIf="!programasService.stateStepOne" class="pi pi-times" style="color: red"></i>
-                            <i *ngIf="programasService.stateStepOne" class="pi pi-check" style="color: green"></i>
-                        </div>
+                      <div>
+                        <span [ngClass]="getStateClass(programasService.stateStepOne)">
+                          {{ getStateText(programasService.stateStepOne) }}
+                        </span>
+                      </div>
                     </ng-container>
+                  
                     <ng-container *ngSwitchCase="2">
-                        <div>
-                            <i *ngIf="!programasService.stateStepTwo" class="pi pi-times" style="color: red"></i>
-                            <i *ngIf="programasService.stateStepTwo" class="pi pi-check" style="color: green"></i>
-                        </div>
+                      <div>
+                        <span [ngClass]="getStateClass(programasService.stateStepTwo)">
+                          {{ getStateText(programasService.stateStepTwo) }}
+                        </span>
+                      </div>
                     </ng-container>
+                  
                     <ng-container *ngSwitchCase="3">
-                        <div>
-                            <i *ngIf="!programasService.stateStepThree" class="pi pi-times" style="color: red"></i>
-                            <i *ngIf="programasService.stateStepThree" class="pi pi-check" style="color: green"></i>
-                        </div>
+                      <div>
+                        <span [ngClass]="getStateClass(programasService.stateStepThree)">
+                          {{ getStateText(programasService.stateStepThree) }}
+                        </span>
+                      </div>
                     </ng-container>
+                  
                     <ng-container *ngSwitchCase="0">
-                        <div>
-                            <i *ngIf="!programasService.stateFileMaestro" class="pi pi-times" style="color: red"></i>
-                            <i *ngIf="programasService.stateFileMaestro" class="pi pi-check" style="color: green"></i>
-                        </div>
+                      <div>
+                        <span [ngClass]="getStateClass(programasService.stateFileMaestro)">
+                          {{ getStateText(programasService.stateFileMaestro) }}
+                        </span>
+                      </div>
                     </ng-container>
-                </ng-container>
+                  </ng-container>
+                  
             </div>
         </ng-template>
         

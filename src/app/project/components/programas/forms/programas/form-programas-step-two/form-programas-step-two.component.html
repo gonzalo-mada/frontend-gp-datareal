@@ -92,6 +92,7 @@
                 appendTo="body"
                 [virtualScroll]="true"
                 [virtualScrollItemSize]="43"
+                selectedItemsLabel="{0} instituciones seleccionadas"
             >
             </p-multiSelect>
             <app-form-control [control]="programasService.fbForm.controls['Instituciones']" [validators]="['required']"></app-form-control>
