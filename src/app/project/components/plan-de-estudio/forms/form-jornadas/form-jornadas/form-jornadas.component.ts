@@ -45,6 +45,8 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
       genero: 'femenino'
     };
 
+    this.subscription.add(this.fbForm.statusChanges.subscribe(status => { this.jornadaService.stateForm = status as StateValidatorForm }))
+
     this.subscription.add(
       this.jornadaService.formUpdate$.subscribe( form => {
         if (form && form.mode){
@@ -71,6 +73,15 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
     try {
       let params = {};
         const { ...formData } = this.fbForm.value;
+
+
+      // Limpiar los espacios en blanco de los campos de texto
+      Object.keys(formData).forEach(key => {
+      if (typeof formData[key] === 'string') {
+        formData[key] = formData[key].trim();  // Aplica trim a las cadenas
+      }
+      });
+
         params = {
           ...formData
         };
@@ -90,6 +101,7 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
             summary: `Error al guardar ${this.namesCrud.singular}`,
             message: e.detail.error.message.message
           });
+    reject(e)
     this.resetForm()
     }
   }
@@ -98,6 +110,14 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
     try {
       let params = {}
       const { ...formData } = this.fbForm.value ; 
+
+        // Limpiar los espacios en blanco de los campos de texto
+        Object.keys(formData).forEach(key => {
+          if (typeof formData[key] === 'string') {
+            formData[key] = formData[key].trim();  // Aplica trim a las cadenas
+          }
+        });
+
         params = {
           ...formData,
           Cod_jornada: this.jornada.Cod_jornada,
@@ -115,48 +135,65 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
             summary: `Error al guardar ${this.namesCrud.singular}`,
             message: e.detail.error.message.message
           });
+        reject(e)
         this.resetForm()
       }
   }
 
   async createForm(resolve: Function, reject: Function){
-    try {
-      this.resetForm();
-      resolve(true)
-    } catch (e) {
-      reject(e)
-    }
+  try {
+    this.resetForm(); // Llama al método resetForm para limpiar validadores
+    resolve(true);
+  } catch (e) {
+    reject(e);
   }
+}
 
   async showForm(resolve: Function, reject: Function){
     try {
+      console.log(this.jornadaService.modeForm);
+
       this.fbForm.patchValue({...this.jornada});
       this.fbForm.get('Descripcion_jornada')?.disable();
       resolve(true)
     } catch (e) {      
       reject(e)
-    }  
+    }
   }
 
   async editForm(resolve: Function, reject: Function){
     try {
       this.fbForm.patchValue({...this.jornada});
-      let actualValue = this.fbForm.get('Descripcion_jornada')?.value
+      let actualValue = this.fbForm.get('Descripcion_jornada')?.value;
+  
+      // Asignar validadores específicos para el modo de edición
       this.fbForm.get('Descripcion_jornada')?.setValidators([
         Validators.required,  // Validador de requerido
-        GPValidator.existName(actualValue) 
+        GPValidator.existName(actualValue) // Validador personalizado para evitar duplicados en edición
       ]);
+      
       this.fbForm.get('Descripcion_jornada')?.enable();
-      resolve(true)
+      this.fbForm.updateValueAndValidity(); // Asegúrate de que los cambios de validación se apliquen
+      resolve(true);
     } catch (e) {
-      reject(e)
+      reject(e);
     }
   }
+  
 
   resetForm(): void {
     this.fbForm.reset({
       Descripcion_jornada: ''
     });
+  
+    // Restablecer los validadores a su estado inicial
+    this.fbForm.get('Descripcion_jornada')?.setValidators([
+      Validators.required,
+      GPValidator.regexPattern('num_y_letras') // Validador inicial
+    ]);
+  
     this.fbForm.get('Descripcion_jornada')?.enable();
+    this.fbForm.updateValueAndValidity(); // Asegúrate de que los cambios de validación se apliquen
   }
+  
 }
