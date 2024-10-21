@@ -6,6 +6,7 @@
         "num_o_letras": "Field must not contain blank spaces",
         "solo_num": "Field only accepts numbers",
         "solo_letras": "Field only accepts letters",
-        "checkCorreoUV": "Field only accepts emails from @uv.cl, @postgrado.uv.cl"
+        "checkCorreoUV": "Field only accepts emails from @uv.cl, @postgrado.uv.cl",
+        "notSameAsDirector": "Alternate Director cannot be the same as Director"
     }
 }

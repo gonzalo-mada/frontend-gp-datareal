@@ -1,4 +1,4 @@
-import { AbstractControl, ValidationErrors, ValidatorFn } from "@angular/forms";
+import { AbstractControl, FormGroup, ValidationErrors, ValidatorFn } from "@angular/forms";
 
 export class GPValidator {
 
@@ -68,13 +68,75 @@ export class GPValidator {
             return null;
           }
         };
-      }
+    }
 
-      static existName(existName: string): ValidatorFn {
+    static existName(existName: string): ValidatorFn {
         return (control: AbstractControl): ValidationErrors | null => {
           const nombre = control.value?.trim().toLowerCase();
           const existe = existName.trim().toLowerCase() === nombre;
           return existe ? { existName: true } : null;
         };
-      }
+    }
+
+    static notSameAsDirector(directorControlName: string, directorSelectedControlName: string): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+            const formGroup = control.parent as FormGroup;
+
+            if (!formGroup) {
+                return null; 
+            }
+
+            const directorValue = formGroup.get(directorControlName)?.value;
+            const directorSelectedValue = formGroup.get(directorSelectedControlName)?.value;
+            
+            const directorAlternoValue = control.value;
+            
+            if (directorValue && directorAlternoValue && directorValue === directorAlternoValue && directorValue === directorSelectedValue) {
+                return { notSameAsDirector: true };
+            } else {
+                return null;
+            }
+        };
+    }
+
+    static requiredDirectorAlternoSelected(): ValidatorFn {
+        return (control: AbstractControl) : ValidationErrors | null => {
+            const formGroup = control.parent as FormGroup;
+
+            if (!formGroup) {
+                return null; 
+            }
+
+            let isDirector_Alterno = formGroup.get('haveDirectorAlterno')?.value;
+            let DirectorAlterno_selected = formGroup.get('DirectorAlterno_selected')?.value;
+
+            if ((isDirector_Alterno === null || isDirector_Alterno === false) && (DirectorAlterno_selected === '' )) {
+                return { required: true }; 
+            }else if (isDirector_Alterno === true && DirectorAlterno_selected === null){
+                return { required: true }; 
+            }else{
+                return null;
+            }
+            
+        }
+    }
+
+    static notSameDirectorsSelected(): ValidatorFn {
+        return (control: AbstractControl) : ValidationErrors | null => {
+            const formGroup = control.parent as FormGroup;
+
+            if (!formGroup) {
+                return null; 
+            }
+
+            let directorSelected = formGroup.get('Director_selected')?.value;
+            let directorAlternoSelected = formGroup.get('DirectorAlterno_selected')?.value;
+
+            if (directorSelected && directorAlternoSelected && directorSelected === directorAlternoSelected) {
+                return { required: true };
+            } else {
+                return null;
+            }
+        }
+    }
 }

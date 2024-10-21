@@ -1,4 +1,5 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { MessageService } from 'primeng/api';
 import { Table, TableRowExpandEvent } from 'primeng/table';
 import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
@@ -18,8 +19,9 @@ import { ReglamentosService } from 'src/app/project/services/programas/reglament
 export class TableProgramasReglamentosComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     private errorTemplateHandler: ErrorTemplateHandler,
+    private messageService: MessageService,
     private reglamentosService: ReglamentosService,
-    private programasService: ProgramasService,
+    public programasService: ProgramasService,
     private tableCrudService: TableCrudService,
     private uploaderFilesService: UploaderFilesService
   ){}
@@ -33,6 +35,7 @@ export class TableProgramasReglamentosComponent implements OnInit, OnChanges, On
   globalFiltros: any[] = []
   dataKeyTable: string = '';
   expandedRows = {};
+  isAnySelected: boolean = false;
   private subscription: Subscription = new Subscription();
 
   ngOnInit(): void {
@@ -79,8 +82,34 @@ export class TableProgramasReglamentosComponent implements OnInit, OnChanges, On
     this.expandedRows = {} 
   }
 
-  onClickSelectSuspension(data: Reglamento){
-    this.programasService.setSelectReglamento(data);
+  changeSelectSuspension(mode:'select' | 'unselect', data: Reglamento){
+    this.messageService.clear();
+    switch (mode) {
+      case 'select':
+        this.isAnySelected = true
+        data.isSelected = true;
+        this.programasService.setSelectReglamento(data);
+        this.messageService.add({
+          key: this.programasService.keyPopups,
+          severity: 'info',
+          detail: `Reglamento: "${data.Descripcion_regla}" seleccionado`,
+        });
+      break;
+
+      case 'unselect':
+        this.isAnySelected = false
+        data.isSelected = false;
+        this.programasService.unsetSelectReglamento();
+        this.messageService.add({
+          key: this.programasService.keyPopups,
+          severity: 'info',
+          detail: `Reglamento: "${data.Descripcion_regla}" deseleccionado`,
+        });
+      break;
+
+    }
+
+
   }
 
   async onRowExpand(event: TableRowExpandEvent) {

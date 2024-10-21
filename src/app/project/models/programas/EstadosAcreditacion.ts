@@ -3,13 +3,15 @@ export type Si_No = 'SI' | 'NO'
 
 export interface EstadosAcreditacion {
     Cod_acreditacion?: number,
+    Sigla?: string,
     Acreditado?: Si_No,
     Certificado?: Si_No, //pregrado
     Nombre_ag_acredit?: string,
     Nombre_ag_certif?: string, //pregrado
     Evaluacion_interna?: Si_No,
     Fecha_informe?: string,
-    tiempo?: TiemposAcreditacion
+    tiempo?: TiemposAcreditacion,
+    isSelected?: boolean
     
 }
 

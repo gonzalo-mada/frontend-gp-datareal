@@ -6,6 +6,7 @@
         "num_o_letras": "Campo no debe contener espacios en blanco",
         "solo_num": "Campo solo acepta números",
         "solo_letras": "Campo solo acepta letras",
-        "checkCorreoUV": "Campo solo acepta correos @uv.cl, @postgrado.uv.cl"
+        "checkCorreoUV": "Campo solo acepta correos @uv.cl, @postgrado.uv.cl",
+        "notSameAsDirector": "Director(a) alterno(a) no puede ser igual que Director(a)"
     }
 }

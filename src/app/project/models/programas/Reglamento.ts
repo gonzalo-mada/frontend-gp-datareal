@@ -3,7 +3,8 @@ export interface Reglamento {
     Descripcion_regla?: string;
     anio?: string;
     vigencia?: boolean,
-    BadgeClass?: string
+    BadgeClass?: string,
+    isSelected?: boolean
 }
 
 export interface DocFromUploader{

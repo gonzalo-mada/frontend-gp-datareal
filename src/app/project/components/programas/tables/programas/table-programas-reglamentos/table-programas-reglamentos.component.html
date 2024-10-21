@@ -121,10 +121,19 @@
             </td>
             <td *ngIf="mode !== 'show' ">
                 <div class="flex">
-                    <p-button 
+                    <p-button
+                        *ngIf="!data.isSelected" 
                         label="Seleccionar" 
                         styleClass="p-button-sm p-button-info mr-2" 
-                        (click)="onClickSelectSuspension(data)" 
+                        (click)="changeSelectSuspension('select',data)"
+                        [disabled]="isAnySelected && !data.isSelected" 
+                    >
+                    </p-button>
+                    <p-button
+                        *ngIf="data.isSelected"    
+                        styleClass="p-button-sm p-button-danger"
+                        label="Deseleccionar"
+                        (click)="changeSelectSuspension('unselect',data)"
                     >
                     </p-button>
                 </div>

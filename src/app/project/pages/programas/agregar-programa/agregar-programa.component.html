@@ -1,5 +1,7 @@
 <app-breadcrumbgp></app-breadcrumbgp>
-<p-toast [key]="programasService.keyPopups"></p-toast>
+<p-toast [key]="programasService.keyPopups" [style]="{ width: '30rem' }"></p-toast>
+<p-toast [key]="programasService.keyPopupsCenter" [style]="{ width: '30rem' }" position="center" life="2000" ></p-toast>
+<p-confirmDialog [key]="programasService.keyPopups" [style]="{ width: '500px' }" closable="false"></p-confirmDialog>
 
 <app-dialog [(visible)]="showDialogDocs">
     <div header>
@@ -72,21 +74,36 @@
                 <button pButton icon="pi pi-upload" label="Adjuntar documento maestro" (click)="chooseDocs('Maestro')"></button>
                 <button 
                     pButton 
-                    class="{{ programasService.stateFormPrograma ? 'p-button-success' : 'p-button-danger' }} p-button-outlined ml-2" 
-                    icon="pi {{ programasService.stateFormPrograma ? 'pi-check' : 'pi-times' }}" 
-                    label="Estado formulario"
-                    iconPos="right"
+                    class="hidden p-button-secondary p-button-outlined ml-2 lg:inline" 
                     (click)="changeDisposition()" 
                 >
+                    <div class="flex align-items-center justify-content-center">
+                        <span class="mr-2">Estado formulario: </span>
+                        <span [ngClass]="getStateClass(programasService.stateFormPrograma)">
+                            {{ getStateText(programasService.stateFormPrograma) }}
+                        </span>
+                    </div>
+                </button>
+                <button 
+                    pButton 
+                    class="p-button-secondary p-button-outlined ml-2 lg:hidden" 
+                    (click)="sidebarVisible2 = true" 
+                >
+                <div class="flex align-items-center justify-content-center">
+                    <span class="mr-2">Estado formulario: </span>
+                    <span [ngClass]="getStateClass(programasService.stateFormPrograma)">
+                        {{ getStateText(programasService.stateFormPrograma) }}
+                    </span>
+                </div>
                 </button>
             </div>
         </div>
     </ng-template>
 
     <ng-template pTemplate="body">
-        <div class="layout-container" [ngClass]="containerClass">
+        <div class="grid flex">
             
-            <div class="layout-content-wrapper">
+            <div [ngClass]="contentWrapperClass">
                 <form [formGroup]="programasService.fbForm">
                     <p-stepper (activeStepChange)="stepChange($event)">
                         <p-stepperPanel id="paso1">
@@ -109,7 +126,7 @@
                         <p-stepperPanel id="paso3">
                             <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback">
                                 <div class="flex flex-column">
-                                    <p-accordion class="w-full" [activeIndex]="0" (onOpen)="openAccordion()">
+                                    <p-accordion class="w-full" [activeIndex]="programasService.activeIndexAcordionAddPrograma" (onOpen)="openAccordion()">
 
                                         <p-accordionTab id="reglamento">
                                             <ng-template pTemplate="header">
@@ -135,7 +152,7 @@
                                                         </p-messages>
                                                     </div>
                                                     <div class="col-12 lg:col-2">
-                                                        <div class="flex justify-content-center align-items-center h-full">
+                                                        <div class="flex justify-content-end align-items-center h-full">
                                                             <p-button
                                                                 label="Agregar"
                                                                 icon="pi pi-plus"
@@ -147,86 +164,6 @@
                                                 </div>
                                                 
                                                 <app-table-programas-reglamentos [data]="reglamentos"></app-table-programas-reglamentos>
-                                            </ng-template>
-                                        </p-accordionTab>
-
-                                        <p-accordionTab id="director">
-                                            <ng-template pTemplate="header">
-                                                <div class="flex justify-content-between flex-wrap w-full">
-                                                    <div>
-                                                        <span><strong>Director</strong></span>
-                                                    </div>
-                                                    <div *ngIf="programasService.directorSelected.nombre !== '' ">
-                                                        <span style="font-weight: 100;"><i>{{ programasService.directorSelected.rut }} - {{ programasService.directorSelected.nombre }} </i></span>
-                                                    </div>
-                                                </div>
-                                            </ng-template>
-                                            <ng-template pTemplate="body">
-                                                <div class="formgrid grid">
-                                                    <div class="field col-12">
-                                                        <p-messages severity="info">
-                                                            <ng-template pTemplate>
-                                                                <i class="pi pi-info-circle mr-3"></i>
-                                                                <span>Ingrese RUT del director, luego presione el botón buscar y seleccione en la tabla.</span>
-                                                            </ng-template>
-                                                        </p-messages>
-                                                    </div>
-                                                    <div class="field col-12 lg:col-4">
-                                                        <label><strong>RUT director *</strong></label>
-                                                        <p-inputGroup>
-                                                            <input type="text" pInputText formControlName="Director" placeholder="Ingrese RUT del director" />
-                                                            <button type="button" pButton icon="pi pi-search" [disabled]="programasService.fbForm.controls['Director'].invalid" (click)="searchDirector('director')"></button>
-                                                        </p-inputGroup>
-                                                        <small>Sin puntos y con guión. Ejemplo: 11111111-0</small>
-                                                        <app-form-control [control]="programasService.fbForm.controls['Director']" [validators]="['required', 'rut']"></app-form-control>
-                                                    </div>
-                                                    <div class="col-12 lg:col-8">
-                                                        <div class="field">
-                                                            <label><strong>Director encontrado</strong></label>
-                                                            <app-table-programas-directores mode="director" [data]="directores"></app-table-programas-directores>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </ng-template>
-                                        </p-accordionTab>
-
-                                        <p-accordionTab id="directoralterno">
-                                            <ng-template pTemplate="header">
-                                                <div class="flex justify-content-between flex-wrap w-full">
-                                                    <div>
-                                                        <span><strong>Director alterno</strong></span>
-                                                    </div>
-                                                    <div *ngIf="programasService.directorAlternoSelected.nombre !== '' ">
-                                                        <span style="font-weight: 100;"><i>{{ programasService.directorAlternoSelected.rut }} - {{ programasService.directorAlternoSelected.nombre }} </i></span>
-                                                    </div>
-                                                </div>
-                                            </ng-template>
-                                            <ng-template pTemplate="body">
-                                                <div class="formgrid grid">
-                                                    <div class="field col-12">
-                                                        <p-messages severity="info">
-                                                            <ng-template pTemplate>
-                                                                <i class="pi pi-info-circle mr-3"></i>
-                                                                <span>Ingrese RUT del director alterno, luego presione el botón buscar y seleccione en la tabla.</span>
-                                                            </ng-template>
-                                                        </p-messages>
-                                                    </div>
-                                                    <div class="field col-12 lg:col-4">
-                                                        <label><strong>RUT director alterno *</strong></label>
-                                                        <p-inputGroup>
-                                                            <input type="text" pInputText formControlName="Director_alterno" placeholder="Ingrese RUT del director alterno" />
-                                                            <button type="button" pButton icon="pi pi-search" [disabled]="programasService.fbForm.controls['Director_alterno'].invalid" (click)="searchDirector('directoralterno')"></button>
-                                                        </p-inputGroup>
-                                                        <small>Sin puntos y con guión. Ejemplo: 11111111-0</small>
-                                                        <app-form-control [control]="programasService.fbForm.controls['Director_alterno']" [validators]="['required', 'rut']"></app-form-control>
-                                                    </div>
-                                                    <div class="col-12 lg:col-8">
-                                                        <div class="field">
-                                                            <label><strong>Director alterno encontrado</strong></label>
-                                                            <app-table-programas-directores mode="alterno" [data]="directoresAlternos"></app-table-programas-directores>
-                                                        </div>
-                                                    </div>
-                                                </div>
                                             </ng-template>
                                         </p-accordionTab>
 
@@ -254,7 +191,7 @@
                                                         </p-messages>
                                                     </div>
                                                     <div class="col-12 lg:col-2">
-                                                        <div class="flex justify-content-center align-items-center h-full">
+                                                        <div class="flex justify-content-end align-items-center h-full">
                                                             <p-button
                                                                 label="Agregar"
                                                                 icon="pi pi-plus"
@@ -268,21 +205,103 @@
                                             </ng-template>
                                         </p-accordionTab>
 
+                                        <p-accordionTab id="director">
+                                            <ng-template pTemplate="header">
+                                                <div class="flex justify-content-between flex-wrap w-full">
+                                                    <div>
+                                                        <span><strong>Director(a)</strong></span>
+                                                    </div>
+                                                    <div *ngIf="programasService.directorSelected.nombre !== '' ">
+                                                        <span style="font-weight: 100;"><i>{{ programasService.directorSelected.rut }} - {{ programasService.directorSelected.nombre }} </i></span>
+                                                    </div>
+                                                </div>
+                                            </ng-template>
+                                            <ng-template pTemplate="body">
+                                                <div class="formgrid grid">
+                                                    <div class="col-12">
+                                                        <p-messages severity="info">
+                                                            <ng-template pTemplate>
+                                                                <i class="pi pi-info-circle mr-3"></i>
+                                                                <span>Ingrese RUT de director(a), luego presione el botón buscar ( <i class="pi pi-search" style="font-size: 0.8rem; font-weight:1000;"></i> ) y seleccione en la tabla.</span>
+                                                            </ng-template>
+                                                        </p-messages>
+                                                    </div>
+                                                    <div class="field col-12 lg:col-4">
+                                                        <label><strong>RUT director(a) *</strong></label>
+                                                        <p-inputGroup>
+                                                            <input type="text" pInputText formControlName="Director" maxlength="10" placeholder="Ingrese RUT director(a)"  />
+                                                            <button type="button" pButton icon="pi pi-search" [disabled]="programasService.fbForm.controls['Director'].invalid" (click)="searchDirector('director')"></button>
+                                                        </p-inputGroup>
+                                                        <small>Sin puntos y con guión. Ejemplo: 11111111-0</small>
+                                                        <app-form-control [control]="programasService.fbForm.controls['Director']" [validators]="['required', 'rut']"></app-form-control>
+                                                    </div>
+                                                    <div class="col-12 lg:col-8">
+                                                        <div class="field" *ngIf="programasService.showTableDirectores">
+                                                            <label><strong>Director(a) encontrado(a)</strong></label>
+                                                            <app-table-programas-directores mode="director" [data]="directores"></app-table-programas-directores>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </ng-template>
+                                        </p-accordionTab>
+
+                                        <p-accordionTab id="directoralterno" *ngIf="programasService.fbForm.get('haveDirectorAlterno')?.value">
+                                            <ng-template pTemplate="header">
+                                                <div class="flex justify-content-between flex-wrap w-full">
+                                                    <div>
+                                                        <span><strong>Director(a) alterno(a)</strong></span>
+                                                    </div>
+                                                    <div *ngIf="programasService.directorAlternoSelected.nombre !== '' ">
+                                                        <span style="font-weight: 100;"><i>{{ programasService.directorAlternoSelected.rut }} - {{ programasService.directorAlternoSelected.nombre }} </i></span>
+                                                    </div>
+                                                </div>
+                                            </ng-template>
+                                            <ng-template pTemplate="body">
+                                                <div class="formgrid grid">
+                                                    <div class="field col-12">
+                                                        <p-messages severity="info">
+                                                            <ng-template pTemplate>
+                                                                <i class="pi pi-info-circle mr-3"></i>
+                                                                <span>Ingrese RUT de director(a) alterno(a), luego presione el botón buscar ( <i class="pi pi-search" style="font-size: 0.8rem; font-weight:1000;"></i> ) y seleccione en la tabla.</span>
+                                                            </ng-template>
+                                                        </p-messages>
+                                                    </div>
+                                                    <div class="field col-12 lg:col-4">
+                                                        <label><strong>RUT director(a) alterno(a) *</strong></label>
+                                                        <p-inputGroup>
+                                                            <input type="text" pInputText formControlName="Director_alterno" placeholder="Ingrese RUT de director(a) alterno(a)" />
+                                                            <button type="button" pButton icon="pi pi-search" [disabled]="programasService.fbForm.controls['Director_alterno'].invalid" (click)="searchDirector('directoralterno')"></button>
+                                                        </p-inputGroup>
+                                                        <small>Sin puntos y con guión. Ejemplo: 11111111-0</small>
+                                                        <app-form-control [control]="programasService.fbForm.controls['Director_alterno']" [validators]="['required', 'rut', 'notSameAsDirector']"></app-form-control>
+                                                    </div>
+                                                    <div class="col-12 lg:col-8">
+                                                        <div class="field" *ngIf="programasService.showTableDirectoresAlternos">
+                                                            <label><strong>Director(a) alterno(a) encontrado(a)</strong></label>
+                                                            <app-table-programas-directores mode="alterno" [data]="directoresAlternos"></app-table-programas-directores>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </ng-template>
+                                        </p-accordionTab>
+
+                                        
+
                                     </p-accordion>
                                 </div>
                                 <div class="flex pt-4 justify-content-between">
                                     <p-button label="Atrás" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()" />
-                                    <p-button label="Agregar" icon="pi pi-check" iconPos="right" (onClick)="submit()" [disabled]="!programasService.stateFormPrograma" />
+                                    <p-button styleClass="p-button-success" label="Agregar" icon="pi pi-check" iconPos="right" (onClick)="submit()" [disabled]="!programasService.stateFormPrograma" />
                                 </div>
                             </ng-template>
                         </p-stepperPanel>
                     </p-stepper>
                 </form>
             </div>
-            <div class="layout-sidebar" *ngIf="programasService.disposition">
-                <p-card  styleClass="border-1 surface-border border-round rounded-lg">
+            <div class="hidden lg:block" *ngIf="programasService.disposition" [ngClass]="sidebarClass" >
+                <p-card styleClass="border-1 surface-border border-round rounded-lg"  >
                     <ng-template pTemplate="header">
-                        <div class="flex flex-row flex-wrap"  [style]="{ 'padding-left': '1.5rem' , 'padding-top': '1.5rem' , 'padding-right': '1.5rem'}">
+                        <div class="flex flex-row flex-wrap"  [style]="{ 'padding-left': '1.5rem' , 'padding-top': '1.5rem' , 'padding-right': '1.5rem' , 'width': '100%'}">
                             <div class="align-items-center">
                                 <div class="p-card-title">Estado formulario</div>
                             </div>
@@ -297,7 +316,15 @@
                     <app-state-form></app-state-form>
                 </p-card>
             </div>
+
+            <p-sidebar [(visible)]="sidebarVisible2" position="right">
+                <h3>Estado formulario</h3>
+                <app-state-form></app-state-form>
+            </p-sidebar>
+
+
             
+
 
         </div>
 

@@ -103,7 +103,7 @@ export class UploaderFilesService {
 
   resetFilesUploaded(){
     //esta funcion se llama cuando un mantenedor se destruye
-    console.log("me llamaron: resetFilesUploaded");
+    // console.log("me llamaron: resetFilesUploaded");
     this.filesUploaded = [];
     this.filesToDelete = [];
     this.filesFromModeCreateOrEdit = [];
