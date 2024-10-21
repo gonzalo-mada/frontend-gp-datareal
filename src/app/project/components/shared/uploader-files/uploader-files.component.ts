@@ -229,7 +229,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
   }
 
   resetQueueUploader(context: Context){
-    console.log("me llamaron reset queue uploader desde:", context);
+    // console.log("me llamaron reset queue uploader desde:", context);
     // this.filesToDelete = []; 
     this.docsToUpload = [];  
     this.uploader?.clear();

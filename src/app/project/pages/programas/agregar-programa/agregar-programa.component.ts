@@ -99,6 +99,17 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
       }
       
     }));
+    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
+      // console.log("from",from);
+      if(from){
+        if (from.context.component.name === 'reglamentos') {
+          this.downloadDoc('reglamentos',from.file)
+        }
+        if (from.context.component.name === 'estado-acreditacion') {
+          this.downloadDoc('estado-acreditacion',from.file)
+        }
+      }
+    }));
     this.programasService.setModeCrud('create');
     this.programasService.resetFormPrograma();
 
@@ -138,6 +149,28 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
         message: 'Hubo un error al obtener reglamentos. Intente nuevamente.',
+      });
+    }
+  }
+
+  async downloadDoc(from: 'reglamentos' | 'estado-acreditacion', documento: any) {
+    try {
+
+      if (from === 'reglamentos') {
+        let blob: Blob = await this.reglamentosService.getArchiveDoc(documento.id);
+        this.commonUtils.downloadBlob(blob, documento.nombre); 
+      } else {
+        //descarga de archivo de estado acreditacion.
+        let blob: Blob = await this.estadosAcreditacionService.getArchiveDoc(documento.id);
+        this.commonUtils.downloadBlob(blob, documento.nombre); 
+      }
+     
+    } catch (e:any) {
+      this.errorTemplateHandler.processError(
+        e, {
+          notifyMethod: 'alert',
+          summary: 'Error al descargar documento',
+          message: e.message,
       });
     }
   }
@@ -249,6 +282,8 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
         this.estadosAcreditacionService.setModeForm('insert',null, resolve, reject);
       })
 
+      // console.log("resuttt",result);
+      
       if (result.success) {
         //insert exitoso
         this.getEstadosAcreditacion();
@@ -263,16 +298,18 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
           result, {
             notifyMethod: 'alert',
             summary: result.messageGp,
-            message: result.e.detail.error.message,
+            message: result.detail.error.message,
         });
         this.reset();
       }
       this.showDialogEstadoAcreditacion = false;
     } catch (e:any ) {
+      // console.log("errrrrr",e);
+      
       this.showDialogEstadoAcreditacion = false;
       this.errorTemplateHandler.processError(e, {
         notifyMethod: 'alert',
-        message: 'Hubo un error al insertar un estado de acreditación. Intente nuevamente.',
+        message: 'Hubo un error al insertar un estado de acreditación desde Programa. Intente nuevamente.',
       });
     }
   }
@@ -304,7 +341,6 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
       
       if (result.success) {
         //insert exitoso
-        this.getReglamentos();
         this.messageService.add({
           key: this.programasService.keyPopups,
           severity: 'success',
@@ -316,17 +352,21 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
           result, {
             notifyMethod: 'alert',
             summary: result.messageGp,
-            message: result.e.detail.error.message,
+            message: result.detail.error.message,
         });
       }
-      this.reset();
-      this.newReglamentoDialog = false;
+      
     } catch (e: any) {
+      console.log("Error al insertar reglamento desde programa",e);
       this.newReglamentoDialog = false;
       this.errorTemplateHandler.processError(e, {
         notifyMethod: 'alert',
         message: e.detail.error.message
       });
+    }finally{
+      this.reset();
+      this.newReglamentoDialog = false;
+      this.getReglamentos();
     }
   }
 
@@ -344,12 +384,10 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
 
   async submitNewSuspension(){
     try {
-      console.log("entre aki123");
       
       const result: any = await new Promise((resolve: Function, reject: Function) => {
         this.suspensionesService.setModeForm('insert',null,resolve, reject);
       })
-      console.log("resulttt",result);
       
       if (result.success) {
         //insert exitoso
@@ -371,7 +409,6 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
       this.reset();
       this.newSuspensionDialog = false;
     } catch (e: any) {
-      console.log("eeeee",e);
       
       this.newSuspensionDialog = false;
       this.errorTemplateHandler.processError(e, {

@@ -53,7 +53,7 @@
     </div>
 
     <div class="formgrid grid">
-        <div class="field col-12 md:col-3">
+        <div class="field col-12 md:col-6 lg:col-3">
             <div class="flex justify-content-center flex-wrap">
                 <div class="flex align-items-center justify-content-center">
                     <div class="field" *ngIf="configModeService.config().isPostgrado">
@@ -90,7 +90,7 @@
             </div>
             
         </div>
-        <div class="field col-12 md:col-9">
+        <div class="field col-12 md:col-6 lg:col-9">
             <div *ngIf="configModeService.config().isPostgrado">
                 <label><strong>Nombre agencia acreditadora {{ showAsterisk ? '*' : '' }}</strong></label>
                 <input type="text" pInputText formControlName="Nombre_ag_acredit" maxlength="50" class="w-full mt-1" placeholder="Ingrese nombre de agencia" variant="filled" />
