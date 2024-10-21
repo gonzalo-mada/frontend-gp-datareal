@@ -203,6 +203,9 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
       this.fbForm.get('Evaluacion_interna')?.disable();
       this.fbForm.get('Nombre_ag_acredit')?.disable();
       this.fbForm.get('Nombre_ag_certif')?.disable();
+      this.fbForm.get('Fecha_informe')?.disable();
+      this.fbForm.get('tiempo.Fecha_inicio')?.disable();
+      this.fbForm.get('tiempo.Fecha_termino')?.disable();
       this.showAsterisk = false;
       await this.loadDocsWithBinary(this.estadoAcreditacion);
       resolve(true)
@@ -225,6 +228,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
       this.fbForm.patchValue(formValues);
       this.yearsDifference = this.estadoAcreditacion.tiempo?.Cantidad_anios == 0 ? null : this.estadoAcreditacion.tiempo?.Cantidad_anios!
       this.fbForm.get('Evaluacion_interna')?.enable()
+      this.fbForm.get('Fecha_informe')?.enable();
       this.enableSwitch();
 
       if (isPostgrado) {

@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { EstadoMaestro } from 'src/app/project/models/programas/EstadoMaestro';
@@ -32,6 +32,7 @@ import { Router } from '@angular/router';
 export class AgregarProgramaComponent implements OnInit, OnDestroy {
   constructor(
               public configModeService: ConfigModeService,
+              private confirmationService: ConfirmationService,
               private commonUtils: CommonUtils,
               public estadosAcreditacionService: EstadosAcreditacionService,
               public estadoMaestroService: EstadoMaestroService,
@@ -52,6 +53,14 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
       'layout-overlay': this.programasService.disposition === false
     };
   }
+
+  get contentWrapperClass() {
+    return this.programasService.disposition ? 'col-12 lg:col-9' : 'col-12';
+  }
+  
+  get sidebarClass() {
+    return 'col-3';  
+  }
   
   directores: any[] = [];
   directoresAlternos: any[] = [];
@@ -65,6 +74,8 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
   newSuspensionDialog: boolean = false;
   newReglamentoDialog: boolean = false;
   showAsterisk: boolean = false;
+  sidebarVisible2: boolean = false;
+
   namesCrud!: NamesCrud;
   private subscription: Subscription = new Subscription();
 
@@ -82,7 +93,12 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
     this.getReglamentos();
     this.subscription.add(this.programasService.buttonRefreshTableEA$.subscribe( () => {this.getEstadosAcreditacion()}))
     this.subscription.add(this.programasService.buttonRefreshTableReglamento$.subscribe( () => {this.getReglamentos()}))
-
+    this.subscription.add(this.programasService.fbForm.get('Director_selected')?.valueChanges.subscribe( (value) => {
+      if (value !== '') {
+        this.haveDirectorAlterno()
+      }
+      
+    }));
     this.programasService.setModeCrud('create');
     this.programasService.resetFormPrograma();
 
@@ -128,19 +144,50 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
 
   async searchDirector(tipo: string){
     try {
+      
       if (tipo === 'director') {
-        const rut_director = this.programasService.fbForm.get('Director')!.value.split('-')
-        this.directores = await this.programasService.getDirector({rut: parseInt(rut_director[0])});
+        const inputRutDirector = this.programasService.fbForm.get('Director')!.value
+        const rut_director = inputRutDirector.split('-')
+        let result: any[] = await this.programasService.getDirector({rut: parseInt(rut_director[0])});
+        if (result.length === 0 ) {
+          //no se encontraron directores
+          this.messageService.add({
+            key: this.programasService.keyPopups,
+            severity: 'warn',
+            detail: `No se encontraron directores(as) con el RUT: ${inputRutDirector}.`
+          });
+          this.programasService.showTableDirectores = false;
+        }else{
+          this.directores = result;
+          this.programasService.showTableDirectores = true;
+        }
+        
         
       }else{
         //tipo directoralterno
-        const rut_director = this.programasService.fbForm.get('Director_alterno')!.value.split('-')
-        this.directoresAlternos = await this.programasService.getDirector({rut: parseInt(rut_director[0])});
+        const inputRutDirectorAlt = this.programasService.fbForm.get('Director_alterno')!.value
+        const rut_director = inputRutDirectorAlt.split('-')
+        let resultAlt: any[] = await this.programasService.getDirector({rut: parseInt(rut_director[0])});
+
+        if (resultAlt.length === 0 ) {
+          //no se encontraron directores
+          this.messageService.add({
+            key: this.programasService.keyPopups,
+            severity: 'warn',
+            detail: `No se encontraron directores(as) con el RUT: ${inputRutDirectorAlt}.`
+          });
+          this.programasService.showTableDirectoresAlternos = false;
+        }else{
+          this.directoresAlternos = resultAlt;
+          this.programasService.showTableDirectoresAlternos = true;
+        }
       }
     } catch (error) {
+      console.log("error",error);
+      
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
-        message: 'Hubo un error al obtener el director. Intente nuevamente.',
+        message: 'Hubo un error al buscar director(a). Intente nuevamente.',
       });
       
     }
@@ -370,7 +417,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
 
         if (inserted.dataWasInserted) {
           this.messageService.add({
-            key: this.programasService.keyPopups,
+            key: this.programasService.keyPopupsCenter,
             severity: 'success',
             detail: generateMessage(this.namesCrud,inserted.dataInserted,'creado',true,false)
           });
@@ -391,6 +438,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
       
     }finally{
       this.reset();
+      this.uploaderFilesService.resetUploader();
     }
   }
 
@@ -412,5 +460,35 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
     });
   }
 
+
+  haveDirectorAlterno(){
+    setTimeout(() => {
+      this.confirmationService.confirm({
+        header: "Director(a) alterno(a)",
+        message: "¿El programa cuenta con director(a) alterno(a)?",
+        acceptLabel: 'Si',
+        rejectLabel: 'No',
+        icon: 'pi pi-question-circle',
+        key: this.programasService.keyPopups,
+        acceptButtonStyleClass: 'p-button-success p-button-sm',
+        rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
+        accept: () => {
+          this.programasService.haveDirectorAlterno(true)
+        },
+        reject: () => {
+          this.programasService.haveDirectorAlterno(false)
+        }
+      })
+    }, 1500);
+
+  }
+
+  getStateClass(state: boolean): string {
+    return state ? 'state-badge state-valid' : 'state-badge state-invalid';
+  }
+
+  getStateText(state: boolean): string {
+    return state ? 'válido' : 'inválido';
+  }
 
 }

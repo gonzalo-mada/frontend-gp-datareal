@@ -1,4 +1,5 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { MessageService } from 'primeng/api';
 import { Table, TableRowExpandEvent } from 'primeng/table';
 import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
@@ -22,6 +23,7 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnCha
   constructor(public configModeService: ConfigModeService,
               private errorTemplateHandler: ErrorTemplateHandler,
               private estadosAcreditacionService: EstadosAcreditacionService,
+              private messageService: MessageService,
               private programasService: ProgramasService, 
               private tableCrudService: TableCrudService,
               private uploaderFilesService: UploaderFilesService,
@@ -37,6 +39,7 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnCha
   globalFiltros: any[] = []
   dataKeyTable: string = ''
   expandedRows = {};
+  isAnySelected: boolean = false;
   private subscription: Subscription = new Subscription();
 
   ngOnInit(): void {
@@ -110,8 +113,32 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnCha
     }
   }
 
-  onClickSelectEstadoAcreditacion(data: EstadosAcreditacion){
-    this.programasService.setSelectEstadoAcreditacion(data);
+  changeSelectEstadoAcreditacion(mode:'select' | 'unselect', data: EstadosAcreditacion){
+    this.messageService.clear();
+    switch (mode) {
+      case 'select':
+        this.isAnySelected = true
+        data.isSelected = true;
+        this.programasService.setSelectEstadoAcreditacion(data);
+        this.messageService.add({
+          key: this.programasService.keyPopups,
+          severity: 'info',
+          detail: `Estado acreditación: "${data.Sigla}" seleccionado`,
+        });
+      break;
+
+      case 'unselect':
+        this.isAnySelected = false
+        data.isSelected = false;
+        this.programasService.unsetSelectEstadoAcreditacion();
+        this.messageService.add({
+          key: this.programasService.keyPopups,
+          severity: 'info',
+          detail: `Estado acreditación: "${data.Sigla}" deseleccionado`,
+        });
+      break;
+    
+    }
   }
 
   async onRowExpand(event: TableRowExpandEvent) {

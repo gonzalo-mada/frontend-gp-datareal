@@ -1,28 +1,18 @@
-.layout-container {
-    position: relative;
-    min-height: 55rem;
-}
-
-.layout-container .layout-content-wrapper {
-    margin-right: 22rem;
-    transition: margin-right 0.2s;
-}
-
-.layout-container .layout-sidebar {
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 22rem;
-    height: 100%;
-    transition: transform 0.2s;
-}
-
-.layout-container.layout-overlay .layout-content-wrapper {
-    margin-right: 0;
-    transition: margin-right 0.2s;
-}
-
-.layout-container.layout-overlay .layout-sidebar {
-    transform: translateX(100%);
-    transition: margin-right 0.2s;
-}
+.state-badge {
+    border-radius: var(--border-radius);
+    padding: 0.25em 0.5rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+  }
+  
+  .state-badge.state-valid {
+    background: #C8E6C9;
+    color: #256029;
+  }
+  
+  .state-badge.state-invalid {
+    background: #FFCDD2;
+    color: #C63737;
+  }

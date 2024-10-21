@@ -50,9 +50,13 @@ export class StateFormComponent  {
         state: 'stateStepThree',
         fields: [
           { label: 'Reglamento seleccionado', control: 'Cod_Reglamento' },
+          { label: 'Estado acreditación seleccionado', control: 'Cod_acreditacion' },
           { label: 'Director seleccionado', control: 'Director_selected' },
-          { label: 'Director alterno seleccionado', control: 'DirectorAlterno_selected' },
-          { label: 'Estado acreditación seleccionado', control: 'Cod_acreditacion' }
+          { 
+            label: 'Director alterno seleccionado', 
+            control: 'DirectorAlterno_selected', 
+            conditional: { field: 'haveDirectorAlterno', value: true }  
+          }
         ]
       },
       {

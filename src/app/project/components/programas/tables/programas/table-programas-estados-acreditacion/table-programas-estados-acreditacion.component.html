@@ -171,10 +171,19 @@
 
             <td *ngIf="mode !== 'show'">
                 <div class="flex">
-                    <p-button 
-                    label="Seleccionar" 
+                    <p-button
+                        *ngIf="!data.isSelected" 
+                        label="Seleccionar" 
                         styleClass="p-button-sm p-button-info mr-2" 
-                        (click)="onClickSelectEstadoAcreditacion(data)" 
+                        (click)="changeSelectEstadoAcreditacion('select',data)"
+                        [disabled]="isAnySelected && !data.isSelected" 
+                    >
+                    </p-button>
+                    <p-button
+                        *ngIf="data.isSelected"    
+                        styleClass="p-button-sm p-button-danger"
+                        label="Deseleccionar"
+                        (click)="changeSelectEstadoAcreditacion('unselect',data)"
                     >
                     </p-button>
                 </div>

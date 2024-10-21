@@ -4,57 +4,49 @@
     </div>
 </div>
 <form [formGroup]="fbForm">
-    <p-button 
+    <!-- <p-button 
         label="test" 
         icon="pi pi-times" 
         styleClass="p-button-sm p-button-secondary mr-2" 
-        (click)="test()" [text]="true"></p-button>                    
+        (click)="test()" [text]="true"></p-button>                     -->
     <div class="formgrid grid">
-        <div class="field col-12 md:col-3">
-            <div class="flex justify-content-center flex-wrap">
-                <div class="flex align-items-center justify-content-center">
-                    <div class="field">
-                        <label><strong>¿Tiene evaluación interna?</strong></label>
-                        <div class="flex flex-row justify-content-center flex-wrap">
-                            <div class="flex align-items-center justify-content-center">
-                                <span>No</span>
-                            </div>
-                            <div class="flex align-items-center justify-content-center mx-2">
-                                <p-inputSwitch formControlName="Evaluacion_interna" trueValue="SI" falseValue="NO" styleClass="mt-1 mx-1"/>
-                            </div>
-                            <div class="flex align-items-center justify-content-center">
-                                <span>Si</span>
-                            </div>
+        <div class="field col-12 md:col-6 lg:col-3">
+            <div class="flex justify-content-center align-items-center flex-wrap">
+                <div class="field">
+                    <label><strong>¿Tiene evaluación interna?</strong></label>
+                    <div class="flex flex-row justify-content-center flex-wrap">
+                        <div class="flex align-items-center justify-content-center">
+                            <span>No</span>
+                        </div>
+                        <div class="flex align-items-center justify-content-center mx-2">
+                            <p-inputSwitch formControlName="Evaluacion_interna" trueValue="SI" falseValue="NO" styleClass="mt-1 mx-1"/>
+                        </div>
+                        <div class="flex align-items-center justify-content-center">
+                            <span>Si</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="field col-12 md:col-9">
+        <div class="field col-12 md:col-6 lg:col-9">
             <div class="flex flex-wrap">
                 <div class="w-full">
                     <div class="mb-2">
                         <label><strong>Fecha informe {{ modeForm !== 'show' ? '*' : '' }}</strong></label>
                     </div>
-                    <ng-container *ngIf="modeForm !== 'show' ">
-                        <p-calendar
-                            formControlName="Fecha_informe"
-                            dateFormat="dd-mm-yy"
-                            placeholder="Seleccione fecha de informe"
-                            [monthNavigator]="true" [yearNavigator]="true"
-                            class="w-full p-d-flex p-flex-column"
-                            readonlyInput="true"
-                            appendTo="body"
-                            autofocus="false"
-                            [style]="{ width: '100%', 'min-width': '100%' }"
-                            dataType="string"
-                        ></p-calendar>
-                        <app-form-control [control]="fbForm.controls['Fecha_informe']" [validators]="['required']"></app-form-control>
-                    </ng-container>
-                    <ng-container *ngIf="modeForm == 'show'">
-                        <input pInputText type="text" class="w-full mt-1" value="{{ estadoAcreditacion.Fecha_informe == '01-01-1900' ? 'N/A' : estadoAcreditacion.Fecha_informe  }}" disabled />
-                    </ng-container>
-
+                    <p-calendar
+                        formControlName="Fecha_informe"
+                        dateFormat="dd-mm-yy"
+                        placeholder="Seleccione fecha de informe"
+                        [monthNavigator]="true" [yearNavigator]="true"
+                        class="w-full p-d-flex p-flex-column"
+                        readonlyInput="true"
+                        appendTo="body"
+                        autofocus="false"
+                        [style]="{ width: '100%', 'min-width': '100%' }"
+                        dataType="string"
+                    ></p-calendar>
+                    <app-form-control [control]="fbForm.controls['Fecha_informe']" [validators]="['required']"></app-form-control>
                 </div>
             </div>
         </div>

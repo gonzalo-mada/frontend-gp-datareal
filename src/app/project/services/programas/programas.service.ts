@@ -15,6 +15,7 @@ import { LabelComponent } from '../../models/shared/Context';
 import { RutValidator } from 'src/app/base/tools/validators/rut.validator';
 import { ConfigModeService } from '../components/config-mode.service';
 import { GPValidator } from '../../tools/validators/gp.validators';
+import { MessageService } from 'primeng/api';
 
 interface Director {
   nombre: string,
@@ -32,12 +33,20 @@ export class ProgramasService {
   disposition: boolean = true;
   showAsterisk: boolean = false;
   activeIndexStateForm: number | undefined = 0;
-  keyPopups: string = 'programas'
+  activeIndexAcordionAddPrograma: number | undefined = 0;
+  keyPopups: string = 'programas';
+  keyPopupsCenter: string = 'programas-center';
+  directorSelected!: Director;
+  directorAlternoSelected!: Director;
+  reglamentoSelected: string = '';
+  estadoMaestroSelected: string = '';
+  estadoAcreditacionSelected: string = '';
+  showTableDirectores: boolean = false;
+  showTableDirectoresAlternos: boolean = false;
 
 
+  public fbForm: FormGroup;
   private subscription: Subscription = new Subscription();
-
-
 
   private buttonClickRefreshTableEA = new Subject<void>();
   buttonRefreshTableEA$ = this.buttonClickRefreshTableEA.asObservable();
@@ -60,14 +69,15 @@ export class ProgramasService {
   private formUpdate = new BehaviorSubject<{mode: ModeForm, data?: Programa | null, resolve?: Function, reject?: Function  } | null>(null);
   formUpdate$ = this.formUpdate.asObservable();
 
-  public fbForm: FormGroup;
-  directorSelected!: Director;
-  directorAlternoSelected!: Director;
-  reglamentoSelected: string = '';
-  estadoMaestroSelected: string = '';
-  estadoAcreditacionSelected: string = '';
 
-  constructor(private fb: FormBuilder,private invoker: InvokerService, private uploaderFilesService: UploaderFilesService, private configModeService: ConfigModeService) { 
+
+  constructor(
+    private fb: FormBuilder,
+    private invoker: InvokerService, 
+    private uploaderFilesService: UploaderFilesService, 
+    private configModeService: ConfigModeService,
+    public messageService: MessageService
+  ) { 
 
     this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( from => {
       if (from) {
@@ -109,9 +119,10 @@ export class ProgramasService {
       //paso 3 
       Cod_Reglamento: ['', [Validators.required]],
       Director: ['', [Validators.required, RutValidator.rut]],
-      Director_selected: ['', [Validators.required]],
-      Director_alterno: ['', [Validators.required, RutValidator.rut]],
-      DirectorAlterno_selected: ['', [Validators.required]],
+      Director_selected: ['', [Validators.required, GPValidator.notSameDirectorsSelected()]],
+      haveDirectorAlterno: [false],
+      Director_alterno: ['', [RutValidator.rut, , GPValidator.notSameAsDirector('Director','Director_selected')]],
+      DirectorAlterno_selected: ['',  GPValidator.requiredDirectorAlternoSelected()],
       Cod_acreditacion: ['', [Validators.required]],
 
       //file maestro
@@ -277,6 +288,11 @@ export class ProgramasService {
     }
   }
 
+  unsetSelectEstadoAcreditacion(){
+    this.fbForm.patchValue({ Cod_acreditacion: '' })
+    this.estadoAcreditacionSelected = ``
+  }
+
   setSelectEstadoMaestro(emSelected : EstadoMaestro){
     this.fbForm.patchValue({ Cod_EstadoMaestro: emSelected.Cod_EstadoMaestro })
     this.estadoMaestroSelected = emSelected.Descripcion_EstadoMaestro!;
@@ -293,6 +309,11 @@ export class ProgramasService {
     this.fbForm.patchValue({ Cod_Reglamento: reglamentoSelected?.Cod_reglamento })
     this.reglamentoSelected = reglamentoSelected!.Descripcion_regla!;
   }
+
+  unsetSelectReglamento(){
+    this.fbForm.patchValue({ Cod_Reglamento: '' })
+    this.reglamentoSelected = '';
+  }
   
   setSelectDirector(mode: 'director' | 'alterno' , nombre: string, rut: string){
     switch (mode) {
@@ -302,6 +323,7 @@ export class ProgramasService {
           nombre: nombre,
           rut: rut
         }
+        this.fbForm.get('Director')?.disable();
       break;
       case 'alterno':
         this.fbForm.patchValue({DirectorAlterno_selected: rut})
@@ -309,11 +331,54 @@ export class ProgramasService {
           nombre: nombre,
           rut: rut
         }
+        this.fbForm.get('Director_alterno')?.disable();
       break;
     }
+  }
 
+  unsetSelectDirector(mode: 'director' | 'alterno'){
+    switch (mode) {
+      case 'director':
+        this.fbForm.patchValue({Director_selected: ''})
+        this.directorSelected = {
+          nombre: '',
+          rut: ''
+        }
+        this.fbForm.get('Director')?.enable();
+        this.haveDirectorAlterno(false)
+      break;
+      case 'alterno':
+        this.fbForm.patchValue({DirectorAlterno_selected: ''})
+        this.directorAlternoSelected = {
+          nombre: '',
+          rut: ''
+        }
+        this.fbForm.get('Director_alterno')?.enable();
+        this.fbForm.get('DirectorAlterno_selected')?.reset();
+      break;
+    }
+  }
+
+  haveDirectorAlterno(dA: boolean){
+    switch (dA) {
+      
+      case true: 
+        this.fbForm.patchValue({haveDirectorAlterno: true});
+        this.activeIndexAcordionAddPrograma = 3; 
+      break;
+
+      case false:
+        this.fbForm.patchValue({haveDirectorAlterno: false});
+        this.fbForm.get('Director_alterno')?.reset();
+        this.fbForm.get('DirectorAlterno_selected')?.reset();
+        this.showTableDirectoresAlternos = false;
+        this.unsetSelectDirector('alterno'); 
+        this.activeIndexAcordionAddPrograma = 2; 
+      break;
     
-    
+      default:
+        break;
+    }
   }
 
   setFormPrograma(form: Programa){
@@ -324,6 +389,7 @@ export class ProgramasService {
 
   resetFormPrograma(){
     this.resetFormProgramaCreate();
+    this.uploaderFilesService.resetUploader();
     this.activeIndexStateForm = 0;
     // this.fbForm.clearValidators();
     this.fbForm.enable();

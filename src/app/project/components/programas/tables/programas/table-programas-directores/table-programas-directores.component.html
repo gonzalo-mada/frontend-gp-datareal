@@ -3,7 +3,7 @@
 >
     <ng-template pTemplate="header">
         <tr>
-            <th>Director</th>
+            <th>Director(a)</th>
             <th>Contacto</th>
             <th>Facultad</th>
             <th>Acción</th>
@@ -16,10 +16,18 @@
             <td>{{ data.FiceMail }} <br/> Anexo: {{ data.DirFono || '' }}</td>
             <td>{{ data.Facultad }}</td>
             <td>
-                <p-button  
+                <p-button
+                    *ngIf="!isSelected"  
                     styleClass="p-button-sm"
                     label="Seleccionar"
-                    (click)="setDirector(data.rutcompleto, data.Nombres, data.Paterno, data.Materno)"
+                    (click)="changeSelectDirector('select',data.rutcompleto, data.Nombres, data.Paterno, data.Materno)"
+                >
+                </p-button>
+                <p-button
+                    *ngIf="isSelected"    
+                    styleClass="p-button-sm p-button-danger"
+                    label="Deseleccionar"
+                    (click)="changeSelectDirector('unselect',data.rutcompleto, data.Nombres, data.Paterno, data.Materno)"
                 >
                 </p-button>
             </td>

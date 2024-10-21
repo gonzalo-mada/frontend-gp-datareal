@@ -7,5 +7,6 @@ export const project_form_validator = [
                                         'num_o_letras',
                                         'solo_num',
                                         'solo_letras',
-                                        'checkCorreoUV'
+                                        'checkCorreoUV',
+                                        'notSameAsDirector'
                                     ];

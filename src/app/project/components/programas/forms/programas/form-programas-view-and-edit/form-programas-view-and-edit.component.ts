@@ -316,8 +316,12 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
 
   async getDirectorAlterno(){
     try {
-      const rut_director_alterno = this.programa.Director_alterno!.split('-');
-      this.directorAlterno = await this.programasService.getDirector({rut: parseInt(rut_director_alterno[0])},false);
+      if (this.programa.Director_alterno !== '0') {
+        const rut_director_alterno = this.programa.Director_alterno!.split('-');
+        this.directorAlterno = await this.programasService.getDirector({rut: parseInt(rut_director_alterno[0])},false);
+      }else{
+        this.directorAlterno = [];
+      }
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
