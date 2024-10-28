@@ -30,6 +30,7 @@ export class ProgramasService {
 
   modeForm: ModeForm = undefined;
   stateForm: StateValidatorForm = undefined;
+  stateFormUpdate: StateValidatorForm = undefined;
   disposition: boolean = true;
   showAsterisk: boolean = false;
   activeIndexStateForm: number | undefined = 0;
@@ -81,17 +82,18 @@ export class ProgramasService {
 
     this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( from => {
       if (from) {
-        switch (from.context.component.label) {
-          case 'Título': this.filesChanged(from.files, 'Título'); break;
-          case 'Grado académico': this.filesChanged(from.files, 'Grado académico'); break;
-          case 'REXE': this.filesChanged(from.files, 'REXE'); break;
-          case 'Director': this.filesChanged(from.files, 'Director'); break;
-          case 'Director alterno': this.filesChanged(from.files, 'Director alterno'); break;
-          case 'Estado maestro': this.filesChanged(from.files, 'Estado maestro'); break; 
-          case 'Maestro': this.filesChanged(from.files, 'Maestro'); break; 
-          default:
-            break;
+        if (from.context.component.name === 'agregar-programa') {
+          switch (from.context.component.label) {
+            case 'Título': this.filesChanged(from.files, 'Título'); break;
+            case 'Grado académico': this.filesChanged(from.files, 'Grado académico'); break;
+            case 'REXE': this.filesChanged(from.files, 'REXE'); break;
+            case 'Director': this.filesChanged(from.files, 'Director'); break;
+            case 'Director alterno': this.filesChanged(from.files, 'Director alterno'); break;
+            case 'Estado maestro': this.filesChanged(from.files, 'Estado maestro'); break; 
+            case 'Maestro': this.filesChanged(from.files, 'Maestro'); break; 
+          }
         }
+
       }
     }));
     this.fbForm = this.fb.group({
@@ -123,7 +125,7 @@ export class ProgramasService {
       haveDirectorAlterno: [false],
       Director_alterno: ['', [RutValidator.rut, , GPValidator.notSameAsDirector('Director','Director_selected')]],
       DirectorAlterno_selected: ['',  GPValidator.requiredDirectorAlternoSelected()],
-      Cod_acreditacion: ['', [Validators.required]],
+      Cod_acreditacion: ['', ],
 
       //file maestro
       file_maestro: [[], this.filesValidator('file_maestro')],
@@ -249,7 +251,7 @@ export class ProgramasService {
   }
 
   setModeForm(mode: ModeForm, data?: Programa | null, resolve?: Function, reject?: Function){
-    this.modeForm = mode;
+    // this.modeForm = mode;
     this.formUpdate.next({mode, data, resolve, reject});
     this.formUpdate.next(null);
   }
@@ -449,6 +451,10 @@ export class ProgramasService {
     return await this.invoker.httpInvoke({service: 'unidadesAcademicas/logica_getUnidadesAcademicas', loading: loading});
   }
 
+  async getFacultades(loading = true){
+    return await this.invoker.httpInvoke({service: 'facultades/getFacultades', loading: loading});
+  }
+
   async getDirector( params: any , loading = true,){
     return await this.invoker.httpInvoke({service: 'programas/getDirector', loading: loading},params);
   }
@@ -504,8 +510,12 @@ export class ProgramasService {
     },{Cod_Programa: cod_programa , from: from});
   }
 
-  async insertProgramaService(params: any){
+  async insertPrograma(params: any){
     return await this.invoker.httpInvoke(generateServiceMongo('programas/insertPrograma'),params);
+  }
+
+  async updatePrograma(params: any){
+    return await this.invoker.httpInvoke(generateServiceMongo('programas/updatePrograma'),params);
   }
 
 }

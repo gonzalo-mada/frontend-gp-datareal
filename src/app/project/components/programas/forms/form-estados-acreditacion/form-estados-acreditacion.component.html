@@ -28,7 +28,25 @@
                 </div>
             </div>
         </div>
-        <div class="field col-12 md:col-6 lg:col-9">
+        <div class="field col-12 md:col-6 lg:col-3">
+            <div class="flex justify-content-center align-items-center flex-wrap">
+                <div class="field">
+                    <label><strong>¿Está acreditado?</strong></label>
+                    <div class="flex flex-row justify-content-center flex-wrap">
+                        <div class="flex align-items-center justify-content-center">
+                            <span>No</span>
+                        </div>
+                        <div class="flex align-items-center justify-content-center mx-2">
+                            <p-inputSwitch formControlName="Acreditado" trueValue="SI" falseValue="NO" styleClass="mt-1 mx-1" (onChange)="changeSwitch($event)"/>
+                        </div>
+                        <div class="flex align-items-center justify-content-center">
+                            <span>Si</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="field col-12 lg:col-6">
             <div class="flex flex-wrap">
                 <div class="w-full">
                     <div class="mb-2">
@@ -52,65 +70,21 @@
         </div>
     </div>
 
-    <div class="formgrid grid">
-        <div class="field col-12 md:col-6 lg:col-3">
-            <div class="flex justify-content-center flex-wrap">
-                <div class="flex align-items-center justify-content-center">
-                    <div class="field" *ngIf="configModeService.config().isPostgrado">
-                        <label><strong>¿Está acreditado?</strong></label>
-                        <br>
-                        <div class="flex flex-row justify-content-center flex-wrap">
-                            <div class="flex align-items-center justify-content-center">
-                                <span>No</span>
-                            </div>
-                            <div class="flex align-items-center justify-content-center mx-2">
-                                <p-inputSwitch formControlName="Acreditado" styleClass="mt-1 mx-1" falseValue="NO" trueValue="SI" (onChange)="changeSwitch('acred',$event)"/>
-                            </div>
-                            <div class="flex align-items-center justify-content-center">
-                                <span>Si</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="field" *ngIf="!configModeService.config().isPostgrado">
-                        <label><strong>¿Está certificado?</strong></label>
-                        <br>
-                        <div class="flex flex-row justify-content-center flex-wrap">
-                            <div class="flex align-items-center justify-content-center">
-                                <span>No</span>
-                            </div>
-                            <div class="flex align-items-center justify-content-center mx-2">
-                                <p-inputSwitch formControlName="Certificado" styleClass="mt-1 mx-1" falseValue="NO" trueValue="SI" (onChange)="changeSwitch('certif',$event)" />
-                            </div>
-                            <div class="flex align-items-center justify-content-center">
-                                <span>Si</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-        </div>
-        <div class="field col-12 md:col-6 lg:col-9">
-            <div *ngIf="configModeService.config().isPostgrado">
-                <label><strong>Nombre agencia acreditadora {{ showAsterisk ? '*' : '' }}</strong></label>
-                <input type="text" pInputText formControlName="Nombre_ag_acredit" maxlength="50" class="w-full mt-1" placeholder="Ingrese nombre de agencia" variant="filled" />
-                <app-form-control [control]="fbForm.controls['Nombre_ag_acredit']" [validators]="['required', 'num_y_letras']"></app-form-control>
-            </div>
-            <div *ngIf="!configModeService.config().isPostgrado">
-                <label><strong>Nombre agencia certificadora {{ showAsterisk ? '*' : '' }}</strong></label>
-                <input type="text" pInputText formControlName="Nombre_ag_certif" maxlength="50" class="w-full mt-1" placeholder="Ingrese nombre de agencia" variant="filled" />
-                <app-form-control [control]="fbForm.controls['Nombre_ag_certif']" [validators]="['required', 'num_y_letras']"></app-form-control>
-            </div>
+    <div *ngIf=" modeForm === 'show' || modeForm === 'edit' || modeForm === 'update'" class="formgrid grid">
+        <div class="field col-12">
+            <label><strong>Nombre agencia acreditadora {{ showAsterisk ? '*' : '' }}</strong></label>
+            <input type="text" pInputText formControlName="Nombre_ag_acredit" maxlength="50" class="w-full mt-1" placeholder="Ingrese nombre de agencia" variant="filled" />
+            <app-form-control [control]="fbForm.controls['Nombre_ag_acredit']" [validators]="['required', 'num_y_letras']"></app-form-control>
         </div>
     </div>
 
-    <div formGroupName="tiempo" *ngIf="configModeService.config().isPostgrado">
+    <div formGroupName="tiempo">
         <div class="formgrid grid">
             <div class="field col-12 md:col-4">
                 <div class="flex flex-wrap">
                     <div class="w-full">
                         <div class="mb-2">
-                            <label><strong>{{ configModeService.config().isPostgrado ? 'Acreditado' : 'Certificado' }} desde {{ showAsterisk ? '*' : '' }}</strong></label>
+                            <label><strong>Acreditado desde {{ showAsterisk ? '*' : '' }}</strong></label>
                         </div>
                         <p-calendar
                             formControlName="Fecha_inicio"
@@ -131,7 +105,7 @@
                 <div class="flex flex-wrap">
                     <div class="w-full">
                         <div class="mb-2">
-                            <label><strong>{{ configModeService.config().isPostgrado ? 'Acreditado' : 'Certificado' }} hasta {{ showAsterisk ? '*' : '' }}</strong></label>
+                            <label><strong>Acreditado hasta {{ showAsterisk ? '*' : '' }}</strong></label>
                         </div>
                         <p-calendar
                             formControlName="Fecha_termino"
@@ -154,7 +128,7 @@
                         <div class="mb-2">
                             <label>
                                 <div class="flex flex-row flex-wrap">
-                                    <div class="flex align-items-center"><strong>Total años {{ configModeService.config().isPostgrado ? 'acreditado' : 'certificado' }}</strong></div>
+                                    <div class="flex align-items-center"><strong>Total años acreditado</strong></div>
                                     <div class="flex align-items-center ml-1">
                                         <i *ngIf="modeForm != 'show'" class="pi pi-question-circle ml-1"
                                             [pTooltip]='tooltipContent' tooltipPosition="top"></i>
@@ -176,64 +150,36 @@
                         >
                     </p-chip>
                     <input type="hidden" formControlName="Cantidad_anios"><br/>
-                    <ng-container *ngIf="configModeService.config().isPostgrado">
-                        <ng-container 
-                            *ngIf=" modeForm != 'show' &&
-                                    fbForm.get('Acreditado')?.value == 'SI' && 
-                                    yearsDifference !== null && 
-                                    fbForm.get('tiempo.Cantidad_anios') as cantidadAnios">
+                    <ng-container 
+                        *ngIf=" modeForm != 'show' &&
+                                fbForm.get('Acreditado')?.value == 'SI' && 
+                                yearsDifference !== null && 
+                                fbForm.get('tiempo.Cantidad_anios') as cantidadAnios">
 
-                            <div *ngIf="cantidadAnios.errors?.['notValueNegativeYearsAcredit']">
-                                <small class="p-error">
-                                La cantidad de años totales debe ser mayor o igual a uno.
-                                </small>
-                                <br/>
-                                <small class="p-error">
-                                    Seleccione fechas válidas
-                                </small>
-                            </div>
-                            <div *ngIf="cantidadAnios.errors?.['notUpTo15YearsAcredit']">
-                                <small class="p-error">
-                                La cantidad de años totales debe ser menor o igual a 15.
-                                </small>
-                                <br/>
-                                <small class="p-error">
-                                    Seleccione fechas válidas
-                                </small>
-                            </div>
-                        </ng-container>
+                        <div *ngIf="cantidadAnios.errors?.['notValueNegativeYearsAcredit']">
+                            <small class="p-error">
+                            La cantidad de años totales debe ser mayor o igual a uno.
+                            </small>
+                            <br/>
+                            <small class="p-error">
+                                Seleccione fechas válidas
+                            </small>
+                        </div>
+                        <div *ngIf="cantidadAnios.errors?.['notUpTo15YearsAcredit']">
+                            <small class="p-error">
+                            La cantidad de años totales debe ser menor o igual a 15.
+                            </small>
+                            <br/>
+                            <small class="p-error">
+                                Seleccione fechas válidas
+                            </small>
+                        </div>
                     </ng-container>
-                    <ng-container *ngIf="!configModeService.config().isPostgrado">
-                        <ng-container 
-                            *ngIf=" modeForm != 'show' &&
-                                    fbForm.get('Certificado')?.value == 'SI' && 
-                                    yearsDifference !== null && 
-                                    fbForm.get('tiempo.Cantidad_anios') as cantidadAnios">
-                            <div *ngIf="cantidadAnios.errors?.['notValueNegativeYearsAcredit']">
-                                <small class="p-error">
-                                La cantidad de años totales debe ser mayor o igual a uno.
-                                </small>
-                                <br/>
-                                <small class="p-error">
-                                    Seleccione fechas válidas
-                                </small>
-                            </div>
-                            <div *ngIf="cantidadAnios.errors?.['notUpTo15YearsAcredit']">
-                                <small class="p-error">
-                                La cantidad de años totales debe ser menor o igual a 15.
-                                </small>
-                                <br/>
-                                <small class="p-error">
-                                    Seleccione fechas válidas
-                                </small>
-                            </div>
-                        </ng-container>
-                    </ng-container>
-                    
                 </div>
             </div>
         </div>
     </div>
+
     
     
     <div class="grid">

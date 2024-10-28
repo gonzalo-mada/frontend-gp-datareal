@@ -63,6 +63,27 @@
                                         styleClass="p-button-sm p-button-secondary mr-2" 
                                         (click)="test()" 
                                         [text]="true">
+                                    </p-button> 
+                                    <p-button 
+                                        label="test 2" 
+                                        icon="pi pi-times" 
+                                        styleClass="p-button-sm p-button-secondary mr-2" 
+                                        (click)="test2(uploader)" 
+                                        [text]="true">
+                                    </p-button>
+                                    <p-button 
+                                        label="test 3" 
+                                        icon="pi pi-times" 
+                                        styleClass="p-button-sm p-button-secondary mr-2" 
+                                        (click)="test3()" 
+                                        [text]="true">
+                                    </p-button> 
+                                    <p-button 
+                                        label="test 4" 
+                                        icon="pi pi-times" 
+                                        styleClass="p-button-sm p-button-secondary mr-2" 
+                                        (click)="test4()" 
+                                        [text]="true">
                                     </p-button>   -->
                             </div>
                             <div class="sm:inline md:hidden lg:hidden xl:hidden">
@@ -87,20 +108,18 @@
                     <div *ngIf="uploaderFilesService.files.length > 0">
                         <!-- <h5>Pendientes</h5> -->
                         <p-table [value]="uploaderFilesService.files" [tableStyle]="{'min-width': '18.75rem'}">
-                            <ng-template pTemplate="header" *ngIf="context.component.name === 'editar-programa' ">
-                                <tr>
-                                    <th>Adjuntado desde</th>
-                                    <th>Archivo</th>
-                                    <th>Estado</th>
-                                    <th>Comentarios</th>
-                                    <th>Acciones</th>
-                                </tr>
+                            <ng-template *ngIf="mode !== 'show'" pTemplate="header" >
+                                <td></td>
+                                <th></th>
+                                <th></th>
+                                <th colspan="2">
+                                    <div class="flex justify-content-end flex-wrap">
+                                        <small>Total: {{ uploaderFilesService.totalFileSize | fileSize}}  (Max: 10MB) </small>
+                                    </div>
+                                </th>
                             </ng-template>
                             <ng-template pTemplate="body" let-fileWithExtras let-i="rowIndex">
                                 <tr>
-                                    <td *ngIf="context.component.name === 'editar-programa' ">
-                                        <span> {{  fileWithExtras.from }} </span>
-                                    </td>
                                     <td style="min-width: 17rem;">
                                         <tr>
                                             <td class="pr-3">
@@ -110,8 +129,8 @@
                                             </td>
                                             <td style="word-break: break-all">
                                                 <span pTooltip="{{ fileWithExtras.nombre }}">
-                                                    {{ fileWithExtras.nombre | lowercase | slice:0:17 }} 
-                                                    {{ (fileWithExtras.nombre.length > 17 ) ? '... .pdf' : '' }}
+                                                    {{ fileWithExtras.nombre | lowercase | slice:0:25 }} 
+                                                    {{ (fileWithExtras.nombre.length > 25 ) ? '... .pdf' : '' }}
                                                 </span>
                                                 <br />
                                                 <em class="small" style="color: gray">
@@ -145,9 +164,9 @@
                                             [(ngModel)]="fileWithExtras.extras.comentarios" [disabled]="mode == 'show'"
                                             (ngModelChange)="onCommentChange(i, $event)"></textarea>
                                     </td>
-                                    <td>
-                                        <div class="flex flex-row flex-nowrap">
-                                            <div class="flex align-items-center justify-content-center">
+                                    <td style="min-width: 8rem;">
+                                        <div class="flex flex-row flex-wrap justify-content-end">
+                                            <div class="align-items-center">
                                                 <button
                                                     *ngIf="fileWithExtras.origFile" 
                                                     pButton 
@@ -158,7 +177,7 @@
                                                     >
                                                 </button>
                                             </div>
-                                            <div class="flex align-items-center justify-content-center">
+                                            <div class="align-items-center">
                                                 <button
                                                     *ngIf="!fileWithExtras.origFile" 
                                                     pButton 
@@ -211,7 +230,7 @@
                     </ng-template>
                     <ng-template pTemplate="body" let-fileToDelete let-i="rowIndex">
                         <tr>
-                            <td style="width:50%; min-width: 17rem;">
+                            <td style="min-width: 35rem;">
                                 <tr>
                                     <td class="pr-3">
                                         <img width="40"
@@ -219,8 +238,8 @@
                                             style="margin: 0 auto" />
                                     </td>
                                     <td style="word-break: break-all">
-                                        {{ fileToDelete.nombre | lowercase | slice:0:17 }} 
-                                        {{ (fileToDelete.nombre.length > 17 ) ? '... .pdf' : '' }}
+                                        {{ fileToDelete.nombre | lowercase }} 
+                                        <!-- {{ (fileToDelete.nombre.length > 25 ) ? '... .pdf' : '' }} -->
                                         <br />
                                         <em class="small" style="color: gray">
                                             <i class="pi pi-file"></i> 
@@ -236,15 +255,15 @@
                                 </tr>
                             </td>
 
-                            <td style="width:25%;">
+                            <td style="width:10%;">
                                 <span pTooltip="En línea" class="estado-badge-doc estado-cloud">
                                     <i class="pi pi-cloud"></i>
                                 </span>
                             </td>
 
-                            <td style="width:25%;">
-                                <div class="flex flex-row flex-nowrap">
-                                    <div class="flex align-items-center justify-content-center">
+                            <td style="min-width: 8rem;">
+                                <div class="flex flex-row flex-wrap justify-content-end">
+                                    <div class="align-items-center">
                                         <button
                                             *ngIf="!fileToDelete.origFile" 
                                             pButton 
@@ -255,7 +274,7 @@
                                             >
                                         </button>
                                     </div>
-                                    <div *ngIf="mode != 'show'" class="flex align-items-center justify-content-center">
+                                    <div *ngIf="mode != 'show'" class="align-items-center">
                                         <button pButton class="p-button-sm p-button-outlined p-button-secondary"
                                             pTooltip="Cancelar eliminación" icon="pi pi-times"
                                             (click)="cancelDeleteFile(fileToDelete, uploader, i)">

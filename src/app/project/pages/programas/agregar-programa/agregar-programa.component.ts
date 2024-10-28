@@ -34,7 +34,6 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
               public configModeService: ConfigModeService,
               private confirmationService: ConfirmationService,
               private commonUtils: CommonUtils,
-              public estadosAcreditacionService: EstadosAcreditacionService,
               public estadoMaestroService: EstadoMaestroService,
               private errorTemplateHandler: ErrorTemplateHandler,
               private messageService: MessageService,
@@ -64,7 +63,6 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
   
   directores: any[] = [];
   directoresAlternos: any[] = [];
-  estadosAcreditacion: any[] = [];
   
   suspensiones: Suspension[] = [];
   reglamentos: Reglamento[] = [];
@@ -88,10 +86,8 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
       articulo_plural: 'los programas',
       genero: 'masculino'
     };
-    this.getEstadosAcreditacion();
     // this.getSuspensiones();
     this.getReglamentos();
-    this.subscription.add(this.programasService.buttonRefreshTableEA$.subscribe( () => {this.getEstadosAcreditacion()}))
     this.subscription.add(this.programasService.buttonRefreshTableReglamento$.subscribe( () => {this.getReglamentos()}))
     this.subscription.add(this.programasService.fbForm.get('Director_selected')?.valueChanges.subscribe( (value) => {
       if (value !== '') {
@@ -120,16 +116,6 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
     this.reset();
   }
 
-  async getEstadosAcreditacion(){
-    try {
-      this.estadosAcreditacion = await this.programasService.getEstadosAcreditacion();
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener estados de acreditación. Intente nuevamente.',
-      });
-    }
-  }
 
   async getSuspensiones(){
     try {
@@ -159,11 +145,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
       if (from === 'reglamentos') {
         let blob: Blob = await this.reglamentosService.getArchiveDoc(documento.id);
         this.commonUtils.downloadBlob(blob, documento.nombre); 
-      } else {
-        //descarga de archivo de estado acreditacion.
-        let blob: Blob = await this.estadosAcreditacionService.getArchiveDoc(documento.id);
-        this.commonUtils.downloadBlob(blob, documento.nombre); 
-      }
+      } 
      
     } catch (e:any) {
       this.errorTemplateHandler.processError(
@@ -255,63 +237,6 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
       // break;
     }
     
-  }
-
-  async addNewEstadoAcreditacion(){
-    try {
-      this.showDialogEstadoAcreditacion = true;
-      this.uploaderFilesService.setContext('create','mantenedores','estado-acreditacion')
-      this.tableCrudService.emitResetExpandedRowsTable();
-      await new Promise((resolve,reject) => {
-        this.estadosAcreditacionService.setModeForm('create', null, resolve, reject);
-      })
-    } catch (e:any) {
-      this.errorTemplateHandler.processError(e, {
-        notifyMethod: 'alert',
-        summary: `Error al crear formulario de estado de acreditación.`,
-        message: e.message,
-        }
-      );
-    }
-
-  }
-
-  async submitNewEstadoAcreditacion(){
-    try {
-      const result: any = await new Promise <void> ((resolve: Function, reject: Function) => {
-        this.estadosAcreditacionService.setModeForm('insert',null, resolve, reject);
-      })
-
-      // console.log("resuttt",result);
-      
-      if (result.success) {
-        //insert exitoso
-        this.getEstadosAcreditacion();
-        this.messageService.add({
-          key: this.programasService.keyPopups,
-          severity: 'success',
-          detail: result.messageGp
-        });
-        this.reset();
-      }else{
-        this.errorTemplateHandler.processError(
-          result, {
-            notifyMethod: 'alert',
-            summary: result.messageGp,
-            message: result.detail.error.message,
-        });
-        this.reset();
-      }
-      this.showDialogEstadoAcreditacion = false;
-    } catch (e:any ) {
-      // console.log("errrrrr",e);
-      
-      this.showDialogEstadoAcreditacion = false;
-      this.errorTemplateHandler.processError(e, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al insertar un estado de acreditación desde Programa. Intente nuevamente.',
-      });
-    }
   }
 
   async addNewReglamento(){
@@ -450,7 +375,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
         }
 
         console.log("----PARAMS-----",params);
-        const inserted: DataInserted = await this.programasService.insertProgramaService(params);
+        const inserted: DataInserted = await this.programasService.insertPrograma(params);
 
         if (inserted.dataWasInserted) {
           this.messageService.add({

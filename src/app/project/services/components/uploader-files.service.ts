@@ -46,6 +46,8 @@ export class UploaderFilesService {
   public filesUploaded: any[] = []; //este arreglo se llena cuando son files que vienen cargados de mongo (show/edit)
   public filesFromModeSelect: any[] = []; //este arreglo se llena cuando el uploader se inicializa en modo select (agregar-programa)
   public filesFromModeCreateOrEdit: any[] = []; // este arreglo se llena cuando el uploader se inicializa dentro de un mantenedor (modo: create/edit/show)
+  totalFileSize: number = 0;
+  limitValueUploader: number = 10485760;
 
   constructor(private loadingGpService: LoadinggpService){
     effect(()=>{
@@ -166,6 +168,15 @@ export class UploaderFilesService {
         this.files = this.filesFromModeSelect 
       break;
     }
+
+    if (this.files.length !== 0) {
+      this.totalFileSize = 0
+      for (let i = 0; i < this.files.length; i++) {
+        const element = this.files[i];
+        this.totalFileSize += element.extras.pesoDocumento
+      }
+    }
+    
   }
 
 }

@@ -1,6 +1,6 @@
 <p-table
-    [value]="data" 
-    [dataKey]="dataKeyTable"
+    [value]="data"
+    [dataKey]="dataKeyTable" 
     autoLayout="true"
     [expandedRowKeys]="expandedRows"
     (onRowExpand)="onRowExpand($event)"
@@ -11,7 +11,7 @@
     <ng-template pTemplate="header">
         <tr>
             <th style="width: 5rem"></th>
-            <th style="width:100%;"> Nombre </th>
+            <th style="width:100%;"> Nombre del programa </th>
         </tr>
     </ng-template>
 
@@ -22,7 +22,7 @@
             </td>
             <td>
                 <span class="p-column-title">Nombre</span>
-                {{data.Grado_academico}}
+                {{data.Nombre_programa}}
             </td>
 
         </tr>

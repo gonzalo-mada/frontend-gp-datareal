@@ -59,7 +59,8 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
     Facultad: this.fb.group({
       Cod_facultad: ['', Validators.required],
     }),
-    files: [[], this.filesValidator.bind(this)]
+    files: [[], this.filesValidator.bind(this)],
+    aux: ['']
   })
 
   async ngOnInit() {
@@ -196,7 +197,8 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
           Descripcion_ua: this.fbForm.get('Descripcion_ua')!.value == '' ? this.unidadAcademica.Descripcion_ua : this.fbForm.get('Descripcion_ua')!.value,
           Cod_facultad: this.fbForm.get('Facultad.Cod_facultad')!.value == '' ? this.unidadAcademica.Facultad?.Cod_facultad : this.fbForm.get('Facultad.Cod_facultad')!.value,
           docsToUpload: actionUploadDoc.docsToUpload,
-          docsToDelete: actionUploadDoc.docsToDelete
+          docsToDelete: actionUploadDoc.docsToDelete,
+          aux: this.fbForm.get('aux')!.value
         }
        
         const updated = await this.unidadesAcademicasService.logica_updateUnidadesAcademicas(params);
@@ -317,6 +319,7 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
       this.uploaderFilesService.setContext('edit','mantenedores','unidadAcad');
       this.dialog = true;
       this.fbForm.patchValue({...this.unidadAcademica});
+      this.fbForm.patchValue({aux: this.unidadAcademica});
       this.fbForm.get('Descripcion_ua')?.enable();
       this.fbForm.get('Cod_facultad')?.enable();
       await this.loadDocsWithBinary(this.unidadAcademica);

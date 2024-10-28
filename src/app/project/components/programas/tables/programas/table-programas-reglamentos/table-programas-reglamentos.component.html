@@ -28,54 +28,45 @@
     rowExpandMode="single"
 >
 
-    <ng-template pTemplate="caption">
+    <ng-template *ngIf="mode !== 'show'" pTemplate="caption">
         <div class="flex flex-wrap flex-column md:flex-row justify-content-between align-items-center">
             <div class="flex mb-2 lg:mb-0">
-                <ng-container *ngIf="mode !== 'show'; else modeShow">
-                    <span class="p-input-icon-left">
-                        <i class="pi pi-search"></i>
-                        <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)" />
-                    </span>
-                    <p-button 
-                        styleClass="p-button-text p-button-sm ml-2" 
-                        icon="pi pi-filter-slash" 
-                        pTooltip="Limpiar filtros" 
-                        (click)="clear(dt)">
-                    </p-button>
-                </ng-container>
-                <ng-template #modeShow>
-                    <span class="font-light">Información y documentos adjuntos de: <strong>Reglamento</strong> </span>
-                </ng-template>
-                
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)" />
+                </span>
+                <p-button 
+                    styleClass="p-button-text p-button-sm ml-2" 
+                    icon="pi pi-filter-slash" 
+                    pTooltip="Limpiar filtros" 
+                    (click)="clear(dt)">
+                </p-button>
             </div>
 
-            <div *ngIf="mode !== 'show'" class="hidden lg:flex align-items-center">
+            <div  class="hidden lg:flex align-items-center">
                 <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
                 <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
             </div>
                             
             <div class="flex">
-                <ng-container *ngIf="mode !== 'show'; else showLeyenda">
-                    <p-button 
-                        pTooltip="Muestra la leyenda de íconos" 
-                        icon="pi pi-question-circle"
-                        styleClass="p-button-warning mr-2 lg:hidden" 
-                        (click)="op.toggle($event)">
-                    </p-button>
-                    <p-button 
-                        pRipple 
-                        label="Actualizar" 
-                        icon="pi pi-refresh" 
-                        styleClass="p-button-info" 
-                        (click)="refresh()">
-                    </p-button>
-                </ng-container>
-                <ng-template #showLeyenda>
-                    <div class="hidden md:flex align-items-center">
-                        <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
-                        <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
-                    </div>
-                </ng-template>
+                <p-button 
+                    pTooltip="Muestra la leyenda de íconos" 
+                    icon="pi pi-question-circle"
+                    styleClass="p-button-warning mr-2 lg:hidden" 
+                    (click)="op.toggle($event)">
+                </p-button>
+                <p-button 
+                    pRipple 
+                    label="Actualizar" 
+                    icon="pi pi-refresh" 
+                    styleClass="p-button-info" 
+                    (click)="refresh()">
+                </p-button>
+
+                <div class="hidden md:flex align-items-center">
+                    <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
+                    <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
+                </div>
             </div>
         </div>
     </ng-template>

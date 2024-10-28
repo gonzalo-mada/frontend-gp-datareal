@@ -11,15 +11,15 @@ import { ProgramasService } from 'src/app/project/services/programas/programas.s
   ]
 })
 export class EditarProgramaComponent implements OnInit {
-  constructor(private activatedRoute: ActivatedRoute,
-    private programasService: ProgramasService
+  constructor(
+    private activatedRoute: ActivatedRoute,
   ){}
 
-  programa: Programa = {};
+  cod_programa: number = 0;
+  mode: string = 'edit';
 
-  ngOnInit(): void {
-    this.activatedRoute.params.subscribe( ({cod_programa}) => console.log("cod_programa:",cod_programa))
-
+  async ngOnInit() {
+    this.activatedRoute.params.subscribe( ({cod_programa}) => this.cod_programa = parseInt(cod_programa))
   }
 
 }

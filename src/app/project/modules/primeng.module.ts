@@ -9,6 +9,7 @@ import { CardModule } from 'primeng/card';
 
 //prime gp
 import { AccordionModule } from 'primeng/accordion';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 import { BadgeModule } from 'primeng/badge';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { CalendarModule } from 'primeng/calendar';
@@ -38,6 +39,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 
 const primeGp = [
   AccordionModule,
+  AutoCompleteModule,
   BadgeModule,
   BreadcrumbModule,
   CalendarModule,

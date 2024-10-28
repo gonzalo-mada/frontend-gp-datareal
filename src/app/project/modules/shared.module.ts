@@ -42,6 +42,7 @@ import { TableModalidadesComponent } from 'src/app/project/components/plan-de-es
 import { StateFormComponent } from 'src/app/project/components/shared/state-form/state-form.component';
 import { FormProgramasStepOneComponent } from 'src/app/project/components/programas/forms/programas/form-programas-step-one/form-programas-step-one.component';
 import { FormProgramasStepTwoComponent } from 'src/app/project/components/programas/forms/programas/form-programas-step-two/form-programas-step-two.component';
+import { FormProgramasUpdateComponent } from '../components/programas/forms/programas/form-programas-update/form-programas-update.component';
 import { FormProgramasViewAndEditComponent } from 'src/app/project/components/programas/forms/programas/form-programas-view-and-edit/form-programas-view-and-edit.component';
 import { TableProgramasEstadoMaestroComponent } from 'src/app/project/components/programas/tables/programas/table-programas-estado-maestro/table-programas-estado-maestro.component';
 import { TableProgramasTituloComponent } from 'src/app/project/components/programas/tables/programas/table-programas-titulo/table-programas-titulo.component';
@@ -51,6 +52,7 @@ import { TableProgramasDirectorComponent } from 'src/app/project/components/prog
 import { TableProgramasDirectorAlternoComponent } from 'src/app/project/components/programas/tables/programas/table-programas-director-alterno/table-programas-director-alterno.component';
 import { TableProgramasHistorialActividadComponent } from 'src/app/project/components/programas/tables/programas/table-programas-historial-actividad/table-programas-historial-actividad.component';
 import { LoadinggpComponent } from 'src/app/project/components/shared/loadinggp/loadinggp.component';
+import { TableProgramasDocsMaestroComponent } from '../components/programas/tables/programas/table-programas-docs-maestro/table-programas-docs-maestro.component';
 
 
 const componentsGp = [
@@ -63,6 +65,7 @@ const componentsGp = [
   FormEstadosAcreditacionComponent,
   FormProgramasStepOneComponent,
   FormProgramasStepTwoComponent,
+  FormProgramasUpdateComponent,
   FormProgramasViewAndEditComponent,
   FormReglamentosComponent,
   FormSuspensionComponent,
@@ -81,6 +84,7 @@ const componentsGp = [
   TableProgramasDirectorComponent,
   TableProgramasDirectorAlternoComponent,
   TableProgramasDirectoresComponent,
+  TableProgramasDocsMaestroComponent,
   TableProgramasEstadosAcreditacionComponent,
   TableProgramasEstadoMaestroComponent,
   TableProgramasGradoAcademicoComponent,

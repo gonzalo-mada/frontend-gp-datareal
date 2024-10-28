@@ -2,7 +2,7 @@ import { EstadoMaestro } from "./EstadoMaestro";
 import { EstadosAcreditacion } from "./EstadosAcreditacion";
 import { Reglamento } from "./Reglamento";
 import { Suspension } from "./Suspension";
-
+export type ModeDialog = undefined | 'Título' | 'Grado académico' | 'REXE' | 'Estado maestro' | 'Director' | 'Director alterno' | 'Programa' | 'Reglamento' | 'Estado acreditación' | 'Documentos maestros'
 export interface Programa {
     Cod_Programa?: number,
     Centro_costo?: string,

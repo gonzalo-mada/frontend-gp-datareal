@@ -49,7 +49,7 @@
             </th>
             <ng-container *ngFor="let col of cols">
                 <ng-container *ngIf="col.field !== 'accion'; else actionsColumn">
-                    <th *ngIf="showColumn(col.field)" pSortableColumn="{{ col.field }}">
+                    <th  pSortableColumn="{{ col.field }}">
                         {{ col.header }} <p-sortIcon *ngIf="col.field != 'tiempo.Fecha_inicio'" field="{{ col.field }}"></p-sortIcon>
                       </th>
                 </ng-container>
@@ -71,7 +71,7 @@
                     {{data.Sigla}}
                 </span>
             </td>
-            <td *ngIf="configModeService.config().isPostgrado">
+            <td>
                 <span class="p-column-title">Estado</span>
                 <div class="flex flex-row flex-wrap">
                     <div class="flex align-items-center justify-content-center">
@@ -81,7 +81,7 @@
                     </div>
                 </div>
 
-                <ng-container *ngIf="data.tiempo.Fecha_inicio !== '01-01-1900' && data.tiempo.Fecha_termino !== '01-01-1900' ">
+                <ng-container *ngIf="data.Acreditado === 'SI' && data.tiempo.Fecha_inicio !== '01-01-1900' && data.tiempo.Fecha_termino !== '01-01-1900' ">
                     <span style="font-size: 0.8rem;">
                         <strong>INICIO:</strong> {{data.tiempo.Fecha_inicio}} <br>
                         <strong>TÉRMINO:</strong> {{data.tiempo.Fecha_termino}} <br>
@@ -89,28 +89,6 @@
                         <strong></strong>
                     </span>
                 </ng-container>
-            </td>
-
-            <td *ngIf="!configModeService.config().isPostgrado">
-                <span class="p-column-title">Estado</span>
-                <div class="flex flex-row flex-wrap">
-                    <div class="flex align-items-center justify-content-center">
-                        <span [ngClass]="data.Certificado == 'SI' ? 'estado-badge estado-activo' : 'estado-badge estado-desactivo'">
-                            {{ data.Certificado == 'SI' ? 'Certificado' : 'no Certificado' }}
-                        </span>
-                    </div>
-                </div>
-                
-            </td>
-
-            <td *ngIf="configModeService.config().isPostgrado">
-                <span class="p-column-title">Nombre_ag_acredit</span>
-                {{data.Nombre_ag_acredit}}
-            </td>
-
-            <td *ngIf="!configModeService.config().isPostgrado">
-                <span class="p-column-title">Nombre_ag_certif</span>
-                {{data.Nombre_ag_certif}}
             </td>
 
             <td>
@@ -125,8 +103,12 @@
             </td>
 
             <td>
-                <span class="p-column-title">Fecha_informe</span>
-                {{data.Fecha_informe}}
+                <ng-container *ngIf="data.Fecha_informe !== '01-01-1900'; else templateName">
+                    {{data.Fecha_informe}}
+                </ng-container>
+                <ng-template #templateName>
+                    <span>N/A</span>
+                </ng-template>
             </td>
 
 
