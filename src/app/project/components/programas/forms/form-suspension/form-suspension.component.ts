@@ -41,7 +41,8 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
 
   public fbForm: FormGroup = this.fb.group({
     Descripcion_TipoSuspension: ['', [Validators.required , GPValidator.regexPattern('num_y_letras')]],
-    files: [[], this.filesValidator.bind(this)]
+    files: [[], this.filesValidator.bind(this)],
+    aux: ['']
   })
 
   ngOnInit(): void {
@@ -138,6 +139,7 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
     try {
       this.uploaderFilesService.setContext('edit','mantenedores','suspension')
       this.fbForm.patchValue({...this.suspension});
+      this.fbForm.patchValue({aux: this.suspension});
       this.fbForm.get('Descripcion_TipoSuspension')?.enable();
       this.showAsterisk = true;
       await this.loadDocsWithBinary(this.suspension);
@@ -190,6 +192,7 @@ export class FormSuspensionComponent implements OnInit, OnDestroy{
           ID_TipoSuspension: this.suspension.ID_TipoSuspension,
           docsToUpload: actionUploadDoc.docsToUpload,
           docsToDelete: actionUploadDoc.docsToDelete,
+          aux: this.fbForm.get('aux')!.value
         }
       };
 

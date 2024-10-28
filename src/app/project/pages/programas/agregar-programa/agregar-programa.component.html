@@ -15,27 +15,6 @@
     </div>
 </app-dialog>
 
-<app-dialog [dialogWidth]="'75vw'" [(visible)]="showDialogEstadoAcreditacion">
-    <div header>
-        <span class="text-xl">Agregar estado de acreditación</span>
-    </div>
-    <div content>
-        <app-form-estados-acreditacion *ngIf="showDialogEstadoAcreditacion"></app-form-estados-acreditacion>
-    </div>
-    <div footer>
-        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
-            (click)="showDialogEstadoAcreditacion = false" [text]="true"></p-button>
-
-        <p-button 
-            label="Guardar"
-            icon="pi pi-check"
-            styleClass="mr-2 p-button-success p-button-sm" 
-            [disabled]="estadosAcreditacionService.stateForm === 'INVALID' ||  estadosAcreditacionService.stateForm === undefined "
-            (click)="submitNewEstadoAcreditacion()">
-        </p-button>
-    </div>
-</app-dialog>
-
 <app-dialog [dialogWidth]="'75vw'" [(visible)]="newReglamentoDialog">
     <div header>
         <span class="text-xl">Agregar reglamento</span>
@@ -164,44 +143,6 @@
                                                 </div>
                                                 
                                                 <app-table-programas-reglamentos [data]="reglamentos"></app-table-programas-reglamentos>
-                                            </ng-template>
-                                        </p-accordionTab>
-
-                                        <p-accordionTab id="estadoacreditacion">
-                                            <ng-template pTemplate="header">
-                                                <div class="flex justify-content-between flex-wrap w-full">
-                                                    <div>
-                                                        <span><strong>Estado acreditación</strong></span>
-                                                    </div>
-                                                    <div *ngIf="programasService.estadoAcreditacionSelected !== '' ">
-                                                        <span style="font-weight: 100;"><i>{{ programasService.estadoAcreditacionSelected }}</i></span>
-                                                    </div>
-                                                </div>
-                                            </ng-template>
-                                            <ng-template pTemplate="body">
-                                                <div class="grid flex justify-content-center align-items-center h-full">
-                                                    <div class="col-12 lg:col-10">
-                                                        <p-messages severity="info">
-                                                            <ng-template pTemplate>
-                                                                <i class="pi pi-info-circle mr-3"></i>
-                                                                <span>
-                                                                    Seleccione un estado de acreditación registrado en la tabla. Si no está registrado, agregue uno presionando el botón <strong>Agregar</strong>.
-                                                                </span>
-                                                            </ng-template>
-                                                        </p-messages>
-                                                    </div>
-                                                    <div class="col-12 lg:col-2">
-                                                        <div class="flex justify-content-end align-items-center h-full">
-                                                            <p-button
-                                                                label="Agregar"
-                                                                icon="pi pi-plus"
-                                                                styleClass="p-button-success p-button-sm"
-                                                                (click)="addNewEstadoAcreditacion()"
-                                                            ></p-button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <app-table-programas-estados-acreditacion [data]="estadosAcreditacion" ></app-table-programas-estados-acreditacion>
                                             </ng-template>
                                         </p-accordionTab>
 

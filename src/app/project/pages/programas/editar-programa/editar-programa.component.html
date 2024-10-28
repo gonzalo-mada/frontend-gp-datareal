@@ -1,5 +1,7 @@
 <app-card header="Actualizar programa" subheader="Permite actualizar un programa.">
-
+    <ng-container>
+        <app-form-programas-view-and-edit [mode]="mode" [cod_programa]="cod_programa" ></app-form-programas-view-and-edit>
+    </ng-container>
 <!-- <app-dialog [dialogWidth]="'75vw'" [(visible)]="newSuspensionDialog">
     <div header>
         <span class="text-xl">Agregar suspensión</span>

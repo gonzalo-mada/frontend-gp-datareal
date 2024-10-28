@@ -44,7 +44,8 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
     Descripcion_regla: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
     anio: ['', Validators.required],
     vigencia: [false],
-    files: [[], this.filesValidator.bind(this)]  // Validación personalizada de archivos
+    files: [[], this.filesValidator.bind(this)],  // Validación personalizada de archivos
+    aux: ['']
   });
 
   ngOnInit(): void {
@@ -145,6 +146,7 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
     try {
       this.uploaderFilesService.setContext('edit','mantenedores','reglamentos');
       this.fbForm.patchValue({...this.reglamento});
+      this.fbForm.patchValue({aux: this.reglamento});
       this.fbForm.get('Descripcion_regla')?.enable();
       this.fbForm.get('vigencia')?.enable();
       this.fbForm.get('anio')?.enable();
@@ -204,6 +206,7 @@ export class FormReglamentosComponent implements OnInit, OnDestroy {
             docsToUpload: actionUploadDoc.docsToUpload,
             docsToDelete: actionUploadDoc.docsToDelete,
             Cod_reglamento: this.reglamento.Cod_reglamento,
+            aux: this.fbForm.get('aux')!.value
           }
       }
 

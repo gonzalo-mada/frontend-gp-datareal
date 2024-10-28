@@ -37,9 +37,6 @@ export class TableEstadosAcreditacionComponent implements OnInit, OnChanges, OnD
     this.cols = [
       { field: 'Sigla', header: 'Identificador' },
       { field: 'Acreditado', header: 'Estado' },
-      { field: 'Certificado', header: 'Estado' },
-      { field: 'Nombre_ag_acredit', header: 'Nombre agencia' },
-      { field: 'Nombre_ag_certif', header: 'Nombre agencia' },
       { field: 'Evaluacion_interna', header: 'Evaluación interna' },
       { field: 'Fecha_informe', header: 'Fecha informe' },
       // { field: 'tiempo.Fecha_termino', header: 'Fecha_termino' },
@@ -49,9 +46,7 @@ export class TableEstadosAcreditacionComponent implements OnInit, OnChanges, OnD
     this.globalFiltros = [
       'Sigla', 
       'Acreditado' , 
-      'Certificado' , 
       'Nombre_ag_acredit' , 
-      'Nombre_ag_certif' , 
       'Evaluacion_interna' , 
       'Fecha_informe' , 
       'tiempo.Fecha_inicio' ,
@@ -110,12 +105,6 @@ export class TableEstadosAcreditacionComponent implements OnInit, OnChanges, OnD
     table.reset();
   }
 
-  showColumn(field: string): boolean {
-    if ( this.configModeService.config().isPostgrado){
-      return field === 'Acreditado' || field === 'Nombre_ag_acredit' || !['Certificado', 'Nombre_ag_certif'].includes(field);
-    }else{
-      return field === 'Certificado' || field === 'Nombre_ag_certif' || !['Acreditado', 'Nombre_ag_acredit'].includes(field);
-    }
-  }
+
 
 }

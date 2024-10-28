@@ -27,6 +27,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
   doc: any ;
   extrasDocs: any;
   context!: Context;
+  totalFileSizeNumber: number = 0;
 
   private subscription: Subscription = new Subscription();
 
@@ -34,9 +35,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
               private messageService: MessageService,
               public uploaderFilesService: UploaderFilesService
   ){}
-
-  
-  
+ 
   get disabled(): boolean | null {
     return this.uploaderFilesService.disabledButtonSeleccionarArchivos;
   }
@@ -49,7 +48,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
     this.subscription.add(this.uploaderFilesService.contextUpdate$.subscribe( context => {
       if (context) {
         if (context.module && context.component) {
-          // console.log("CONTEXT FROM UPLOADER",context);       
+          console.log("CONTEXT FROM UPLOADER",context);       
           this.context = context;
         }
       }
@@ -63,17 +62,12 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
         }
       }
     }));
-    // this.subscription.add(this.uploaderFilesService.files$.subscribe(files => { files && ( this.files = files ) } ));
   }
-
 
   ngOnDestroy(): void {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
-
-    // console.log("me destrui");
-    // this.test();
   }
 
   choose(callback: any){
@@ -82,13 +76,14 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
 
   onSelect(event: any, uploader: FileUpload){
     // Filtrar los archivos nuevos, verificando que no estén ya en la lista
-    const uniqueFiles = event.currentFiles.filter((newFile: File) => {
+    const uniqueFiles = uploader._files.filter((newFile: File) => {
       return !this.uploaderFilesService.files.some(fileWithComment => fileWithComment.nombre === newFile.name && fileWithComment.extras.pesoDocumento === newFile.size);
     });
 
     // Si no hay archivos únicos (ya existen), mostrar mensaje de error y remover el último archivo
+    let lastFile = uploader._files[uploader._files.length - 1 ];
+
     if (uniqueFiles.length == 0) {
-      let lastFile = event.currentFiles[event.currentFiles.length - 1 ];
       this.messageService.add({
         key: 'uploader-files',
         severity: 'error',
@@ -96,12 +91,17 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
       });
 
       // Buscar y remover el archivo duplicado del uploader
-      const fileIndex = uploader.files.findIndex(file => file === lastFile);
-      if (fileIndex !== -1) {
-        uploader.remove(event.originalEvent, fileIndex);
-      }
+      uploader._files = uploader._files.filter(file => {
+        // Verifica si el archivo está en this.uploaderFilesService.files
+        return this.uploaderFilesService.files.some(serviceFile => serviceFile.origFile === file);
+      });
     }
-    
+
+    if (!this.validateTotalFileSize(uploader)) {
+      // Si la validación falla, no continuar con la carga
+      return;
+    }
+
     // Agregar los archivos únicos a la lista 'files'
     uniqueFiles.forEach((newFile: File) => {  
       const fileToSelect = {
@@ -110,18 +110,14 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
         extras:{pesoDocumento: newFile.size ,comentarios:''} , 
         origFile: newFile , 
         from: this.context.component.label,
-        mode: this.context.mode
+        mode: this.context.mode,
       }
-    
       if (this.context.mode !== 'select') {
         this.uploaderFilesService.filesFromModeCreateOrEdit.push(fileToSelect)
       } else {
         this.uploaderFilesService.filesFromModeSelect.push(fileToSelect)
       }
-      // this.uploaderFilesService.setFiles(this.files);
-      
-    });    
-    // this.filesChange.emit(this.files)
+    });
     this.uploaderFilesService.setConfigModeUploader();    
     this.uploaderFilesService.updateValidatorFiles(this.context,this.uploaderFilesService.files);
     
@@ -187,7 +183,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
     this.uploaderFilesService.files[index].extras.comentarios = comment;
   }
 
-  async onRemoveTemplatingFile(file: any, uploader: FileUpload, index: number) { 
+  onRemoveTemplatingFile(file: any, uploader: FileUpload, index: number) {
     if (file.id) {
       this.uploaderFilesService.filesToDelete.push(file);
       this.uploaderFilesService.filesUploaded.splice(index, 1);
@@ -208,13 +204,16 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
     const fileExists = this.uploaderFilesService.files.some(existingFile => existingFile.nombre === file.nombre);
     if (!fileExists) {
       if (file.id) {
-        this.uploaderFilesService.filesUploaded.push(file);
-      }else{
-        if (file.mode !== 'select') {
-          this.uploaderFilesService.filesFromModeCreateOrEdit.push(file);
-        } else {
-          this.uploaderFilesService.filesFromModeSelect.push(file);
+        let totalRemoveTemplating = file.extras.pesoDocumento + this.uploaderFilesService.totalFileSize
+        if (totalRemoveTemplating > this.uploaderFilesService.limitValueUploader) {
+          this.messageService.add({
+            key: 'uploader-files',
+            severity: 'error',
+            detail: `El peso total de archivos adjuntados supera los 10MB.`,
+          });
+          return
         }
+        this.uploaderFilesService.filesUploaded.push(file);
       }
       this.uploaderFilesService.filesToDelete.splice(index, 1);
     } else {
@@ -229,8 +228,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
   }
 
   resetQueueUploader(context: Context){
-    // console.log("me llamaron reset queue uploader desde:", context);
-    // this.filesToDelete = []; 
+    console.log("me llamaron reset queue uploader desde:", context);
     this.docsToUpload = [];  
     this.uploader?.clear();
     this.uploaderFilesService.resetValidatorFiles();
@@ -252,7 +250,53 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
     console.log("FILES UPLOADED:",this.uploaderFilesService.filesUploaded);
     console.log("FILES SELECT:",this.uploaderFilesService.filesFromModeSelect);
     console.log("FILES CREATE OR EDIT:",this.uploaderFilesService.filesFromModeCreateOrEdit);
+  }
+
+  test2(event: any){
+    console.log("files from test",event._files);
+  }
+
+  test3(){
+    console.log("VALOR DE TOTALFILESIZE SERVICE",this.uploaderFilesService.totalFileSize);
+  }
+
+  test4(){
+    console.log("totalFileSizeNumber",this.totalFileSizeNumber);
     
   }
 
+  validateTotalFileSize(uploader: FileUpload) {
+    // Inicializa el tamaño total a partir de los archivos previamente subidos
+    this.totalFileSizeNumber = this.uploaderFilesService.filesUploaded.reduce((total, file) => total + file.extras.pesoDocumento, 0);
+    
+    // Añadir el tamaño de los archivos nuevos que el usuario intenta subir
+    let newFilesSize = 0;
+    for (let i = 0; i < uploader._files.length; i++) {
+      const file = uploader._files[i];
+      newFilesSize += file.size;
+    }
+    this.totalFileSizeNumber += newFilesSize;
+
+    // Verificar si el tamaño total excede el límite de 10 MB
+    if (this.totalFileSizeNumber > this.uploaderFilesService.limitValueUploader) {
+      this.messageService.add({
+        key: 'uploader-files',
+        severity: 'error',
+        detail: `El peso total de archivos adjuntados supera los 10MB.`,
+      });
+  
+      if (this.uploaderFilesService.totalFileSize === 0) {
+        // este es el caso cuando el usuario seleccionó muchos archivos al comienzo y el total superó el limite
+        uploader._files = [];
+      }else{
+        uploader._files = uploader._files.filter(file => {
+          // Verifica si el archivo está en this.uploaderFilesService.files
+          return this.uploaderFilesService.files.some(serviceFile => serviceFile.origFile === file);
+        });
+      }
+      return false; 
+    }
+  
+    return true;
+  }
 }

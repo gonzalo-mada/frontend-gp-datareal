@@ -42,15 +42,13 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
 
   public fbForm : FormGroup = this.fb.group({
     Acreditado: [false],
-    Certificado: [false],
-    Nombre_ag_acredit: [{value:'', disabled: true}, [Validators.required , GPValidator.regexPattern('num_y_letras')]], //string
-    Nombre_ag_certif: [{value:'', disabled: true}, [Validators.required , GPValidator.regexPattern('num_y_letras')]], //string
+    Nombre_ag_acredit: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]], //string
     Evaluacion_interna: [false], // si/no
     Fecha_informe: ['', [Validators.required]], //date
     tiempo: this.fb.group({
       Cod_tiempoacredit: [],
-      Fecha_inicio: [{value:'', disabled: true}, this.postGradoDatesValidator.bind(this)],
-      Fecha_termino: [{value:'', disabled: true}, this.postGradoDatesValidator.bind(this)],
+      Fecha_inicio: [{value:'', disabled: true}, [Validators.required]],
+      Fecha_termino: [{value:'', disabled: true}, [Validators.required]],
       Cantidad_anios: [{disabled: true}, [GPValidator.notValueNegativeYearsAcredit(),GPValidator.notUpTo15YearsAcredit()]]
     }), //number , positivo
     files: [[], this.filesValidator.bind(this)]
@@ -69,7 +67,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
     this.subscription.add(this.fbForm.statusChanges.subscribe( status => { this.estadosAcreditacionService.stateForm = status as StateValidatorForm}));
     this.subscription.add(
       this.estadosAcreditacionService.formUpdate$.subscribe( form => {
-        // console.log("form state ea",form);
+        console.log("form state ea",form);
         
         if (form && form.mode){
           if (form.data) {
@@ -108,14 +106,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
         this.uploaderFilesService.disabledButtonSeleccionar();
       }
     }))
-    this.subscription.add(this.fbForm.get('Certificado')?.valueChanges.subscribe(status => {
-      if (status === null) {
-        this.uploaderFilesService.disabledButtonSeleccionar();
-      }
-    }))
-
     //NUEVO.
-    
   }
   
   ngOnDestroy(): void {
@@ -125,55 +116,21 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
     this.uploaderFilesService.enabledButtonSeleccionar();
   }
 
-  postGradoDatesValidator(control: AbstractControl): { [key: string]: boolean } | null {
-    const formGroup = control.parent as FormGroup;
-
-    if (!formGroup) {
-        return null;
-    }
-    const fechaInicio = formGroup.get('Fecha_inicio');
-    const fechaTermino = formGroup.get('Fecha_termino');
-    const isPostgrado = this.configModeService.config().isPostgrado;
-    if (isPostgrado) {
-      // Si es postgrado, ambas fechas son requeridas
-      if (!fechaInicio?.value) {
-        fechaInicio?.setErrors({ required: true });
-      }
-      if (!fechaTermino?.value) {
-        fechaTermino?.setErrors({ required: true });
-      }
-    } else {
-      // Si no es postgrado, quitamos la validación en ambas fechas
-      if (fechaInicio?.hasError('required')) {
-        fechaInicio.setErrors(null);
-      }
-      if (fechaTermino?.hasError('required')) {
-        fechaTermino.setErrors(null);
-      }
-    }
-    return null
-  }
-
   filesValidator(control: AbstractControl): { [key: string]: boolean } | null {
     const formGroup = control.parent as FormGroup;
 
     if (!formGroup) {
         return null;
     }
-    const isPostgrado = this.configModeService.config().isPostgrado;
     const isAcreditado = formGroup.get('Acreditado')?.value === 'SI';
-    const isCertificado = formGroup.get('Certificado')?.value === 'SI';
     const acreditado = this.estadoAcreditacion.Acreditado === 'SI';
-    const certificado = this.estadoAcreditacion.Certificado === 'SI';
     const files = formGroup.get('files')?.value || [];
 
-    // console.log(isAcreditado,isCertificado,acreditado,certificado);
     
 
     // Determinar si el archivo es requerido basándonos en la modalidad y el tipo de switch
-    const needsFiles = (isPostgrado && ( isAcreditado || acreditado )  ) || (!isPostgrado && ( isCertificado || certificado ) );
+    const needsFiles = (( isAcreditado || acreditado )  ) ;
     const isCreatingOrEditing = this.modeForm === 'create' || this.modeForm === 'edit';
-
 
     // Validar si se requieren archivos
     if (needsFiles && isCreatingOrEditing && files.length === 0) {
@@ -186,6 +143,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
   createForm(resolve: Function, reject: Function){
     try {   
       this.uploaderFilesService.setContext('create','mantenedores','estado-acreditacion');
+      this.fbForm.get('Nombre_ag_acredit')?.clearValidators();
       this.resetForm();
       resolve(true)
     } catch (e) {
@@ -199,10 +157,8 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
       this.fbForm.patchValue({...this.estadoAcreditacion});
       this.yearsDifference = this.estadoAcreditacion.tiempo?.Cantidad_anios!;
       this.fbForm.get('Acreditado')?.disable();
-      this.fbForm.get('Certificado')?.disable();
       this.fbForm.get('Evaluacion_interna')?.disable();
       this.fbForm.get('Nombre_ag_acredit')?.disable();
-      this.fbForm.get('Nombre_ag_certif')?.disable();
       this.fbForm.get('Fecha_informe')?.disable();
       this.fbForm.get('tiempo.Fecha_inicio')?.disable();
       this.fbForm.get('tiempo.Fecha_termino')?.disable();
@@ -217,7 +173,6 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
   async editForm(resolve: Function, reject: Function){
     try {
       this.uploaderFilesService.setContext('edit','mantenedores','estado-acreditacion');
-      const isPostgrado = this.configModeService.config().isPostgrado
 
       const formValues =  this.estadoAcreditacion;
       
@@ -225,23 +180,21 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
         formValues.tiempo.Fecha_inicio = undefined;
         formValues.tiempo.Fecha_termino = undefined;
       }
+      
       this.fbForm.patchValue(formValues);
+      if (formValues.Fecha_informe === '01-01-1900' ) {
+        this.fbForm.get('Fecha_informe')?.reset();
+      }
       this.yearsDifference = this.estadoAcreditacion.tiempo?.Cantidad_anios == 0 ? null : this.estadoAcreditacion.tiempo?.Cantidad_anios!
       this.fbForm.get('Evaluacion_interna')?.enable()
       this.fbForm.get('Fecha_informe')?.enable();
       this.enableSwitch();
-
-      if (isPostgrado) {
-        switch (this.estadoAcreditacion.Acreditado) {
-          case 'SI': this.enableForm('acred'); break;
-          case 'NO': this.disableForm('acred'); break;
-        }
-      }else{
-        switch (this.estadoAcreditacion.Certificado) {
-          case 'SI': this.enableForm('certif'); break;
-          case 'NO': this.disableForm('certif'); break;
-        }
-      }            
+      
+      switch (this.estadoAcreditacion.Acreditado) {
+        case 'SI': this.enableForm(); break;
+        case 'NO': this.disableForm(); break;
+      }
+                  
       await this.loadDocsWithBinary(this.estadoAcreditacion);
       resolve(true)
     } catch (e) {
@@ -251,30 +204,18 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
 
   enableSwitch(){
     this.fbForm.get('Acreditado')?.disabled ? this.fbForm.get('Acreditado')?.enable() : this.fbForm.get('Acreditado')?.enable();
-    this.fbForm.get('Certificado')?.disabled ? this.fbForm.get('Certificado')?.enable() : this.fbForm.get('Certificado')?.enable();
   }
 
-  enableForm(typeForm : 'acred' | 'certif'){
-    
-    if (typeForm === 'acred') {
-      this.fbForm.get('Nombre_ag_acredit')?.enable();
-    } else {
-      //certif
-      this.fbForm.get('Nombre_ag_certif')?.enable();
-    }
+  enableForm(){
+    this.fbForm.get('Nombre_ag_acredit')?.enable();
     this.showAsterisk = true;
     this.fbForm.get('tiempo.Fecha_inicio')?.enable();
     this.fbForm.get('tiempo.Fecha_termino')?.enable();
     this.uploaderFilesService.enabledButtonSeleccionar();
   }
 
-  disableForm(typeForm : 'acred' | 'certif'){
-    if (typeForm === 'acred') {
-      this.fbForm.get('Nombre_ag_acredit')?.disable();
-    } else {
-      //certif
-      this.fbForm.get('Nombre_ag_certif')?.disable();
-    }
+  disableForm(){
+    this.fbForm.get('Nombre_ag_acredit')?.disable();
     this.yearsDifference = null;
     this.showAsterisk = false;
     this.fbForm.get('tiempo.Fecha_inicio')?.disable();
@@ -286,8 +227,8 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
     try {
       let params = {};
 
-      const { Acreditado, Certificado } = this.fbForm.value
-      if ( (Acreditado == null || Acreditado == false) && (Certificado == null || Certificado == false )) {
+      const { Acreditado } = this.fbForm.value
+      if ( (Acreditado == null || Acreditado == false) ) {
         //no requiero docs
         const { files, tiempo: { Cantidad_anios }, ...formData } = this.fbForm.value ;
         params = {...formData};
@@ -323,9 +264,9 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
   async updateForm(resolve: Function, reject: Function){
     try {
       let params = {};
-      const { switchAcreditado, switchCertificado } = this.fbForm.value
+      const { switchAcreditado } = this.fbForm.value
 
-      if (switchAcreditado == 'NO' && switchCertificado == 'NO') {
+      if (switchAcreditado == 'NO' ) {
         //no requiero docs
         const { files, ...formData } = this.fbForm.value ;
         params = {
@@ -368,9 +309,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
     this.fbForm.reset();
     this.yearsDifference = null
     this.fbForm.get('Acreditado')?.enable();
-    this.fbForm.get('Certificado')?.enable();
     this.fbForm.get('Nombre_ag_acredit')?.disable();
-    this.fbForm.get('Nombre_ag_certif')?.disable();
     this.fbForm.get('Evaluacion_interna')?.enable();
     this.fbForm.get('Fecha_informe')?.enable();
     this.fbForm.get('tiempo.Fecha_inicio')?.disable();
@@ -384,71 +323,43 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
     this.fbForm.controls['files'].updateValueAndValidity();
   }
 
-  changeSwitch(nameSwitch:string , event: any){
+  changeSwitch(event: any){
     const inputAcred = this.fbForm.get('Nombre_ag_acredit');
     const fechaInicio = this.fbForm.get('tiempo.Fecha_inicio');
     const fechaFin = this.fbForm.get('tiempo.Fecha_termino');
     const inputCantidadAnios = this.fbForm.get('tiempo.Cantidad_anios');
-    const inputCertif = this.fbForm.get('Nombre_ag_certif');
 
-    if (nameSwitch === 'acred') {
-      switch (event.checked) {
-        case 'SI':
-          inputAcred?.value == 'N/A' ? inputAcred?.reset() :  inputAcred?.value
-          inputAcred?.enable();
-          fechaInicio?.enable();
-          fechaFin?.enable();
-          inputCantidadAnios?.enable();
-          this.showAsterisk = true;
-          this.uploaderFilesService.enabledButtonSeleccionar();
-        break;
-        case 'NO':
-          inputAcred?.value == 'N/A' ? inputAcred?.reset() :  inputAcred?.value
-          inputAcred?.disable();
-          fechaInicio?.disable();
-          fechaFin?.disable();
-          inputCantidadAnios?.disable();
-          this.yearsDifference = null;
-          this.showAsterisk = false;
-          this.uploaderFilesService.disabledButtonSeleccionar();
-        break
-      }
-    }else if (nameSwitch === 'certif'){
-      //switch -> certif
-      switch (event.checked) {
-        case 'SI':
-          inputCertif?.enable();
-          fechaInicio?.enable();
-          fechaFin?.enable();
-          inputCantidadAnios?.enable();
-          this.showAsterisk = true;
-          this.uploaderFilesService.enabledButtonSeleccionar();
-        break;
-      
-        case 'NO':
-          inputCertif?.disable();
-          fechaInicio?.disable();
-          fechaFin?.disable();
-          inputCantidadAnios?.disable();
-          this.yearsDifference = null;
-          this.showAsterisk = false;
-          this.uploaderFilesService.disabledButtonSeleccionar();
-        break;
-        
-      }
-    }else{
-      inputAcred?.disable();
-      fechaInicio?.disable();
-      fechaFin?.disable();
-      inputCertif?.disable();
-      inputCantidadAnios?.disable();
-      inputAcred?.reset();
-      inputCertif?.reset();
-      fechaInicio?.reset();
-      fechaFin?.reset();
-      this.yearsDifference = null;
-      this.showAsterisk = false;
-      this.uploaderFilesService.disabledButtonSeleccionar();
+    switch (event.checked) {
+      case 'SI':
+        inputAcred?.enable();
+        fechaInicio?.enable();
+        fechaFin?.enable();
+        inputCantidadAnios?.enable();
+        this.showAsterisk = true;
+        this.uploaderFilesService.enabledButtonSeleccionar();
+      break;
+      case 'NO':
+        inputAcred?.patchValue('Comisión Nacional de Acreditación CNA Chile');
+        inputAcred?.disable();
+        fechaInicio?.disable();
+        fechaFin?.disable();
+        inputCantidadAnios?.disable();
+        this.yearsDifference = null;
+        this.showAsterisk = false;
+        this.uploaderFilesService.disabledButtonSeleccionar();
+      break
+      default:
+        inputAcred?.disable();
+        fechaInicio?.disable();
+        fechaFin?.disable();
+        inputCantidadAnios?.disable();
+        inputAcred?.reset();
+        fechaInicio?.reset();
+        fechaFin?.reset();
+        this.yearsDifference = null;
+        this.showAsterisk = false;
+        this.uploaderFilesService.disabledButtonSeleccionar();
+      break;
     }
     this.fbForm.controls['files'].updateValueAndValidity();
   }

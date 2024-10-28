@@ -1,11 +1,10 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
-import { SystemService } from 'src/app/base/services/system.service';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
-import { Programa } from 'src/app/project/models/programas/Programa';
+import { ModeDialog, Programa } from 'src/app/project/models/programas/Programa';
 import { Reglamento } from 'src/app/project/models/programas/Reglamento';
-import { LabelComponent } from 'src/app/project/models/shared/Context';
 import { ConfigModeService } from 'src/app/project/services/components/config-mode.service';
 import { LoadinggpService } from 'src/app/project/services/components/loadinggp.service';
 import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
@@ -13,11 +12,12 @@ import { UploaderFilesService } from 'src/app/project/services/components/upload
 import { ProgramasService } from 'src/app/project/services/programas/programas.service';
 import { groupDataTipoPrograma, groupDataUnidadesAcademicas } from 'src/app/project/tools/utils/dropwdown.utils';
 
+
+
 @Component({
   selector: 'app-form-programas-view-and-edit',
   templateUrl: './form-programas-view-and-edit.component.html',
-  styles: [
-  ]
+  styleUrls: ['./form-programas-view-and-edit.component.css']
 })
 export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnDestroy {
  
@@ -25,6 +25,7 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
     private commonUtils: CommonUtils,
     public configModeService: ConfigModeService,
     private errorTemplateHandler: ErrorTemplateHandler,
+    private messageService: MessageService,
     public programasService: ProgramasService,
     private systemService: LoadinggpService,
     public tableCrudService: TableCrudService,
@@ -44,17 +45,21 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
   estadosAcreditacion: any[] = [];
   estadosMaestros: any[] = [];
   titulo: any[] = [];
+  docMaestro: any[] = [];
   grado_academico: any[] = [];
   rexe: any[] = [];
   director: any[] = [];
   directorAlterno: any[] = [];
   reglamentos: Reglamento[] = [];
   showAsterisk: boolean = false;
+  dialog: boolean = false;
+  modeDialog: ModeDialog;
   showComponent: boolean = false;
   loading: boolean = true 
   loadingTab: boolean = true 
   private subscription: Subscription = new Subscription();
-
+  keyPopups: string = 'editar-programa';
+  
   async ngOnInit() {
     try {
       this.systemService.loading(true)
@@ -80,7 +85,8 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
       }));
       await this.getPrograma();
       await this.getData();
-      await this.getDocMaestro('init')
+      
+      
     } catch (error) {
       
     }finally{
@@ -108,12 +114,13 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
         this.getDirector(),
         this.getDirectorAlterno(),
         this.getTiposProgramas(),
-        this.getLogPrograma(),
+        this.getLogPrograma()
       ]);
       // Llamadas sincrónicas o que no necesitan espera
       this.getTitulo();
       this.getGradoAcademico();
       this.getRexe();
+      this.getDocMaestro();
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
@@ -213,9 +220,8 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
   async getReglamentos(){
     try {
       this.reglamentos = await this.programasService.getReglamentos(false);
-      if (this.mode === 'show') {
-        this.reglamentos = this.reglamentos.filter( r => r.Cod_reglamento === this.programa.Cod_Reglamento)
-      }
+      this.reglamentos = this.reglamentos.filter( r => r.Cod_reglamento === this.programa.Cod_Reglamento)
+      
             
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
@@ -228,9 +234,8 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
   async getEstadosAcreditacion(){
     try {
       this.estadosAcreditacion = await this.programasService.getEstadosAcreditacion(false);
-      if (this.mode === 'show') {
-        this.estadosAcreditacion = this.estadosAcreditacion.filter( ea => ea.Cod_acreditacion === this.programa.Cod_acreditacion)
-      }
+      this.estadosAcreditacion = this.estadosAcreditacion.filter( ea => ea.Cod_acreditacion === this.programa.Cod_acreditacion)
+
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
@@ -251,12 +256,10 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
     }
   }
 
-  async getDocMaestro(from: 'init' | 'tab'){
+  getDocMaestro(){
     try {
-      this.uploaderFilesService.setLoading(true,true)
-      this.uploaderFilesService.setContext('show','programa','ver-programa','Maestro');
-      const files = await this.programasService.getDocumentosWithBinary(this.programa.Cod_Programa!,'maestro',false);
-      this.uploaderFilesService.setFiles(files);
+      this.docMaestro = [];
+      this.docMaestro.push({Nombre_programa: this.programa.Nombre_programa}) ;
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
@@ -269,6 +272,7 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
 
   getTitulo(){
     try {
+      this.titulo = [];
       this.titulo.push({Titulo: this.programa.Titulo}) ;
       
     } catch (error) {
@@ -281,6 +285,7 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
 
   getGradoAcademico(){
     try {
+      this.grado_academico = [];
       this.grado_academico.push({Grado_academico: this.programa.Grado_academico}) ;
       
     } catch (error) {
@@ -293,6 +298,7 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
 
   getRexe(){
     try {
+      this.rexe = [];
       this.rexe.push({Rexe: this.programa.REXE}) ;
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
@@ -341,13 +347,8 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
     }
   }
 
-  async changeTab(event: any){
-    if (event.index === 0) {
-      console.log("entre aca");
-      await this.getDocMaestro('tab');
-    } else {
-      this.tableCrudService.emitResetExpandedRowsTable();
-    }
+  async changeTab(){
+    this.tableCrudService.emitResetExpandedRowsTable();
   }
 
   async downloadDoc(documento: any, from: string) {
@@ -362,6 +363,46 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
           message: e.detail.error.message.message
       });
     }
+  }
+
+  openDialog(mode: ModeDialog){
+    this.modeDialog = mode;
+    this.tableCrudService.emitResetExpandedRowsTable();
+    this.dialog = true
+  }
+
+  closeDialog(){
+    // this.programasService.setFormPrograma(this.programa);
+  }
+
+  async submit(){
+    console.log("hice click aqui.");
+    try {
+      const actionForm: any = await new Promise((resolve, reject) => {
+        this.programasService.setModeForm('update',null, resolve, reject);
+      })
+      if (actionForm.success) {
+        this.messageService.add({
+          key: this.keyPopups,
+          severity: 'success',
+          detail: actionForm.messageGp
+        });
+      }else{
+        throw actionForm;
+      }
+    } catch (e:any) {
+      this.errorTemplateHandler.processError(
+        e, {
+          notifyMethod: 'alert',
+          summary: `Error al actualizar`,
+          message: e.detail.error.message.message
+        });
+    }finally{
+      this.dialog = false
+      this.getPrograma();
+      this.getData();
+    }
+    
   }
 
 }

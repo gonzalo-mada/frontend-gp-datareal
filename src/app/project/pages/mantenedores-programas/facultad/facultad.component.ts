@@ -54,7 +54,8 @@ export class FacultadComponent implements OnInit, OnDestroy {
   public fbForm : FormGroup = this.fb.group({
     Estado_facu: [true, Validators.required],
     Descripcion_facu: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
-    files: [[], this.filesValidator.bind(this)]
+    files: [[], this.filesValidator.bind(this)],
+    aux: ['']
   })
 
   async ngOnInit() {
@@ -195,7 +196,8 @@ export class FacultadComponent implements OnInit, OnDestroy {
           Estado_facu: this.modeForm == 'changeState' ? this.facultad.Estado_facu : this.fbForm.get('Estado_facu')!.value,
           docsToUpload: actionUploadDoc.docsToUpload,
           docsToDelete: actionUploadDoc.docsToDelete,
-          isFromChangeState : isFromChangeState
+          isFromChangeState : isFromChangeState,
+          aux: this.fbForm.get('aux')!.value
         }
         
         const updated = await this.facultadService.updateFacultadService(params);
@@ -315,6 +317,7 @@ export class FacultadComponent implements OnInit, OnDestroy {
       this.uploaderFilesService.setContext('edit','mantenedores','facultad');
       this.dialog = true;
       this.fbForm.patchValue({...this.facultad});
+      this.fbForm.patchValue({aux: this.facultad});
       this.fbForm.get('Estado_facu')?.enable();
       this.fbForm.get('Descripcion_facu')?.enable();
       this.facultad.Estado_facu === true ? this.showAsterisk = true : this.showAsterisk = false;

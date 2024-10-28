@@ -1,8 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
-import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
-import { ProgramasService } from 'src/app/project/services/programas/programas.service';
+
 
 @Component({
   selector: 'app-table-programas-historial-actividad',
@@ -11,11 +9,6 @@ import { ProgramasService } from 'src/app/project/services/programas/programas.s
   ]
 })
 export class TableProgramasHistorialActividadComponent implements OnInit, OnDestroy {
-  constructor(
-    private errorTemplateHandler: ErrorTemplateHandler,
-    private programasService: ProgramasService, 
-    private tableCrudService: TableCrudService,
-  ){}
 
   @Input() data: any[] = [];
   @Input() mode: string = '';

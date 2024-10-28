@@ -26,7 +26,18 @@ export type NameComponent = undefined |
                 'modalidad' |
                 'programa'
 
-export type LabelComponent = undefined | 'Título' | 'Grado académico' | 'REXE' | 'Estado maestro' | 'Director' | 'Director alterno' | 'Maestro'            
+export type LabelComponent = 
+undefined | 
+'Título' | 
+'Grado académico' | 
+'REXE' | 
+'Estado maestro' | 
+'Director' | 
+'Director alterno' | 
+'Maestro' |
+'Programa' | 
+'Reglamento' | 
+'Estado acreditación' ;            
 
 export interface Context {
   mode: ModeUploader,
