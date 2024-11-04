@@ -151,8 +151,6 @@ export class FormJornadasComponent implements OnInit, OnDestroy{
 
   async showForm(resolve: Function, reject: Function){
     try {
-      console.log(this.jornadaService.modeForm);
-
       this.fbForm.patchValue({...this.jornada});
       this.fbForm.get('Descripcion_jornada')?.disable();
       resolve(true)

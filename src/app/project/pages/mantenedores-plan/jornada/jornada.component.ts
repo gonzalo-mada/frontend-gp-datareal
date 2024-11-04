@@ -189,7 +189,6 @@ export class JornadaComponent implements OnInit, OnDestroy {
       this.reset();
       await new Promise((resolve,reject) => {
         this.jornadaService.setModeForm('create', null, resolve, reject);
-        console.log(this.jornadaService.getJornadas());
         
       })
     } catch (e:any ) {
