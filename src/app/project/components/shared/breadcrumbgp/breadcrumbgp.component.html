@@ -1,14 +1,14 @@
 <app-loadinggp></app-loadinggp>
 <p-breadcrumb class="max-w-full" [model]="items" [home]="home" styleClass="mb-3">
     <ng-template pTemplate="item" let-item>
-        <ng-container *ngIf="item.route; else elseBlock">
-            <a [routerLink]="item.route" class="p-menuitem-link">
-                <span class="p-menuitem-text">{{ item.label }}</span>
+        <ng-container *ngIf="item.metodo; else elseBlock">
+            <a (click)="goToMenu(item)" class="p-menuitem-link" style="cursor: pointer;" >
+                <span class="p-menuitem-text">{{ item.nombre }}</span>
             </a>
         </ng-container>
         <ng-template #elseBlock>
             <a class="menu-item-link">
-                <span class="p-menuitem-text">{{ item.label }}</span>
+                <span class="p-menuitem-text">{{ item.nombre }}</span>
             </a>
         </ng-template>
     </ng-template>

@@ -1,5 +1,6 @@
 <p-table
     [value]="data" 
+    [columns]="cols"
     [dataKey]="dataKeyTable" 
     autoLayout="true"
     [expandedRowKeys]="expandedRows"
@@ -8,10 +9,12 @@
     rowExpandMode="single"
 >
 
-    <ng-template pTemplate="header">
+    <ng-template pTemplate="header" let-columns>
         <tr>
             <th style="width: 5rem"></th>
-            <th style="width:100%;"> Estado </th>
+            <th *ngFor="let col of columns">
+                {{ col.header }}
+            </th>
         </tr>
     </ng-template>
 
@@ -21,8 +24,10 @@
                 <p-button type="button" pRipple [pRowToggler]="data" [text]="true" [rounded]="true" [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
             </td>
             <td>
-                <span class="p-column-title">Estado</span>
-                {{data.Descripcion_EstadoMaestro}}
+                <span>{{data.Descripcion_EstadoMaestro}}</span>
+            </td>
+            <td *ngIf="data.Cod_EstadoMaestro === 2">
+                <span>{{data.Descripcion_TipoSuspension}}</span>
             </td>
 
         </tr>
@@ -30,7 +35,7 @@
 
     <ng-template pTemplate="rowexpansion" let-data>
         <tr>
-            <td colspan="2">
+            <td [attr.colspan]="cols.length + 1">
                 <h4>Documentos adjuntos.</h4>
                 <app-uploader-files mode="show"></app-uploader-files>
             </td>
@@ -39,7 +44,7 @@
 
     <ng-template pTemplate="emptymessage">
         <tr>
-            <td [attr.colspan]="2">Sin registros</td>
+            <td [attr.colspan]="cols.length  + 1">Sin registros</td>
         </tr>
     </ng-template>
 

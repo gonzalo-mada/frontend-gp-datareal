@@ -1,5 +1,42 @@
 <p-toast [key]="programasService.keyPopups"></p-toast>
 <app-card header="Programas" subheader="Permite ver, crear, actualizar y eliminar programas.">
-    <app-menu-buttons-table></app-menu-buttons-table>
-    <app-table-programas [data]="programas"></app-table-programas>
+    <div class="formgrid grid mt-4">
+        <div class="field col-6">
+            <div class="flex flex-wrap">
+                <div class="w-full">
+                    <div class="mb-2">
+                        <label><strong>Seleccione facultad para listar programas</strong></label>
+                    </div>
+                    <p-dropdown 
+                        [options]="facultades" 
+                        optionLabel="Descripcion_facu"
+                        optionValue="Cod_facultad" 
+                        placeholder="Seleccione facultad..."
+                        appendTo="body" 
+                        class="w-full p-d-flex p-flex-column" 
+                        [style]="{ width: '100%', 'min-width': '100%' }"
+                        (onChange)="changeFacultad($event)" 
+                    ></p-dropdown>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="!loadedProgramas" class="col-6">
+            <div class="flex justify-content-end flex-wrap mt-5">
+                <div class="flex align-items-center justify-content-center">
+                    <p-button
+                        [routerLink]="'/programa/add'"
+                        label="Agregar"
+                        icon="pi pi-plus"
+                        styleClass="p-button-success"
+                    ></p-button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div *ngIf="loadedProgramas">
+        <app-menu-buttons-table></app-menu-buttons-table>
+        <app-table-programas [data]="programas"></app-table-programas>
+    </div>
+
 </app-card>

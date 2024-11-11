@@ -1,85 +1,291 @@
-<p-button 
-label="test" 
-icon="pi pi-times" 
-styleClass="p-button-sm p-button-secondary mr-2" 
-(click)="test()" [text]="true"></p-button> 
-<div class="formgrid grid">
-    <div class="col-12">
-        <app-form-isvalid [valid]="fbForm.valid"></app-form-isvalid>
+
+
+
+
+
+<app-dialog [(visible)]="dialog" (visibleChange)="closeDialog()">
+    <div header>
+        <ng-container [ngSwitch]="modeDialog">
+            <span *ngSwitchCase="'grupo_correo'" class="text-xl" >Actualizar grupo correo en LDAP</span>
+            <span *ngSwitchCase="'director'" class="text-xl" >Actualizar director(a)</span>
+            <span *ngSwitchCase="'director alterno'" class="text-xl" >Actualizar director(a) alterno(a)</span>
+            <span *ngSwitchDefault class="text-xl" >Actualizar {{ modeDialog }}</span>
+        </ng-container>
     </div>
-</div>
-<form [formGroup]="fbForm">
-    <div class="formgrid grid">
 
-        <ng-container *ngIf="modeDialog === 'Programa' ">
-            <div class="field col-12 lg:col-6">
-                <label><strong>Nombre *</strong></label>
-                <input type="text" pInputText formControlName="Nombre_programa" maxlength="80" class="w-full" placeholder="Ingrese nombre de programa"/>
-                <app-form-control [control]="fbForm.controls['Nombre_programa']" [validators]="['required', 'num_y_letras']"></app-form-control>
-            </div>
-            <div class="field col-12 lg:col-6">
-                <label><strong>Grupo de correo en LDAP *</strong></label>
-                <input type="text" pInputText formControlName="Grupo_correo" maxlength="80" class="w-full" placeholder="Ingrese correo LDAP"/>
-                <app-form-control [control]="fbForm.controls['Grupo_correo']" [validators]="['required', 'checkCorreoUV']"></app-form-control>
-            </div>
-            <div class="field col-12 lg:col-6">
-                <label><strong>Créditos totales *</strong></label>
-                <p-inputNumber 
-                    formControlName="Creditos_totales"
-                    format="false"
-                    [allowEmpty]="true"
-                    maxlength="10"
-                    placeholder="Ingrese créditos totales"
-                    class="w-full p-d-flex p-flex-column"
-                    [style]="{ width: '100%', 'min-width': '100%' }"
-                />
-                <app-form-control [control]="fbForm.controls['Creditos_totales']" [validators]="['required' , 'solo_num']"></app-form-control>
-            </div>
-            <div class="field col-12 lg:col-6">
-                <label><strong>Horas totales *</strong></label>
-                <p-inputNumber 
-                    formControlName="Horas_totales"
-                    format="false"
-                    [allowEmpty]="true"
-                    maxlength="10"
-                    placeholder="Ingrese horas totales"
-                    class="w-full p-d-flex p-flex-column"
-                    [style]="{ width: '100%', 'min-width': '100%' }"
-                />
-                <app-form-control [control]="fbForm.controls['Horas_totales']" [validators]="['required' , 'solo_num']"></app-form-control>
-            </div>
-        </ng-container>
+    <div content>
+        <p-button 
+            label="test" 
+            icon="pi pi-times" 
+            styleClass="p-button-sm p-button-secondary mr-2" 
+            (click)="test()" [text]="true">
+        </p-button> 
 
-        <ng-container *ngIf="modeDialog === 'Título' ">
-            <div class="field col-12">
-                <label><strong>Título *</strong></label>
-                <input type="text" pInputText formControlName="Titulo" maxlength="50" class="w-full" placeholder="Ingrese nombre de título"/>
-                <app-form-control [control]="fbForm.controls['Titulo']" [validators]="['required', 'num_y_letras']"></app-form-control>
-            </div>
-        </ng-container>
+        <form *ngIf="fbForm" [formGroup]="fbForm">
+            <div class="formgrid grid">
 
-        <ng-container *ngIf="modeDialog === 'Grado académico' ">
-            <div class="field col-12">
-                <label><strong>Grado académico *</strong></label>
-                <input type="text" pInputText formControlName="Grado_academico" maxlength="50" class="w-full" placeholder="Ingrese nombre de grado académico"/>
-                <app-form-control [control]="fbForm.controls['Grado_academico']" [validators]="['required', 'num_y_letras']"></app-form-control>
-            </div>
-        </ng-container>
+                <ng-container [ngSwitch]="modeDialog">
+                    <div class="col-12" *ngSwitchCase="'reglamento'">
+                        <p-messages severity="info">
+                            <ng-template pTemplate>
+                                <i class="pi pi-info-circle mr-3"></i>
+                                <span>
+                                    Seleccione un reglamento registrado en la tabla. 
+                                    Si la actualización requiere de adjuntar un documento, debe hacerlo desde la página del
+                                    <a style="text-decoration: underline; cursor: pointer;" (click)="redirectToReglamento()">Mantenedor de reglamentos</a>.
+                                    <i class="pi pi-external-link" style="font-size: 0.8rem; font-weight:1000;"></i> 
+                                </span>
+                                
+                            </ng-template>
+                        </p-messages>
+                    </div>
+                    <div class="col-12" *ngSwitchCase="'director'">
+                        <p-messages severity="info">
+                            <ng-template pTemplate>
+                                <i class="pi pi-info-circle mr-3"></i>
+                                <span>Ingrese RUT de director(a), luego presione el botón buscar ( <i class="pi pi-search" style="font-size: 0.8rem; font-weight:1000;"></i> ), seleccione en la tabla y adjunte documento(s).</span>
+                            </ng-template>
+                        </p-messages>
+                    </div>
 
-        <ng-container *ngIf="modeDialog === 'REXE' ">
-            <div class="field col-12">
-                <label><strong>REXE *</strong></label>
-                <input type="text" pInputText formControlName="REXE" maxlength="50" class="w-full" placeholder="Ingrese REXE del programa"/>
-                <app-form-control [control]="programasService.fbForm.controls['REXE']" [validators]="['required', 'num_o_letras']"></app-form-control>
-            </div>
-        </ng-container>
+                    <div class="col-12" *ngSwitchCase="'director alterno'">
+                        <p-messages severity="info">
+                            <ng-template pTemplate>
+                                <i class="pi pi-info-circle mr-3"></i>
+                                <span>Ingrese RUT de director(a) alterno(a), luego presione el botón buscar ( <i class="pi pi-search" style="font-size: 0.8rem; font-weight:1000;"></i> ), seleccione en la tabla y adjunte documento(s).</span>
+                            </ng-template>
+                        </p-messages>
+                    </div>
 
+                    <div class="col-12" *ngSwitchCase="'estado acreditación'">
+                        <p-messages severity="info">
+                            <ng-template pTemplate>
+                                <i class="pi pi-info-circle mr-3"></i>
+                                <span>
+                                    Seleccione un estado de acreditación registrado en la tabla. 
+                                    Si la actualización requiere de adjuntar un documento, debe hacerlo desde la página del
+                                    <a style="text-decoration: underline; cursor: pointer;" (click)="redirectToEstadosAcreditacion()">Mantenedor de estados de acreditación</a>.
+                                    <i class="pi pi-external-link" style="font-size: 0.8rem; font-weight:1000;"></i> 
+                                </span>
+                                
+                            </ng-template>
+                        </p-messages>
+                    </div>
+                </ng-container>
+
+                <div class="col-12" *ngIf="modeDialog !== 'reglamento' && modeDialog !== 'estado acreditación' ">
+                    <app-form-isvalid [valid]="fbForm.valid"></app-form-isvalid>
+                </div>
+
+                <ng-container *ngIf="modeDialog === 'nombre' ">
+                    <div class="field col-12">
+                        <label><strong>Nombre *</strong></label>
+                        <input type="text" pInputText formControlName="Nombre_programa" maxlength="80" class="w-full" placeholder="Ingrese nombre de programa"/>
+                        <app-form-control [control]="fbForm.controls['Nombre_programa']" [validators]="['required', 'num_y_letras']"></app-form-control>
+                    </div>
+                </ng-container>
         
-
-        <div class="field col-12">
-            <label><strong>Adjunte documento(s) *</strong></label>
-            <app-uploader-files mode="create"></app-uploader-files>
-        </div>
-
+                <ng-container *ngIf="modeDialog === 'grupo_correo' ">
+                    <div class="field col-12">
+                        <label><strong>Grupo de correo en LDAP *</strong></label>
+                        <input type="text" pInputText formControlName="Grupo_correo" maxlength="80" class="w-full" placeholder="Ingrese correo LDAP"/>
+                        <app-form-control [control]="fbForm.controls['Grupo_correo']" [validators]="['required', 'checkCorreoUV']"></app-form-control>
+                    </div>
+                </ng-container>
+        
+                <ng-container *ngIf="modeDialog === 'créditos totales' ">
+                    <div class="field col-12">
+                        <label><strong>Créditos totales *</strong></label>
+                        <p-inputNumber 
+                            formControlName="Creditos_totales"
+                            format="false"
+                            [allowEmpty]="true"
+                            maxlength="10"
+                            placeholder="Ingrese créditos totales"
+                            class="w-full p-d-flex p-flex-column"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
+                        />
+                        <app-form-control [control]="fbForm.controls['Creditos_totales']" [validators]="['required' , 'solo_num']"></app-form-control>
+                    </div>
+                </ng-container>
+        
+                <ng-container *ngIf="modeDialog === 'horas totales' ">
+                    <div class="field col-12">
+                        <label><strong>Horas totales *</strong></label>
+                        <p-inputNumber 
+                            formControlName="Horas_totales"
+                            format="false"
+                            [allowEmpty]="true"
+                            maxlength="10"
+                            placeholder="Ingrese horas totales"
+                            class="w-full p-d-flex p-flex-column"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
+                        />
+                        <app-form-control [control]="fbForm.controls['Horas_totales']" [validators]="['required' , 'solo_num']"></app-form-control>
+                    </div>
+                </ng-container>
+        
+                <ng-container *ngIf="modeDialog === 'título' ">
+                    <div class="field col-12">
+                        <label><strong>Título *</strong></label>
+                        <input type="text" pInputText formControlName="Titulo" maxlength="50" class="w-full" placeholder="Ingrese nombre de título"/>
+                        <app-form-control [control]="fbForm.controls['Titulo']" [validators]="['required', 'num_y_letras']"></app-form-control>
+                    </div>
+                </ng-container>
+        
+                <ng-container *ngIf="modeDialog === 'grado académico' ">
+                    <div class="field col-12">
+                        <label><strong>Grado académico *</strong></label>
+                        <input type="text" pInputText formControlName="Grado_academico" maxlength="50" class="w-full" placeholder="Ingrese nombre de grado académico"/>
+                        <app-form-control [control]="fbForm.controls['Grado_academico']" [validators]="['required', 'num_y_letras']"></app-form-control>
+                    </div>
+                </ng-container>
+        
+                <ng-container *ngIf="modeDialog === 'REXE' ">
+                    <div class="field col-12">
+                        <label><strong>REXE *</strong></label>
+                        <input type="text" pInputText formControlName="REXE" maxlength="50" class="w-full" placeholder="Ingrese REXE del programa"/>
+                        <app-form-control [control]="programasService.fbForm.controls['REXE']" [validators]="['required', 'num_o_letras']"></app-form-control>
+                    </div>
+                </ng-container>
+        
+                <ng-container *ngIf="modeDialog === 'reglamento'">
+                    <div class="col-12 mt-2">
+                        <app-table-programas-reglamentos [data]="reglamentos" [isAnySelected]="selectedReglamento"></app-table-programas-reglamentos>
+                    </div>
+                </ng-container>
+        
+                <ng-container *ngIf="modeDialog === 'director'">        
+                    <div class="field col-12 mt-2">
+                        <label><strong>RUT director(a) *</strong></label>
+                        <p-inputGroup>
+                            <input type="text" pInputText formControlName="Director" maxlength="10" placeholder="Ingrese RUT director(a)" />
+                            <button type="button" pButton icon="pi pi-search" [disabled]="fbForm.controls['Director'].invalid || selectedDirector" (click)="searchDirector('director')"></button>
+                        </p-inputGroup>
+                        <small>Sin puntos y con guión. Ejemplo: 11111111-0</small>
+                        <app-form-control [control]="fbForm.controls['Director']" [validators]="['required', 'rut', 'notSameDirectorInUpdate' , 'notSameDirectorAlternoInUpdate']"></app-form-control>
+                    </div>
+                    <div class="col-12 my-2">
+                        <div class="field">
+                            <label><strong>Director(a) encontrado(a) *</strong></label>
+                            <app-table-programas-directores mode="director" [data]="directores" [isAnySelected]="selectedDirector"></app-table-programas-directores>
+                        </div>
+                    </div>
+                </ng-container>
+        
+                <ng-container *ngIf="modeDialog === 'director alterno'">
+                    <div class="field col-12 mt-2">
+                        <label><strong>RUT director(a) alterno(a) *</strong></label>
+                        <p-inputGroup>
+                            <input type="text" pInputText formControlName="Director_alterno" maxlength="10" placeholder="Ingrese RUT director(a) alterno(a)"  />
+                            <button type="button" pButton icon="pi pi-search" [disabled]="fbForm.controls['Director_alterno'].invalid || selectedDirectorAlterno" (click)="searchDirector('alterno')"></button>
+                        </p-inputGroup>
+                        <small>Sin puntos y con guión. Ejemplo: 11111111-0</small>
+                        <app-form-control [control]="fbForm.controls['Director_alterno']" [validators]="['required', 'rut', 'notSameDirectorInUpdate' , 'notSameDirectorAlternoInUpdate']"></app-form-control>
+                    </div>
+                    <div class="col-12 my-2">
+                        <div class="field">
+                            <label><strong>Director(a) alterno(a) encontrado(a) *</strong></label>
+                            <app-table-programas-directores mode="alterno" [data]="directoresAlternos" [isAnySelected]="selectedDirectorAlterno"></app-table-programas-directores>
+                        </div>
+                    </div>
+                </ng-container>
+        
+                <ng-container *ngIf="modeDialog === 'estado maestro'">
+                    <div class="field col-6 mt-2">
+                        <label><strong>Estado maestro *</strong></label>
+                        <br>
+                        <p-dropdown
+                            [options]="estadosMaestros"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
+                            formControlName="EstadoMaestro"
+                            placeholder="Seleccione estado maestro"
+                            optionLabel="Descripcion_EstadoMaestro"
+                            optionValue="Cod_EstadoMaestro"
+                            (onChange)="onEstadoMaestroChange($event)"
+                        >
+                        </p-dropdown>
+                        <app-form-control [control]="fbForm.controls['EstadoMaestro']" [validators]="['required']"></app-form-control>
+                    </div>
+        
+                    <div class="field col-6 mt-2" *ngIf="showSuspension">
+                        <label><strong>Tipo de suspensión *</strong></label>
+                        <br>
+                        <p-dropdown
+                            [options]="suspensiones"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
+                            formControlName="TipoSuspension"
+                            placeholder="Seleccione tipo de suspensión"
+                            optionLabel="Descripcion_TipoSuspension"
+                            (onChange)="onSuspensionChange($event)"
+                        >
+                            <ng-template let-suspension pTemplate="item">
+                                <div *ngIf="suspension.ID_TipoSuspension !== -1; else customOption"
+                                    class="flex align-items-center">
+                                    <div>{{ suspension.Descripcion_TipoSuspension }}</div>
+                                </div>
+        
+                                <ng-template #customOption>
+                                    <div class="flex align-items-center">
+                                        <div><strong>{{ suspension.Descripcion_TipoSuspension }}</strong>
+                                        </div>
+                                    </div>
+                                </ng-template>
+                            </ng-template>
+                        </p-dropdown>
+                        <app-form-control [control]="fbForm.controls['TipoSuspension']" [validators]="['required', 'notMinusOneCategory']"></app-form-control>
+                    </div>
+        
+                </ng-container>
+        
+                <ng-container *ngIf="modeDialog === 'estado acreditación'">
+                    <app-table-programas-estados-acreditacion [data]="estadosAcreditacion" [isAnySelected]="selectedEstadoAcreditacion"></app-table-programas-estados-acreditacion>
+                </ng-container>
+        
+                <div class="field col-12" *ngIf=" modeDialog !== 'reglamento' &&  modeDialog !== 'estado acreditación' " >
+                    <label><strong>Adjunte documento(s) *</strong></label>
+                    <app-uploader-files mode="create"></app-uploader-files>
+                </div>
+        
+            </div>
+        </form> 
     </div>
-</form>
+
+    <div footer>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
+            (click)="dialog = false" [text]="true">
+        </p-button>
+        <p-button 
+            *ngIf="showButtonSubmit"
+            label="Actualizar" 
+            icon="pi pi-check"
+            styleClass="mr-2 p-button-success p-button-sm" 
+            [disabled]="programasService.stateFormUpdate === 'INVALID' || programasService.stateFormUpdate === undefined "
+            (click)="submit()">
+        </p-button>
+    </div>
+</app-dialog>
+
+
+<p-dialog 
+    header="Agregar nuevo tipo de suspensión" 
+    [(visible)]="newTipoSuspensionDialog"
+    [modal]="true" [maximizable]="true" [draggable]="false" [resizable]="false" [position]="'center'"
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
+
+    <app-form-suspension *ngIf="newTipoSuspensionDialog"></app-form-suspension>
+
+    <p-footer>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
+            (click)="newTipoSuspensionDialog = false" [text]="true"></p-button>
+
+        <p-button 
+            label="Guardar"
+            icon="pi pi-check"
+            styleClass="mr-2 p-button-success p-button-sm" 
+            [disabled]="suspensionesService.stateForm === 'INVALID' || suspensionesService.stateForm === undefined "
+            (click)="submitNewSuspension()">
+        </p-button>
+
+    </p-footer>
+</p-dialog>

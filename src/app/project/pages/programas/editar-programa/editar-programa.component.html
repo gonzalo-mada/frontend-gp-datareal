@@ -1,25 +1,19 @@
-<app-card header="Actualizar programa" subheader="Permite actualizar un programa.">
-    <ng-container>
+<app-breadcrumbgp></app-breadcrumbgp>
+<p-card>
+    <ng-template pTemplate="header">
+        <div class="flex justify-content-between flex-wrap"  [style]="{ 'padding-left': '1.5rem' , 'padding-top': '1.5rem' , 'padding-right': '1.5rem'}">
+            <div>
+                <div class="p-card-title">Actualizar programa</div>
+                <div class="p-card-subtitle">Permite actualizar un programa.</div>
+            </div>
+            <div class="flex align-items-center">
+                <button pButton [plain]="true" [text]="true" type="button" icon="pi pi-pencil" ></button>
+                <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite editar registro</span>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="content">
         <app-form-programas-view-and-edit [mode]="mode" [cod_programa]="cod_programa" ></app-form-programas-view-and-edit>
-    </ng-container>
-<!-- <app-dialog [dialogWidth]="'75vw'" [(visible)]="newSuspensionDialog">
-    <div header>
-        <span class="text-xl">Agregar suspensión</span>
-    </div>
-    <div content>
-        <app-form-suspension *ngIf="newSuspensionDialog"></app-form-suspension>
-    </div>
-    <div footer>
-        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
-            (click)="newSuspensionDialog = false" [text]="true"></p-button>
+    </ng-template>
+</p-card>
 
-        <p-button 
-            label="Guardar"
-            icon="pi pi-check"
-            styleClass="mr-2 p-button-success p-button-sm" 
-            [disabled]="suspensionesService.stateForm === 'INVALID' || suspensionesService.stateForm === undefined "
-            (click)="submitNewSuspension()">
-        </p-button>
-    </div>
-</app-dialog> -->
-</app-card>

@@ -2,7 +2,7 @@ import { EstadoMaestro } from "./EstadoMaestro";
 import { EstadosAcreditacion } from "./EstadosAcreditacion";
 import { Reglamento } from "./Reglamento";
 import { Suspension } from "./Suspension";
-export type ModeDialog = undefined | 'Título' | 'Grado académico' | 'REXE' | 'Estado maestro' | 'Director' | 'Director alterno' | 'Programa' | 'Reglamento' | 'Estado acreditación' | 'Documentos maestros'
+export type ModeDialog = undefined | 'título' | 'grado académico' | 'REXE' | 'estado maestro' | 'director' | 'director alterno' | 'programa' | 'reglamento' | 'estado acreditación' | 'documentos maestros' | 'nombre' | 'grupo_correo' | 'créditos totales' | 'horas totales'
 export interface Programa {
     Cod_Programa?: number,
     Centro_costo?: string,
@@ -10,9 +10,7 @@ export interface Programa {
     Tipo_programa?: number,
     Titulo?: string,
     Director?: string,
-    Nombre_Director?: string,
     Director_alterno?: string,
-    Nombre_Director_alterno?: string,
     REXE?: string,
     Codigo_SIES?: string,
     Cod_Reglamento?: number,
@@ -26,10 +24,16 @@ export interface Programa {
     Grado_academico?: string,
     Graduacion_Conjunta?: number,
     Cod_EstadoMaestro?: number,
+    ID_TipoSuspension?: number,
     EstadosAreditacion?: EstadosAcreditacion ,
     EstadoMaestro?: EstadoMaestro ,
     Suspension?: Suspension ,
     EstadosAcreditacion?: EstadosAcreditacion,
-    Reglamento?: Reglamento
+    Reglamento?: Reglamento,
+    Descripcion_Reglamento?: string,
+    Descripcion_TipoSuspension?: string,
+    Descripcion_acreditacion?: string,
+    nombre_Director?: string,
+    nombre_DirectorAlterno?: string
 }
 

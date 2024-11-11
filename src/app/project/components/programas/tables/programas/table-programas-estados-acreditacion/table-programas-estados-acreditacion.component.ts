@@ -32,14 +32,13 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnCha
   
   @Input() data: any[] = [];
   @Input() mode: string = '';
-
+  @Input() isAnySelected: boolean = false;
   searchValue: string | undefined;
   originalData: any[] = [];
   cols: any[] = []
   globalFiltros: any[] = []
   dataKeyTable: string = ''
   expandedRows = {};
-  isAnySelected: boolean = false;
   private subscription: Subscription = new Subscription();
 
   ngOnInit(): void {
@@ -47,8 +46,8 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnCha
       { field: 'Sigla', header: 'Identificador', width: '350px', useMinWidth: true },
       { field: 'Acreditado', header: 'Estado', width: '180px', useMinWidth: true },
       { field: 'Certificado', header: 'Estado', width: 'auto', useMinWidth: false },
-      { field: 'Nombre_ag_acredit', header: 'Nombre agencia', width: 'auto', useMinWidth: false },
-      { field: 'Nombre_ag_certif', header: 'Nombre agencia', width: 'auto', useMinWidth: false },
+      // { field: 'Nombre_ag_acredit', header: 'Nombre agencia', width: 'auto', useMinWidth: false },
+      // { field: 'Nombre_ag_certif', header: 'Nombre agencia', width: 'auto', useMinWidth: false },
       { field: 'Evaluacion_interna', header: 'Evaluación interna', width: 'auto', useMinWidth: false },
       { field: 'Fecha_informe', header: 'Fecha informe', width: 'auto', useMinWidth: false },
       // { field: 'tiempo.Fecha_termino', header: 'Fecha_termino' },

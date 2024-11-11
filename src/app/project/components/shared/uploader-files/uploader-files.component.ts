@@ -48,7 +48,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
     this.subscription.add(this.uploaderFilesService.contextUpdate$.subscribe( context => {
       if (context) {
         if (context.module && context.component) {
-          console.log("CONTEXT FROM UPLOADER",context);       
+          // console.log("CONTEXT FROM UPLOADER",context);       
           this.context = context;
         }
       }

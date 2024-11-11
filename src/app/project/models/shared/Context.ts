@@ -37,7 +37,11 @@ undefined |
 'Maestro' |
 'Programa' | 
 'Reglamento' | 
-'Estado acreditación' ;            
+'Estado acreditación' |
+'Nombre programa' |
+'Grupo correo' |
+'Créditos totales' |
+'Horas totales' ;            
 
 export interface Context {
   mode: ModeUploader,

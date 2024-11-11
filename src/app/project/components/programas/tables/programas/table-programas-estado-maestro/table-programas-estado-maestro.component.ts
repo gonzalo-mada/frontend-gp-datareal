@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { TableRowExpandEvent } from 'primeng/table';
 import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
@@ -12,7 +12,7 @@ import { ProgramasService } from 'src/app/project/services/programas/programas.s
   styles: [
   ]
 })
-export class TableProgramasEstadoMaestroComponent implements OnInit, OnDestroy {
+export class TableProgramasEstadoMaestroComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     private errorTemplateHandler: ErrorTemplateHandler,
     private programasService: ProgramasService, 
@@ -20,16 +20,33 @@ export class TableProgramasEstadoMaestroComponent implements OnInit, OnDestroy {
     private uploaderFilesService: UploaderFilesService,
   ){}
 
+
   @Input() data: any[] = [];
   @Input() mode: string = '';
 
   dataKeyTable: string = ''
   expandedRows = {};
+  cols: any[] = [];
   private subscription: Subscription = new Subscription();
 
   ngOnInit(): void {
     this.dataKeyTable = 'Cod_EstadoMaestro';
     this.subscription.add(this.tableCrudService.resetExpandedRowsTableSubject$.subscribe( () => {this.resetExpandedRows()} ));
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if ( changes['data'] && changes['data'].currentValue) {
+      if (this.data[0].Cod_EstadoMaestro === 2) {
+        this.cols = [
+          {header: 'Estado'},
+          {header: 'Tipo de suspensión'}
+        ];
+      }else{
+        this.cols = [
+          {header: 'Estado'}
+        ];
+      }
+    }
   }
 
   ngOnDestroy(): void {

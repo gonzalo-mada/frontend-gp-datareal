@@ -27,19 +27,34 @@ export class HomeMenuButtonsComponent {
   menusRx!: Subscription;
 
   ngOnInit() {
-    this.setMenus(this.panelControlService.getMenusArray());
+    this.processMenus(this.panelControlService.getMenusArray());
+    this.setMenus(this.menus);
     this.menusRx = this.panelControlService.menus$.subscribe((e: any) => {
-      this.setMenus(e.menus);
+      this.processMenus(e.menus);
+      this.setMenus(this.menus);
     });
   }
 
   filtering() {
-    this.inview = this.commonUtils.filtering(this.menus, this.filter, 'nombre');
+    var inview = this.commonUtils.filtering(this.menus, this.filter, 'nombre');
+    this.setMenus(inview);
+  }
+
+  showItems(items: Item[], itemsMenu: MenuPrime, event: any) {
+    this.items = items;
+    itemsMenu.show(event);
+  }
+
+  goToMenu(menu: Menu, item?: Item) {
+    this.panelControlService.navigate(this.router, menu, item);
+  }
+
+  processMenus(menus: Menu[]) {
+    this.menus = menus.filter((e: Menu) => e.metodo != '');
   }
 
   setMenus(menus: Menu[]) {
-    this.menus = menus.filter((e: Menu) => e.metodo != '');
-    this.inview = this.menus.map((e: Menu) => {
+    this.inview = menus.map((e: Menu) => {
       var items: any = [];
       if (e.items.length > 0) {
         items = e.items.map((f: Item) => {
@@ -67,15 +82,6 @@ export class HomeMenuButtonsComponent {
 
       return m;
     });
-  }
-
-  showItems(items: Item[], itemsMenu: MenuPrime, event: any) {
-    this.items = items;
-    itemsMenu.show(event);
-  }
-
-  goToMenu(menu: Menu, item?: Item) {
-    this.panelControlService.navigate(this.router, menu, item);
   }
 
   ngOnDestroy() {

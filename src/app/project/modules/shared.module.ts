@@ -29,7 +29,6 @@ import { TableProgramasDirectoresComponent } from 'src/app/project/components/pr
 import { ConfigModeComponent } from 'src/app/project/components/shared/config-mode/config-mode.component';
 import { TableProgramasEstadosAcreditacionComponent } from 'src/app/project/components/programas/tables/programas/table-programas-estados-acreditacion/table-programas-estados-acreditacion.component';
 import { FormSuspensionComponent } from 'src/app/project/components/programas/forms/form-suspension/form-suspension.component';
-import { TableProgramasSuspensionesComponent } from 'src/app/project/components/programas/tables/programas/table-programas-suspensiones/table-programas-suspensiones.component';
 import { TableSuspensionesComponent } from 'src/app/project/components/programas/tables/table-suspensiones/table-suspensiones.component';
 import { TableProgramasComponent } from 'src/app/project/components/programas/tables/table-programas/table-programas.component';
 import { TableReglamentosComponent } from 'src/app/project/components/programas/tables/table-reglamentos/table-reglamentos.component';
@@ -91,7 +90,6 @@ const componentsGp = [
   TableProgramasHistorialActividadComponent,
   TableProgramasReglamentosComponent,
   TableProgramasRexeComponent,
-  TableProgramasSuspensionesComponent,
   TableProgramasTituloComponent,
   TableReglamentosComponent,
   TableSuspensionesComponent,
