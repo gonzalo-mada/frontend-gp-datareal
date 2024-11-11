@@ -11,18 +11,5 @@
             <input type="text" pInputText formControlName="Descripcion_TipoSuspension" maxlength="50" class="w-full" placeholder="Ingrese nombre de suspensión"/>
             <app-form-control [control]="fbForm.controls['Descripcion_TipoSuspension']" [validators]="['required', 'num_y_letras']"></app-form-control>
         </div>
-        <div class="field col-12">
-            <div class="col-12 ">
-                <div class="mb-2">
-                    <label>
-                        <strong>
-                          {{ modeForm !== 'show' ? 'Adjunte documento(s)' : 'Documento(s) adjunto(s)' }}
-                          {{ modeForm !== 'show' && showAsterisk ? '*' : '' }}
-                        </strong>
-                      </label>                                  
-                </div>
-                <app-uploader-files [mode]="modeForm!"></app-uploader-files>
-            </div>
-        </div>
     </div>
 </form>

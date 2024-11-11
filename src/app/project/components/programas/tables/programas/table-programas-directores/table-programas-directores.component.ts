@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { MessageService } from 'primeng/api';
+import { Director } from 'src/app/project/models/programas/Director';
 import { ProgramasService } from 'src/app/project/services/programas/programas.service';
 
 @Component({
@@ -8,20 +9,31 @@ import { ProgramasService } from 'src/app/project/services/programas/programas.s
   styles: [
   ]
 })
-export class TableProgramasDirectoresComponent  {
+export class TableProgramasDirectoresComponent implements OnChanges {
 
   constructor(private programasService: ProgramasService, private messageService: MessageService){}
 
   @Input() data: any[] = []
   @Input() mode!: 'director' | 'alterno';
+  @Input() isAnySelected: boolean = false;
   isSelected: boolean = false; 
 
-  changeSelectDirector(modeSelect:'select' | 'unselect', rut: string, nombres: string, paterno: string, materno: string){
-    let nombreCompleto = nombres.trim() + ' ' + paterno.trim() + ' ' + materno.trim();
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['data']){
+      this.isSelected = false;
+    }
+  }
+
+  changeSelectDirector(modeSelect:'select' | 'unselect', data: Director){
+    console.log("datatatatat",data);
+    
+    let nombreCompleto = data.Nombres!.trim() + ' ' + data.Paterno!.trim() + ' ' + data.Materno!.trim();
     this.messageService.clear();
     switch (modeSelect) {
       case 'select':
-        this.isSelected = true;
+        this.isAnySelected = true
+        data.isSelected = true;
+        this.programasService.setSelectDirector(this.mode, nombreCompleto, data.rutcompleto!)
         this.messageService.add({
           key: this.programasService.keyPopups,
           severity: 'info',
@@ -29,11 +41,12 @@ export class TableProgramasDirectoresComponent  {
           ? `Director(a): "${nombreCompleto}" seleccionado(a)` 
           : `Director(a) alterno(a): "${nombreCompleto}" seleccionado(a)`
         });
-        this.programasService.setSelectDirector(this.mode, nombreCompleto, rut)
       break;
 
       case 'unselect':
-        this.isSelected = false;
+        this.isAnySelected = false;
+        data.isSelected = false;
+        this.programasService.unsetSelectDirector(this.mode)
         this.messageService.add({
           key: this.programasService.keyPopups,
           severity: 'info',
@@ -41,7 +54,6 @@ export class TableProgramasDirectoresComponent  {
           ? `Director(a): "${nombreCompleto}" deseleccionado(a)` 
           : `Director(a) alterno(a): "${nombreCompleto}" deseleccionado(a)`
         });
-        this.programasService.unsetSelectDirector(this.mode)
       break;
     
     }

@@ -17,17 +17,18 @@
             <td>{{ data.Facultad }}</td>
             <td>
                 <p-button
-                    *ngIf="!isSelected"  
+                    *ngIf="!data.isSelected"  
                     styleClass="p-button-sm"
                     label="Seleccionar"
-                    (click)="changeSelectDirector('select',data.rutcompleto, data.Nombres, data.Paterno, data.Materno)"
+                    (click)="changeSelectDirector('select',data)"
+                    [disabled]="isAnySelected && !data.isSelected"
                 >
                 </p-button>
                 <p-button
-                    *ngIf="isSelected"    
+                    *ngIf="data.isSelected"    
                     styleClass="p-button-sm p-button-danger"
                     label="Deseleccionar"
-                    (click)="changeSelectDirector('unselect',data.rutcompleto, data.Nombres, data.Paterno, data.Materno)"
+                    (click)="changeSelectDirector('unselect',data)"
                 >
                 </p-button>
             </td>

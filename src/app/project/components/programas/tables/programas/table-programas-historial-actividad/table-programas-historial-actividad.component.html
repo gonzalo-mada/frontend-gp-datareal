@@ -1,21 +1,136 @@
 <p-table
+    #dt
     [value]="data" 
     [dataKey]="dataKeyTable" 
+    [rows]="10" 
+    [paginator]="true" 
+    [rowsPerPageOptions]="[10,25,50]" 
+    [showCurrentPageReport]="true"
+    [globalFilterFields]="globalFiltros"
+    currentPageReportTemplate="{first} hasta {last} de {totalRecords} registros."
     autoLayout="true"
-
 >
     <ng-template pTemplate="caption">
         <div class="flex align-items-center justify-content-between">
-            <span class="font-light">Historial de actividad</span>
+            <div>
+                <div class="flex flex-row flex-wrap">
+                    <div class="align-items-center">
+                        <div class="p-card-title">Historial de actividad</div>
+                    </div>
+                    <div class="align-items-center ml-1" [style]="{'margin-top': '0.1rem !important'}">
+                        <i class="pi pi-question-circle" [pTooltip]='tooltipContent' tooltipPosition="top"></i>
+                        <ng-template #tooltipContent>
+                            <small>Muestra un historial de las actividades realizadas en el programa, incluyendo creación y actualización, la información anterior y actual, la fecha de cada actividad y el usuario que la realizó.</small>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+            <div>
+                
+                <div class="flex mb-2 md:mb-0">
+                    <span class="p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)" />
+                      </span>
+                    <p-button
+                        (onClick)="showFilters = !showFilters"
+                        [label]="showFilters ? 'Ocultar filtros' : 'Ver más filtros' " 
+                        [icon]="showFilters ? 'pi pi-eye-slash' : 'pi pi-eye' " 
+                        styleClass="ml-2" 
+                        iconPos="right" 
+                    />
+                    <p-button 
+                      styleClass="p-button-text ml-2" 
+                      icon="pi pi-filter-slash" 
+                      pTooltip="Limpiar filtros"
+                      tooltipPosition="bottom" 
+                      (click)="clear(dt)">
+                    </p-button>
+                </div>
+            </div>
         </div>
     </ng-template>
 
     <ng-template pTemplate="header">
         <tr>
-            <th style="width:45%;">Actividad</th>
-            <th style="width:20%;">Tipo de actividad</th>
-            <th style="width:15%;">Fecha</th>
-            <th style="width:20%;">Realizada por</th>
+            <th pSortableColumn="descripcion.descripcion" style="width:45%;">Actividad <p-sortIcon field="descripcion.descripcion" /> </th>
+            <th pSortableColumn="tipo_movimiento" style="width:15%;">Tipo de actividad <p-sortIcon field="tipo_movimiento" /> </th>
+            <th pSortableColumn="fecha" style="width:15%;">Fecha <p-sortIcon field="fecha" /> </th>
+            <th pSortableColumn="nombre_usuario" style="width:20%;">Realizada por <p-sortIcon field="nombre_usuario" /> </th>
+        </tr>
+        <tr *ngIf="showFilters">
+            <th>
+                <p-columnFilter field="descripcion.descripcion" matchMode="in" [showMenu]="false">
+                    <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                        <p-multiSelect 
+                            [options]="groupedData.actividades" 
+                            [group]="true" 
+                            [ngModel]="value"
+                            (onChange)="filter($event.value)"
+                            appendTo="body" 
+                            placeholder="Filtrar por actividad" 
+                        >
+                            <ng-template let-group pTemplate="group">
+                                <div class="flex align-items-center">
+                                    <span>{{ group.label }}</span>
+                                </div>
+                            </ng-template>
+                    </p-multiSelect>
+                    </ng-template>
+                </p-columnFilter>
+            </th>
+            <th>
+                <p-columnFilter field="tipo_movimiento" matchMode="in" [showMenu]="false">
+                    <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                        <p-multiSelect
+                            [options]="groupedData.tipos_actividades" 
+                            [ngModel]="value"
+                            (onChange)="filter($event.value)" 
+                            appendTo="body" 
+                            placeholder="Filtrar por tipo de actividad" 
+                        >
+                        </p-multiSelect>
+                    </ng-template>
+                </p-columnFilter>
+            </th>
+            <th>
+                <p-columnFilter field="fecha" matchMode="in" [showMenu]="false" [showClearButton]="false">
+                    <ng-template pTemplate="filter" let-value >
+                        <p-calendar placeholder="Filtre por fecha" appendTo="body" dataType="string" dateFormat="dd-mm-yy" [showTime]="true" [(ngModel)]="selectedDate" [hideOnDateTimeSelect]="false">
+                            <ng-template pTemplate="footer">
+                                <hr>
+                                <div class="flex justify-content-center flex-wrap mb-2">
+                                    <p-button
+                                        (onClick)="filter()"
+                                        label="Filtrar"
+                                        styleClass="p-button-sm mr-2" 
+                                    />
+                                    <p-button 
+                                        styleClass="p-button-sm p-button-text" 
+                                        icon="pi pi-filter-slash" 
+                                        (click)="clearCalendar(dt)">
+                                    </p-button>
+                                </div>
+                                
+                            </ng-template>
+                        </p-calendar>
+                    </ng-template>
+                </p-columnFilter>
+            </th>
+            <th>
+                <p-columnFilter field="nombre_usuario" matchMode="in" [showMenu]="false">
+                    <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                        <p-multiSelect
+                            appendTo="body" 
+                            [options]="groupedData.usuarios" 
+                            [ngModel]="value"
+                            (onChange)="filter($event.value)" 
+                            placeholder="Filtrar por usuario" 
+                        >
+                        </p-multiSelect>
+                    </ng-template>
+                </p-columnFilter>
+            </th>
         </tr>
     </ng-template>
 
@@ -23,7 +138,11 @@
         <tr>
             <td>
                 <span class="p-column-title">Actividad</span>
-                {{data.descripcion}}
+                <span> {{data.descripcion.descripcion}} <br> </span>
+                <span *ngIf="data.tipo_movimiento === 'U' " style="font-size: 0.8rem;">
+                    <strong>ANTES:</strong> {{data.descripcion.valor_antes}}<br>
+                    <strong>AHORA:</strong> {{data.descripcion.valor_despues}}<br>
+                </span>
             </td>
             <td>
                 <span class="p-column-title">Tipo de actividad</span>
@@ -45,7 +164,7 @@
                 {{data.fecha}}
             </td>
             <td>
-                <span class="p-column-title">Tipo de actividad</span>
+                <span class="p-column-title">Realizada por</span>
                 <span> {{data.nombre_usuario}}  <br> </span>
                 <span style="font-size: 0.8rem;">
                     <strong>RUT:</strong> {{data.usuario}}<br>

@@ -67,8 +67,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
     this.subscription.add(this.fbForm.statusChanges.subscribe( status => { this.estadosAcreditacionService.stateForm = status as StateValidatorForm}));
     this.subscription.add(
       this.estadosAcreditacionService.formUpdate$.subscribe( form => {
-        console.log("form state ea",form);
-        
+        // console.log("form state ea",form);
         if (form && form.mode){
           if (form.data) {
             this.estadoAcreditacion = {};

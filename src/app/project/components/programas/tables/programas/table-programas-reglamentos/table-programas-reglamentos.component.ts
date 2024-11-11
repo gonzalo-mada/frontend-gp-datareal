@@ -29,13 +29,13 @@ export class TableProgramasReglamentosComponent implements OnInit, OnChanges, On
 
   @Input() data: any[] = [];
   @Input() mode: string = '';
+  @Input() isAnySelected: boolean = false;
   searchValue: string | undefined;
   originalData: any[] = [];
   cols: any[] = []
   globalFiltros: any[] = []
   dataKeyTable: string = '';
   expandedRows = {};
-  isAnySelected: boolean = false;
   private subscription: Subscription = new Subscription();
 
   ngOnInit(): void {
@@ -132,6 +132,11 @@ export class TableProgramasReglamentosComponent implements OnInit, OnChanges, On
 
   onRowCollapse(event: any){
     this.resetExpandedRows();
+  }
+
+  test(){
+    console.log("DATA: ",this.data);
+    
   }
 
 }

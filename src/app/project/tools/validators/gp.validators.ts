@@ -4,7 +4,9 @@ export class GPValidator {
 
     static notMinusOneCategory(): ValidatorFn {
         return (control: AbstractControl) : ValidationErrors | null => {
-            if(control.value === -1){
+            if (control.value && control.value.ID_TipoSuspension && control.value.ID_TipoSuspension === -1) {
+                return {notMinusOneCategory : true}
+            }else if(control.value && control.value === -1){
                 return {notMinusOneCategory : true}
             }else{
                 return null;
@@ -138,5 +140,25 @@ export class GPValidator {
                 return null;
             }
         }
+    }
+
+    static notSameAsDirectorInUpdate(rut_director: string, rut_directorAlterno: string): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+            const formGroup = control.parent as FormGroup;
+
+            if (!formGroup) {
+                return null; 
+            }
+            
+            const director = control.value;
+            
+            if (director && director === rut_director ) {
+                return { notSameDirectorInUpdate: true };
+            }else if(director && director === rut_directorAlterno){
+                return { notSameDirectorInUpdate: true };
+            } else {
+                return null;
+            }
+        };
     }
 }

@@ -307,41 +307,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
   }
 
 
-  async submitNewSuspension(){
-    try {
-      
-      const result: any = await new Promise((resolve: Function, reject: Function) => {
-        this.suspensionesService.setModeForm('insert',null,resolve, reject);
-      })
-      
-      if (result.success) {
-        //insert exitoso
-        this.getSuspensiones();
-        this.messageService.add({
-          key: this.programasService.keyPopups,
-          severity: 'success',
-          detail: result.messageGp
-        });
-        
-      }else{
-        this.errorTemplateHandler.processError(
-          result, {
-            notifyMethod: 'alert',
-            summary: result.messageGp,
-            message: result.e.detail.error.message,
-        });
-      }
-      this.reset();
-      this.newSuspensionDialog = false;
-    } catch (e: any) {
-      
-      this.newSuspensionDialog = false;
-      this.errorTemplateHandler.processError(e, {
-        notifyMethod: 'alert',
-        message: e.detail.error.message
-      });
-    }
-  }
+  
 
   changeDisposition(){
     this.programasService.disposition = !this.programasService.disposition;

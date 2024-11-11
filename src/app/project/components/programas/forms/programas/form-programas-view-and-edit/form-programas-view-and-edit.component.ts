@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
@@ -19,7 +19,7 @@ import { groupDataTipoPrograma, groupDataUnidadesAcademicas } from 'src/app/proj
   templateUrl: './form-programas-view-and-edit.component.html',
   styleUrls: ['./form-programas-view-and-edit.component.css']
 })
-export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnDestroy {
+export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
  
   constructor(
     private commonUtils: CommonUtils,
@@ -34,6 +34,7 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
 
   @Input() mode: string = '';
   @Input() cod_programa: any;
+  @Output() modeDialogEmitter = new EventEmitter();
 
   programa: Programa = {};
   tiposProgramas: any[] = [];
@@ -52,53 +53,62 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
   directorAlterno: any[] = [];
   reglamentos: Reglamento[] = [];
   showAsterisk: boolean = false;
-  dialog: boolean = false;
   modeDialog: ModeDialog;
-  showComponent: boolean = false;
   loading: boolean = true 
   loadingTab: boolean = true 
   private subscription: Subscription = new Subscription();
   keyPopups: string = 'editar-programa';
   
   async ngOnInit() {
-    try {
-      this.systemService.loading(true)
-      this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
-        if (from) {
-          if (from.context.component.label) {
-            switch (from.context.component.label) {
-              case 'Maestro': this.downloadDoc(from.file,'maestro'); break;
-              case 'Director': this.downloadDoc(from.file,'director'); break;
-              case 'Director alterno': this.downloadDoc(from.file,'directorAlterno'); break;
-              case 'Estado maestro': this.downloadDoc(from.file,'estado_maestro'); break;
-              case 'Grado académico': this.downloadDoc(from.file,'grado_academico'); break;
-              case 'REXE': this.downloadDoc(from.file,'REXE'); break;
-              case 'Título': this.downloadDoc(from.file,'titulo'); break;
-            }
-          }else{
-            switch (from.context.component.name) {
-              case 'reglamentos': this.downloadDoc(from.file,'reglamentos'); break;
-              case 'estado-acreditacion': this.downloadDoc(from.file,'estados_acreditacion'); break;
-            }
+    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
+      if (from) {
+        if (from.context.component.label) {
+          switch (from.context.component.label) {
+            case 'Maestro': this.downloadDoc(from.file,'maestro'); break;
+            case 'Director': this.downloadDoc(from.file,'director'); break;
+            case 'Director alterno': this.downloadDoc(from.file,'directorAlterno'); break;
+            case 'Estado maestro': this.downloadDoc(from.file,'estado_maestro'); break;
+            case 'Grado académico': this.downloadDoc(from.file,'grado_academico'); break;
+            case 'REXE': this.downloadDoc(from.file,'REXE'); break;
+            case 'Título': this.downloadDoc(from.file,'titulo'); break;
+          }
+        }else{
+          switch (from.context.component.name) {
+            case 'reglamentos': this.downloadDoc(from.file,'reglamentos'); break;
+            case 'estado-acreditacion': this.downloadDoc(from.file,'estados_acreditacion'); break;
           }
         }
-      }));
-      await this.getPrograma();
-      await this.getData();
-      
-      
-    } catch (error) {
-      
-    }finally{
-      this.systemService.loading(false)
-    }
+      }
+    }));
+    await this.getPrograma();
+    await this.getData();
   }
   
-  ngOnChanges(changes: SimpleChanges): void {
-    
-  }
+
   ngOnDestroy(): void {
-    
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+    this.uploaderFilesService.resetValidatorFiles();
+    this.uploaderFilesService.setFiles(null);
+  }
+
+  async getPrograma(){
+    try {
+      this.systemService.loading(true);
+      this.loading = true;
+      this.programa = await this.programasService.getPrograma({Cod_Programa: this.cod_programa},false);
+      console.log("DATA PROGRAMA",this.programa);
+      
+      this.programasService.setFormPrograma(this.programa);
+      this.programasService.fbForm.disable();
+
+    } catch (error) {
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al obtener el programa. Intente nuevamente.',
+      });
+    }
   }
 
   async getData(){
@@ -127,24 +137,8 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
         message: 'Hubo un error al obtener el programa. Intente nuevamente.',
       });
     }finally{
+      this.systemService.loading(false);
       this.loading = false;
-    }
-  }
-
-  async getPrograma(){
-    try {
-      this.programa = await this.programasService.getPrograma({Cod_Programa: this.cod_programa},false);
-      console.log("DATA PROGRAMA",this.programa);
-      
-      this.programasService.setFormPrograma(this.programa);
-      this.programasService.fbForm.disable();
-      this.showComponent = true;
-
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener el programa. Intente nuevamente.',
-      });
     }
   }
 
@@ -221,7 +215,6 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
     try {
       this.reglamentos = await this.programasService.getReglamentos(false);
       this.reglamentos = this.reglamentos.filter( r => r.Cod_reglamento === this.programa.Cod_Reglamento)
-      
             
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
@@ -248,6 +241,16 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
     try {
       this.estadosMaestros = await this.programasService.getEstadosMaestros(false);
       this.estadosMaestros = this.estadosMaestros.filter( em => em.Cod_EstadoMaestro === this.programa.Cod_EstadoMaestro)
+      if (this.programa.Cod_EstadoMaestro === 2 && this.estadosMaestros.length > 0) {
+        let suspensiones = await this.programasService.getSuspensiones(false);
+        suspensiones = suspensiones.filter((susp: any) => susp.ID_TipoSuspension === this.programa.ID_TipoSuspension);
+        if (suspensiones.length > 0) {
+            this.estadosMaestros[0] = {
+                ...this.estadosMaestros[0],
+                ...suspensiones[0]
+            };
+        }
+    }
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
@@ -365,44 +368,48 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
     }
   }
 
-  openDialog(mode: ModeDialog){
-    this.modeDialog = mode;
-    this.tableCrudService.emitResetExpandedRowsTable();
-    this.dialog = true
-  }
-
-  closeDialog(){
-    // this.programasService.setFormPrograma(this.programa);
-  }
-
-  async submit(){
-    console.log("hice click aqui.");
+  async openDialog(mode: ModeDialog){
     try {
-      const actionForm: any = await new Promise((resolve, reject) => {
-        this.programasService.setModeForm('update',null, resolve, reject);
-      })
-      if (actionForm.success) {
-        this.messageService.add({
-          key: this.keyPopups,
-          severity: 'success',
-          detail: actionForm.messageGp
-        });
-      }else{
-        throw actionForm;
-      }
-    } catch (e:any) {
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: `Error al actualizar`,
-          message: e.detail.error.message.message
-        });
-    }finally{
-      this.dialog = false
-      this.getPrograma();
-      this.getData();
+      this.modeDialog = mode;
+    } catch (error) {
+      console.log("error en openDialog()",error);
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al generar formulario. Intente nuevamente.',
+      });
     }
-    
   }
 
+  resetDialog(){
+    this.modeDialog = undefined;
+  }
+
+  async formUpdated(modeDialog: any){
+    console.log("evenvnenv",modeDialog);
+    try {
+      await this.getPrograma();
+      this.loading = true;
+      switch (modeDialog) {
+        case 'título': this.getTitulo(); break;
+        case 'grado académico': this.getGradoAcademico(); break;
+        case 'REXE': this.getRexe(); break;
+        // case 'documentos maestros': this.createFormDocsMaestro(); break;
+        case 'reglamento': await this.getReglamentos(); break;
+        case 'director': await this.getDirector(); break;
+        case 'director alterno': await this.getDirectorAlterno(); break;
+        case 'estado maestro': await this.getEstadosMaestros(); break;
+        case 'estado acreditación': await this.getEstadosAcreditacion(); break;
+        default: break;
+      }
+      await this.getLogPrograma();
+    } catch (error) {
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al obtener registros tras actualización. Intente nuevamente.',
+      });
+    }finally{
+      this.systemService.loading(false);
+      this.loading = false;
+    }
+  }
 }
