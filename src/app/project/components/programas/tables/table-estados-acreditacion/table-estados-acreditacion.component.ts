@@ -105,6 +105,46 @@ export class TableEstadosAcreditacionComponent implements OnInit, OnChanges, OnD
     table.reset();
   }
 
+  customSort(event:any){
+    switch (event.field) {
+      case 'Fecha_informe':
+        event.data?.sort((data1:any , data2:any) => {
+          const value1 = data1.Fecha_informe ? data1.Fecha_informe : '';
+          const value2 = data2.Fecha_informe ? data2.Fecha_informe : '';
 
+          let newValue1 = this.convertirStringAFecha(value1);
+          let newValue2 = this.convertirStringAFecha(value2);
+
+          let result = 0;
+          if (newValue1 > newValue2) {
+            result = 1;
+          } else if (newValue1 < newValue2) {
+            result = -1;
+          }
+          return event.order * result;
+        });
+      break;
+    
+      default:
+        event.data?.sort((data1:any , data2:any) => {
+          let value1 = data1[event.field];
+          let value2 = data2[event.field];
+          let result = null;
+          if (value1 == null && value2 != null) result = -1;
+          else if (value1 != null && value2 == null) result = 1;
+          else if (value1 == null && value2 == null) result = 0;
+          else if (typeof value1 === 'string' && typeof value2 === 'string') result = value1.localeCompare(value2);
+          else result = value1 < value2 ? -1 : value1 > value2 ? 1 : 0;
+
+          return event.order * result;
+        });
+      break;
+    }
+  }
+
+  convertirStringAFecha(fechaStr: string): Date {
+    const [day, month, year] = fechaStr.split("-");
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  }
 
 }

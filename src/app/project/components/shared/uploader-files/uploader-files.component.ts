@@ -85,7 +85,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
 
     if (uniqueFiles.length == 0) {
       this.messageService.add({
-        key: 'uploader-files',
+        key: this.uploaderFilesService.keyToast,
         severity: 'error',
         detail: `El documento con nombre ${lastFile.name} ya existe.`,
       });
@@ -117,6 +117,11 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
       } else {
         this.uploaderFilesService.filesFromModeSelect.push(fileToSelect)
       }
+      this.messageService.add({
+        key: this.uploaderFilesService.keyToast,
+        severity: 'success',
+        detail: `Documento adjuntado exitosamente.`,
+      });
     });
     this.uploaderFilesService.setConfigModeUploader();    
     this.uploaderFilesService.updateValidatorFiles(this.context,this.uploaderFilesService.files);
@@ -207,7 +212,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
         let totalRemoveTemplating = file.extras.pesoDocumento + this.uploaderFilesService.totalFileSize
         if (totalRemoveTemplating > this.uploaderFilesService.limitValueUploader) {
           this.messageService.add({
-            key: 'uploader-files',
+            key: this.uploaderFilesService.keyToast,
             severity: 'error',
             detail: `El peso total de archivos adjuntados supera los 10MB.`,
           });
@@ -218,7 +223,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
       this.uploaderFilesService.filesToDelete.splice(index, 1);
     } else {
       this.messageService.add({
-        key: 'uploader-files',
+        key: this.uploaderFilesService.keyToast,
         severity: 'error',
         detail: `El documento con nombre ${file.nombre} no es posible cancelar su eliminación ya que está como documento adjunto.`,
       });
@@ -280,7 +285,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
     // Verificar si el tamaño total excede el límite de 10 MB
     if (this.totalFileSizeNumber > this.uploaderFilesService.limitValueUploader) {
       this.messageService.add({
-        key: 'uploader-files',
+        key: this.uploaderFilesService.keyToast,
         severity: 'error',
         detail: `El peso total de archivos adjuntados supera los 10MB.`,
       });

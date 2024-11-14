@@ -1,4 +1,3 @@
-<p-toast key="uploader-files"></p-toast>
 <p-overlayPanel #op>
     <ng-template pTemplate>
         <ng-container *ngFor="let ley of leyendas; let i = index">
@@ -160,9 +159,9 @@
                                     </ng-template>
                                     <td>
                                         <textarea pInputTextarea placeholder="Comentarios (opcional)" maxlength="50"
-                                            rows="2"  [autoResize]="true"
+                                            [autoResize]="true"
                                             [(ngModel)]="fileWithExtras.extras.comentarios" [disabled]="mode == 'show'"
-                                            (ngModelChange)="onCommentChange(i, $event)"></textarea>
+                                            (ngModelChange)="onCommentChange(i, $event)" style="resize: none; min-height: 60px !important" ></textarea>
                                     </td>
                                     <td style="min-width: 8rem;">
                                         <div class="flex flex-row flex-wrap justify-content-end">
@@ -215,7 +214,7 @@
 
                 <ng-template  pTemplate="empty">
                     <div *ngIf="uploaderFilesService.files.length === 0" class="flex align-items-center justify-content-center flex-column">
-                        <p class="mt-4 mb-0">Sin archivos adjuntos.</p>
+                        <p class="mt-4 mb-0">Sin documentos adjuntos.</p>
                     </div>
                 </ng-template>
 

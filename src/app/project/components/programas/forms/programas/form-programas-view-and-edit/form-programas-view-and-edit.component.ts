@@ -80,6 +80,8 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
         }
       }
     }));
+    this.subscription.add(this.programasService.buttonRefreshTableReglamento$.subscribe(() => this.getReglamentos()));
+    this.subscription.add(this.programasService.buttonRefreshTableEA$.subscribe(() => this.getEstadosAcreditacion()));
     await this.getPrograma();
     await this.getData();
   }
@@ -98,7 +100,7 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
       this.systemService.loading(true);
       this.loading = true;
       this.programa = await this.programasService.getPrograma({Cod_Programa: this.cod_programa},false);
-      console.log("DATA PROGRAMA",this.programa);
+      console.log("DATA PROGRAMA FROM VIEW AND EDIT",this.programa);
       
       this.programasService.setFormPrograma(this.programa);
       this.programasService.fbForm.disable();
@@ -144,7 +146,7 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
 
   async getTiposProgramas(){
     try {
-      this.tiposProgramas =  await this.programasService.getTiposProgramas();
+      this.tiposProgramas =  await this.programasService.getTiposProgramas(false);
       this.tiposProgramas = groupDataTipoPrograma(this.tiposProgramas);
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
@@ -169,7 +171,6 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
     try {
       this.unidadesAcademicas =  await this.programasService.getUnidadesAcademicas(false);
       this.unidadesAcademicas = groupDataUnidadesAcademicas(this.unidadesAcademicas);
-            
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
@@ -228,7 +229,6 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
     try {
       this.estadosAcreditacion = await this.programasService.getEstadosAcreditacion(false);
       this.estadosAcreditacion = this.estadosAcreditacion.filter( ea => ea.Cod_acreditacion === this.programa.Cod_acreditacion)
-
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',

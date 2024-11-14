@@ -25,8 +25,6 @@ export class TableProgramasDirectoresComponent implements OnChanges {
   }
 
   changeSelectDirector(modeSelect:'select' | 'unselect', data: Director){
-    console.log("datatatatat",data);
-    
     let nombreCompleto = data.Nombres!.trim() + ' ' + data.Paterno!.trim() + ' ' + data.Materno!.trim();
     this.messageService.clear();
     switch (modeSelect) {

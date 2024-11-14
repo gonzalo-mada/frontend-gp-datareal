@@ -16,6 +16,10 @@ import { RutValidator } from 'src/app/base/tools/validators/rut.validator';
 import { ConfigModeService } from '../components/config-mode.service';
 import { GPValidator } from '../../tools/validators/gp.validators';
 import { MessageService } from 'primeng/api';
+import { NamesCrud } from '../../models/shared/NamesCrud';
+import { TipoPrograma } from '../../models/programas/TipoPrograma';
+import { Campus } from '../../models/programas/Campus';
+import { UnidadAcademica } from '../../models/programas/UnidadAcademica';
 
 interface Director {
   nombre: string,
@@ -33,6 +37,7 @@ export class ProgramasService {
   stateFormUpdate: StateValidatorForm = undefined;
   disposition: boolean = true;
   showAsterisk: boolean = false;
+  activeIndexStepper: number | undefined = 0 ;
   activeIndexStateForm: number | undefined = 0;
   activeIndexAcordionAddPrograma: number | undefined = 0;
   keyPopups: string = 'programas';
@@ -43,8 +48,22 @@ export class ProgramasService {
   estadoMaestroSelected: string = '';
   estadoAcreditacionSelected: string = '';
   estadoAcreditacionSiglaSelected: string = '';
+  tipoProgramaSelected: string = '';
+  tipoProgramaCategoriaSelected: string = '';
+  campusSelected: string = '';
+  unidadAcademicaSelected: string = '';
+  unidadAcademicaFacultadSelected: string = '';
+  nameProgramaAdded: string = '';
+  codProgramaAdded: number = 0;
   showTableDirectores: boolean = false;
   showTableDirectoresAlternos: boolean = false;
+  namesCrud: NamesCrud = {
+    singular: 'programa',
+    plural: 'programas',
+    articulo_singular: 'el programa',
+    articulo_plural: 'los programas',
+    genero: 'masculino'
+  };
 
 
   public fbForm: FormGroup;
@@ -373,9 +392,23 @@ export class ProgramasService {
         }
         this.fbForm.patchValue({DirectorAlterno_selected: ''})
         this.fbForm.get('Director_alterno')?.enable();
-        this.fbForm.get('DirectorAlterno_selected')?.reset();
+        // this.fbForm.get('DirectorAlterno_selected')?.reset();
       break;
     }
+  }
+
+  setSelectTipoPrograma(selectedTp: TipoPrograma){
+    this.tipoProgramaSelected = selectedTp.Descripcion_tp!;
+    this.tipoProgramaCategoriaSelected = selectedTp.Categoria?.Descripcion_categoria!;
+  }
+
+  setSelectCampus(selectedCampus: Campus){
+    this.campusSelected = selectedCampus.Descripcion_campus!;
+  }
+
+  setSelectUnidadAcademica(selectedTp: UnidadAcademica){
+    this.unidadAcademicaSelected = selectedTp.Descripcion_ua!;
+    this.unidadAcademicaFacultadSelected = selectedTp.Facultad?.Descripcion_facu!;
   }
 
   haveDirectorAlterno(dA: boolean){
@@ -383,6 +416,7 @@ export class ProgramasService {
       
       case true: 
         this.fbForm.patchValue({haveDirectorAlterno: true});
+        this.fbForm.get('DirectorAlterno_selected')?.updateValueAndValidity();
         this.activeIndexAcordionAddPrograma = 2; 
       break;
 
@@ -390,30 +424,25 @@ export class ProgramasService {
         this.fbForm.patchValue({haveDirectorAlterno: false});
         this.fbForm.get('Director_alterno')?.reset();
         this.fbForm.get('DirectorAlterno_selected')?.reset();
+        this.fbForm.get('DirectorAlterno_selected')?.updateValueAndValidity();
         this.showTableDirectoresAlternos = false;
         this.unsetSelectDirector('alterno'); 
         this.activeIndexAcordionAddPrograma = 1; 
       break;
     
-      default:
-        break;
     }
+
   }
 
   setFormPrograma(form: Programa){
     this.fbForm.patchValue({...form, Graduacion_Conjunta_Switch: form.Graduacion_Conjunta === 1 ? true : false});
-    // console.log("ASI QUEDA EL FORM",this.fbForm.value);
+    console.log("ASI QUEDA EL FORM",this.fbForm.value);
     
   }
 
   resetFormPrograma(){
     this.resetFormProgramaCreate();
-    this.uploaderFilesService.resetUploader();
-    this.activeIndexStateForm = 0;
-    // this.fbForm.clearValidators();
-    this.fbForm.enable();
-    this.fbForm.get('Instituciones')?.disable();
-    
+    this.uploaderFilesService.setAction('reset');
   }
 
   resetFormProgramaCreate(){
@@ -440,6 +469,7 @@ export class ProgramasService {
       Cod_Reglamento: '',
       Director: '',
       Director_selected: '',
+      haveDirectorAlterno: false,
       Director_alterno: '',
       DirectorAlterno_selected: '',
       Cod_acreditacion: '',
@@ -451,9 +481,41 @@ export class ProgramasService {
     this.reglamentoSelected = '';
     this.estadoMaestroSelected = '';
     this.estadoAcreditacionSelected = '';
+    this.tipoProgramaSelected = '';
+    this.tipoProgramaCategoriaSelected = '';
+    this.campusSelected = '';
+    this.unidadAcademicaSelected = '';
+    this.unidadAcademicaFacultadSelected = '';
+    this.nameProgramaAdded = '';
+    this.codProgramaAdded = 0;
+    this.activeIndexStepper = 0;
+    this.activeIndexStateForm = 0;
+    this.activeIndexAcordionAddPrograma = 0;
   }
 
+  getValuesSelected(){
+    let valuesSelected = {
+      directorSelected: this.directorSelected,
+      directorAlternoSelected: this.directorAlternoSelected,
+      reglamentoSelected: this.reglamentoSelected,
+      estadoMaestroSelected: this.estadoMaestroSelected,
+      tipoProgramaSelected: this.tipoProgramaSelected,
+      tipoProgramaCategoriaSelected: this.tipoProgramaCategoriaSelected,
+      campusSelected: this.campusSelected,
+      unidadAcademicaSelected: this.unidadAcademicaSelected,
+      unidadAcademicaFacultadSelected: this.unidadAcademicaFacultadSelected,
+    }
+    console.log("valuesSelected",valuesSelected);
+  }
 
+  getValuesIndex(){
+    let valuesIndex = {
+      activeIndexStepper: this.activeIndexStepper,
+      activeIndexStateForm: this.activeIndexStateForm,
+      activeIndexAcordionAddPrograma: this.activeIndexAcordionAddPrograma
+    }
+    console.log("valuesIndex",valuesIndex);
+  }
 
 
   async getTiposProgramas(loading = true){
@@ -529,7 +591,7 @@ export class ProgramasService {
     // return await this.invoker.httpInvoke(generateServiceMongo('programas/getDocumentosWithBinary'),{Cod_Programa: cod_programa , from: from});
     return await this.invoker.httpInvoke({
       service: 'programas/getDocumentosWithBinary',
-      loading: loading,
+      loading: false,
       retry: 0,
       timeout: 30000
     },{Cod_Programa: cod_programa , from: from});
@@ -541,6 +603,10 @@ export class ProgramasService {
 
   async updatePrograma(params: any){
     return await this.invoker.httpInvoke(generateServiceMongo('programas/updatePrograma'),params);
+  }
+
+  async deletePrograma(params: any){
+    return await this.invoker.httpInvoke('programas/deletePrograma',{programasToDelete: params});
   }
 
 }

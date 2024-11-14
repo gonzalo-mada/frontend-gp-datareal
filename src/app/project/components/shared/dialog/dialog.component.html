@@ -4,7 +4,8 @@
     [style]="{ width: dialogWidth || '60vw' }"
     [draggable]="false"
     [resizable]="false"
-    [maximizable]="true"
+    [maximizable]="maximizable"
+    [closable]="closable"
     [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
     (onHide)="onChange()"
 >

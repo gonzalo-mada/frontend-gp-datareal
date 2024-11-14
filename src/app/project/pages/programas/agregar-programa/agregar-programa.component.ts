@@ -1,27 +1,17 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
-import { EstadoMaestro } from 'src/app/project/models/programas/EstadoMaestro';
-import { EstadosAcreditacion } from 'src/app/project/models/programas/EstadosAcreditacion';
-import { DataInserted } from 'src/app/project/models/shared/DataInserted';
-import { Suspension } from 'src/app/project/models/programas/Suspension';
 import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
 import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
 import { ConfigModeService } from 'src/app/project/services/components/config-mode.service';
 import { EstadoMaestroService } from 'src/app/project/services/programas/estado-maestro.service';
-import { EstadosAcreditacionService } from 'src/app/project/services/programas/estados-acreditacion.service';
 import { ProgramasService } from 'src/app/project/services/programas/programas.service';
-import { SuspensionesService } from 'src/app/project/services/programas/suspensiones.service';
-import { groupDataTipoPrograma, groupDataUnidadesAcademicas } from 'src/app/project/tools/utils/dropwdown.utils';
 import { ReglamentosService } from 'src/app/project/services/programas/reglamentos.service';
 import { Reglamento } from 'src/app/project/models/programas/Reglamento';
 import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 import { LabelComponent } from 'src/app/project/models/shared/Context';
 import { ActionUploadDoc } from 'src/app/project/models/shared/ActionUploadDoc';
-import { generateMessage } from 'src/app/project/tools/utils/form.utils';
-import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { Router } from '@angular/router';
 
 @Component({
@@ -39,7 +29,6 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
               private messageService: MessageService,
               public reglamentosService: ReglamentosService,
               private router: Router,
-              public suspensionesService: SuspensionesService,
               public programasService: ProgramasService,
               private tableCrudService: TableCrudService,
               private uploaderFilesService: UploaderFilesService 
@@ -64,29 +53,20 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
   directores: any[] = [];
   directoresAlternos: any[] = [];
   
-  suspensiones: Suspension[] = [];
   reglamentos: Reglamento[] = [];
   showDialogDocs: boolean = false;
   showDialogEstadoAcreditacion: boolean = false;
-  showSuspension : boolean = false;
-  newSuspensionDialog: boolean = false;
   newReglamentoDialog: boolean = false;
+  confirmAddPrograma: boolean = false;
+  successAddPrograma: boolean = false;
   showAsterisk: boolean = false;
   sidebarVisible2: boolean = false;
 
-  namesCrud!: NamesCrud;
+  
   private subscription: Subscription = new Subscription();
 
 
   ngOnInit(): void {
-    this.namesCrud = {
-      singular: 'programa',
-      plural: 'programas',
-      articulo_singular: 'el programa',
-      articulo_plural: 'los programas',
-      genero: 'masculino'
-    };
-    // this.getSuspensiones();
     this.getReglamentos();
     this.subscription.add(this.programasService.buttonRefreshTableReglamento$.subscribe( () => {this.getReglamentos()}))
     this.subscription.add(this.programasService.fbForm.get('Director_selected')?.valueChanges.subscribe( (value) => {
@@ -116,17 +96,6 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
     this.reset();
   }
 
-
-  async getSuspensiones(){
-    try {
-      this.suspensiones = await this.suspensionesService.getSuspensiones();      
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener suspensiones. Intente nuevamente.',
-      });
-    }
-  }
 
   async getReglamentos(){
     try {
@@ -198,8 +167,6 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
         }
       }
     } catch (error) {
-      console.log("error",error);
-      
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
         message: 'Hubo un error al buscar director(a). Intente nuevamente.',
@@ -210,31 +177,12 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
   }
 
   chooseDocs(label: LabelComponent){
-
     this.showDialogDocs = true;
     this.tableCrudService.emitResetExpandedRowsTable();
     switch (label) {
       case 'Maestro':
         this.uploaderFilesService.setContext('select','programa','agregar-programa', label)
       break;
-      // case 'Título':
-      //   this.uploaderFilesService.setContext('select','programa','agregar-programa', label)
-      // break;
-      // case 'Grado académico':
-      //   this.uploaderFilesService.setContext('select','programa','agregar-programa', label);
-      // break;
-      // case 'REXE':
-      //   this.uploaderFilesService.setContext('select','programa','agregar-programa', label);
-      // break;
-      // case 'Director':
-      //   this.uploaderFilesService.setContext('select','programa','agregar-programa', label);
-      // break;
-      // case 'Director alterno':
-      //   this.uploaderFilesService.setContext('select','programa','agregar-programa', label);
-      // break;
-      // case 'Estado maestro':
-      //   this.uploaderFilesService.setContext('select','programa','agregar-programa', label);
-      // break;
     }
     
   }
@@ -300,26 +248,18 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
     this.uploaderFilesService.resetValidatorFiles();
     this.uploaderFilesService.setFiles(null);
   }
-
-  async addNewSuspension(){
-    this.newSuspensionDialog = true;
-    this.suspensionesService.setModeForm('create');
-  }
-
-
   
-
   changeDisposition(){
     this.programasService.disposition = !this.programasService.disposition;
   }
 
   submit(){
-    try {
-      this.openAccordion();
-      this.insertPrograma();
-    } catch (error) {
-      
-    }
+    this.confirmAddPrograma = true;
+  }
+
+  confirmAndSubmit(){
+    this.openAccordion();
+    this.insertPrograma();
   }
 
   async insertPrograma(){
@@ -333,7 +273,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
       
       if (actionUploadDoc.success) {
         
-        const { files_titulo, files_gradoacad, files_director, files_directorAlterno, files_estadomaestro, files_rexe, file_maestro, ...formData } = this.programasService.fbForm.value;
+        const { file_maestro, ...formData } = this.programasService.fbForm.value;
         
         params = {
           ...formData,
@@ -341,17 +281,20 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
         }
 
         console.log("----PARAMS-----",params);
-        const inserted: DataInserted = await this.programasService.insertPrograma(params);
+        const inserted: any = await this.programasService.insertPrograma(params);
 
         if (inserted.dataWasInserted) {
-          this.messageService.add({
-            key: this.programasService.keyPopupsCenter,
-            severity: 'success',
-            detail: generateMessage(this.namesCrud,inserted.dataInserted,'creado',true,false)
-          });
-          setTimeout(() => {
-            this.router.navigate(['/programa/']);
-          }, 2000);
+          this.programasService.nameProgramaAdded = inserted.dataInserted.Nombre_programa;
+          this.programasService.codProgramaAdded = inserted.dataInserted.Cod_Programa;
+          this.successAddPrograma = true;
+          // this.messageService.add({
+          //   key: this.programasService.keyPopupsCenter,
+          //   severity: 'success',
+          //   detail: generateMessage(this.programasService.namesCrud,inserted.dataInserted.Nombre_programa,'creado',true,false)
+          // });
+          // setTimeout(() => {
+          //   this.router.navigate([`/programa/show/${inserted.dataInserted.Cod_Programa}`])
+          // }, 2000);
         }
       };
     } catch (e:any) {
@@ -359,7 +302,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al guardar ${this.namesCrud.singular}`,
+          summary: `Error al guardar ${this.programasService.namesCrud.singular}`,
           message: e.detail.error.message.message,
         }
       );
@@ -370,12 +313,24 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
     }
   }
 
+  redirectTo(value: 'p' | 'v' | 'c'){
+    switch (value) {
+      case 'p': this.router.navigate([`/programa/`]); break;
+      case 'v': this.router.navigate([`/programa/show/${this.programasService.codProgramaAdded}`]); break;
+      case 'c': 
+        this.programasService.resetFormPrograma();
+        this.successAddPrograma = false;
+      break;
+    }
+  }
+
   openAccordion(){
     this.uploaderFilesService.setFiles(null);
     this.tableCrudService.emitResetExpandedRowsTable();
   }
 
   stepChange(value: number){
+    this.programasService.activeIndexStepper = value;
     this.programasService.activeIndexStateForm = value;
   }
 
@@ -386,8 +341,14 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
         console.log(`Errores en ${key}:`, control.errors);
       }
     });
+    console.log("VALORES FORMULARIO:",this.programasService.fbForm.value);
+    this.programasService.getValuesSelected();
+    this.programasService.getValuesIndex();
   }
 
+  test2(){
+    this.successAddPrograma = true
+  }
 
   haveDirectorAlterno(){
     setTimeout(() => {
@@ -407,7 +368,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
           this.programasService.haveDirectorAlterno(false)
         }
       })
-    }, 1500);
+    }, 1000);
 
   }
 

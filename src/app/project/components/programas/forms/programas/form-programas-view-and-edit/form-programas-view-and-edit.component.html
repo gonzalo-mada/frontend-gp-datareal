@@ -4,13 +4,13 @@
 <form [formGroup]="programasService.fbForm">
     <div class="formgrid grid">
         <div class="field col-12 lg:col-4">
-            <label><strong>Centro costo {{ programasService.showAsterisk ? '*' : '' }} </strong></label>
+            <label><strong>Centro costo</strong></label>
             <input *ngIf="!loading" type="number" pInputText formControlName="Centro_costo" maxlength="80" class="w-full" placeholder="Ingrese centro costo de programa"/>
             <p-skeleton *ngIf="loading" height="2.5rem" />
             <app-form-control [control]="programasService.fbForm.controls['Centro_costo']" [validators]="['required', 'pattern']"></app-form-control>
         </div>
         <div class="field col-12 lg:col-4">
-            <label><strong>Nombre {{ programasService.showAsterisk ? '*' : '' }} </strong></label>
+            <label><strong>Nombre</strong></label>
             <p-inputGroup *ngIf="!loading"> 
                 <input type="text" pInputText formControlName="Nombre_programa" maxlength="80" class="w-full" placeholder="Ingrese nombre de programa"/>
                 <button *ngIf="mode === 'edit' " (click)="openDialog('nombre')" type="button" pButton icon="pi pi-pencil" iconPos="right" class="p-button-warning" pTooltip="Editar registro" tooltipPosition="bottom"></button>
@@ -19,7 +19,7 @@
             <app-form-control [control]="programasService.fbForm.controls['Nombre_programa']" [validators]="['required', 'pattern']"></app-form-control>
         </div>
         <div class="field col-12 lg:col-4">
-            <label><strong>Grupo de correo en LDAP {{ programasService.showAsterisk ? '*' : '' }} </strong></label>
+            <label><strong>Grupo de correo en LDAP</strong></label>
             <p-inputGroup *ngIf="!loading">
                 <input type="text" pInputText formControlName="Grupo_correo" maxlength="80" class="w-full" placeholder="Ingrese correo LDAP"/>
                 <button *ngIf="mode === 'edit' " (click)="openDialog('grupo_correo')" type="button" pButton icon="pi pi-pencil" iconPos="right" class="p-button-warning" pTooltip="Editar registro" tooltipPosition="bottom"></button>
@@ -30,19 +30,19 @@
     
 
         <div class="field col-12 lg:col-4">
-            <label><strong>Código de programa {{ programasService.showAsterisk ? '*' : '' }} </strong></label>
+            <label><strong>Código de programa</strong></label>
             <input *ngIf="!loading" type="number" pInputText formControlName="Cod_Programa" min="0" maxlength="50" class="w-full" placeholder="Ingrese código de programa"/>
             <p-skeleton *ngIf="loading" height="2.5rem" />
             <app-form-control [control]="programasService.fbForm.controls['Cod_Programa']" [validators]="['required', 'pattern']"></app-form-control>
         </div>
         <div class="field col-12 lg:col-4">
-            <label><strong>Código SIES {{ programasService.showAsterisk ? '*' : '' }} </strong></label>
+            <label><strong>Código SIES</strong></label>
             <input *ngIf="!loading" type="text" pInputText formControlName="Codigo_SIES" maxlength="50" class="w-full" placeholder="Ingrese código SIES"/>
             <p-skeleton *ngIf="loading" height="2.5rem" />
             <app-form-control [control]="programasService.fbForm.controls['Codigo_SIES']" [validators]="['required', 'pattern']"></app-form-control>
         </div>
         <div class="field col-12 lg:col-2">
-            <label><strong>Créditos totales {{ programasService.showAsterisk ? '*' : '' }} </strong></label>
+            <label><strong>Créditos totales</strong></label>
             <p-inputGroup *ngIf="!loading">
                 <input type="number" pInputText formControlName="Creditos_totales" min="0" maxlength="50" class="w-full" placeholder="Ingrese créditos totales"/>
                 <button *ngIf="mode === 'edit' " (click)="openDialog('créditos totales')" type="button" pButton icon="pi pi-pencil" iconPos="right" class="p-button-warning" pTooltip="Editar registro" tooltipPosition="bottom"></button>
@@ -51,7 +51,7 @@
             <app-form-control [control]="programasService.fbForm.controls['Creditos_totales']" [validators]="['required', 'pattern']"></app-form-control>
         </div>
         <div class="field col-12 lg:col-2">
-            <label><strong>Horas totales {{ programasService.showAsterisk ? '*' : '' }} </strong></label>
+            <label><strong>Horas totales</strong></label>
             <p-inputGroup *ngIf="!loading">
                 <input type="number" pInputText formControlName="Horas_totales" maxlength="50" class="w-full" placeholder="Ingrese horas totales"/>
                 <button *ngIf="mode === 'edit' " (click)="openDialog('horas totales')" type="button" pButton icon="pi pi-pencil" iconPos="right" class="p-button-warning" pTooltip="Editar registro" tooltipPosition="bottom"></button>
@@ -61,13 +61,17 @@
         </div>
 
         <div class="field col-12 lg:col-4">
-            <label>
-                <strong>
-                    {{ mode === 'edit' ? 'Tipo de programa' : 'Categoría - Tipo de programa' }} 
-                    {{ programasService.showAsterisk ? '*' : '' }} 
-                </strong>
-            </label>
-            <br>
+            <div class="flex flex-row flex-wrap mb-2">
+                <div class="align-items-center">
+                    <label><strong>Tipo de programa (Categoría)</strong></label>
+                </div>
+                <div class="align-items-center ml-1" [style]="{'margin-top': '0.1rem !important'}">
+                    <i class="pi pi-question-circle" [pTooltip]='tooltipTp' tooltipPosition="top"></i>
+                    <ng-template #tooltipTp>
+                        <small>Entre parentesís se muestra la categoría a la cual pertenece el tipo de programa</small>
+                    </ng-template>
+                </div>
+            </div>
             <p-dropdown
                 *ngIf="!loading"
                 [options]="tiposProgramas"
@@ -76,10 +80,9 @@
                 placeholder="Seleccione tipo de programa"
                 [style]="{ width: '100%', 'min-width': '100%' }"
             >
-                <ng-template let-group pTemplate="{{ mode === 'edit' ? 'group' : 'selectedItem' }}">
+                <ng-template let-selectedItem pTemplate="selectedItem">
                     <div class="flex align-items-center">
-                        <span *ngIf="mode === 'show' ">{{ group.parentLabel }} - {{ group.label }}</span>
-                        <span *ngIf="mode === 'edit' ">{{ group.label }}</span>
+                        <span>{{ selectedItem.label }} ({{ selectedItem.parentLabel }})</span>
                     </div>
                 </ng-template>
             </p-dropdown>
@@ -88,7 +91,7 @@
         </div>
 
         <div class="field col-12 lg:col-4">
-            <label><strong>Campus {{ programasService.showAsterisk ? '*' : '' }}</strong></label>
+            <label><strong>Campus</strong></label>
             <br>
             <p-dropdown
                 *ngIf="!loading"
@@ -105,13 +108,17 @@
         </div>
 
         <div class="field col-12 lg:col-4">
-            <label>
-                <strong>
-                    {{ mode === 'edit' ? 'Unidad académica' : 'Facultad - Unidad académica' }} 
-                    {{ programasService.showAsterisk ? '*' : '' }} 
-                </strong>
-            </label>
-            <br>
+            <div class="flex flex-row flex-wrap mb-2">
+                <div class="align-items-center">
+                    <label><strong>Unidad académica (Facultad)</strong></label>
+                </div>
+                <div class="align-items-center ml-1" [style]="{'margin-top': '0.1rem !important'}">
+                    <i class="pi pi-question-circle" [pTooltip]='tooltipUa' tooltipPosition="top"></i>
+                    <ng-template #tooltipUa>
+                        <small>Entre parentesís se muestra la facultad a la cual pertenece la unidad académica</small>
+                    </ng-template>
+                </div>
+            </div>
             <p-dropdown
                 *ngIf="!loading"
                 [options]="unidadesAcademicas"
@@ -120,10 +127,9 @@
                 placeholder="Seleccione unidad académica"
                 [style]="{ width: '100%', 'min-width': '100%' }"
             >
-                <ng-template let-group pTemplate="{{ mode === 'edit' ? 'group' : 'selectedItem' }}">
+                <ng-template let-selectedItem pTemplate="selectedItem">
                     <div class="flex align-items-center">
-                        <span *ngIf="mode === 'show' ">{{ group.parentLabel }} - {{ group.label }} </span>
-                        <span *ngIf="mode === 'edit' ">{{ group.label }}</span>
+                        <span>{{ selectedItem.label }} ({{ selectedItem.parentLabel }})</span>
                     </div>
                 </ng-template>
             </p-dropdown>
