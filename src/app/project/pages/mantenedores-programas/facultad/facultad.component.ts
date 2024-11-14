@@ -6,12 +6,10 @@ import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 import { ActionUploadDoc, Facultad } from '../../../models/programas/Facultad';
-import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
 import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
 import { MenuButtonsTableService } from 'src/app/project/services/components/menu-buttons-table.service';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
-import { Context } from 'src/app/project/models/shared/Context';
 import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
 
 
@@ -19,14 +17,15 @@ import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
   selector: 'app-facultad',
   templateUrl: './facultad.component.html',
   styles: [
-  ]
+  ],
+  providers: [FacultadService]
 })
 export class FacultadComponent implements OnInit, OnDestroy {
 
   constructor(private commonUtils: CommonUtils,
     private confirmationService: ConfirmationService,
     private errorTemplateHandler: ErrorTemplateHandler,
-    private facultadService: FacultadService,
+    public facultadService: FacultadService,
     private fb: FormBuilder,
     private messageService: MessageService,
     private menuButtonsTableService: MenuButtonsTableService,
@@ -35,10 +34,8 @@ export class FacultadComponent implements OnInit, OnDestroy {
   ){}
 
   facultades: Facultad[] = [];
-  facultadesBruto: Facultad[] = [];
   facultad: Facultad = {};
-  namesCrud!: NamesCrud;
-  keyPopups: string = '';
+  
   dialog: boolean = false;
   showAsterisk : boolean = true;
   private subscription: Subscription = new Subscription();
@@ -60,15 +57,6 @@ export class FacultadComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     this.uploaderFilesService.setContext('init-component','mantenedores','facultad');
-    this.namesCrud = {
-      singular: 'facultad',
-      plural: 'facultades',
-      articulo_singular: 'la facultad',
-      articulo_plural: 'las facultades',
-      genero: 'femenino'
-    };
-
-    this.keyPopups = 'facultad'
     await this.getFacultades();
     this.subscription.add(this.menuButtonsTableService.onClickButtonAgregar$.subscribe(() => this.openCreate()));
     this.subscription.add(this.tableCrudService.onClickRefreshTable$.subscribe(() => this.getFacultades()));
@@ -160,9 +148,9 @@ export class FacultadComponent implements OnInit, OnDestroy {
         const inserted = await this.facultadService.insertFacultadService(params)
         if ( inserted.dataWasInserted ) {
           this.messageService.add({
-            key: this.keyPopups,
+            key: 'main-gp',
             severity: 'success',
-            detail: generateMessage(this.namesCrud,inserted.dataInserted,'creado',true,false)
+            detail: generateMessage(this.facultadService.namesCrud,inserted.dataInserted,'creado',true,false)
           });
         }
       } 
@@ -170,7 +158,7 @@ export class FacultadComponent implements OnInit, OnDestroy {
         this.errorTemplateHandler.processError(
           e, {
             notifyMethod: 'alert',
-            summary: `Error al guardar ${this.namesCrud.singular}`,
+            summary: `Error al guardar ${this.facultadService.namesCrud.singular}`,
             message: e.detail.error.message.message,
           }
         );
@@ -203,9 +191,9 @@ export class FacultadComponent implements OnInit, OnDestroy {
         const updated = await this.facultadService.updateFacultadService(params);
         if ( updated.dataWasUpdated ){
           this.messageService.add({
-            key: this.keyPopups,
+            key: 'main-gp',
             severity: 'success',
-            detail: generateMessage(this.namesCrud,updated.dataUpdated,'actualizado',true,false)
+            detail: generateMessage(this.facultadService.namesCrud,updated.dataUpdated,'actualizado',true,false)
           });
         }
       } 
@@ -214,7 +202,7 @@ export class FacultadComponent implements OnInit, OnDestroy {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al actualizar ${this.namesCrud.singular}`,
+          summary: `Error al actualizar ${this.facultadService.namesCrud.singular}`,
           message: e.detail.error.message.message,
       });
     }finally{
@@ -225,21 +213,21 @@ export class FacultadComponent implements OnInit, OnDestroy {
 
   async deleteFacultad(facultadToDelete: Facultad[]){    
     try {
-      const deleted:{ dataWasDeleted: boolean, dataDeleted: [] } = await this.facultadService.deleteFacultadService(facultadToDelete);
-      const message = mergeNames(null,deleted.dataDeleted,false,'Descripcion_facu')
+      const deleted = await this.facultadService.deleteFacultadService(facultadToDelete);
       if ( deleted.dataWasDeleted ) {
+        const message = mergeNames(null,deleted.dataDeleted,false,'Descripcion_facu')
         this.getFacultades();
         if ( facultadToDelete.length > 1 ){
           this.messageService.add({
-            key: this.keyPopups,
+            key: 'main-gp',
             severity: 'success',
-            detail: generateMessage(this.namesCrud,message,'eliminados',true, true)
+            detail: generateMessage(this.facultadService.namesCrud,message,'eliminados',true, true)
           });
         }else{
           this.messageService.add({
-            key: this.keyPopups,
+            key: 'main-gp',
             severity: 'success',
-            detail: generateMessage(this.namesCrud,message,'eliminado',true, false)
+            detail: generateMessage(this.facultadService.namesCrud,message,'eliminado',true, false)
           });
         }
         this.reset();
@@ -248,7 +236,7 @@ export class FacultadComponent implements OnInit, OnDestroy {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al eliminar ${this.namesCrud.singular}`,
+          summary: `Error al eliminar ${this.facultadService.namesCrud.singular}`,
           message: e.detail.error.message.message,
       });
     } 
@@ -305,7 +293,7 @@ export class FacultadComponent implements OnInit, OnDestroy {
     } catch (e:any) {
       this.errorTemplateHandler.processError(e, {
         notifyMethod: 'alert',
-        summary: `Error al visualizar ${this.namesCrud.articulo_singular}`,
+        summary: `Error al visualizar ${this.facultadService.namesCrud.articulo_singular}`,
         message: e.message,
         }
       );
@@ -325,7 +313,7 @@ export class FacultadComponent implements OnInit, OnDestroy {
     } catch (e:any) {
       this.errorTemplateHandler.processError(e, {
         notifyMethod: 'alert',
-        summary: `Error al editar ${this.namesCrud.articulo_singular}`,
+        summary: `Error al editar ${this.facultadService.namesCrud.articulo_singular}`,
         message: e.message,
         }
       );
@@ -361,14 +349,14 @@ export class FacultadComponent implements OnInit, OnDestroy {
   }
 
   async openConfirmationDeleteSelected(facultadSelected: any){
-    const message = mergeNames(this.namesCrud,facultadSelected,true,'Descripcion_facu'); 
+    const message = mergeNames(this.facultadService.namesCrud,facultadSelected,true,'Descripcion_facu'); 
     this.confirmationService.confirm({
       header: "Confirmar",
       message: `Es necesario confirmar la acción para eliminar ${message}. ¿Desea confirmar?`,
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
-      key: this.keyPopups,
+      key: 'main-gp',
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
@@ -378,7 +366,7 @@ export class FacultadComponent implements OnInit, OnDestroy {
           this.errorTemplateHandler.processError(
             e, {
               notifyMethod: 'alert',
-              summary: `Error al eliminar ${this.namesCrud.singular}`,
+              summary: `Error al eliminar ${this.facultadService.namesCrud.singular}`,
               message: e.message,
           });
         }
@@ -389,11 +377,11 @@ export class FacultadComponent implements OnInit, OnDestroy {
   async openConfirmationDelete(facultad: any){
     this.confirmationService.confirm({
       header: 'Confirmar',
-      message: `Es necesario confirmar la acción para eliminar ${this.namesCrud.articulo_singular} <b>${facultad.Descripcion_facu}</b>. ¿Desea confirmar?`,
+      message: `Es necesario confirmar la acción para eliminar ${this.facultadService.namesCrud.articulo_singular} <b>${facultad.Descripcion_facu}</b>. ¿Desea confirmar?`,
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
-      key: this.keyPopups,
+      key: 'main-gp',
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
@@ -405,7 +393,7 @@ export class FacultadComponent implements OnInit, OnDestroy {
             this.errorTemplateHandler.processError(
               e, {
                 notifyMethod: 'alert',
-                summary: `Error al eliminar ${this.namesCrud.singular}`,
+                summary: `Error al eliminar ${this.facultadService.namesCrud.singular}`,
                 message: e.message,
             });
           }
@@ -419,11 +407,11 @@ export class FacultadComponent implements OnInit, OnDestroy {
     const action = state ? 'desactivar' : 'activar';
     this.confirmationService.confirm({
       header: 'Confirmar',
-      message: `Es necesario confirmar la acción para <b>${action}</b> ${this.namesCrud.articulo_singular} <b>${facultad.Descripcion_facu}</b>. ¿Desea confirmar?`,
+      message: `Es necesario confirmar la acción para <b>${action}</b> ${this.facultadService.namesCrud.articulo_singular} <b>${facultad.Descripcion_facu}</b>. ¿Desea confirmar?`,
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
-      key: this.keyPopups,
+      key: 'main-gp',
       acceptButtonStyleClass: 'p-button-success p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
@@ -434,7 +422,7 @@ export class FacultadComponent implements OnInit, OnDestroy {
           this.errorTemplateHandler.processError(
             e, {
               notifyMethod: 'alert',
-              summary: `Error al ${action} ${this.namesCrud.singular}`,
+              summary: `Error al ${action} ${this.facultadService.namesCrud.singular}`,
               message: e.message,
           });
         }
@@ -456,7 +444,7 @@ export class FacultadComponent implements OnInit, OnDestroy {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al ${action} ${this.namesCrud.singular}`,
+          summary: `Error al ${action} ${this.facultadService.namesCrud.singular}`,
           message: e.message,
       });
     } finally {
