@@ -109,16 +109,14 @@ export class GPValidator {
                 return null; 
             }
 
-            let isDirector_Alterno = formGroup.get('haveDirectorAlterno')?.value;
+            let haveDirectorAlterno = formGroup.get('haveDirectorAlterno')?.value;
             let DirectorAlterno_selected = formGroup.get('DirectorAlterno_selected')?.value;
 
-            if ((isDirector_Alterno === null || isDirector_Alterno === false) && (DirectorAlterno_selected === '' )) {
-                return { required: true }; 
-            }else if (isDirector_Alterno === true && DirectorAlterno_selected === null){
-                return { required: true }; 
-            }else{
-                return null;
+            if ((haveDirectorAlterno === true) && (DirectorAlterno_selected === '' || DirectorAlterno_selected === null)) {
+                return { required: true };
             }
+    
+            return null;
             
         }
     }

@@ -62,22 +62,22 @@ export class TableProgramasHistorialActividadComponent implements OnInit, OnChan
       {
         label: 'CREACIÓN',
         value: 1,
-        items: data
+        items: this.removeDuplicates(data
           .filter(item => item.tipo_movimiento === 'C')
           .map(item => ({
             label: item.descripcion.descripcion,
             value: item.descripcion.descripcion
-          }))
+          })))
       },
       {
         label: 'ACTUALIZACIÓN',
         value: 2,
-        items: data
+        items: this.removeDuplicates(data
           .filter(item => item.tipo_movimiento === 'U')
           .map(item => ({
             label: item.descripcion.descripcion,
             value: item.descripcion.descripcion
-          }))
+          })))
       }
     ];
 
@@ -98,6 +98,14 @@ export class TableProgramasHistorialActividadComponent implements OnInit, OnChan
     };
   }
 
+  removeDuplicates(items: any[]) {
+    const uniqueItems = new Map();
+    items.forEach(item => {
+        uniqueItems.set(item.label, item);
+    });
+    return Array.from(uniqueItems.values());
+}
+
   filter(){
 
     if (this.selectedDate) {
@@ -117,6 +125,65 @@ export class TableProgramasHistorialActividadComponent implements OnInit, OnChan
     this.data = [...this.originalData];
     table.reset();
     this.selectedDate = '';
+  }
+
+  customSort(event:any){
+    switch (event.field) {
+      case 'fecha':
+        event.data?.sort((data1:any , data2:any) => {
+          const value1 = data1.fecha ? data1.fecha : '';
+          const value2 = data2.fecha ? data2.fecha : '';
+
+          let newValue1 = this.convertirStringAFecha(value1);
+          let newValue2 = this.convertirStringAFecha(value2);
+
+          let result = 0;
+          if (newValue1 > newValue2) {
+            result = 1;
+          } else if (newValue1 < newValue2) {
+            result = -1;
+          }
+          return event.order * result;
+        });
+      break;
+
+      case 'descripcion.descripcion':
+        event.data?.sort((data1:any , data2:any) => {
+          const value1 = data1.descripcion ? data1.descripcion.descripcion : '';
+          const value2 = data2.descripcion ? data2.descripcion.descripcion : '';
+          let result = 0;
+          if (value1 > value2) {
+            result = 1;
+          } else if (value1 < value2) {
+            result = -1;
+          }
+          return event.order * result;
+        });
+      break;
+    
+      default:
+        event.data?.sort((data1:any , data2:any) => {
+          let value1 = data1[event.field];
+          let value2 = data2[event.field];
+          let result = null;
+          if (value1 == null && value2 != null) result = -1;
+          else if (value1 != null && value2 == null) result = 1;
+          else if (value1 == null && value2 == null) result = 0;
+          else if (typeof value1 === 'string' && typeof value2 === 'string') result = value1.localeCompare(value2);
+          else result = value1 < value2 ? -1 : value1 > value2 ? 1 : 0;
+
+          return event.order * result;
+        });
+      break;
+    }
+  }
+
+  convertirStringAFecha(fechaStr: string): Date {
+    const [day, month, yearAndTime] = fechaStr.split("-");
+    const [year, time] = yearAndTime.split(" ");
+    const [hour, minute] = time.split(":");
+  
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute));
   }
 
 }

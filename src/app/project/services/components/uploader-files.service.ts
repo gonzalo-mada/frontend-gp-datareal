@@ -22,7 +22,7 @@ export class UploaderFilesService {
   }
 
   context = signal<Context>(this._context);
-
+  keyToast = 'main-gp'
   disabledButtonSeleccionarArchivos : boolean | null = null;
   loading : boolean = false ;
 

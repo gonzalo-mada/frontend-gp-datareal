@@ -16,15 +16,14 @@ export class StateFormComponent  {
         title: 'Paso 1',
         state: 'programasService.stateStepOne',
         fields: [
-          { label: 'Centro costo', control: 'Centro_costo' },
           { label: 'Nombre de programa', control: 'Nombre_programa' },
           { label: 'Correo LDAP', control: 'Grupo_correo' },
-          // { label: 'Código de programa', control: 'Cod_Programa' },
+          { label: 'Título', control: 'Titulo' },
+          { label: 'Grado académico', control: 'Grado_academico' },
+          { label: 'Centro costo', control: 'Centro_costo' },
           { label: 'Código SIES', control: 'Codigo_SIES' },
           { label: 'Créditos totales', control: 'Creditos_totales' },
           { label: 'Horas totales', control: 'Horas_totales' },
-          { label: 'Título', control: 'Titulo' },
-          { label: 'Grado académico', control: 'Grado_academico' },
           { label: 'REXE', control: 'REXE' },
         ]
       },

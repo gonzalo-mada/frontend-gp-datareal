@@ -15,7 +15,7 @@
     </div>
 </app-dialog>
 
-<app-dialog [dialogWidth]="'75vw'" [(visible)]="newReglamentoDialog">
+<app-dialog  [(visible)]="newReglamentoDialog">
     <div header>
         <span class="text-xl">Agregar reglamento</span>
     </div>
@@ -45,22 +45,35 @@
 
             </div>
             <div>
-                <!-- <p-button 
+                <p-button 
                     label="test" 
                     icon="pi pi-times" 
                     styleClass="p-button-sm p-button-secondary mr-2" 
-                    (click)="test()" [text]="true"></p-button> -->
+                    (click)="test()" [text]="true">
+                </p-button>
+
+                <p-button 
+                    label="test 2" 
+                    icon="pi pi-times" 
+                    styleClass="p-button-sm p-button-secondary mr-2" 
+                    (click)="test2()" [text]="true">
+                </p-button>
+                    
                 <button pButton icon="pi pi-upload" label="Adjuntar documento maestro" (click)="chooseDocs('Maestro')"></button>
                 <button 
                     pButton 
                     class="hidden p-button-secondary p-button-outlined ml-2 lg:inline" 
                     (click)="changeDisposition()" 
                 >
-                    <div class="flex align-items-center justify-content-center">
-                        <span class="mr-2">Estado formulario: </span>
-                        <span [ngClass]="getStateClass(programasService.stateFormPrograma)">
-                            {{ getStateText(programasService.stateFormPrograma) }}
+                <div class="flex align-items-center justify-content-center">
+                        <i [ngClass]="programasService.disposition ? 'pi pi-eye-slash' : 'pi pi-eye'" ></i>
+                        <span class="ml-1">
+                            {{ programasService.disposition ? 'Ocultar estado formulario' : 'Ver estado formulario' }}
                         </span>
+
+                        <!-- <span [ngClass]="getStateClass(programasService.stateFormPrograma)">
+                            {{ getStateText(programasService.stateFormPrograma) }}
+                        </span> -->
                     </div>
                 </button>
                 <button 
@@ -69,10 +82,14 @@
                     (click)="sidebarVisible2 = true" 
                 >
                 <div class="flex align-items-center justify-content-center">
-                    <span class="mr-2">Estado formulario: </span>
+                    <i [ngClass]="programasService.disposition ? 'pi pi-eye-slash' : 'pi pi-eye'" ></i>
+                    <span class="ml-1">
+                        {{ programasService.disposition ? 'Ocultar estado formulario' : 'Ver estado formulario' }}
+                    </span>
+                    <!-- <span class="mr-2">Estado formulario: </span>
                     <span [ngClass]="getStateClass(programasService.stateFormPrograma)">
                         {{ getStateText(programasService.stateFormPrograma) }}
-                    </span>
+                    </span> -->
                 </div>
                 </button>
             </div>
@@ -84,7 +101,7 @@
             
             <div [ngClass]="contentWrapperClass">
                 <form [formGroup]="programasService.fbForm">
-                    <p-stepper (activeStepChange)="stepChange($event)">
+                    <p-stepper (activeStepChange)="stepChange($event)" [activeStep]="programasService.activeIndexStepper">
                         <p-stepperPanel id="paso1">
                             <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
                                 <app-form-programas-step-one></app-form-programas-step-one>
@@ -135,7 +152,7 @@
                                                             <p-button
                                                                 label="Agregar"
                                                                 icon="pi pi-plus"
-                                                                styleClass="p-button-success p-button-sm"
+                                                                styleClass="p-button-success"
                                                                 (click)="addNewReglamento()"
                                                             ></p-button>
                                                         </div>
@@ -232,7 +249,7 @@
                                 </div>
                                 <div class="flex pt-4 justify-content-between">
                                     <p-button label="Atrás" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()" />
-                                    <p-button styleClass="p-button-success" label="Agregar" icon="pi pi-check" iconPos="right" (onClick)="submit()" [disabled]="!programasService.stateFormPrograma" />
+                                    <p-button styleClass="p-button-success" label="Confirmar" icon="pi pi-check" iconPos="right" (onClick)="submit()" [disabled]="!programasService.stateFormPrograma" />
                                 </div>
                             </ng-template>
                         </p-stepperPanel>
@@ -242,16 +259,28 @@
             <div class="hidden lg:block" *ngIf="programasService.disposition" [ngClass]="sidebarClass" >
                 <p-card styleClass="border-1 surface-border border-round rounded-lg"  >
                     <ng-template pTemplate="header">
-                        <div class="flex flex-row flex-wrap"  [style]="{ 'padding-left': '1.5rem' , 'padding-top': '1.5rem' , 'padding-right': '1.5rem' , 'width': '100%'}">
-                            <div class="align-items-center">
-                                <div class="p-card-title">Estado formulario</div>
+                        <div class="flex flex-row justify-content-between flex-wrap"  [style]="{ 'padding-left': '1.5rem' , 'padding-top': '1.5rem' , 'padding-right': '1.5rem' , 'width': '100%'}">
+                            <div>
+                                <div class="align-items-center">
+                                    <div class="p-card-title">
+                                        Estado formulario
+                                        <i class="pi pi-question-circle" [pTooltip]='tooltipContent' tooltipPosition="top"></i>
+                                        <ng-template #tooltipContent>
+                                            <small>Indica el estado de validación de cada campo del formulario.</small>
+                                        </ng-template>
+                                    </div>
+                                    
+                                </div>
+                                <div class="align-items-center ml-2" [style]="{'margin-top': '0.1rem !important'}">
+
+                                </div>
                             </div>
-                            <div class="align-items-center ml-2" [style]="{'margin-top': '0.1rem !important'}">
-                                <i class="pi pi-question-circle" [pTooltip]='tooltipContent' tooltipPosition="top"></i>
-                                <ng-template #tooltipContent>
-                                    <small>Indica el estado de validación de cada campo del formulario. Para cerrar, presione el botón "Estado formulario".</small>
-                                </ng-template>
+                            <div>
+                                <span [ngClass]="getStateClass(programasService.stateFormPrograma)">
+                                    {{ getStateText(programasService.stateFormPrograma) }}
+                                </span>
                             </div>
+
                         </div>
                     </ng-template>
                     <app-state-form></app-state-form>
@@ -267,3 +296,211 @@
     </ng-template>
 
 </p-card>
+
+<app-dialog [dialogWidth]="'80vw'" [(visible)]="confirmAddPrograma">
+    <div header>
+        <span class="text-xl">Confirmación de agregación de programa</span>
+    </div>
+    <div content>
+        <p-messages severity="info" [closable]="true" [style]="{ 'padding': '0rem'}">
+            <ng-template pTemplate>
+                <i class="pi pi-info-circle mr-3"></i>
+                <span>A continuación se muestra un resumen con la información del programa que desea agregar</span>
+            </ng-template>
+        </p-messages>
+
+        <span class="text-xl">Detalles del programa</span>
+        <p-divider />
+        <div class="formgrid grid">
+            <div class="col-12 sm:col-6 mb-3">
+                <div class="flex flex-column">
+                    <span class="text-900"> <strong>Nombre</strong> </span>
+                    <span class="text-700"> {{ programasService.fbForm.get('Nombre_programa')!.value }} </span>
+                </div>
+            </div>
+
+            <div class="col-12 sm:col-6 mb-3">
+                <div class="flex flex-column">
+                    <span class="text-900"> <strong>Grupo correo LDAP</strong> </span>
+                    <span class="text-700"> {{ programasService.fbForm.get('Grupo_correo')!.value }} </span>
+                </div>
+            </div>
+
+            <div class="col-12 sm:col-6 mb-3">
+                <div class="flex flex-column">
+                    <span class="text-900"> <strong>Título</strong> </span>
+                    <span class="text-700"> {{ programasService.fbForm.get('Titulo')!.value }} </span>
+                </div>
+            </div>
+
+            <div class="col-12 sm:col-6 mb-3">
+                <div class="flex flex-column">
+                    <span class="text-900"> <strong>Grado académico</strong> </span>
+                    <span class="text-700"> {{ programasService.fbForm.get('Grado_academico')!.value }} </span>
+                </div>
+            </div>
+
+            <div class="col-12 sm:col-2 mb-3">
+                <div class="flex flex-column">
+                    <span class="text-900"> <strong>Centro costo</strong> </span>
+                    <span class="text-700"> {{ programasService.fbForm.get('Centro_costo')!.value }} </span>
+                </div>
+            </div>
+
+            <div class="col-12 sm:col-2 mb-3">
+                <div class="flex flex-column">
+                    <span class="text-900"> <strong>Créditos totales</strong> </span>
+                    <span class="text-700"> {{ programasService.fbForm.get('Creditos_totales')!.value }} </span>
+                </div>
+            </div>
+
+            <div class="col-12 sm:col-2 mb-3">
+                <div class="flex flex-column">
+                    <span class="text-900"> <strong>Horas totales</strong> </span>
+                    <span class="text-700"> {{ programasService.fbForm.get('Horas_totales')!.value }} </span>
+                </div>
+            </div>
+
+            <div class="col-12 sm:col-2 mb-3">
+                <div class="flex flex-column">
+                    <span class="text-900"> <strong>Código SIES</strong> </span>
+                    <span class="text-700"> {{ programasService.fbForm.get('Codigo_SIES')!.value }} </span>
+                </div>
+            </div>
+
+            <div class="col-12 sm:col-2 mb-3">
+                <div class="flex flex-column">
+                    <span class="text-900"> <strong>REXE</strong> </span>
+                    <span class="text-700"> {{ programasService.fbForm.get('REXE')!.value }} </span>
+                </div>
+            </div>
+
+            <div class="col-12 sm:col-2 mb-3">
+                <div class="flex flex-column">
+                    <span class="text-900"> <strong>Campus</strong> </span>
+                    <span class="text-700"> {{ programasService.campusSelected }} </span>
+                </div>
+            </div>
+
+            <div class="col-12 sm:col-6 mb-3">
+                <div class="flex flex-column">
+                    <span class="text-900"> <strong>Tipo de programa (Categoría) </strong> </span>
+                    <span class="text-700"> 
+                        {{ programasService.tipoProgramaSelected }}
+                        ({{ programasService.tipoProgramaCategoriaSelected }})
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-12 sm:col-6 mb-3">
+                <div class="flex flex-column">
+                    <span class="text-900"> <strong>Unidad académica (Facultad)</strong> </span>
+                    <span class="text-700"> 
+                        {{ programasService.unidadAcademicaSelected }}
+                        ({{ programasService.unidadAcademicaFacultadSelected }})
+                    </span>
+                </div>
+            </div>
+            
+
+            <div class="col-12 sm:col-6 mb-3">
+                <div class="flex flex-column">
+                    <span class="text-900"> <strong>Estado maestro</strong> </span>
+                    <span class="text-700"> {{ programasService.estadoMaestroSelected }} </span>
+                </div>
+            </div>
+
+            <ng-container *ngIf="programasService.fbForm.get('Graduacion_Conjunta_Switch')!.value">
+                <div class="col-12 sm:col-6 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Instituciones asociadas</strong> </span>
+                        <div class="flex flex-row justify-content-start flex-wrap">
+                            <ng-container *ngFor="let item of programasService.fbForm.get('Instituciones')!.value">
+                                <p-tag severity="secondary" value="{{item.nombreInstitucion}}" styleClass="m-1"/>
+                            </ng-container>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+
+            <div class="col-12 sm:col-6 mb-3">
+                <div class="flex flex-column">
+                    <span class="text-900"> <strong>Reglamento</strong> </span>
+                    <span class="text-700"> {{ programasService.reglamentoSelected }} </span>
+                </div>
+            </div>
+
+            <div class="col-12 sm:col-6 mb-3">
+                <div class="flex flex-column">
+                    <span class="text-900"> <strong>Director(a)</strong> </span>
+                    <span class="text-700"> {{ programasService.directorSelected.rut }} - {{ programasService.directorSelected.nombre }} </span>
+                </div>
+            </div>
+
+            <ng-container *ngIf="programasService.fbForm.get('haveDirectorAlterno')!.value">
+                <div class="col-12 sm:col-6 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Director(a) alterno(a)</strong> </span>
+                        <span class="text-700"> {{ programasService.directorAlternoSelected.rut }} - {{ programasService.directorAlternoSelected.nombre }} </span>
+                    </div>
+                </div>
+            </ng-container>
+
+            <div class="col-12">
+                <div class="mb-2">
+                    <label><strong>Documentos maestros adjuntos</strong></label>                                  
+                </div>
+                <app-uploader-files mode="show"></app-uploader-files>
+            </div>
+
+        </div>
+
+    </div>
+    <div footer>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
+            (click)="confirmAddPrograma = false" [text]="true"></p-button>
+
+        <p-button 
+            label="Confirmar y agregar"
+            icon="pi pi-check"
+            styleClass="mr-2 p-button-success p-button-sm" 
+            (click)="confirmAndSubmit()">
+        </p-button>
+    </div>
+</app-dialog>
+
+<app-dialog [dialogWidth]="'45vw'" [(visible)]="successAddPrograma" [closable]="false" [maximizable]="false">
+    <div header>
+        <span class="text-xl">Programa agregado exitosamente</span>
+    </div>
+
+    <div content>
+        <div class="flex align-items-center justify-content-center flex-column">
+                <i class="pi pi-check-circle text-5xl text-green-400"></i>
+                <span class="text-900">El programa <strong>{{ programasService.nameProgramaAdded }}</strong> ha sido agregado exitosamente.</span>
+                <span class="text-900">¿Con qué desea continuar?</span>
+
+        </div>
+    </div>
+
+    <div footer>
+        <p-button 
+            label="Volver a programas"
+            icon="pi pi-arrow-left"
+            styleClass="mr-2 p-button-secondary p-button-sm" 
+            (click)="redirectTo('p')">
+        </p-button>
+        <p-button 
+            label="Crear otro programa"
+            icon="pi pi-plus"
+            styleClass="mr-2 p-button-success p-button-sm" 
+            (click)="redirectTo('c')">
+        </p-button>
+        <p-button 
+            label="Ver programa agregado"
+            icon="pi pi-eye"
+            styleClass="mr-2 p-button p-button-sm" 
+            (click)="redirectTo('v')">
+        </p-button>
+    </div>
+</app-dialog>

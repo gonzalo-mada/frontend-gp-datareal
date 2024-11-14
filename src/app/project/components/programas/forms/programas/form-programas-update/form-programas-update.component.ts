@@ -49,13 +49,6 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
   selectedDirector: boolean = true;
   selectedDirectorAlterno: boolean = true;
   selectedEstadoAcreditacion: boolean = true;
-  namesCrud: NamesCrud =  {
-    singular: 'programa',
-    plural: 'programas',
-    articulo_singular: 'el programa',
-    articulo_plural: 'los programas',
-    genero: 'masculino'
-  };
   reglamentos: Reglamento[] = [];
   directores: any[] = [];
   directoresAlternos: any[] = [];
@@ -774,7 +767,7 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
       }
       
       if ( updated.dataWasUpdated ) {
-        const messageGp = generateMessage(this.namesCrud, updated.dataUpdated , 'actualizado', true,false)
+        const messageGp = generateMessage(this.programasService.namesCrud, updated.dataUpdated , 'actualizado', true,false)
         this.messageService.add({
           key: this.programasService.keyPopups,
           severity: 'success',

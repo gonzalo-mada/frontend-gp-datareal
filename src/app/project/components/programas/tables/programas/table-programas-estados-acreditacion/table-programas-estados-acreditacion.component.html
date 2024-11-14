@@ -16,15 +16,17 @@
     [paginator]=" mode !== 'show' "
     [rowsPerPageOptions]="[10,25,50]" 
     [showCurrentPageReport]="true"
-    currentPageReportTemplate="{first} hasta {last} de {totalRecords} registros."
     [value]="data" 
     [columns]="cols" 
     [globalFilterFields]="globalFiltros"
     [dataKey]="dataKeyTable" 
-    autoLayout="true"
     [expandedRowKeys]="expandedRows"
     (onRowExpand)="onRowExpand($event)"
     (onRowCollapse)="onRowCollapse($event)"
+    [customSort]="true"
+    (sortFunction)="customSort($event)"
+    currentPageReportTemplate="{first} hasta {last} de {totalRecords} registros."
+    autoLayout="true"
     rowExpandMode="single"
 >
 
@@ -144,8 +146,7 @@
             </td>
 
             <td>
-                <span class="p-column-title">Fecha_informe</span>
-                {{data.Fecha_informe}}
+                {{data.Fecha_informe !== '01-01-1900' ? data.Fecha_informe : 'N/A'}}
             </td>
 
 

@@ -7,6 +7,8 @@
     [rowsPerPageOptions]="[10,25,50]" 
     [showCurrentPageReport]="true"
     [globalFilterFields]="globalFiltros"
+    [customSort]="true"
+    (sortFunction)="customSort($event)"
     currentPageReportTemplate="{first} hasta {last} de {totalRecords} registros."
     autoLayout="true"
 >
@@ -20,7 +22,7 @@
                     <div class="align-items-center ml-1" [style]="{'margin-top': '0.1rem !important'}">
                         <i class="pi pi-question-circle" [pTooltip]='tooltipContent' tooltipPosition="top"></i>
                         <ng-template #tooltipContent>
-                            <small>Muestra un historial de las actividades realizadas en el programa, incluyendo creación y actualización, la información anterior y actual, la fecha de cada actividad y el usuario que la realizó.</small>
+                            <small>Muestra un historial de las actividades realizadas en el programa, incluyendo creación y actualización, la información anterior y actual, la fecha de cada actividad y quien la realizó.</small>
                         </ng-template>
                     </div>
                 </div>

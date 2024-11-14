@@ -4,8 +4,6 @@
     [paginator]="true" 
     [rowsPerPageOptions]="[10,25,50]" 
     [showCurrentPageReport]="true"
-    currentPageReportTemplate="{first} hasta {last} de {totalRecords} registros." 
-    selectionMode="multiple"
     [rowHover]="true" 
     [value]="data" 
     [columns]="cols" 
@@ -13,6 +11,10 @@
     [(selection)]="selectedRow" 
     [dataKey]="dataKeyTable" 
     (selectionChange)="selectionChange()" 
+    [customSort]="true"
+    (sortFunction)="customSort($event)"
+    currentPageReportTemplate="{first} hasta {last} de {totalRecords} registros." 
+    selectionMode="multiple"
     autoLayout="true"
     >
     <ng-template pTemplate="caption">

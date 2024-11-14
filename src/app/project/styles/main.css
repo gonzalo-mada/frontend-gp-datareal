@@ -83,4 +83,8 @@
   }
 }
 
+.p-message {
+  margin: 0rem 0rem 1rem !important;
+  border-radius: 5px !important;
+}
 

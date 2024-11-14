@@ -17,6 +17,7 @@ import { ChipModule } from 'primeng/chip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { DialogModule } from 'primeng/dialog';
+import { DividerModule } from 'primeng/divider';
 import { DropdownModule } from 'primeng/dropdown';
 import { FileUploadModule } from 'primeng/fileupload';
 import { InputGroupModule } from 'primeng/inputgroup';
@@ -47,6 +48,7 @@ const primeGp = [
   ConfirmDialogModule,
   ConfirmPopupModule,
   DialogModule,
+  DividerModule,
   DropdownModule,
   FileUploadModule,
   InputGroupAddonModule, 

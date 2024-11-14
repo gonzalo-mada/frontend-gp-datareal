@@ -5,11 +5,12 @@
             <label><strong>Tipo de programa *</strong></label>
             <br>
             <p-dropdown
-                [options]="tiposProgramas"
+                [options]="tiposProgramasGrouped"
                 [group]="true"
+                [style]="{ width: '100%', 'min-width': '100%' }"
+                (onChange)="changeTipoPrograma($event)"
                 formControlName="Tipo_programa"
                 placeholder="Seleccione tipo de programa"
-                [style]="{ width: '100%', 'min-width': '100%' }"
             >
                 <ng-template let-group pTemplate="group">
                     <div class="flex align-items-center">
@@ -25,6 +26,7 @@
             <p-dropdown
                 [options]="campus"
                 [style]="{ width: '100%', 'min-width': '100%' }"
+                (onChange)="changeCampus($event)"
                 formControlName="Campus"
                 placeholder="Seleccione campus"
                 optionLabel="Descripcion_campus"
@@ -37,11 +39,12 @@
             <label><strong>Unidad académica *</strong></label>
             <br>
             <p-dropdown
-                [options]="unidadesAcademicas"
+                [options]="unidadesAcademicasGrouped"
                 [group]="true"
+                [style]="{ width: '100%', 'min-width': '100%' }"
+                (onChange)="changeUnidadAcad($event)"
                 formControlName="Unidad_academica"
                 placeholder="Seleccione unidad académica"
-                [style]="{ width: '100%', 'min-width': '100%' }"
             >
                 <ng-template let-group pTemplate="group">
                     <div class="flex align-items-center">
