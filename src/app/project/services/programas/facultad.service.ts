@@ -67,7 +67,7 @@ export class FacultadService {
       this.messageService.add({
         key: 'main-gp',
         severity: 'warn',
-        summary:  `Error al ${response.from} ${this.namesCrud.singular}`,
+        summary:  `Error al ${response.method} ${this.namesCrud.singular}`,
         detail: response.error.message.message,
         sticky: true
       });
