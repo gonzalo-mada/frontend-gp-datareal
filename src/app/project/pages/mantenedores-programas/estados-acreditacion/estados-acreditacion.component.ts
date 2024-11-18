@@ -1,37 +1,37 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { EstadosAcreditacion, ActionUploadDoc } from '../../../models/programas/EstadosAcreditacion';
-import { NamesCrud } from '../../../models/shared/NamesCrud';
 import { Subscription } from 'rxjs';
 import { EstadosAcreditacionService } from '../../../services/programas/estados-acreditacion.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { MenuButtonsTableService } from 'src/app/project/services/components/menu-buttons-table.service';
 import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
-import { generateMessage } from 'src/app/project/tools/utils/form.utils';
+import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
+import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
+import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 
 @Component({
   selector: 'app-estado-acreditacion',
   templateUrl: './estados-acreditacion.component.html',
-  styles: [
-  ]
+  styles: [],
+  providers: [EstadosAcreditacionService]
 })
 export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
 
-  constructor(private confirmationService: ConfirmationService,
+  constructor(
+    private commonUtils: CommonUtils,
+    private confirmationService: ConfirmationService,
     public estadosAcreditacionService: EstadosAcreditacionService,
     private errorTemplateHandler: ErrorTemplateHandler,
     private messageService: MessageService,
     private menuButtonsTableService: MenuButtonsTableService,
     private tableCrudService: TableCrudService,
+    private uploaderFilesService: UploaderFilesService
   ){}
 
   estadosAcreditacion: EstadosAcreditacion[] = [];
-  estadoAcreditacion: EstadosAcreditacion = {};
-  namesCrud!: NamesCrud;
-  keyPopups: string = '';
   mode: string = '';
   dialog: boolean = false;
-  yearsDifference: number | null = null;
 
   get modeCrud() {
     return this.estadosAcreditacionService.modeForm;
@@ -40,16 +40,6 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
   private subscription: Subscription = new Subscription();
   
   async ngOnInit() {
-    this.namesCrud = {
-      singular: 'estado de acreditación',
-      plural: 'estados de acreditación',
-      articulo_singular: 'el estado de acreditación',
-      articulo_plural: 'los estados de acreditación',
-      genero: 'masculino'
-    };
-
-    this.keyPopups = 'estadoacreditacion'
-
     await this.getEstadosAcreditacion();
 
     //ACTION AGREGAR DESDE MANTENEDOR EA
@@ -59,8 +49,8 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
       this.estadosAcreditacionService.crudUpdate$.subscribe( crud => {
         if (crud && crud.mode) {
           if (crud.data) {
-            this.estadoAcreditacion = {};
-            this.estadoAcreditacion = crud.data
+            this.estadosAcreditacionService.estadoAcreditacion = {};
+            this.estadosAcreditacionService.estadoAcreditacion = crud.data
           }
             switch (crud.mode) {
               case 'show': this.showForm(); break; 
@@ -72,7 +62,8 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
           
         }
     }))
-    this.subscription.add(this.menuButtonsTableService.onClickDeleteSelected$.subscribe(() => this.openConfirmationDeleteSelected(this.tableCrudService.getSelectedRows()) ))
+    this.subscription.add(this.menuButtonsTableService.onClickDeleteSelected$.subscribe(() => this.openConfirmationDeleteSelected(this.tableCrudService.getSelectedRows()) ));
+    
     this.menuButtonsTableService.setContext('estado-acreditacion','dialog');
   }
 
@@ -83,9 +74,10 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
     this.reset();
   }
 
-  async getEstadosAcreditacion(){
+  async getEstadosAcreditacion(showCountTableValues: boolean = true){
     try {
       this.estadosAcreditacion = <EstadosAcreditacion[]> await this.estadosAcreditacionService.getEstadosAcreditacion();
+      if (showCountTableValues) this.estadosAcreditacionService.countTableValues(this.estadosAcreditacion.length);
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
@@ -96,167 +88,255 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
 
   async insertEstadoAcreditacion(){
     try {
-
-      const actionForm: any = await new Promise <void> ((resolve: Function, reject: Function) => {
-        this.estadosAcreditacionService.setModeForm('insert',null, resolve, reject);
-      })
-      
-      if (actionForm.success) {
-        //insert exitoso
-        this.messageService.add({
-          key: this.keyPopups,
-          severity: 'success',
-          detail: actionForm.messageGp
-        });
+      let params = {};
+      const { Acreditado } = this.estadosAcreditacionService.fbForm.value;
+      if (Acreditado === false) {
+        // no requiero docs
+        const { files, tiempo: { Cantidad_anios }, ...formData } = this.estadosAcreditacionService.fbForm.value ;
+        params = {...formData};
       }else{
-        throw actionForm;
+        // si requiero docs
+        const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
+          this.uploaderFilesService.setAction('upload',resolve,reject);
+        })
+
+        if (actionUploadDoc.success) {
+          const { files, ...formData } = this.estadosAcreditacionService.fbForm.value ;
+          params = {
+            ...formData,
+            docsToUpload: actionUploadDoc.docsToUpload
+          }
+        }
       }
-      
+
+      const response = await this.estadosAcreditacionService.insertEstadoAcreditacion(params);
+      if ( response.dataWasInserted ) {
+        this.messageService.add({
+          key: 'main-gp',
+          severity: 'success',
+          detail: generateMessage(this.estadosAcreditacionService.namesCrud,response.dataInserted,'creado',true,false)
+        });
+      }
     } catch (e:any) {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al guardar ${this.namesCrud.singular}`,
+          summary: `Error al agregar ${this.estadosAcreditacionService.namesCrud.singular}`,
           message: e.detail.error.message.message
-        });
+        }
+      );
     }finally{
-      this.getEstadosAcreditacion();
-      this.dialog = true;
+      this.dialog = false;
+      this.getEstadosAcreditacion(false);
       this.reset();
     }
   }
 
   async updateEstadoAcreditacion(){
-    
     try {
-      const actionForm: any = await new Promise ((resolve,reject) => {
-        this.estadosAcreditacionService.setModeForm('update',null, resolve, reject);
-      })     
+      let params = {};
+      const { switchAcreditado } = this.estadosAcreditacionService.fbForm.value
 
-      if (actionForm.success) {
-        this.messageService.add({
-          key: this.keyPopups,
-          severity: 'success',
-          detail: actionForm.messageGp
-        });
+      if (switchAcreditado == 'NO' ) {
+        //no requiero docs
+        const { files, ...formData } = this.estadosAcreditacionService.fbForm.value;
+        params = {
+          ...formData,
+          Cod_acreditacion: this.estadosAcreditacionService.estadoAcreditacion.Cod_acreditacion,
+          Cod_tiempoacredit: this.estadosAcreditacionService.estadoAcreditacion.tiempo?.Cod_tiempoacredit,
+          aux: this.estadosAcreditacionService.fbForm.get('aux')!.value
+        };
       }else{
-        throw actionForm;
+        //si requiero docs
+        const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
+          this.uploaderFilesService.setAction('upload',resolve,reject);
+        });
+
+        if (actionUploadDoc.success) {
+          const { files, ...formData } = this.estadosAcreditacionService.fbForm.value; 
+          params = {
+            ...formData,
+            docsToUpload: actionUploadDoc.docsToUpload,
+            docsToDelete: actionUploadDoc.docsToDelete,
+            Cod_acreditacion: this.estadosAcreditacionService.estadoAcreditacion.Cod_acreditacion,
+            Cod_tiempoacredit: this.estadosAcreditacionService.estadoAcreditacion.tiempo?.Cod_tiempoacredit,
+            aux: this.estadosAcreditacionService.fbForm.get('aux')!.value
+          }
+        }
       }
 
+      const response = await this.estadosAcreditacionService.updateEstadoAcreditacion(params);
+      if ( response.dataWasUpdated ) {
+        this.messageService.add({
+          key: 'main-gp',
+          severity: 'success',
+          detail: generateMessage(this.estadosAcreditacionService.namesCrud,response.dataUpdated,'actualizado',true,false)
+        });
+      }
     } catch (e:any) {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al actualizar ${this.namesCrud.singular}`,
+          summary: `Error al actualizar ${this.estadosAcreditacionService.namesCrud.singular}`,
           message: e.detail.error.message.message,
-      });
+        }
+      );
     }finally{
-      this.getEstadosAcreditacion();
       this.dialog = true
+      this.getEstadosAcreditacion(false);
       this.reset();
     }
   }
 
   async deleteEstadoAcreditacion(estadosAcreditacionToDelete: EstadosAcreditacion[]){    
     try {
-      const deleted:{ dataWasDeleted: boolean, dataDeleted: [] } = await this.estadosAcreditacionService.deleteEstadoAcreditacion({estadosAcreditacionToDelete:estadosAcreditacionToDelete});
-      // const message = this.parseNombres(deleted.dataDeleted)
-      if ( deleted.dataWasDeleted ) {
-        this.getEstadosAcreditacion();
-        if ( estadosAcreditacionToDelete.length > 1 ){
+      this.uploaderFilesService.setContext('delete','mantenedores','estado-acreditacion');
+      const response = await this.estadosAcreditacionService.deleteEstadoAcreditacion({estadosAcreditacionToDelete:estadosAcreditacionToDelete});
+      if (response.notDeleted.length !== 0) {
+        for (let i = 0; i < response.notDeleted.length; i++) {
+          const element = response.notDeleted[i];
           this.messageService.add({
-            key: this.keyPopups,
+            key: 'main-gp',
+            severity: 'warn',
+            summary:  `Error al eliminar ${this.estadosAcreditacionService.namesCrud.singular}`,
+            detail: element.messageError,
+            sticky: true
+          });
+        }
+      }
+      if (response.deleted.length !== 0) {
+        const message = mergeNames(null,response.deleted,false,'data');
+        if ( response.deleted.length > 1 ){
+          this.messageService.add({
+            key: 'main-gp',
             severity: 'success',
-            detail: generateMessage(this.namesCrud, null, 'eliminados', true, true)
+            detail: generateMessage(this.estadosAcreditacionService.namesCrud,message,'eliminados',true, true)
           });
         }else{
           this.messageService.add({
-            key: this.keyPopups,
+            key: 'main-gp',
             severity: 'success',
-            detail: generateMessage(this.namesCrud, null, 'eliminado' , true, false)
+            detail: generateMessage(this.estadosAcreditacionService.namesCrud,message,'eliminado',true, false)
           });
         }
-        this.reset();
       }
     } catch (e:any) {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al eliminar ${this.namesCrud.singular}`,
+          summary: `Error al eliminar ${this.estadosAcreditacionService.namesCrud.singular}`,
           message: e.detail.error.message.message
       });
+    }finally{
+      this.reset();
+      this.getEstadosAcreditacion(false);
     } 
   }
 
-  async createForm(){
+  async loadDocsWithBinary(estadoAcreditacion: EstadosAcreditacion){
     try {
-      this.reset();
-      this.dialog = true;
-      await new Promise((resolve,reject) => {
-        this.estadosAcreditacionService.setModeForm('create', null, resolve, reject);
-      })
-    } catch (e:any ) {
-      this.errorTemplateHandler.processError(e, {
-        notifyMethod: 'alert',
-        summary: `Error al crear formulario de ${this.namesCrud.articulo_singular}`,
-        message: e.message,
+      this.uploaderFilesService.setLoading(true,true);
+      const files = await this.estadosAcreditacionService.getDocumentosWithBinary({Cod_acreditacion: estadoAcreditacion.Cod_acreditacion});
+      this.uploaderFilesService.setFiles(files);
+      this.estadosAcreditacionService.filesChanged(files);
+      return files;
+    } catch (e: any) {
+        this.errorTemplateHandler.processError(e, {
+          notifyMethod: 'alert',
+          summary: 'Error al obtener documentos',
+          message: e.detail.error.message.message
         }
       );
+    }finally{
+      this.uploaderFilesService.setLoading(false); 
     }
+  }
 
+  createForm(){
+    this.estadosAcreditacionService.setModeCrud('create');
+    this.uploaderFilesService.setContext('create','mantenedores','estado-acreditacion');
+    this.estadosAcreditacionService.fbForm.get('Nombre_ag_acredit')?.clearValidators();
+    this.reset();
+    this.dialog = true;
   }
 
   async showForm(){
     try {
+      this.uploaderFilesService.setContext('show','mantenedores','estado-acreditacion');
       this.reset();
-      this.dialog = true;
-      const data = this.estadoAcreditacion;
-      await new Promise((resolve,reject) => {
-        this.estadosAcreditacionService.setModeForm('show', data, resolve, reject);
-      })
+      this.estadosAcreditacionService.fbForm.patchValue({...this.estadosAcreditacionService.estadoAcreditacion});
+      this.estadosAcreditacionService.yearsDifference = this.estadosAcreditacionService.estadoAcreditacion.tiempo?.Cantidad_anios!;
+      this.estadosAcreditacionService.fbForm.disable();
+      this.estadosAcreditacionService.showAsterisk = false;
+      this.dialog = true; 
+      await this.loadDocsWithBinary(this.estadosAcreditacionService.estadoAcreditacion);
     } catch (e:any) {
       this.errorTemplateHandler.processError(e, {
         notifyMethod: 'alert',
-        summary: `Error al visualizar formulario de ${this.namesCrud.articulo_singular}`,
+        summary: `Error al visualizar formulario de ${this.estadosAcreditacionService.namesCrud.articulo_singular}`,
         message: e.message,
         }
       );
     }
-
   }
 
   async editForm(){
     try {
+      this.uploaderFilesService.setContext('edit','mantenedores','estado-acreditacion');
       this.reset();
+      const formValues =  this.estadosAcreditacionService.estadoAcreditacion;
+      
+      if (formValues.tiempo?.Fecha_inicio === '01-01-1900' && formValues.tiempo?.Fecha_termino === '01-01-1900') {
+        formValues.tiempo.Fecha_inicio = undefined;
+        formValues.tiempo.Fecha_termino = undefined;
+      }
+
+      this.estadosAcreditacionService.fbForm.patchValue({...this.estadosAcreditacionService.estadoAcreditacion});
+      this.estadosAcreditacionService.fbForm.patchValue({aux: this.estadosAcreditacionService.estadoAcreditacion});
+
+      if (formValues.Fecha_informe === '01-01-1900' ) {
+        this.estadosAcreditacionService.fbForm.get('Fecha_informe')?.reset();
+      }
+
+      this.estadosAcreditacionService.yearsDifference = this.estadosAcreditacionService.estadoAcreditacion.tiempo?.Cantidad_anios == 0 ? null : this.estadosAcreditacionService.estadoAcreditacion.tiempo?.Cantidad_anios!;
+      
+      switch (this.estadosAcreditacionService.estadoAcreditacion.Acreditado) {
+        case 'SI':
+          this.estadosAcreditacionService.enableForm();
+          this.uploaderFilesService.enabledButtonSeleccionar();
+        break;
+        case 'NO':
+          this.estadosAcreditacionService.disableForm();
+          this.uploaderFilesService.disabledButtonSeleccionar();
+        break;
+      }
       this.dialog = true;
-      const data = this.estadoAcreditacion;
-      await new Promise((resolve,reject) => {
-        this.estadosAcreditacionService.setModeForm('edit', data, resolve, reject);
-      })
+      await this.loadDocsWithBinary(this.estadosAcreditacionService.estadoAcreditacion)
     } catch (e:any) {
       this.errorTemplateHandler.processError(e, {
         notifyMethod: 'alert',
-        summary: `Error al editar formulario de ${this.namesCrud.articulo_singular}`,
+        summary: `Error al editar formulario de ${this.estadosAcreditacionService.namesCrud.articulo_singular}`,
         message: e.message,
         }
       );
     }
-
   }
-
 
   reset(){
     this.tableCrudService.resetSelectedRows();
+    this.uploaderFilesService.resetValidatorFiles();
+    this.uploaderFilesService.setAction('reset');
+    this.estadosAcreditacionService.resetForm();
   }
 
   async openConfirmationDeleteSelected(data: any){
     this.confirmationService.confirm({
       header: "Confirmar",
-      message: `Es necesario confirmar la acción para eliminar ${this.namesCrud.articulo_plural}. ¿Desea confirmar?`,
+      message: `Es necesario confirmar la acción para eliminar ${this.estadosAcreditacionService.namesCrud.articulo_plural}. ¿Desea confirmar?`,
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
-      key: this.keyPopups,
+      key: 'main-gp',
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
@@ -266,7 +346,7 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
           this.errorTemplateHandler.processError(
             e, {
               notifyMethod: 'alert',
-              summary: `Error al eliminar ${this.namesCrud.articulo_plural}`,
+              summary: `Error al eliminar ${this.estadosAcreditacionService.namesCrud.articulo_plural}`,
               message: e.message,
           });
         }
@@ -277,11 +357,11 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
   async openConfirmationDelete(data: any){
     this.confirmationService.confirm({
       header: 'Confirmar',
-      message: `Es necesario confirmar la acción para eliminar ${this.namesCrud.articulo_singular}. ¿Desea confirmar?`,
+      message: `Es necesario confirmar la acción para eliminar ${this.estadosAcreditacionService.namesCrud.articulo_singular}. ¿Desea confirmar?`,
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
-      key: this.keyPopups,
+      key: 'main-gp',
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
@@ -293,7 +373,7 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
             this.errorTemplateHandler.processError(
               e, {
                 notifyMethod: 'alert',
-                summary: `Error al eliminar ${this.namesCrud.singular}`,
+                summary: `Error al eliminar ${this.estadosAcreditacionService.namesCrud.singular}`,
                 message: e.message,
             });
           }
@@ -301,26 +381,8 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
     })
   }
 
-  async submit() {
-    try {
-      if ( this.modeCrud == 'create' ) {
-        //modo insert
-        await this.insertEstadoAcreditacion()
-      }else{
-        //modo update
-        await this.updateEstadoAcreditacion();
-      }
-    } catch (e:any) {
-      const action = this.modeCrud === 'create' ? 'guardar' : 'actualizar';
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: `Error al ${action} ${this.namesCrud.singular}`,
-          message: e.message,
-      });
-    } finally {
-      this.dialog = false;
-    }
+  submit() {
+    this.modeCrud === 'create' ? this.insertEstadoAcreditacion() : this.updateEstadoAcreditacion();
   }
 
 }

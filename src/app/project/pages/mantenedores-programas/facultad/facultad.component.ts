@@ -16,8 +16,7 @@ import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
 @Component({
   selector: 'app-facultad',
   templateUrl: './facultad.component.html',
-  styles: [
-  ],
+  styles: [],
   providers: [FacultadService]
 })
 export class FacultadComponent implements OnInit, OnDestroy {
@@ -121,9 +120,10 @@ export class FacultadComponent implements OnInit, OnDestroy {
     return null;
   }
 
-  async getFacultades(){
+  async getFacultades(showCountTableValues: boolean = true){
     try {
-      this.facultades = <Facultad[]> await this.facultadService.getFacultades();      
+      this.facultades = <Facultad[]> await this.facultadService.getFacultades();
+      if (showCountTableValues) this.facultadService.countTableValues(this.facultades.length);      
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
@@ -158,12 +158,12 @@ export class FacultadComponent implements OnInit, OnDestroy {
         this.errorTemplateHandler.processError(
           e, {
             notifyMethod: 'alert',
-            summary: `Error al guardar ${this.facultadService.namesCrud.singular}`,
+            summary: `Error al agregar ${this.facultadService.namesCrud.singular}`,
             message: e.detail.error.message.message,
           }
         );
     }finally{
-      this.getFacultades();
+      this.getFacultades(false);
       this.reset();
 
     }
@@ -206,18 +206,30 @@ export class FacultadComponent implements OnInit, OnDestroy {
           message: e.detail.error.message.message,
       });
     }finally{
-      this.getFacultades();
+      this.getFacultades(false);
       this.reset();
     }
   }
 
   async deleteFacultad(facultadToDelete: Facultad[]){    
     try {
-      const deleted = await this.facultadService.deleteFacultadService(facultadToDelete);
-      if ( deleted.dataWasDeleted ) {
-        const message = mergeNames(null,deleted.dataDeleted,false,'Descripcion_facu')
-        this.getFacultades();
-        if ( facultadToDelete.length > 1 ){
+      this.uploaderFilesService.setContext('delete','mantenedores','facultad');
+      const response = await this.facultadService.deleteFacultadService(facultadToDelete);
+      if (response.notDeleted.length !== 0) {
+        for (let i = 0; i < response.notDeleted.length; i++) {
+          const element = response.notDeleted[i];
+          this.messageService.add({
+            key: 'main-gp',
+            severity: 'warn',
+            summary:  `Error al eliminar ${this.facultadService.namesCrud.singular}`,
+            detail: element.messageError,
+            sticky: true
+          });
+        }
+      }
+      if (response.deleted.length !== 0) {
+        const message = mergeNames(null,response.deleted,false,'data');
+        if ( response.deleted.length > 1 ){
           this.messageService.add({
             key: 'main-gp',
             severity: 'success',
@@ -230,7 +242,6 @@ export class FacultadComponent implements OnInit, OnDestroy {
             detail: generateMessage(this.facultadService.namesCrud,message,'eliminado',true, false)
           });
         }
-        this.reset();
       }
     } catch (e:any) {
       this.errorTemplateHandler.processError(
@@ -239,6 +250,9 @@ export class FacultadComponent implements OnInit, OnDestroy {
           summary: `Error al eliminar ${this.facultadService.namesCrud.singular}`,
           message: e.detail.error.message.message,
       });
+    }finally{
+      this.reset();
+      this.getFacultades(false);
     } 
   }
 

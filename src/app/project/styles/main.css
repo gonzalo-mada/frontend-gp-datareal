@@ -88,3 +88,7 @@
   border-radius: 5px !important;
 }
 
+.p-datatable .p-sortable-column .p-column-title, .p-datatable .p-sortable-column .p-sortable-column-icon, .p-datatable .p-sortable-column .p-sortable-column-badge {
+  vertical-align: unset !important;
+}
+

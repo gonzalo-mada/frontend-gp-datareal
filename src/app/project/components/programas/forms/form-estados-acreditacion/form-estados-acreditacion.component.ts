@@ -1,16 +1,10 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
-import { ActionUploadDoc, EstadosAcreditacion } from 'src/app/project/models/programas/EstadosAcreditacion';
-import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { ConfigModeService } from 'src/app/project/services/components/config-mode.service';
 import { EstadosAcreditacionService } from 'src/app/project/services/programas/estados-acreditacion.service';
-import { generateMessage } from 'src/app/project/tools/utils/form.utils';
-import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
 import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
-import { MenuButtonsTableService } from 'src/app/project/services/components/menu-buttons-table.service';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 
 @Component({
@@ -25,69 +19,22 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
               private commonUtils: CommonUtils,
               private errorTemplateHandler: ErrorTemplateHandler, 
               public estadosAcreditacionService: EstadosAcreditacionService, 
-              private fb: FormBuilder,
               private uploaderFilesService: UploaderFilesService,
   ){}
-  // @Input() visibleUploader: boolean = false;
   
-  yearsDifference: number | null = null;
-  showAsterisk: boolean = false;
-  estadoAcreditacion: EstadosAcreditacion = {};
-  namesCrud!: NamesCrud;
   private subscription: Subscription = new Subscription();
 
   get modeForm() {
     return this.estadosAcreditacionService.modeForm
   }
-
-  public fbForm : FormGroup = this.fb.group({
-    Acreditado: [false],
-    Nombre_ag_acredit: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]], //string
-    Evaluacion_interna: [false], // si/no
-    Fecha_informe: ['', [Validators.required]], //date
-    tiempo: this.fb.group({
-      Cod_tiempoacredit: [],
-      Fecha_inicio: [{value:'', disabled: true}, [Validators.required]],
-      Fecha_termino: [{value:'', disabled: true}, [Validators.required]],
-      Cantidad_anios: [{disabled: true}, [GPValidator.notValueNegativeYearsAcredit(),GPValidator.notUpTo15YearsAcredit()]]
-    }), //number , positivo
-    files: [[], this.filesValidator.bind(this)]
-  })
-
-  
+    
   ngOnInit() {
-    this.namesCrud = {
-      singular: 'estado de acreditación',
-      plural: 'estados de acreditación',
-      articulo_singular: 'el estado de acreditación',
-      articulo_plural: 'los estados de acreditación',
-      genero: 'masculino'
-    };
     this.uploaderFilesService.disabledButtonSeleccionar();
-    this.subscription.add(this.fbForm.statusChanges.subscribe( status => { this.estadosAcreditacionService.stateForm = status as StateValidatorForm}));
-    this.subscription.add(
-      this.estadosAcreditacionService.formUpdate$.subscribe( form => {
-        // console.log("form state ea",form);
-        if (form && form.mode){
-          if (form.data) {
-            this.estadoAcreditacion = {};
-            this.estadoAcreditacion = form.data;
-          }
-          switch (form.mode) {
-            case 'create': this.createForm(form.resolve! , form.reject!); break;
-            case 'show': this.showForm(form.resolve! , form.reject!); break;
-            case 'edit': this.editForm(form.resolve! , form.reject!); break;
-            case 'insert': this.insertForm(form.resolve! , form.resolve!); break;
-            case 'update': this.updateForm(form.resolve! , form.resolve!); break;
-          
-          } 
-
-        }
-    }));
+    this.subscription.add(this.estadosAcreditacionService.fbForm.statusChanges.subscribe( status => { this.estadosAcreditacionService.stateForm = status as StateValidatorForm}));
     this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( from => {
       if (from) {
         if (from.context.component.name === 'estado-acreditacion') {
-          this.filesChanged(from.files)
+          this.estadosAcreditacionService.filesChanged(from.files)
         }
       }
     }));
@@ -98,14 +45,13 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
         }
       }
     }));
-    this.subscription.add(this.fbForm.get('tiempo.Fecha_inicio')?.valueChanges.subscribe(() => this.calculateYearsDifference()))
-    this.subscription.add(this.fbForm.get('tiempo.Fecha_termino')?.valueChanges.subscribe(() => this.calculateYearsDifference()))
-    this.subscription.add(this.fbForm.get('Acreditado')?.valueChanges.subscribe(status => {
-      if (status === null) {
+    this.subscription.add(this.estadosAcreditacionService.fbForm.get('tiempo.Fecha_inicio')?.valueChanges.subscribe(() => this.calculateYearsDifference()));
+    this.subscription.add(this.estadosAcreditacionService.fbForm.get('tiempo.Fecha_termino')?.valueChanges.subscribe(() => this.calculateYearsDifference()));
+    this.subscription.add(this.estadosAcreditacionService.fbForm.get('Acreditado')?.valueChanges.subscribe(status => {
+      if (status === false) {
         this.uploaderFilesService.disabledButtonSeleccionar();
       }
     }))
-    //NUEVO.
   }
   
   ngOnDestroy(): void {
@@ -115,218 +61,11 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
     this.uploaderFilesService.enabledButtonSeleccionar();
   }
 
-  filesValidator(control: AbstractControl): { [key: string]: boolean } | null {
-    const formGroup = control.parent as FormGroup;
-
-    if (!formGroup) {
-        return null;
-    }
-    const isAcreditado = formGroup.get('Acreditado')?.value === 'SI';
-    const acreditado = this.estadoAcreditacion.Acreditado === 'SI';
-    const files = formGroup.get('files')?.value || [];
-
-    
-
-    // Determinar si el archivo es requerido basándonos en la modalidad y el tipo de switch
-    const needsFiles = (( isAcreditado || acreditado )  ) ;
-    const isCreatingOrEditing = this.modeForm === 'create' || this.modeForm === 'edit';
-
-    // Validar si se requieren archivos
-    if (needsFiles && isCreatingOrEditing && files.length === 0) {
-        return { required: true };
-    }
-
-    return null;
-  }
-
-  createForm(resolve: Function, reject: Function){
-    try {   
-      this.uploaderFilesService.setContext('create','mantenedores','estado-acreditacion');
-      this.fbForm.get('Nombre_ag_acredit')?.clearValidators();
-      this.resetForm();
-      resolve(true)
-    } catch (e) {
-      reject(e)
-    }
-  }
-
-  async showForm(resolve: Function, reject: Function){
-    try {
-      this.uploaderFilesService.setContext('show','mantenedores','estado-acreditacion');
-      this.fbForm.patchValue({...this.estadoAcreditacion});
-      this.yearsDifference = this.estadoAcreditacion.tiempo?.Cantidad_anios!;
-      this.fbForm.get('Acreditado')?.disable();
-      this.fbForm.get('Evaluacion_interna')?.disable();
-      this.fbForm.get('Nombre_ag_acredit')?.disable();
-      this.fbForm.get('Fecha_informe')?.disable();
-      this.fbForm.get('tiempo.Fecha_inicio')?.disable();
-      this.fbForm.get('tiempo.Fecha_termino')?.disable();
-      this.showAsterisk = false;
-      await this.loadDocsWithBinary(this.estadoAcreditacion);
-      resolve(true)
-    } catch (e) {      
-      reject(e)
-    }
-  }
-
-  async editForm(resolve: Function, reject: Function){
-    try {
-      this.uploaderFilesService.setContext('edit','mantenedores','estado-acreditacion');
-
-      const formValues =  this.estadoAcreditacion;
-      
-      if (formValues.tiempo?.Fecha_inicio === '01-01-1900' && formValues.tiempo?.Fecha_termino === '01-01-1900') {
-        formValues.tiempo.Fecha_inicio = undefined;
-        formValues.tiempo.Fecha_termino = undefined;
-      }
-      
-      this.fbForm.patchValue(formValues);
-      if (formValues.Fecha_informe === '01-01-1900' ) {
-        this.fbForm.get('Fecha_informe')?.reset();
-      }
-      this.yearsDifference = this.estadoAcreditacion.tiempo?.Cantidad_anios == 0 ? null : this.estadoAcreditacion.tiempo?.Cantidad_anios!
-      this.fbForm.get('Evaluacion_interna')?.enable()
-      this.fbForm.get('Fecha_informe')?.enable();
-      this.enableSwitch();
-      
-      switch (this.estadoAcreditacion.Acreditado) {
-        case 'SI': this.enableForm(); break;
-        case 'NO': this.disableForm(); break;
-      }
-                  
-      await this.loadDocsWithBinary(this.estadoAcreditacion);
-      resolve(true)
-    } catch (e) {
-      reject(e)
-    }
-  }
-
-  enableSwitch(){
-    this.fbForm.get('Acreditado')?.disabled ? this.fbForm.get('Acreditado')?.enable() : this.fbForm.get('Acreditado')?.enable();
-  }
-
-  enableForm(){
-    this.fbForm.get('Nombre_ag_acredit')?.enable();
-    this.showAsterisk = true;
-    this.fbForm.get('tiempo.Fecha_inicio')?.enable();
-    this.fbForm.get('tiempo.Fecha_termino')?.enable();
-    this.uploaderFilesService.enabledButtonSeleccionar();
-  }
-
-  disableForm(){
-    this.fbForm.get('Nombre_ag_acredit')?.disable();
-    this.yearsDifference = null;
-    this.showAsterisk = false;
-    this.fbForm.get('tiempo.Fecha_inicio')?.disable();
-    this.fbForm.get('tiempo.Fecha_termino')?.disable();
-    this.uploaderFilesService.disabledButtonSeleccionar();
-  }
-
-  async insertForm(resolve: Function, reject: Function){
-    try {
-      let params = {};
-
-      const { Acreditado } = this.fbForm.value
-      if ( (Acreditado == null || Acreditado == false) ) {
-        //no requiero docs
-        const { files, tiempo: { Cantidad_anios }, ...formData } = this.fbForm.value ;
-        params = {...formData};
-      }else{
-        // si requiero docs
-        
-        const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
-          this.uploaderFilesService.setAction('upload',resolve,reject);
-        });
-
-        if (actionUploadDoc.success) {
-          const { files, ...formData } = this.fbForm.value ; 
-          params = {
-            ...formData,
-            docsToUpload: actionUploadDoc.docsToUpload
-          }
-        }
-      }
-      
-      const inserted = await this.estadosAcreditacionService.insertEstadoAcreditacion(params)
-      
-      if ( inserted.dataWasInserted ) {
-        const messageGp = generateMessage(this.namesCrud, inserted.dataInserted , 'creado', true,false)
-        resolve({success:true , dataInserted: inserted.dataInserted , messageGp})
-        this.resetForm()
-      }
-    } catch (e) {
-      reject(e)
-      this.resetForm()
-    }
-  }
-
-  async updateForm(resolve: Function, reject: Function){
-    try {
-      let params = {};
-      const { switchAcreditado } = this.fbForm.value
-
-      if (switchAcreditado == 'NO' ) {
-        //no requiero docs
-        const { files, ...formData } = this.fbForm.value ;
-        params = {
-          ...formData,
-          Cod_acreditacion: this.estadoAcreditacion.Cod_acreditacion,
-          Cod_tiempoacredit: this.estadoAcreditacion.tiempo?.Cod_tiempoacredit
-        };
-      }else{
-
-        const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
-          this.uploaderFilesService.setAction('upload',resolve,reject);
-        });
-
-        if (actionUploadDoc.success) {
-          const { files, ...formData } = this.fbForm.value ; 
-          params = {
-            ...formData,
-            docsToUpload: actionUploadDoc.docsToUpload,
-            docsToDelete: actionUploadDoc.docsToDelete,
-            Cod_acreditacion: this.estadoAcreditacion.Cod_acreditacion,
-            Cod_tiempoacredit: this.estadoAcreditacion.tiempo?.Cod_tiempoacredit
-          }
-        }
-      }
-
-
-      const updated = await this.estadosAcreditacionService.updateEstadoAcreditacion(params)
-      if ( updated.dataWasUpdated ) {
-        const messageGp = generateMessage(this.namesCrud, null , 'actualizado', true,false)
-        resolve({success:true , dataWasUpdated: updated.dataWasUpdated, messageGp})
-        this.resetForm()
-      }
-    } catch (e) {
-      reject(e)
-      this.resetForm();
-    }
-  }
-
-  resetForm(){
-    this.fbForm.reset();
-    this.yearsDifference = null
-    this.fbForm.get('Acreditado')?.enable();
-    this.fbForm.get('Nombre_ag_acredit')?.disable();
-    this.fbForm.get('Evaluacion_interna')?.enable();
-    this.fbForm.get('Fecha_informe')?.enable();
-    this.fbForm.get('tiempo.Fecha_inicio')?.disable();
-    this.fbForm.get('tiempo.Fecha_termino')?.disable();
-    this.showAsterisk = false;
-    this.fbForm.reset({
-      files: []
-    });
-    this.uploaderFilesService.setAction('reset');
-    this.uploaderFilesService.resetValidatorFiles();
-    this.fbForm.controls['files'].updateValueAndValidity();
-  }
-
   changeSwitch(event: any){
-    const inputAcred = this.fbForm.get('Nombre_ag_acredit');
-    const fechaInicio = this.fbForm.get('tiempo.Fecha_inicio');
-    const fechaFin = this.fbForm.get('tiempo.Fecha_termino');
-    const inputCantidadAnios = this.fbForm.get('tiempo.Cantidad_anios');
+    const inputAcred = this.estadosAcreditacionService.fbForm.get('Nombre_ag_acredit');
+    const fechaInicio = this.estadosAcreditacionService.fbForm.get('tiempo.Fecha_inicio');
+    const fechaFin = this.estadosAcreditacionService.fbForm.get('tiempo.Fecha_termino');
+    const inputCantidadAnios = this.estadosAcreditacionService.fbForm.get('tiempo.Cantidad_anios');
 
     switch (event.checked) {
       case 'SI':
@@ -334,7 +73,7 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
         fechaInicio?.enable();
         fechaFin?.enable();
         inputCantidadAnios?.enable();
-        this.showAsterisk = true;
+        this.estadosAcreditacionService.showAsterisk = true;
         this.uploaderFilesService.enabledButtonSeleccionar();
       break;
       case 'NO':
@@ -343,8 +82,8 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
         fechaInicio?.disable();
         fechaFin?.disable();
         inputCantidadAnios?.disable();
-        this.yearsDifference = null;
-        this.showAsterisk = false;
+        this.estadosAcreditacionService.yearsDifference = null;
+        this.estadosAcreditacionService.showAsterisk = false;
         this.uploaderFilesService.disabledButtonSeleccionar();
       break
       default:
@@ -355,17 +94,17 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
         inputAcred?.reset();
         fechaInicio?.reset();
         fechaFin?.reset();
-        this.yearsDifference = null;
-        this.showAsterisk = false;
+        this.estadosAcreditacionService.yearsDifference = null;
+        this.estadosAcreditacionService.showAsterisk = false;
         this.uploaderFilesService.disabledButtonSeleccionar();
       break;
     }
-    this.fbForm.controls['files'].updateValueAndValidity();
+    this.estadosAcreditacionService.fbForm.controls['files'].updateValueAndValidity();
   }
 
   calculateYearsDifference(): void {
-    const startDate = this.fbForm.get('tiempo.Fecha_inicio')?.value;
-    const endDate = this.fbForm.get('tiempo.Fecha_termino')?.value;
+    const startDate = this.estadosAcreditacionService.fbForm.get('tiempo.Fecha_inicio')?.value;
+    const endDate = this.estadosAcreditacionService.fbForm.get('tiempo.Fecha_termino')?.value;
 
     if (startDate && endDate ) {
       
@@ -381,34 +120,15 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
         years -= 1;
       }
 
-      this.yearsDifference = years;      
-      this.fbForm.patchValue({ tiempo: {Cantidad_anios: this.yearsDifference}});
-      this.fbForm.get('tiempo.Cantidad_anios')?.updateValueAndValidity();
+      this.estadosAcreditacionService.yearsDifference = years;      
+      this.estadosAcreditacionService.fbForm.patchValue({ tiempo: {Cantidad_anios: this.estadosAcreditacionService.yearsDifference}});
+      this.estadosAcreditacionService.fbForm.get('tiempo.Cantidad_anios')?.updateValueAndValidity();
       
       
     } else {
-      this.yearsDifference = null;
-      this.fbForm.get('tiempo.Cantidad_anios')?.reset();
-      this.fbForm.get('tiempo.Cantidad_anios')?.updateValueAndValidity();
-    }
-  }
-
-  async loadDocsWithBinary(estadoAcreditacion: EstadosAcreditacion){
-    try {
-      this.uploaderFilesService.setLoading(true,true);
-      const files = await this.estadosAcreditacionService.getDocumentosWithBinary({Cod_acreditacion: estadoAcreditacion.Cod_acreditacion});
-      this.uploaderFilesService.setFiles(files);
-      this.filesChanged(files);
-      return files;
-    } catch (e: any) {
-        this.errorTemplateHandler.processError(e, {
-          notifyMethod: 'alert',
-          summary: 'Error al obtener documentos',
-          message: e.detail.error.message.message
-        }
-      );
-    }finally{
-      this.uploaderFilesService.setLoading(false); 
+      this.estadosAcreditacionService.yearsDifference = null;
+      this.estadosAcreditacionService.fbForm.get('tiempo.Cantidad_anios')?.reset();
+      this.estadosAcreditacionService.fbForm.get('tiempo.Cantidad_anios')?.updateValueAndValidity();
     }
   }
 
@@ -426,14 +146,9 @@ export class FormEstadosAcreditacionComponent implements OnInit, OnDestroy {
     }
   }
 
-  filesChanged(files: any){
-    this.fbForm.patchValue({ files });
-    this.fbForm.controls['files'].updateValueAndValidity();
-  }
-
   test(){
-    Object.keys(this.fbForm.controls).forEach(key => {
-      const control = this.fbForm.get(key);
+    Object.keys(this.estadosAcreditacionService.fbForm.controls).forEach(key => {
+      const control = this.estadosAcreditacionService.fbForm.get(key);
       if (control?.invalid) {
         console.log(`Errores en ${key}:`, control.errors);
       }

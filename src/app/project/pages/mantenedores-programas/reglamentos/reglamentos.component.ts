@@ -11,12 +11,13 @@ import { MenuButtonsTableService } from 'src/app/project/services/components/men
 import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
 import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
+import { ActionUploadDoc } from 'src/app/project/models/shared/ActionUploadDoc';
 
 @Component({
   selector: 'app-reglamentos',
   templateUrl: './reglamentos.component.html',
-  styles: [
-  ]
+  styles: [],
+  providers: [ReglamentosService]
 })
 
 export class ReglamentosComponent implements OnInit, OnDestroy {
@@ -33,8 +34,6 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
 
   reglamentos: Reglamento[] = [];
   reglamento: Reglamento = {};
-  namesCrud! : NamesCrud;
-  keyPopups: string = '';
   dialog: boolean = false;
 
   private subscription: Subscription = new Subscription();
@@ -44,16 +43,6 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
   }
    
   async ngOnInit() {
-    this.namesCrud = {
-      singular: 'reglamento',
-      plural: 'reglamentos',
-      articulo_singular: 'el reglamento',
-      articulo_plural: 'los reglamentos',
-      genero: 'masculino'
-    };
-
-    this.keyPopups = 'reglamentos'
-
     await this.getReglamentos();
     
     this.subscription.add(this.menuButtonsTableService.onClickButtonAgregar$.subscribe(() => this.createForm()));
@@ -63,8 +52,8 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
       this.reglamentosService.crudUpdate$.subscribe(crud => {
         if (crud && crud.mode) {
           if (crud.data) {
-            this.reglamento = {};
-            this.reglamento = crud.data
+            this.reglamentosService.reglamento = {};
+            this.reglamentosService.reglamento = crud.data
           }
             switch (crud.mode) {
               case 'show': this.showForm(); break; 
@@ -85,10 +74,10 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
     this.reset();
   }
 
-  async getReglamentos(){
+  async getReglamentos(showCountTableValues: boolean = true){
     try {
       this.reglamentos = <Reglamento[]> await this.reglamentosService.getReglamentos();
-      
+      if (showCountTableValues) this.reglamentosService.countTableValues(this.reglamentos.length);
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
@@ -99,125 +88,163 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
 
   async insertReglamento(){
     try {
-      const actionForm: any = await new Promise((resolve, reject) => {
-        this.reglamentosService.setModeForm('insert',null, resolve, reject);
-      })
-      if (actionForm.success) {
-        //insert exitoso
-        this.messageService.add({
-          key: this.keyPopups,
-          severity: 'success',
-          detail: actionForm.messageGp
-        });
-      }else{
-        throw actionForm;
+      const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
+        this.uploaderFilesService.setAction('upload', resolve, reject);
+      });
+
+      if (actionUploadDoc.success) {
+        const { files, ...formData } = this.reglamentosService.fbForm.value;
+        let params = {
+          ...formData,
+          docsToUpload: actionUploadDoc.docsToUpload
+        };
+        const response = await this.reglamentosService.insertReglamento(params);
+        if ( response.dataWasInserted ) {
+          this.messageService.add({
+            key: 'main-gp',
+            severity: 'success',
+            detail: generateMessage(this.reglamentosService.namesCrud,response.dataInserted,'creado',true,false)
+          });
+        }
       }
     } catch (e:any) {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al guardar ${this.namesCrud.singular}`,
+          summary: `Error al agregar ${this.reglamentosService.namesCrud.singular}`,
           message: e.detail.error.message.message
-        });
+        }
+      );
     }finally{
-      this.getReglamentos();
-      this.dialog = true
+      this.dialog = false
+      this.getReglamentos(false);
       this.reset();
     }
   }
 
-  async updateReglamento() {
+
+  async updateReglamento(){
     try {
-      const actionForm: any = await new Promise<void>((resolve, reject) => {
-        this.reglamentosService.setModeForm('update', this.reglamento, resolve, reject);
+      const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
+        this.uploaderFilesService.setAction('upload', resolve, reject);
       });
-  
-      if (actionForm.success) {
-        // Si la actualización fue exitosa, recargamos la lista de reglamentos
-        this.messageService.add({
-          key: this.keyPopups,
-          severity: 'success',
-          detail: actionForm.messageGp
-        });
-      }else{
-        throw actionForm;
+
+      if (actionUploadDoc.success) {
+        const { files, ...formData } = this.reglamentosService.fbForm.value;
+        let params = {
+          ...formData,
+          docsToUpload: actionUploadDoc.docsToUpload,
+          docsToDelete: actionUploadDoc.docsToDelete,
+          Cod_reglamento: this.reglamentosService.reglamento.Cod_reglamento,
+          aux: this.reglamentosService.fbForm.get('aux')!.value
+        };
+        const response = await this.reglamentosService.updateReglamento(params);
+        if ( response.dataWasUpdated ) {
+          this.messageService.add({
+            key: 'main-gp',
+            severity: 'success',
+            detail: generateMessage(this.reglamentosService.namesCrud,response.dataUpdated,'actualizado',true,false)
+          });
+        }
       }
-    } catch (e: any) {
-      // Manejo de errores en la promesa
+
+    } catch (e:any) {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al actualizar ${this.namesCrud.singular}`,
+          summary: `Error al actualizar ${this.reglamentosService.namesCrud.singular}`,
           message: e.detail.error.message.message,
-      });
+        }
+      );
     }finally{
-      this.getReglamentos();
-      this.dialog = true
+      this.dialog = false
+      this.getReglamentos(false);
       this.reset();
     }
   }
 
   async deleteReglamentos(dataToDelete: Reglamento[]){
     try {
-      const deleted:{ dataWasDeleted: boolean, dataDeleted: [] } = await this.reglamentosService.deleteReglamento(dataToDelete);
-      const message = mergeNames(null,deleted.dataDeleted,false,'Descripcion_regla')
-      if ( deleted.dataWasDeleted ) {
-        this.getReglamentos();
-        if ( dataToDelete.length > 1 ){
+      this.uploaderFilesService.setContext('delete','mantenedores','reglamentos');
+      const response = await this.reglamentosService.deleteReglamento(dataToDelete);
+      if (response.notDeleted.length !== 0) {
+        for (let i = 0; i < response.notDeleted.length; i++) {
+          const element = response.notDeleted[i];
           this.messageService.add({
-            key: this.keyPopups,
+            key: 'main-gp',
+            severity: 'warn',
+            summary:  `Error al eliminar ${this.reglamentosService.namesCrud.singular}`,
+            detail: element.messageError,
+            sticky: true
+          });
+        }
+      }
+      if (response.deleted.length !== 0) {
+        const message = mergeNames(null,response.deleted,false,'data');
+        if ( response.deleted.length > 1 ){
+          this.messageService.add({
+            key: 'main-gp',
             severity: 'success',
-            detail: generateMessage(this.namesCrud,message,'eliminados',true, true)
+            detail: generateMessage(this.reglamentosService.namesCrud,message,'eliminados',true, true)
           });
         }else{
           this.messageService.add({
-            key: this.keyPopups,
+            key: 'main-gp',
             severity: 'success',
-            detail: generateMessage(this.namesCrud,message,'eliminado',true, false)
+            detail: generateMessage(this.reglamentosService.namesCrud,message,'eliminado',true, false)
           });
         }
-        this.reset();
       }
     } catch (e:any) {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al eliminar ${this.namesCrud.singular}`,
+          summary: `Error al eliminar ${this.reglamentosService.namesCrud.singular}`,
           message: e.detail.error.message.message
       });
+    }finally{
+      this.reset();
+      this.getReglamentos(false);
     }
   }
 
-  async createForm(){
-    try {
-      this.reset();
-      this.dialog = true;
-      await new Promise((resolve,reject) => {
-        this.reglamentosService.setModeForm('create', null, resolve, reject);
-      })
-    } catch (e:any ) {
+  async loadDocsWithBinary(reglamento: Reglamento){
+    try {  
+      this.uploaderFilesService.setLoading(true,true);  
+      const files = await this.reglamentosService.getDocumentosWithBinary(reglamento.Cod_reglamento!)        
+      this.uploaderFilesService.setFiles(files);      
+      this.reglamentosService.filesChanged(files);
+      return files
+    } catch (e:any) {
       this.errorTemplateHandler.processError(e, {
         notifyMethod: 'alert',
-        summary: `Error al crear formulario de ${this.namesCrud.articulo_singular}`,
-        message: e.message,
-        }
-      );
+        summary: 'Error al obtener documentos',
+        message: e.detail.error.message.message
+      });
+    }finally{
+      this.uploaderFilesService.setLoading(false); 
     }
+  }
 
+  createForm(){
+    this.reglamentosService.setModeCrud('create');
+    this.uploaderFilesService.setContext('create','mantenedores','reglamentos');
+    this.reset();
+    this.dialog = true;
   }
 
   async showForm(){
     try {
+      this.uploaderFilesService.setContext('show','mantenedores','reglamentos');
       this.reset();
+      this.reglamentosService.fbForm.patchValue({...this.reglamentosService.reglamento});
+      this.reglamentosService.fbForm.disable();
       this.dialog = true;
-      const data = this.reglamento;
-      await new Promise((resolve,reject) => {
-        this.reglamentosService.setModeForm('show', data, resolve, reject);
-      })
+      await this.loadDocsWithBinary(this.reglamentosService.reglamento);
     } catch (e:any) {
       this.errorTemplateHandler.processError(e, {
         notifyMethod: 'alert',
-        summary: `Error al visualizar formulario de ${this.namesCrud.articulo_singular}`,
+        summary: `Error al visualizar formulario de ${this.reglamentosService.namesCrud.articulo_singular}`,
         message: e.message,
         }
       );
@@ -226,16 +253,16 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
 
   async editForm(){
     try {
+      this.uploaderFilesService.setContext('edit','mantenedores','reglamentos');
       this.reset();
+      this.reglamentosService.fbForm.patchValue({...this.reglamentosService.reglamento});
+      this.reglamentosService.fbForm.patchValue({aux: this.reglamentosService.reglamento});
       this.dialog = true;
-      const data = this.reglamento;
-      await new Promise((resolve,reject) => {
-        this.reglamentosService.setModeForm('edit', data, resolve, reject);
-      })
+      await this.loadDocsWithBinary(this.reglamentosService.reglamento)
     } catch (e:any) {
       this.errorTemplateHandler.processError(e, {
         notifyMethod: 'alert',
-        summary: `Error al editar formulario de ${this.namesCrud.articulo_singular}`,
+        summary: `Error al editar formulario de ${this.reglamentosService.namesCrud.articulo_singular}`,
         message: e.message,
         }
       );
@@ -244,17 +271,20 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
 
   reset() {
     this.tableCrudService.resetSelectedRows();
+    this.uploaderFilesService.resetValidatorFiles();
+    this.uploaderFilesService.setAction('reset');
+    this.reglamentosService.resetForm();
   }
 
   async openConfirmationDeleteSelected(data: any){
-    const message = mergeNames(this.namesCrud,data,true,'Descripcion_regla'); 
+    const message = mergeNames(this.reglamentosService.namesCrud,data,true,'Descripcion_regla'); 
     this.confirmationService.confirm({
       header: "Confirmar",
       message: `Es necesario confirmar la acción para eliminar ${message}. ¿Desea confirmar?`,
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
-      key: this.keyPopups,
+      key: 'main-gp',
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
@@ -264,7 +294,7 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
           this.errorTemplateHandler.processError(
             e, {
               notifyMethod: 'alert',
-              summary: `Error al eliminar ${this.namesCrud.singular}`,
+              summary: `Error al eliminar ${this.reglamentosService.namesCrud.singular}`,
               message: e.message,
           });
         }
@@ -275,11 +305,11 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
   async openConfirmationDelete(data: any){
     this.confirmationService.confirm({
       header: 'Confirmar',
-      message: `Es necesario confirmar la acción para eliminar ${this.namesCrud.articulo_singular} <b>${data.Descripcion_regla}</b>. ¿Desea confirmar?`,
+      message: `Es necesario confirmar la acción para eliminar ${this.reglamentosService.namesCrud.articulo_singular} <b>${data.Descripcion_regla}</b>. ¿Desea confirmar?`,
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
-      key: this.keyPopups,
+      key: 'main-gp',
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
@@ -291,7 +321,7 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
             this.errorTemplateHandler.processError(
               e, {
                 notifyMethod: 'alert',
-                summary: `Error al eliminar ${this.namesCrud.singular}`,
+                summary: `Error al eliminar ${this.reglamentosService.namesCrud.singular}`,
                 message: e.message,
             });
           }
@@ -299,29 +329,8 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
     })
   }
 
-  async submit() {
-    try {
-      
-      if ( this.modeForm == 'create' ) {
-        //modo creacion
-        await this.insertReglamento()
-      }else{
-        //modo edit
-        await this.updateReglamento();
-      }
-    } catch (e:any) {
-      const action = this.modeForm === 'create' ? 'guardar' : 'actualizar';
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: `Error al ${action} ${this.namesCrud.singular}`,
-          message: e.message,
-      });
-      } finally {
-        this.dialog = false;
-      }
-    }
-  
-
+  submit() {
+    this.modeForm === 'create' ? this.insertReglamento() : this.updateReglamento();
+  }
   
 }

@@ -1,10 +1,7 @@
-<p-toast [key]="keyPopups"></p-toast>
-<p-confirmDialog [key]="keyPopups" [style]="{ width: '500px' }"></p-confirmDialog>
-
 <div class="grid">
     <div class="col-12">
-        <app-card header="Mantenedor de {{ namesCrud.plural }}"
-            subheader="Permite ver, crear, actualizar y eliminar {{ namesCrud.plural }}.">
+        <app-card header="Mantenedor de {{ reglamentosService.namesCrud.plural }}"
+            subheader="Permite ver, crear, actualizar y eliminar {{ reglamentosService.namesCrud.plural }}.">
             
             <!-- Botones de menú -->
             <app-menu-buttons-table></app-menu-buttons-table>
@@ -16,13 +13,13 @@
             <app-dialog [(visible)]="dialog">
                 <div header>
                     <ng-container *ngIf="modeForm === 'create' || modeForm === 'insert' ">
-                        <span class="text-xl">Agregar {{ namesCrud.singular }}</span>
+                        <span class="text-xl">Agregar {{ reglamentosService.namesCrud.singular }}</span>
                     </ng-container>
                     <ng-container *ngIf="modeForm === 'edit' || modeForm === 'update' ">
-                        <span class="text-xl">Actualizar {{ namesCrud.singular }}</span>
+                        <span class="text-xl">Actualizar {{ reglamentosService.namesCrud.singular }}</span>
                     </ng-container>
                     <ng-container *ngIf="modeForm === 'show'">
-                        <span class="text-xl">Ver {{ namesCrud.singular }}</span>
+                        <span class="text-xl">Ver {{ reglamentosService.namesCrud.singular }}</span>
                     </ng-container>
                 </div>
 

@@ -12,16 +12,13 @@ import { MenuButtonsTableService } from 'src/app/project/services/components/men
 import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
 import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
-import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
-import { Context } from 'src/app/project/models/shared/Context';
 import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
-// import { noWhitespaceValidator } from '../../configs/form'
 
 @Component({
   selector: 'app-unidades-academicas',
   templateUrl: './unidades-academicas.component.html',
-  styles: [
-  ]
+  styles: [],
+  providers: [UnidadesAcademicasService]
 })
 export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
 
@@ -33,15 +30,13 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private menuButtonsTableService: MenuButtonsTableService,
     private tableCrudService: TableCrudService,
-    private unidadesAcademicasService: UnidadesAcademicasService,
+    public unidadesAcademicasService: UnidadesAcademicasService,
     private uploaderFilesService: UploaderFilesService
   ){}
   
   unidadesAcademicas: UnidadAcademica[] = [];
   unidadAcademica: UnidadAcademica = {};
   facultades: Facultad[] = [];
-  namesCrud! : NamesCrud;
-  keyPopups: string = '';
   dialog: boolean = false;
 
   private subscription: Subscription = new Subscription();
@@ -65,14 +60,6 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     this.uploaderFilesService.setContext('init-component','mantenedores','unidadAcad');
-    this.namesCrud = {
-      singular: 'unidad académica',
-      plural: 'unidades académicas',
-      articulo_singular: 'la unidad académica',
-      articulo_plural: 'las unidades académicas',
-      genero: 'femenino'
-    };
-    this.keyPopups = 'unidad_academica'
     await this.getUnidadesAcademicas();
     this.subscription.add(this.menuButtonsTableService.onClickButtonAgregar$.subscribe(() => this.openCreate()));
     this.subscription.add(this.tableCrudService.onClickRefreshTable$.subscribe(() => this.getUnidadesAcademicas()));
@@ -137,10 +124,11 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
     return null;
   }
 
-  async getUnidadesAcademicas(){
+  async getUnidadesAcademicas(showCountTableValues: boolean = true){
     try {
       this.unidadesAcademicas = <UnidadAcademica[]> await this.unidadesAcademicasService.logica_getUnidadesAcademicas();
       this.facultades = <Facultad[]> await this.facultadService.getFacultades();
+      if (showCountTableValues) this.unidadesAcademicasService.countTableValues(this.unidadesAcademicas.length); 
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
@@ -164,9 +152,9 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
         const inserted = await this.unidadesAcademicasService.logica_insertUnidadesAcademicas(params)
         if ( inserted.dataWasInserted ) {
           this.messageService.add({
-            key: this.keyPopups,
+            key: 'main-gp',
             severity: 'success',
-            detail: generateMessage(this.namesCrud,inserted.dataInserted,'creado',true,false)
+            detail: generateMessage(this.unidadesAcademicasService.namesCrud,inserted.dataInserted,'creado',true,false)
           });
         }
       }
@@ -174,11 +162,11 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
         this.errorTemplateHandler.processError(
           e, {
             notifyMethod: 'alert',
-            summary: `Error al guardar ${this.namesCrud.singular}`,
+            summary: `Error al guardar ${this.unidadesAcademicasService.namesCrud.singular}`,
             message: e.detail.error.message.message
           });
     }finally{
-      this.getUnidadesAcademicas();
+      this.getUnidadesAcademicas(false);
       this.reset();
     }
   }
@@ -204,9 +192,9 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
         const updated = await this.unidadesAcademicasService.logica_updateUnidadesAcademicas(params);
         if ( updated.dataWasUpdated ){
           this.messageService.add({
-            key: this.keyPopups,
+            key: 'main-gp',
             severity: 'success',
-            detail: generateMessage(this.namesCrud,updated.dataUpdated,'actualizado',true,false)
+            detail: generateMessage(this.unidadesAcademicasService.namesCrud,updated.dataUpdated,'actualizado',true,false)
           });
         }
       }
@@ -215,44 +203,57 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al actualizar ${this.namesCrud.singular}`,
+          summary: `Error al actualizar ${this.unidadesAcademicasService.namesCrud.singular}`,
           message: e.detail.error.message.message,
       });
      
     }finally{
-      this.getUnidadesAcademicas();
+      this.getUnidadesAcademicas(false);
       this.reset();
     }
   }
  
   async deleteUnidadAcademica(unidadAcadToDelete: UnidadAcademica[]){
     try {
-      const deleted:{ dataWasDeleted: boolean, dataDeleted: [] } = await this.unidadesAcademicasService.logica_deleteUnidadesAcademicas(unidadAcadToDelete);
-      const message = mergeNames(null,deleted.dataDeleted,false,'Descripcion_ua')
-      if ( deleted.dataWasDeleted ) {
-        this.getUnidadesAcademicas();
-        if ( unidadAcadToDelete.length > 1 ){
+      const response = await this.unidadesAcademicasService.logica_deleteUnidadesAcademicas(unidadAcadToDelete);
+      if (response.notDeleted.length !== 0) {
+        for (let i = 0; i < response.notDeleted.length; i++) {
+          const element = response.notDeleted[i];
           this.messageService.add({
-            key: this.keyPopups,
+            key: 'main-gp',
+            severity: 'warn',
+            summary:  `Error al eliminar ${this.unidadesAcademicasService.namesCrud.singular}`,
+            detail: element.messageError,
+            sticky: true
+          });
+        }
+      }
+      if (response.deleted.length !== 0) {
+        const message = mergeNames(null,response.deleted,false,'data');
+        if ( response.deleted.length > 1 ){
+          this.messageService.add({
+            key: 'main-gp',
             severity: 'success',
-            detail: generateMessage(this.namesCrud,message,'eliminados',true, true)
+            detail: generateMessage(this.unidadesAcademicasService.namesCrud,message,'eliminados',true, true)
           });
         }else{
           this.messageService.add({
-            key: this.keyPopups,
+            key: 'main-gp',
             severity: 'success',
-            detail: generateMessage(this.namesCrud,message,'eliminado',true, false)
+            detail: generateMessage(this.unidadesAcademicasService.namesCrud,message,'eliminado',true, false)
           });
         }
-        this.reset();
       }
     } catch (e:any) {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al eliminar ${this.namesCrud.singular}`,
+          summary: `Error al eliminar ${this.unidadesAcademicasService.namesCrud.singular}`,
           message: e.detail.error.message.message
       });
+    }finally{
+      this.reset();
+      this.getUnidadesAcademicas(false);
     }
   }
  
@@ -307,7 +308,7 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
     } catch (e:any) {
       this.errorTemplateHandler.processError(e, {
         notifyMethod: 'alert',
-        summary: `Error al visualizar ${this.namesCrud.articulo_singular}`,
+        summary: `Error al visualizar ${this.unidadesAcademicasService.namesCrud.articulo_singular}`,
         message: e.message,
         }
       );
@@ -326,7 +327,7 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
     } catch (e:any) {
       this.errorTemplateHandler.processError(e, {
         notifyMethod: 'alert',
-        summary: `Error al editar ${this.namesCrud.articulo_singular}`,
+        summary: `Error al editar ${this.unidadesAcademicasService.namesCrud.articulo_singular}`,
         message: e.message,
         }
       );
@@ -352,14 +353,14 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
   }
   
   async openConfirmationDeleteSelected(unidadAcademicaSelected: any){
-    const message = mergeNames(this.namesCrud,unidadAcademicaSelected,true,'Descripcion_ua'); 
+    const message = mergeNames(this.unidadesAcademicasService.namesCrud,unidadAcademicaSelected,true,'Descripcion_ua'); 
     this.confirmationService.confirm({
       header: "Confirmar",
       message: `Es necesario confirmar la acción para eliminar ${message}. ¿Desea confirmar?`,
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
-      key: this.keyPopups,
+      key: 'main-gp',
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
@@ -369,7 +370,7 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
           this.errorTemplateHandler.processError(
             e, {
               notifyMethod: 'alert',
-              summary: `Error al eliminar ${this.namesCrud.singular}`,
+              summary: `Error al eliminar ${this.unidadesAcademicasService.namesCrud.singular}`,
               message: e.message,
           });
         }
@@ -380,11 +381,11 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
   async openConfirmationDelete(unidadAcademica: any){
     this.confirmationService.confirm({
       header: 'Confirmar',
-      message: `Es necesario confirmar la acción para eliminar ${this.namesCrud.articulo_singular} <b>${unidadAcademica.Descripcion_ua}</b>. ¿Desea confirmar?`,
+      message: `Es necesario confirmar la acción para eliminar ${this.unidadesAcademicasService.namesCrud.articulo_singular} <b>${unidadAcademica.Descripcion_ua}</b>. ¿Desea confirmar?`,
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
-      key: this.keyPopups,
+      key: 'main-gp',
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
@@ -396,7 +397,7 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
             this.errorTemplateHandler.processError(
               e, {
                 notifyMethod: 'alert',
-                summary: `Error al eliminar ${this.namesCrud.singular}`,
+                summary: `Error al eliminar ${this.unidadesAcademicasService.namesCrud.singular}`,
                 message: e.message,
             });
           }
@@ -418,7 +419,7 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al ${action} ${this.namesCrud.singular}`,
+          summary: `Error al ${action} ${this.unidadesAcademicasService.namesCrud.singular}`,
           message: e.message,
       });
     } finally {

@@ -1,6 +1,3 @@
-<p-toast [key]="keyPopups"></p-toast>
-<p-confirmDialog [key]="keyPopups" [style]="{ width: '500px' }"></p-confirmDialog>
-
 <div class="grid">
     <div class="col-12">
         <app-card header="Mantenedor de tipos de programas"
@@ -12,13 +9,13 @@
             <app-dialog [(visible)]="dialog">
                 <div header>
                     <ng-container *ngIf="modeForm === 'create' || modeForm === 'insert' ">
-                        <span class="text-xl">Agregar {{ namesCrud.singular }}</span>
+                        <span class="text-xl">Agregar {{ tipoProgramaService.namesCrud.singular }}</span>
                     </ng-container>
                     <ng-container *ngIf="modeForm === 'edit' || modeForm === 'update' ">
-                        <span class="text-xl">Actualizar {{ namesCrud.singular }}</span>
+                        <span class="text-xl">Actualizar {{ tipoProgramaService.namesCrud.singular }}</span>
                     </ng-container>
                     <ng-container *ngIf="modeForm === 'show'">
-                        <span class="text-xl">Ver {{ namesCrud.singular }}</span>
+                        <span class="text-xl">Ver {{ tipoProgramaService.namesCrud.singular }}</span>
                     </ng-container>
                 </div>
                 <div content>
@@ -108,21 +105,24 @@
                 </div>
             </app-dialog>
 
-            <p-dialog header="Agregar nueva categoría de tipo de programa" [(visible)]="newCategoryDialog"
-                [modal]="true" [maximizable]="true" [draggable]="false" [resizable]="false" [position]="'center'"
-                [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
-
-                <app-form-categorias-tp></app-form-categorias-tp>
-
-                <p-footer>
-                    <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
-                        (click)="newCategoryDialog = false" [text]="true"></p-button>
-                    <p-button label="Guardar" icon="pi pi-check" styleClass="p-button-sm p-button-success"
-                        [disabled]="categoriasTpService.stateForm === 'INVALID' "
-                        (click)="submitNewCategory()"></p-button>
-
-                </p-footer>
-            </p-dialog>
         </app-card>
     </div>
 </div>
+
+<p-dialog 
+    header="Agregar nueva categoría de tipo de programa" 
+    [(visible)]="newCategoryDialog"
+    [modal]="true" [maximizable]="true" [draggable]="false" [resizable]="false" [position]="'center'"
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+>
+    <app-form-categorias-tp></app-form-categorias-tp>
+
+    <p-footer>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
+            (click)="newCategoryDialog = false" [text]="true"></p-button>
+        <p-button label="Guardar" icon="pi pi-check" styleClass="p-button-sm p-button-success"
+            [disabled]="categoriasTpService.stateForm === 'INVALID' || categoriasTpService.stateForm === undefined "
+            (click)="submitNewCategory()"></p-button>
+
+    </p-footer>
+</p-dialog>

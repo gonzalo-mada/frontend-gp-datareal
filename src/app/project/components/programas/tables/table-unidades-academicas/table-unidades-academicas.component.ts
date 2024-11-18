@@ -1,4 +1,5 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { Subscription } from 'rxjs';
 import { UnidadAcademica } from 'src/app/project/models/programas/UnidadAcademica';
@@ -13,29 +14,31 @@ import { UnidadesAcademicasService } from 'src/app/project/services/programas/un
 })
 export class TableUnidadesAcademicasComponent implements OnInit, OnChanges, OnDestroy {
   @Input() data: any[] = [];
-
- 
+  @Input() facultades: any[] = [];
+  
   mode : string = '';
   selectedRow: UnidadAcademica[] = [] ;
   searchValue: string | undefined;
   originalData: any[] = [];
-  cols: any[] = []
-  globalFiltros: any[] = []
-  dataKeyTable: string = '';
- 
+  cols: any[] = [
+    { field: 'Descripcion_ua', header: 'Nombre' },
+    { field: 'Facultad.Descripcion_facu', header: 'Facultad' },
+    { field: 'accion', header: 'Acciones' }
+  ];
+  globalFiltros: any[] = [ 'Descripcion_ua', 'Facultad.Descripcion_facu' ]
+  dataKeyTable: string = 'Cod_unidad_academica';
+  groupedData: any[] = [];
   private subscription: Subscription = new Subscription();
  
-  constructor(private unidadesAcademicasService: UnidadesAcademicasService, private tableCrudService: TableCrudService){}
+  constructor(
+    private messageService: MessageService,
+    public unidadesAcademicasService: UnidadesAcademicasService, 
+    private tableCrudService: TableCrudService
+  ){}
  
-  ngOnInit(): void {
+  async ngOnInit() {
     this.subscription = this.tableCrudService.resetSelectedRowsSubject$.subscribe( () => this.selectedRow = []);
-    this.cols = [
-      { field: 'Descripcion_ua', header: 'Nombre' },
-      { field: 'Facultad.Descripcion_facu', header: 'Facultad' },
-      { field: 'accion', header: 'Acciones' }
-    ];
-    this.globalFiltros = [ 'Descripcion_ua', 'Facultad.Descripcion_facu' ]
-    this.dataKeyTable = 'Cod_unidad_academica';
+    
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -85,5 +88,10 @@ export class TableUnidadesAcademicasComponent implements OnInit, OnChanges, OnDe
     this.searchValue = ''
     this.data = [...this.originalData];
     table.reset();
+    this.unidadesAcademicasService.countTableValues(this.originalData.length);
   }
+
+  
+
+
 }

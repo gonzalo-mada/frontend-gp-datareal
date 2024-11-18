@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
-import { ProgramasService } from 'src/app/project/services/programas/programas.service';
+import { HistorialActividad } from 'src/app/project/models/programas/HistorialActividad';
 
 
 @Component({
@@ -12,10 +12,8 @@ import { ProgramasService } from 'src/app/project/services/programas/programas.s
 })
 export class TableProgramasHistorialActividadComponent implements OnInit, OnChanges {
 
-  @ViewChild("dt") dataTableComponent!: Table;
-
-  constructor(private programasService: ProgramasService, private messageService: MessageService){}
-  @Input() data: any[] = [];
+  constructor(private messageService: MessageService){}
+  @Input() data: HistorialActividad[] = [];
   @Input() mode: string = '';
 
   dataKeyTable: string = ''
@@ -30,13 +28,13 @@ export class TableProgramasHistorialActividadComponent implements OnInit, OnChan
     'nombre_usuario' ,
     'correo_usuario'
   ];
-  showFilters: boolean = false;
   groupedData: any;
   selectedDate: string = '';
 
   async ngOnInit() {
     this.dataKeyTable = 'Cod_Programa';
     this.groupedData = this.formatData(this.data);
+    
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -50,12 +48,12 @@ export class TableProgramasHistorialActividadComponent implements OnInit, OnChan
   }
 
   clear(table: Table){
-    this.searchValue = ''
+    this.searchValue = '';
+    this.selectedDate = '';
     this.data = [...this.originalData];
     table.reset();
+    this.countTableValues(table);
   }
-
-  
 
   formatData(data: any[]){
     const actividades = [
@@ -105,20 +103,6 @@ export class TableProgramasHistorialActividadComponent implements OnInit, OnChan
     });
     return Array.from(uniqueItems.values());
 }
-
-  filter(){
-
-    if (this.selectedDate) {
-      this.dataTableComponent.filter(this.selectedDate, 'fecha', 'equals');
-    }else{
-      this.messageService.add({
-        key: this.programasService.keyPopups,
-        severity: 'warn',
-        detail: 'No ha seleccionado fecha'
-      });
-    }
-    
-  }
 
   clearCalendar(table: Table){
     this.searchValue = ''
@@ -185,5 +169,36 @@ export class TableProgramasHistorialActividadComponent implements OnInit, OnChan
   
     return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute));
   }
+
+  filterData(valueSelected: string[], from: 'actividad' | 'tipo_mov' | 'usuario'){
+    console.log("valueSelected",valueSelected);
+    this.data = [...this.originalData];
+    if (valueSelected.length !== 0) {
+      switch (from) {
+        case 'actividad':
+          this.data = this.data.filter((item) =>
+            valueSelected.some((actividad: any) => item.descripcion.descripcion === actividad)
+          );
+        break;
+      
+        default:
+          break;
+      }
+    }
+    // this.countActividadesToast();
+
+  }
+
+  countTableValues(table: Table){
+    this.messageService.clear();
+    this.messageService.add({
+      key: 'main-gp',
+      severity: 'info',
+      detail: table._totalRecords !== 1
+       ? `${table._totalRecords} actividades listadas.`
+       : `${table._totalRecords} actividad listada.`
+    });
+  }
+
 
 }

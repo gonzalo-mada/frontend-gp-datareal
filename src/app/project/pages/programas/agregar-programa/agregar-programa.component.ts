@@ -13,6 +13,7 @@ import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 import { LabelComponent } from 'src/app/project/models/shared/Context';
 import { ActionUploadDoc } from 'src/app/project/models/shared/ActionUploadDoc';
 import { Router } from '@angular/router';
+import { generateMessage } from 'src/app/project/tools/utils/form.utils';
 
 @Component({
   selector: 'app-agregar-programa',
@@ -188,58 +189,47 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
   }
 
   async addNewReglamento(){
-    try {
-      this.newReglamentoDialog = true;
-      this.uploaderFilesService.setContext('create','mantenedores','reglamentos')
-      this.tableCrudService.emitResetExpandedRowsTable();
-      await new Promise((resolve,reject) => {
-        this.reglamentosService.setModeForm('create',null,resolve, reject);
-      })
-      
-    } catch (e:any) {
-      this.errorTemplateHandler.processError(e, {
-        notifyMethod: 'alert',
-        summary: `Error al crear formulario de reglamento.`,
-        message: e.message,
-        }
-      );
-    }
+    this.uploaderFilesService.setContext('create','mantenedores','reglamentos')
+    this.reglamentosService.resetForm();
+    this.reset();
+    this.tableCrudService.emitResetExpandedRowsTable();
+    this.newReglamentoDialog = true;
   }
 
   async submitNewReglamento(){
     try {
-      const result: any = await new Promise((resolve: Function, reject: Function) => {
-        this.reglamentosService.setModeForm('insert',null,resolve, reject);
-      })
-      
-      if (result.success) {
-        //insert exitoso
-        this.messageService.add({
-          key: this.programasService.keyPopups,
-          severity: 'success',
-          detail: result.messageGp
-        });
-        
-      }else{
-        this.errorTemplateHandler.processError(
-          result, {
-            notifyMethod: 'alert',
-            summary: result.messageGp,
-            message: result.detail.error.message,
-        });
+      const actionUploadDoc: ActionUploadDoc = await new Promise((resolve, reject) => {
+        this.uploaderFilesService.setAction('upload', resolve, reject);
+      });
+
+      if (actionUploadDoc.success) {
+        const { files, ...formData } = this.reglamentosService.fbForm.value;
+        let params = {
+          ...formData,
+          docsToUpload: actionUploadDoc.docsToUpload
+        };
+        const response = await this.reglamentosService.insertReglamento(params);
+        if ( response.dataWasInserted ) {
+          this.messageService.add({
+            key: 'main-gp',
+            severity: 'success',
+            detail: generateMessage(this.reglamentosService.namesCrud,response.dataInserted,'creado',true,false)
+          });
+        }
       }
       
     } catch (e: any) {
-      console.log("Error al insertar reglamento desde programa",e);
-      this.newReglamentoDialog = false;
-      this.errorTemplateHandler.processError(e, {
-        notifyMethod: 'alert',
-        message: e.detail.error.message
-      });
+      this.errorTemplateHandler.processError(
+        e, {
+          notifyMethod: 'alert',
+          summary: `Error al agregar ${this.reglamentosService.namesCrud.singular}`,
+          message: e.detail.error.message.message
+        }
+      );
     }finally{
-      this.reset();
       this.newReglamentoDialog = false;
       this.getReglamentos();
+      this.reset();
     }
   }
 
@@ -287,14 +277,6 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
           this.programasService.nameProgramaAdded = inserted.dataInserted.Nombre_programa;
           this.programasService.codProgramaAdded = inserted.dataInserted.Cod_Programa;
           this.successAddPrograma = true;
-          // this.messageService.add({
-          //   key: this.programasService.keyPopupsCenter,
-          //   severity: 'success',
-          //   detail: generateMessage(this.programasService.namesCrud,inserted.dataInserted.Nombre_programa,'creado',true,false)
-          // });
-          // setTimeout(() => {
-          //   this.router.navigate([`/programa/show/${inserted.dataInserted.Cod_Programa}`])
-          // }, 2000);
         }
       };
     } catch (e:any) {

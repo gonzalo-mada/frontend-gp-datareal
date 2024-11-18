@@ -4,15 +4,16 @@
     [paginator]="true"
     [rowsPerPageOptions]="[10,25,50]"
     [showCurrentPageReport]="true"
-    currentPageReportTemplate="{first} hasta {last} de {totalRecords} registros."
-    selectionMode="multiple"
     [rowHover]="true"
     [value]="data"
     [columns]="cols"
     [globalFilterFields]="globalFiltros"
     [(selection)]="selectedRow"
     [dataKey]="dataKeyTable"
-    (selectionChange)="selectionChange()" >
+    (selectionChange)="selectionChange()"
+    currentPageReportTemplate="{first} hasta {last} de {totalRecords} unidades académicas."
+    selectionMode="multiple"
+    >
     <ng-template pTemplate="caption">
         <div class="flex flex-wrap flex-column md:flex-row justify-content-between align-items-center">
             <div class="flex mb-2 md:mb-0">
@@ -46,14 +47,42 @@
                 <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
             </th>
             <ng-container *ngFor="let col of cols">
-                <ng-container *ngIf="col.field !== 'accion'; else actionsColumn">
-                    <th pSortableColumn="{{col.field}}">
-                        {{col.header}} <p-sortIcon field="{{col.field}}"></p-sortIcon>
+                <ng-container [ngSwitch]="col.field">
+                    <th *ngSwitchCase="'Descripcion_ua'" pSortableColumn="{{col.field}}">
+                        <div class="flex justify-content-start align-items-center">
+                            {{col.header}}
+                            <p-sortIcon field="{{col.field}}"></p-sortIcon>
+                            <!-- <p-columnFilter type="text" field="{{col.field}}" display="menu"/> -->
+                        </div>
                     </th>
+                    <th *ngSwitchCase="'Facultad.Descripcion_facu'" pSortableColumn="{{col.field}}">
+                        <div class="flex justify-content-start align-items-center">
+                            {{col.header}}
+                            <p-sortIcon field="{{col.field}}"></p-sortIcon>
+                            <p-columnFilter 
+                                [showMatchModes]="false" 
+                                [showOperator]="false" 
+                                [showAddButton]="false"
+                                [showButtons]="false"
+                                matchMode="in" 
+                                field="Facultad.Cod_facultad" 
+                                display="menu" 
+                            > 
+                                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                                    <p-multiSelect 
+                                        [ngModel]="value" 
+                                        [options]="facultades" 
+                                        (onChange)="filter($event.value); unidadesAcademicasService.countTableValues(dt._totalRecords)" 
+                                        placeholder="Filtrar por facultad" 
+                                        optionLabel="Descripcion_facu" 
+                                        optionValue="Cod_facultad" >
+                                    </p-multiSelect>
+                                </ng-template>
+                            </p-columnFilter>
+                        </div>
+                    </th>
+                    <th *ngSwitchCase="'accion'" style="min-width: 10rem; ">{{ col.header }}</th>
                 </ng-container>
-                <ng-template #actionsColumn>
-                    <th style="min-width: 10rem; ">{{ col.header }}</th>
-                </ng-template>
             </ng-container>
         </tr>
     </ng-template>

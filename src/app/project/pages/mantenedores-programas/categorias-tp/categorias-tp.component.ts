@@ -7,13 +7,12 @@ import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { MenuButtonsTableService } from 'src/app/project/services/components/menu-buttons-table.service';
 import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
-import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 
 @Component({
   selector: 'app-categorias-tp',
   templateUrl: './categorias-tp.component.html',
-  styles: [
-  ]
+  styles: [],
+  providers: [CategoriasTpService]
 })
 export class CategoriasTpComponent implements OnInit, OnDestroy {
 
@@ -26,9 +25,6 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
   ){}
 
   categoriasTp: CategoriaTp[] = [];
-  categoriaTp: CategoriaTp = {};
-  namesCrud!: NamesCrud;
-  keyPopups: string = '';
   dialog: boolean = false;
   private subscription: Subscription = new Subscription();
 
@@ -37,17 +33,6 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(){
-    
-    this.namesCrud = {
-      singular: 'categoría de tipo de programa',
-      plural: 'categorías de tipos de programas',
-      articulo_singular: 'la categoría de tipo de programa',
-      articulo_plural: 'las categorías de tipos de programas',
-      genero: 'femenino'
-    };
-    
-    this.keyPopups = 'categoria_tp'
-
     await this.getCategoriasTp();
     this.subscription.add(this.menuButtonsTableService.onClickButtonAgregar$.subscribe(() => this.createForm()));
     this.subscription.add(this.tableCrudService.onClickRefreshTable$.subscribe( () => this.getCategoriasTp() ));
@@ -57,16 +42,15 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
       this.categoriasTpService.crudUpdate$.subscribe( crud => {
         if (crud && crud.mode) {
           if (crud.data) {
-            this.categoriaTp = {};
-            this.categoriaTp = crud.data
+            this.categoriasTpService.categoriaTp = {};
+            this.categoriasTpService.categoriaTp = crud.data
           }
           switch (crud.mode) {
             case 'show': this.showForm(); break;
             case 'edit': this.editForm(); break;
             case 'insert': this.insertCategoriaTp(); break;
             case 'update': this.updateCategoriaTp(); break;
-            case 'delete': this.openConfirmationDelete(this.categoriaTp); break;
-
+            case 'delete': this.openConfirmationDelete(this.categoriasTpService.categoriaTp); break;
           }
         }
       })
@@ -80,9 +64,10 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
     this.tableCrudService.resetSelectedRows();
   }
 
-  async getCategoriasTp(){
+  async getCategoriasTp(showCountTableValues: boolean = true){
     try {
-      this.categoriasTp = <CategoriaTp[]> await this.categoriasTpService.getCategoriasTp();      
+      this.categoriasTp = <CategoriaTp[]> await this.categoriasTpService.getCategoriasTp();
+      if (showCountTableValues) this.categoriasTpService.countTableValues(this.categoriasTp.length);      
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
@@ -93,59 +78,54 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
 
   async insertCategoriaTp(){
     try {
-      const actionForm: any = await new Promise((resolve, reject) => {
-        this.categoriasTpService.setModeForm('insert',null,resolve,reject)
-      })
-      
-      if (actionForm.success) {
-        //insert exitoso
+      let params = { ...this.categoriasTpService.fbForm.value }
+      const response = await this.categoriasTpService.insertCategoriaTp(params);
+      if ( response.dataWasInserted ) {
         this.messageService.add({
-          key: this.keyPopups,
+          key: 'main-gp',
           severity: 'success',
-          detail: actionForm.messageGp
+          detail: generateMessage(this.categoriasTpService.namesCrud,response.dataInserted,'creado',true,false)
         });
-      }else{
-        throw actionForm;
       }
     } catch (e: any) {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al guardar ${this.namesCrud.singular}`,
+          summary: `Error al agregar ${this.categoriasTpService.namesCrud.singular}`,
           message: e.detail.error.message.message,
-        });
+        }
+      );
     }finally{
-      this.getCategoriasTp();
-      this.dialog = true
+      this.dialog = false;
+      this.getCategoriasTp(false);
       this.reset();
     }
   }
 
   async updateCategoriaTp(){
     try {
-      const data = this.categoriaTp;
-      const actionForm: any = await new Promise((resolve, reject) => {
-        this.categoriasTpService.setModeForm('update',data,resolve,reject)
-      })
-      if (actionForm.success) {
+      let params = { 
+        ...this.categoriasTpService.fbForm.value,
+        Cod_CategoriaTP: this.categoriasTpService.categoriaTp.Cod_CategoriaTP
+      }
+      const response = await this.categoriasTpService.updateCategoriaTp(params);
+      if ( response.dataWasUpdated ) {
         this.messageService.add({
-          key: this.keyPopups,
+          key: 'main-gp',
           severity: 'success',
-          detail: actionForm.messageGp
+          detail: generateMessage(this.categoriasTpService.namesCrud,response.dataUpdated,'actualizado',true,false)
         });
-      }else{
-        throw actionForm;
       }
     } catch (e:any) {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al actualizar ${this.namesCrud.singular}`,
+          summary: `Error al actualizar ${this.categoriasTpService.namesCrud.singular}`,
           message: e.detail.error.message.message,
       });
     }finally{
-      this.getCategoriasTp();
-      this.dialog = true
+      this.dialog = false;
+      this.getCategoriasTp(false);
       this.reset();
     }
 
@@ -153,109 +133,81 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
 
   async deleteCategoriaTp(categoriaTpToDelete: CategoriaTp[]){
     try {
-      const deleted:{ dataWasDeleted: boolean, dataDeleted: [] } = await this.categoriasTpService.deleteCategoriaTp(categoriaTpToDelete);
-      const message = mergeNames(null,deleted.dataDeleted,false,'Descripcion_categoria')
-      if ( deleted.dataWasDeleted ) {
-        this.getCategoriasTp();
-        if ( categoriaTpToDelete.length > 1 ){
+      const response  = await this.categoriasTpService.deleteCategoriaTp(categoriaTpToDelete);
+      if (response.notDeleted.length !== 0) {
+        for (let i = 0; i < response.notDeleted.length; i++) {
+          const element = response.notDeleted[i];
           this.messageService.add({
-            key: this.keyPopups,
+            key: 'main-gp',
+            severity: 'warn',
+            summary:  `Error al eliminar ${this.categoriasTpService.namesCrud.singular}`,
+            detail: element.messageError,
+            sticky: true
+          });
+        }
+      }
+      if (response.deleted.length !== 0) {
+        const message = mergeNames(null,response.deleted,false,'data');
+        if ( response.deleted.length > 1 ){
+          this.messageService.add({
+            key: 'main-gp',
             severity: 'success',
-            detail: generateMessage(this.namesCrud,message,'eliminados',true, true)
+            detail: generateMessage(this.categoriasTpService.namesCrud,message,'eliminados',true, true)
           });
         }else{
           this.messageService.add({
-            key: this.keyPopups,
+            key: 'main-gp',
             severity: 'success',
-            detail: generateMessage(this.namesCrud,message,'eliminado',true, false)
+            detail: generateMessage(this.categoriasTpService.namesCrud,message,'eliminado',true, false)
           });
         }
-        this.reset();
       }
     } catch (e:any) {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al eliminar ${this.namesCrud.singular}`,
+          summary: `Error al eliminar ${this.categoriasTpService.namesCrud.singular}`,
           message: e.detail.error.message.message,
       });
-    }
-  }
-
-  async createForm(){
-    try {
+    }finally{
       this.reset();
-      await new Promise((resolve,reject) => {
-        this.categoriasTpService.setModeForm('create',null,resolve,reject)
-      })
-    } catch (e: any) {
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: `Error al crear formulario de ${this.namesCrud.singular}`,
-          message: e.error,
-        }
-      );
-    }finally{
-      this.dialog = true;
+      this.getCategoriasTp(false);
     }
   }
 
-  async showForm(){
-    try {
-      const data = this.categoriaTp;
-      await new Promise((resolve, reject) => {
-        this.categoriasTpService.setModeForm('show',data,resolve,reject);
-      })
-    } catch (e: any) {
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: `Error al mostrar formulario de ${this.namesCrud.singular}`,
-          message: e.error,
-        }
-      );
-    }
-    finally{
-      this.dialog = true;
-    }
-
+  createForm(){
+    this.reset();
+    this.categoriasTpService.setModeCrud('create')
+    this.dialog = true;
   }
 
-  async editForm(){
-    try {
-      const data = this.categoriaTp;
-      await new Promise((resolve, reject) => {
-        this.categoriasTpService.setModeForm('edit',data,resolve,reject);
-      })
-    } catch (e:any) {
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: `Error al editar formulario de ${this.namesCrud.singular}`,
-          message: e.error,
-        }
-      );
-    }finally{
-      this.dialog = true;
-    }
+  showForm(){
+    this.reset();
+    this.categoriasTpService.fbForm.patchValue({...this.categoriasTpService.categoriaTp});
+    this.categoriasTpService.fbForm.disable();
+    this.dialog = true;
   }
 
+  editForm(){
+    this.reset();
+    this.categoriasTpService.fbForm.patchValue({...this.categoriasTpService.categoriaTp});
+    this.dialog = true;
+  }
 
   reset() {
     this.tableCrudService.resetSelectedRows();
+    this.categoriasTpService.resetForm();
   }
 
-
   async openConfirmationDeleteSelected(categoriaTpSelected: any){
-    const message = mergeNames(this.namesCrud,categoriaTpSelected,true,'Descripcion_categoria')
+    const message = mergeNames(this.categoriasTpService.namesCrud,categoriaTpSelected,true,'Descripcion_categoria')
     this.confirmationService.confirm({
       header: "Confirmar",
       message: `Es necesario confirmar la acción para eliminar ${message}. ¿Desea confirmar?`,
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
-      key: this.keyPopups,
+      key: 'main-gp',
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
@@ -265,7 +217,7 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
           this.errorTemplateHandler.processError(
             e, {
               notifyMethod: 'alert',
-              summary: `Error al eliminar ${this.namesCrud.singular}`,
+              summary: `Error al eliminar ${this.categoriasTpService.namesCrud.singular}`,
               message: e.message,
           });
         }
@@ -276,11 +228,11 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
   async openConfirmationDelete(categoriaTp: any){
     this.confirmationService.confirm({
       header: 'Confirmar',
-      message: `Es necesario confirmar la acción para eliminar ${this.namesCrud.articulo_singular} <b>${categoriaTp.Descripcion_categoria}</b>. ¿Desea confirmar?`,
+      message: `Es necesario confirmar la acción para eliminar ${this.categoriasTpService.namesCrud.articulo_singular} <b>${categoriaTp.Descripcion_categoria}</b>. ¿Desea confirmar?`,
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
-      key: this.keyPopups,
+      key: 'main-gp',
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
@@ -292,7 +244,7 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
             this.errorTemplateHandler.processError(
               e, {
                 notifyMethod: 'alert',
-                summary: `Error al eliminar ${this.namesCrud.singular}`,
+                summary: `Error al eliminar ${this.categoriasTpService.namesCrud.singular}`,
                 message: e.message,
             });
           }
@@ -300,26 +252,8 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
     })
   }
 
-  async submit() {
-    try {
-      if ( this.modeForm == 'create' ) {
-        //modo creacion
-        await this.insertCategoriaTp()
-      }else{
-        //modo edit
-        await this.updateCategoriaTp();
-      }
-    } catch (e:any) {
-      const action = this.modeForm === 'create' ? 'guardar' : 'actualizar';
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: `Error al ${action} ${this.namesCrud.singular}`,
-          message: e.message,
-      });
-    } finally {
-      this.dialog = false;
-    }
+  submit() {
+    this.modeForm === 'create' ? this.insertCategoriaTp() : this.updateCategoriaTp();
   }
 
 

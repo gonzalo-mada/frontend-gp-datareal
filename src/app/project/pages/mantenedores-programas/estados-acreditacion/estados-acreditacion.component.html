@@ -1,10 +1,7 @@
-<p-toast [key]="keyPopups"></p-toast>
-<p-confirmDialog [key]="keyPopups" [style]="{ width: '500px' }"></p-confirmDialog>
-
 <div class="grid">
     <div class="col-12">
-        <app-card header="Mantenedor de {{ namesCrud.plural }}"
-            subheader="Permite ver, crear, actualizar y eliminar {{ namesCrud.plural }}.">
+        <app-card header="Mantenedor de {{ estadosAcreditacionService.namesCrud.plural }}"
+            subheader="Permite ver, crear, actualizar y eliminar {{ estadosAcreditacionService.namesCrud.plural }}.">
             
             <app-menu-buttons-table></app-menu-buttons-table>
 
@@ -13,13 +10,13 @@
             <app-dialog [dialogWidth]="'75vw'" [(visible)]="dialog">
                 <div header>
                     <ng-container *ngIf="modeCrud === 'create' || modeCrud === 'insert' ">
-                        <span class="text-xl">Agregar {{ namesCrud.singular }}</span>
+                        <span class="text-xl">Agregar {{ estadosAcreditacionService.namesCrud.singular }}</span>
                     </ng-container>
                     <ng-container *ngIf="modeCrud === 'edit' || modeCrud === 'update' ">
-                        <span class="text-xl">Actualizar {{ namesCrud.singular }}</span>
+                        <span class="text-xl">Actualizar {{ estadosAcreditacionService.namesCrud.singular }}</span>
                     </ng-container>
                     <ng-container *ngIf="modeCrud === 'show'">
-                        <span class="text-xl">Ver {{ namesCrud.singular }}</span>
+                        <span class="text-xl">Ver {{ estadosAcreditacionService.namesCrud.singular }}</span>
                     </ng-container>
                 </div>
                 <div content>

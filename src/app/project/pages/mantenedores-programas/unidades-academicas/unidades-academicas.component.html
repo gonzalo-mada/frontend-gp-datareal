@@ -1,24 +1,21 @@
-<p-toast [key]="keyPopups"></p-toast>
-<p-confirmDialog [key]="keyPopups" [style]="{ width: '500px' }"></p-confirmDialog>
-
 <div class="grid">
     <div class="col-12">
         <app-card header="Mantenedor de unidades académicas"
             subheader="Permite ver, crear, actualizar y eliminar unidades académicas.">
             <app-menu-buttons-table></app-menu-buttons-table>
 
-            <app-table-unidades-academicas [data]="unidadesAcademicas"></app-table-unidades-academicas>
+            <app-table-unidades-academicas [data]="unidadesAcademicas" [facultades]="facultades"></app-table-unidades-academicas>
 
             <app-dialog [(visible)]="dialog">
                 <div header>
                     <ng-container *ngIf="modeForm === 'create' || modeForm === 'insert' ">
-                        <span class="text-xl">Agregar {{ namesCrud.singular }}</span>
+                        <span class="text-xl">Agregar {{ unidadesAcademicasService.namesCrud.singular }}</span>
                     </ng-container>
                     <ng-container *ngIf="modeForm === 'edit' || modeForm === 'update' ">
-                        <span class="text-xl">Actualizar {{ namesCrud.singular }}</span>
+                        <span class="text-xl">Actualizar {{ unidadesAcademicasService.namesCrud.singular }}</span>
                     </ng-container>
                     <ng-container *ngIf="modeForm === 'show'">
-                        <span class="text-xl">Ver {{ namesCrud.singular }}</span>
+                        <span class="text-xl">Ver {{ unidadesAcademicasService.namesCrud.singular }}</span>
                     </ng-container>
                 </div>
                 <div content>

@@ -73,27 +73,6 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
       }
     }));
 
-    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
-      if (from) {
-        if (from.context.component.label) {
-          switch (from.context.component.label) {
-            case 'Maestro': this.downloadDoc(from.file,'maestro'); break;
-            case 'Director': this.downloadDoc(from.file,'director'); break;
-            case 'Director alterno': this.downloadDoc(from.file,'directorAlterno'); break;
-            case 'Estado maestro': this.downloadDoc(from.file,'estado_maestro'); break;
-            case 'Grado académico': this.downloadDoc(from.file,'grado_academico'); break;
-            case 'REXE': this.downloadDoc(from.file,'REXE'); break;
-            case 'Título': this.downloadDoc(from.file,'titulo'); break;
-          }
-        }else{
-          switch (from.context.component.name) {
-            case 'reglamentos': this.downloadDoc(from.file,'reglamentos'); break;
-            case 'estado-acreditacion': this.downloadDoc(from.file,'estados_acreditacion'); break;
-          }
-        }
-      }
-    }));
-    
     this.fbForm.statusChanges.subscribe(status => {
       this.programasService.stateFormUpdate = status as StateValidatorForm
     });
@@ -129,7 +108,7 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
       case 'título': this.createFormTitulo(); break;
       case 'grado académico': this.createFormGradoAcademico(); break;
       case 'REXE': this.createFormREXE(); break;
-      // case 'documentos maestros': this.createFormDocsMaestro(); break;
+      case 'documentos maestros': this.createFormDocsMaestro(); break;
       case 'reglamento': this.createFormReglamento(); break;
       case 'director': this.createFormDirector(); break;
       case 'director alterno': this.createFormDirectorAlterno(); break;
@@ -345,7 +324,6 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
     try {
       this.uploaderFilesService.setContext('edit','programa','editar-programa','Maestro');
       this.fbForm = this.fb.group({
-        REXE: [this.programa.REXE, [Validators.required, GPValidator.regexPattern('num_y_letras')]],
         files: [[], this.filesValidator.bind(this)]
       })
       
@@ -719,19 +697,7 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
     }
   }
 
-  async downloadDoc(documento: any, from: string) {
-    try {
-      let blob: Blob = await this.programasService.getArchiveDoc(documento.id, from);
-      this.commonUtils.downloadBlob(blob, documento.nombre);      
-    } catch (e:any) {
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: 'Error al descargar documento',
-          message: e.detail.error.message.message
-      });
-    }
-  }
+
 
 
   async submit(){

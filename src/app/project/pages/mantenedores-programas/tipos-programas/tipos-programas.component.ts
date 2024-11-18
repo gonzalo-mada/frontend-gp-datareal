@@ -16,8 +16,8 @@ import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 @Component({
   selector: 'app-tipos-programas',
   templateUrl: './tipos-programas.component.html',
-  styles: [
-  ]
+  styles: [],
+  providers: [TiposprogramasService]
 })
 export class TiposProgramasComponent implements OnInit, OnDestroy {
 
@@ -34,9 +34,6 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
   tiposProgramas: TipoPrograma[] = [];
   categoriasTp: CategoriaTp[] = [];
   tipoPrograma: TipoPrograma = {};
-  namesCrud!: NamesCrud;
-  namesCrud_cat!: NamesCrud;
-  keyPopups: string = '';
   dialog: boolean = false;
   private subscription: Subscription = new Subscription();
   newCategoryDialog: boolean = false;
@@ -53,25 +50,6 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
   })
 
   async ngOnInit() {
-
-    this.namesCrud = {
-      singular: 'tipo de programa',
-      plural: 'tipos de programas',
-      articulo_singular: 'el tipo de programa',
-      articulo_plural: 'los tipos de programas',
-      genero: 'masculino'
-    };
-
-    this.namesCrud_cat = {
-      singular: 'categoría de tipo de programa',
-      plural: 'categorías de tipos de programas',
-      articulo_singular: 'la categoría de tipo de programa',
-      articulo_plural: 'las categorías de tipos de programas',
-      genero: 'femenino'
-    };
-
-    this.keyPopups = 'tipoprograma'
-
     await this.getTiposProgramas();
     this.subscription.add(this.menuButtonsTableService.onClickButtonAgregar$.subscribe(() => this.createForm()));
     this.subscription.add(this.tableCrudService.onClickRefreshTable$.subscribe( () => this.getTiposProgramas()));
@@ -103,9 +81,10 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
     this.tableCrudService.resetSelectedRows();
   }
 
-  async getTiposProgramas(){
+  async getTiposProgramas(showCountTableValues: boolean = true){
     try {
       this.tiposProgramas = <TipoPrograma[]> await this.tipoProgramaService.getTiposProgramas();
+      if (showCountTableValues) this.tipoProgramaService.countTableValues(this.tiposProgramas.length); 
       this.categoriasTp = <CategoriaTp[]> await this.categoriasTpService.getCategoriasTp(); 
       this.categoriasTp.push({ Cod_CategoriaTP: -1, Descripcion_categoria: 'Añadir nueva categoría' });     
     } catch (error) {
@@ -125,20 +104,21 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
       const inserted = await this.tipoProgramaService.insertTipoPrograma(params)
       if ( inserted.dataWasInserted ) {
         this.messageService.add({
-          key: this.keyPopups,
+          key: 'main-gp',
           severity: 'success',
-          detail: generateMessage(this.namesCrud,inserted.dataInserted,'creado',true,false)
+          detail: generateMessage(this.tipoProgramaService.namesCrud,inserted.dataInserted,'creado',true,false)
         });
       } 
     } catch (e:any) {
         this.errorTemplateHandler.processError(
           e, {
             notifyMethod: 'alert',
-            summary: `Error al guardar ${this.namesCrud.singular}`,
+            summary: `Error al agregar ${this.tipoProgramaService.namesCrud.singular}`,
             message: e.detail.error.message.message,
           });
     }finally{
-      this.getTiposProgramas();
+      this.dialog = false;
+      this.getTiposProgramas(false);
       this.reset();
     }
   }
@@ -154,53 +134,67 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
       const updated = await this.tipoProgramaService.updateTipoPrograma(params);
       if ( updated.dataWasUpdated ){
         this.messageService.add({
-          key: this.keyPopups,
+          key: 'main-gp',
           severity: 'success',
-          detail: generateMessage(this.namesCrud,updated.dataUpdated,'actualizado',true,false)
+          detail: generateMessage(this.tipoProgramaService.namesCrud,updated.dataUpdated,'actualizado',true,false)
         });
       }
     } catch (e:any) {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al actualizar ${this.namesCrud.singular}`,
+          summary: `Error al actualizar ${this.tipoProgramaService.namesCrud.singular}`,
           message: e.detail.error.message.message,
       });
     }finally{
-      this.getTiposProgramas();
+      this.dialog = false;
+      this.getTiposProgramas(false);
       this.reset();
     }
   }
 
   async deleteTipoPrograma(tipoProgramaToDelete: TipoPrograma[]){    
     try {
-      const deleted:{ dataWasDeleted: boolean, dataDeleted: [] } = await this.tipoProgramaService.deleteTipoPrograma(tipoProgramaToDelete);
-      const message = mergeNames(null,deleted.dataDeleted,false,'Descripcion_tp')
-      if ( deleted.dataWasDeleted ) {
-        this.getTiposProgramas();
-        if ( tipoProgramaToDelete.length > 1 ){
+      const response = await this.tipoProgramaService.deleteTipoPrograma(tipoProgramaToDelete);
+      if (response.notDeleted.length !== 0) {
+        for (let i = 0; i < response.notDeleted.length; i++) {
+          const element = response.notDeleted[i];
           this.messageService.add({
-            key: this.keyPopups,
+            key: 'main-gp',
+            severity: 'warn',
+            summary:  `Error al eliminar ${this.tipoProgramaService.namesCrud.singular}`,
+            detail: element.messageError,
+            sticky: true
+          });
+        }
+      }
+      if (response.deleted.length !== 0) {
+        const message = mergeNames(null,response.deleted,false,'data');
+        if ( response.deleted.length > 1 ){
+          this.messageService.add({
+            key: 'main-gp',
             severity: 'success',
-            detail: generateMessage(this.namesCrud,message,'eliminados',true, true)
+            detail: generateMessage(this.tipoProgramaService.namesCrud,message,'eliminados',true, true)
           });
         }else{
           this.messageService.add({
-            key: this.keyPopups,
+            key: 'main-gp',
             severity: 'success',
-            detail: generateMessage(this.namesCrud,message,'eliminado',true, false)
+            detail: generateMessage(this.tipoProgramaService.namesCrud,message,'eliminado',true, false)
           });
         }
-        this.reset();
       }
     } catch (e:any) {     
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al eliminar ${this.namesCrud.singular}`,
+          summary: `Error al eliminar ${this.tipoProgramaService.namesCrud.singular}`,
           message: e.detail.error.message.message
       });
-    } 
+    } finally{
+      this.reset();
+      this.getTiposProgramas(false);
+    }
   }
 
   createForm(){
@@ -234,14 +228,14 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
   }
 
   async openConfirmationDeleteSelected(tipoProgramaSelected: any){
-    const message = mergeNames(this.namesCrud,tipoProgramaSelected,true,'Descripcion_tp');    
+    const message = mergeNames(this.tipoProgramaService.namesCrud,tipoProgramaSelected,true,'Descripcion_tp');    
     this.confirmationService.confirm({
       header: "Confirmar",
       message: `Es necesario confirmar la acción para eliminar ${message}. ¿Desea confirmar?`,
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
-      key: this.keyPopups,
+      key: 'main-gp',
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
@@ -251,7 +245,7 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
           this.errorTemplateHandler.processError(
             e, {
               notifyMethod: 'alert',
-              summary: `Error al eliminar ${this.namesCrud.singular}`,
+              summary: `Error al eliminar ${this.tipoProgramaService.namesCrud.singular}`,
               message: e.message,
           });
         }
@@ -262,11 +256,11 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
   async openConfirmationDelete(tipoPrograma: any){
     this.confirmationService.confirm({
       header: 'Confirmar',
-      message: `Es necesario confirmar la acción para eliminar ${this.namesCrud.articulo_singular} <b>${tipoPrograma.Descripcion_tp}</b>. ¿Desea confirmar?`,
+      message: `Es necesario confirmar la acción para eliminar ${this.tipoProgramaService.namesCrud.articulo_singular} <b>${tipoPrograma.Descripcion_tp}</b>. ¿Desea confirmar?`,
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
-      key: this.keyPopups,
+      key: 'main-gp',
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
@@ -278,7 +272,7 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
             this.errorTemplateHandler.processError(
               e, {
                 notifyMethod: 'alert',
-                summary: `Error al eliminar ${this.namesCrud.singular}`,
+                summary: `Error al eliminar ${this.tipoProgramaService.namesCrud.singular}`,
                 message: e.message,
             });
           }
@@ -286,26 +280,8 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
     })
   }
 
-  async submit() {
-    try {
-      if ( this.modeForm == 'create' ) {
-        //modo creacion
-        await this.insertTipoPrograma()
-      }else{
-        //modo edit
-        await this.updateTipoPrograma();
-      }
-    } catch (e:any) {
-      const action = this.modeForm === 'create' ? 'guardar' : 'actualizar';
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: `Error al ${action} ${this.namesCrud.singular}`,
-          message: e.message,
-      });
-    } finally {
-      this.dialog = false;
-    }
+  submit() {
+    this.modeForm === 'create' ? this.insertTipoPrograma() : this.updateTipoPrograma();
   }
 
   onCategoriaChange(event: any) {
@@ -316,17 +292,14 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
 
   async submitNewCategory(){
     try {
-      const actionForm: any = await new Promise((resolve, reject) => {
-        this.categoriasTpService.setModeForm('insert',null,resolve,reject)
-      })
-      
-      if (actionForm.success) {
-        //insert exitoso
-        await this.getTiposProgramas();
+      let params = { ...this.categoriasTpService.fbForm.value }
+      const response = await this.categoriasTpService.insertCategoriaTp(params);
+      if ( response.dataWasInserted ) {
+        await this.getTiposProgramas(false);
         this.messageService.add({
-          key: this.keyPopups,
+          key: 'main-gp',
           severity: 'success',
-          detail: generateMessage(this.namesCrud_cat,actionForm.dataInserted,'creado',true,false)
+          detail: generateMessage(this.categoriasTpService.namesCrud,response.dataInserted,'creado',true,false)
         });
         this.fbForm.get('Categoria.Cod_CategoriaTP')?.patchValue(this.categoriasTp[this.categoriasTp.length - 2].Cod_CategoriaTP);
         this.newCategoryDialog = false;
@@ -335,7 +308,7 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al guardar ${this.namesCrud_cat.singular}`,
+          summary: `Error al agregar ${this.categoriasTpService.namesCrud.singular}`,
           message: e.message,
         });
     }

@@ -41,7 +41,6 @@ export class ProgramasService {
   activeIndexStateForm: number | undefined = 0;
   activeIndexAcordionAddPrograma: number | undefined = 0;
   keyPopups: string = 'programas';
-  keyPopupsCenter: string = 'programas-center';
   directorSelected!: Director;
   directorAlternoSelected!: Director;
   reglamentoSelected: string = '';
@@ -491,6 +490,7 @@ export class ProgramasService {
     this.activeIndexStepper = 0;
     this.activeIndexStateForm = 0;
     this.activeIndexAcordionAddPrograma = 0;
+    this.fbForm.enable()
   }
 
   getValuesSelected(){

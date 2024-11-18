@@ -2,19 +2,17 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
-import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { Suspension } from 'src/app/project/models/programas/Suspension';
 import { MenuButtonsTableService } from 'src/app/project/services/components/menu-buttons-table.service';
 import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
-import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
 import { SuspensionesService } from 'src/app/project/services/programas/suspensiones.service';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
 
 @Component({
   selector: 'app-suspension',
   templateUrl: './suspension.component.html',
-  styles: [
-  ]
+  styles: [],
+  providers: [SuspensionesService]
 })
 export class SuspensionComponent implements OnInit, OnDestroy {
 
@@ -24,13 +22,10 @@ export class SuspensionComponent implements OnInit, OnDestroy {
     private menuButtonsTableService: MenuButtonsTableService,
     public suspensionesService: SuspensionesService,
     private tableCrudService: TableCrudService,
-    private uploaderFilesService: UploaderFilesService
   ){}
 
   suspensiones: Suspension[] = [];
   suspension: Suspension = {};
-  namesCrud!: NamesCrud;
-  keyPopups: string = '';
   dialog: boolean = false;
   private subscription: Subscription = new Subscription();
 
@@ -39,16 +34,6 @@ export class SuspensionComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.namesCrud = {
-      singular: 'tipo de suspensión',
-      plural: 'tipos de suspensiones',
-      articulo_singular: 'el tipo de suspensión',
-      articulo_plural: 'los tipos de suspensiones',
-      genero: 'masculino'
-    };
-
-    this.keyPopups = 'suspension';
-
     await this.getSuspensiones();
     this.subscription.add(this.menuButtonsTableService.onClickButtonAgregar$.subscribe(() => this.createForm()));
     this.subscription.add(this.tableCrudService.onClickRefreshTable$.subscribe( () => this.getSuspensiones() ));
@@ -58,15 +43,15 @@ export class SuspensionComponent implements OnInit, OnDestroy {
       this.suspensionesService.crudUpdate$.subscribe( crud => {
         if (crud && crud.mode) {
           if (crud.data) {
-            this.suspension = {};
-            this.suspension = crud.data
+            this.suspensionesService.suspension = {};
+            this.suspensionesService.suspension = crud.data
           }
           switch (crud.mode) {
             case 'show': this.showForm(); break;
             case 'edit': this.editForm(); break;
             case 'insert': this.insertSuspension(); break;
             case 'update': this.updateSuspension(); break;
-            case 'delete': this.openConfirmationDelete(this.suspension); break;
+            case 'delete': this.openConfirmationDelete(crud.data); break;
 
           }
         }
@@ -82,9 +67,10 @@ export class SuspensionComponent implements OnInit, OnDestroy {
     this.reset();
   }
 
-  async getSuspensiones(){
+  async getSuspensiones(showCountTableValues: boolean = true){
     try {
-      this.suspensiones = <Suspension[]> await this.suspensionesService.getSuspensiones();      
+      this.suspensiones = <Suspension[]> await this.suspensionesService.getSuspensiones();
+      if (showCountTableValues) this.suspensionesService.countTableValues(this.suspensiones.length);          
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
@@ -95,58 +81,53 @@ export class SuspensionComponent implements OnInit, OnDestroy {
 
   async insertSuspension(){
     try {
-      const actionForm: any = await new Promise((resolve, reject) => {
-        this.suspensionesService.setModeForm('insert',null,resolve,reject)
-      })
-      
-      if (actionForm.success) {
-        //insert exitoso
+      let params = { ...this.suspensionesService.fbForm.value };
+      const response = await this.suspensionesService.insertSuspension(params);
+      if ( response.dataWasInserted ) {
         this.messageService.add({
-          key: this.keyPopups,
+          key: 'main-gp',
           severity: 'success',
-          detail: actionForm.messageGp
+          detail: generateMessage(this.suspensionesService.namesCrud,response.dataInserted,'creado',true,false)
         });
-      }else{
-        throw actionForm;
       }
     } catch (e: any) {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al guardar ${this.namesCrud.singular}`,
+          summary: `Error al agregar ${this.suspensionesService.namesCrud.singular}`,
           message: e.detail.error.message.message,
         });
     }finally{
-      this.getSuspensiones();
-      this.dialog = true;
+      this.dialog = false;
+      this.getSuspensiones(false);
       this.reset();
     }
   }
 
   async updateSuspension(){
     try {
-      const data = this.suspension;
-      const actionForm: any = await new Promise((resolve, reject) => {
-        this.suspensionesService.setModeForm('update',data,resolve,reject)
-      })
-      if (actionForm.success) {
+      let params = {
+        ...this.suspensionesService.fbForm.value,
+        ID_TipoSuspension: this.suspension.ID_TipoSuspension,
+        aux: this.suspensionesService.fbForm.get('aux')!.value
+      };
+      const response = await this.suspensionesService.updateSuspension(params);
+      if ( response.dataWasUpdated ) {
         this.messageService.add({
-          key: this.keyPopups,
+          key: 'main-gp',
           severity: 'success',
-          detail: actionForm.messageGp
+          detail: generateMessage(this.suspensionesService.namesCrud,response.dataUpdated,'actualizado',true,false)
         });
-      }else{
-        throw actionForm;
       }
     } catch (e:any) {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al actualizar ${this.namesCrud.singular}`,
+          summary: `Error al actualizar ${this.suspensionesService.namesCrud.singular}`,
           message: e.detail.error.message.message,
       });
     }finally{
-      this.getSuspensiones();
+      this.getSuspensiones(false);
       this.dialog = true
       this.reset();
     }
@@ -154,104 +135,84 @@ export class SuspensionComponent implements OnInit, OnDestroy {
 
   async deleteSuspension(dataToDelete: Suspension[]){
     try {
-      const deleted:{ dataWasDeleted: boolean, dataDeleted: [] } = await this.suspensionesService.deleteSuspension({suspensionToDelete: dataToDelete});
-      const message = mergeNames(null,deleted.dataDeleted,false,'Descripcion_TipoSuspension')
-      if ( deleted.dataWasDeleted ) {
-        this.getSuspensiones();
-        if ( dataToDelete.length > 1 ){
+      const response = await this.suspensionesService.deleteSuspension({suspensionToDelete: dataToDelete});
+      console.log("response",response);
+      
+      if (response.notDeleted.length !== 0) {
+        for (let i = 0; i < response.notDeleted.length; i++) {
+          const element = response.notDeleted[i];
           this.messageService.add({
-            key: this.keyPopups,
+            key: 'main-gp',
+            severity: 'warn',
+            summary:  `Error al eliminar ${this.suspensionesService.namesCrud.singular}`,
+            detail: element.messageError,
+            sticky: true
+          });
+        }
+      }
+      if (response.deleted.length !== 0) {
+        const message = mergeNames(null,response.deleted,false,'data');
+        if ( response.deleted.length > 1 ){
+          this.messageService.add({
+            key: 'main-gp',
             severity: 'success',
-            detail: generateMessage(this.namesCrud,message,'eliminados',true, true)
+            detail: generateMessage(this.suspensionesService.namesCrud,message,'eliminados',true, true)
           });
         }else{
           this.messageService.add({
-            key: this.keyPopups,
+            key: 'main-gp',
             severity: 'success',
-            detail: generateMessage(this.namesCrud,message,'eliminado',true, false)
+            detail: generateMessage(this.suspensionesService.namesCrud,message,'eliminado',true, false)
           });
         }
-        this.reset();
       }
     } catch (e:any) {
       this.errorTemplateHandler.processError(
         e, {
           notifyMethod: 'alert',
-          summary: `Error al eliminar ${this.namesCrud.singular}`,
+          summary: `Error al eliminar ${this.suspensionesService.namesCrud.singular}`,
           message: e.detail.error.message.message,
       });
+    }finally{
+      this.reset();
+      this.getSuspensiones(false);
     }
   }
 
-  async createForm(){
-    try {
-      this.reset();
-      this.dialog = true;
-      await new Promise((resolve,reject) => {
-        this.suspensionesService.setModeForm('create',null,resolve,reject)
-      })
-    } catch (e: any) {
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: `Error al crear formulario de ${this.namesCrud.singular}`,
-          message: e.error,
-        }
-      );
-    }
+  createForm(){
+    this.reset();
+    this.suspensionesService.setModeCrud('create');
+    this.dialog = true;
   }
 
-  async showForm(){
-    try {
-      this.reset();
-      this.dialog = true;
-      const data = this.suspension;
-      await new Promise((resolve, reject) => {
-        this.suspensionesService.setModeForm('show',data,resolve,reject);
-      })
-    } catch (e: any) {
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: `Error al mostrar formulario de ${this.namesCrud.singular}`,
-          message: e.error,
-        }
-      );
-    }
+  showForm(){
+    this.reset();
+    this.suspensionesService.fbForm.patchValue({...this.suspensionesService.suspension});
+    this.suspensionesService.fbForm.disable();
+    this.dialog = true;
   }
 
-  async editForm(){
-    try {
-      this.reset();
-      this.dialog = true;
-      const data = this.suspension;
-      await new Promise((resolve, reject) => {
-        this.suspensionesService.setModeForm('edit',data,resolve,reject);
-      })
-    } catch (e:any) {
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: `Error al editar formulario de ${this.namesCrud.singular}`,
-          message: e.error,
-        }
-      );
-    }
+  editForm(){
+    this.reset();
+    this.suspensionesService.fbForm.patchValue({...this.suspensionesService.suspension});
+    this.suspensionesService.fbForm.patchValue({aux: this.suspensionesService.suspension});
+    this.dialog = true;
   }
 
   reset() {
     this.tableCrudService.resetSelectedRows();
+    this.suspensionesService.resetForm();
   }
 
   async openConfirmationDeleteSelected(data: any){
-    const message = mergeNames(this.namesCrud,data,true,'Descripcion_TipoSuspension')
+    const message = mergeNames(this.suspensionesService.namesCrud,data,true,'Descripcion_TipoSuspension')
     this.confirmationService.confirm({
       header: "Confirmar",
       message: `Es necesario confirmar la acción para eliminar ${message}. ¿Desea confirmar?`,
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
-      key: this.keyPopups,
+      key: 'main-gp',
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
@@ -261,7 +222,7 @@ export class SuspensionComponent implements OnInit, OnDestroy {
           this.errorTemplateHandler.processError(
             e, {
               notifyMethod: 'alert',
-              summary: `Error al eliminar ${this.namesCrud.singular}`,
+              summary: `Error al eliminar ${this.suspensionesService.namesCrud.singular}`,
               message: e.message,
           });
         }
@@ -269,14 +230,14 @@ export class SuspensionComponent implements OnInit, OnDestroy {
     })
   }
 
-  async openConfirmationDelete(data: any){
+  async openConfirmationDelete(data: any){    
     this.confirmationService.confirm({
       header: 'Confirmar',
-      message: `Es necesario confirmar la acción para eliminar ${this.namesCrud.articulo_singular} <b>${data.Descripcion_TipoSuspension}</b>. ¿Desea confirmar?`,
+      message: `Es necesario confirmar la acción para eliminar ${this.suspensionesService.namesCrud.articulo_singular} <b>${data.Descripcion_TipoSuspension}</b>. ¿Desea confirmar?`,
       acceptLabel: 'Si',
       rejectLabel: 'No',
       icon: 'pi pi-exclamation-triangle',
-      key: this.keyPopups,
+      key: 'main-gp',
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
       accept: async () => {
@@ -288,7 +249,7 @@ export class SuspensionComponent implements OnInit, OnDestroy {
             this.errorTemplateHandler.processError(
               e, {
                 notifyMethod: 'alert',
-                summary: `Error al eliminar ${this.namesCrud.singular}`,
+                summary: `Error al eliminar ${this.suspensionesService.namesCrud.singular}`,
                 message: e.message,
             });
           }
@@ -296,26 +257,8 @@ export class SuspensionComponent implements OnInit, OnDestroy {
     })
   }
 
-  async submit() {
-    try {
-      if ( this.modeForm == 'create' ) {
-        //modo creacion
-        await this.insertSuspension()
-      }else{
-        //modo edit
-        await this.updateSuspension();
-      }
-    } catch (e:any) {
-      const action = this.modeForm === 'create' ? 'guardar' : 'actualizar';
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: `Error al ${action} ${this.namesCrud.singular}`,
-          message: e.message,
-      });
-    } finally {
-      this.dialog = false;
-    }
+  submit() {
+    this.modeForm === 'create' ? this.insertSuspension() : this.updateSuspension();
   }
 
 

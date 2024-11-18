@@ -189,9 +189,9 @@
                                 <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
                                 <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
                             </div>
-                            <!-- <ng-container *ngIf="mode === 'edit' ">
+                            <ng-container *ngIf="mode === 'edit' ">
                                 <p-button (onClick)="openDialog('documentos maestros')" styleClass="p-button-warning"  icon="pi pi-pencil" iconPos="right" />
-                            </ng-container> -->
+                            </ng-container>
                         </div>
                     </div>
                     <app-table-programas-docs-maestro [data]="docMaestro" [mode]="mode"></app-table-programas-docs-maestro>

@@ -11,7 +11,7 @@
     </ng-template>
 </p-overlayPanel>
 <p-table #dt [rows]="10" [paginator]="true" [rowsPerPageOptions]="[10,25,50]" [showCurrentPageReport]="true"
-    currentPageReportTemplate="{first} hasta {last} de {totalRecords} registros." selectionMode="multiple"
+    currentPageReportTemplate="{first} hasta {last} de {totalRecords} campus." selectionMode="multiple"
     [rowHover]="true" [value]="data" [columns]="cols" [globalFilterFields]="globalFiltros"
     [(selection)]="selectedRow" [dataKey]="dataKeyTable" (selectionChange)="selectionChange()" >
     <ng-template pTemplate="caption">

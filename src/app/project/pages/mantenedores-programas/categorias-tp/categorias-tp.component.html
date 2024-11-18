@@ -1,6 +1,3 @@
-<p-toast [key]="keyPopups"></p-toast>
-<p-confirmDialog [key]="keyPopups" [style]="{ width: '500px' }"></p-confirmDialog>
-
 <div class="grid">
     <div class="col-12">
         <app-card header="Mantenedor de categorías de tipos de programas" subheader="Permite ver, crear, actualizar y eliminar categorías de tipos de programas.">
@@ -11,13 +8,13 @@
             <app-dialog [(visible)]="dialog">
                 <div header>
                     <ng-container *ngIf="modeForm === 'create' || modeForm === 'insert' ">
-                        <span class="text-xl">Agregar {{ namesCrud.singular }}</span>
+                        <span class="text-xl">Agregar {{ categoriasTpService.namesCrud.singular }}</span>
                     </ng-container>
                     <ng-container *ngIf="modeForm === 'edit' || modeForm === 'update' ">
-                        <span class="text-xl">Actualizar {{ namesCrud.singular }}</span>
+                        <span class="text-xl">Actualizar {{ categoriasTpService.namesCrud.singular }}</span>
                     </ng-container>
                     <ng-container *ngIf="modeForm === 'show'">
-                        <span class="text-xl">Ver {{ namesCrud.singular }}</span>
+                        <span class="text-xl">Ver {{ categoriasTpService.namesCrud.singular }}</span>
                     </ng-container>
                 </div>
                 <div content>
