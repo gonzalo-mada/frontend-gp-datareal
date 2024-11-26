@@ -1,15 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MenuItem } from 'primeng/api';
-import { Menu } from 'primeng/menu';
+import {  MenuItem } from 'primeng/api';
 import { Item } from 'src/app/base/models/item';
 import { PanelControlService } from 'src/app/base/services/panel_control.service';
 
 @Component({
   selector: 'app-breadcrumbgp',
   templateUrl: './breadcrumbgp.component.html',
-  styles: [
-  ]
+  styles: []
 })
 export class BreadcrumbgpComponent implements OnInit {
   constructor(

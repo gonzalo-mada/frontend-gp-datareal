@@ -1,37 +1,14 @@
 <app-breadcrumbgp></app-breadcrumbgp>
-<p-toast [key]="programasService.keyPopups" [style]="{ width: '30rem' }"></p-toast>
-<p-confirmDialog [key]="programasService.keyPopups" [style]="{ width: '500px' }" closable="false"></p-confirmDialog>
 
-<app-dialog [(visible)]="showDialogDocs">
+<app-dialog [(visible)]="agregarProgramaMainService.dialogChooseDocsMaestro">
     <div header>
         <span class="text-xl">Adjuntar documentos</span>
     </div>
     <div content>
-        <app-uploader-files></app-uploader-files>
+        <app-uploader-files *ngIf="agregarProgramaMainService.dialogChooseDocsMaestro"></app-uploader-files>
     </div>
     <div footer>
-        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" (click)="showDialogDocs = false" [text]="true"></p-button>
-    </div>
-</app-dialog>
-
-<app-dialog  [(visible)]="newReglamentoDialog">
-    <div header>
-        <span class="text-xl">Agregar reglamento</span>
-    </div>
-    <div content>
-        <app-form-reglamentos *ngIf="newReglamentoDialog"></app-form-reglamentos>
-    </div>
-    <div footer>
-        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
-            (click)="newReglamentoDialog = false" [text]="true"></p-button>
-
-        <p-button 
-            label="Guardar"
-            icon="pi pi-check"
-            styleClass="mr-2 p-button-success p-button-sm" 
-            [disabled]="reglamentosService.stateForm === 'INVALID' || reglamentosService.stateForm === undefined "
-            (click)="submitNewReglamento()">
-        </p-button>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" (click)="agregarProgramaMainService.dialogChooseDocsMaestro = false" [text]="true"></p-button>
     </div>
 </app-dialog>
 
@@ -44,7 +21,7 @@
 
             </div>
             <div>
-                <!-- <p-button 
+                <p-button 
                     label="test" 
                     icon="pi pi-times" 
                     styleClass="p-button-sm p-button-secondary mr-2" 
@@ -56,23 +33,19 @@
                     icon="pi pi-times" 
                     styleClass="p-button-sm p-button-secondary mr-2" 
                     (click)="test2()" [text]="true">
-                </p-button> -->
+                </p-button>
                     
-                <button pButton icon="pi pi-upload" label="Adjuntar documento maestro" (click)="chooseDocs('Maestro')"></button>
+                <button pButton icon="pi pi-upload" label="Adjuntar documento maestro" (click)="chooseDocsMaestro()"></button>
                 <button 
                     pButton 
                     class="hidden p-button-secondary p-button-outlined ml-2 lg:inline" 
                     (click)="changeDisposition()" 
                 >
                 <div class="flex align-items-center justify-content-center">
-                        <i [ngClass]="programasService.disposition ? 'pi pi-eye-slash' : 'pi pi-eye'" ></i>
+                        <i [ngClass]="agregarProgramaMainService.disposition ? 'pi pi-eye-slash' : 'pi pi-eye'" ></i>
                         <span class="ml-1">
-                            {{ programasService.disposition ? 'Ocultar estado formulario' : 'Ver estado formulario' }}
+                            {{ agregarProgramaMainService.disposition ? 'Ocultar estado formulario' : 'Ver estado formulario' }}
                         </span>
-
-                        <!-- <span [ngClass]="getStateClass(programasService.stateFormPrograma)">
-                            {{ getStateText(programasService.stateFormPrograma) }}
-                        </span> -->
                     </div>
                 </button>
                 <button 
@@ -81,14 +54,10 @@
                     (click)="sidebarVisible2 = true" 
                 >
                 <div class="flex align-items-center justify-content-center">
-                    <i [ngClass]="programasService.disposition ? 'pi pi-eye-slash' : 'pi pi-eye'" ></i>
+                    <i [ngClass]="sidebarVisible2 ? 'pi pi-eye-slash' : 'pi pi-eye'" ></i>
                     <span class="ml-1">
-                        {{ programasService.disposition ? 'Ocultar estado formulario' : 'Ver estado formulario' }}
+                        {{ sidebarVisible2 ? 'Ocultar estado formulario' : 'Ver estado formulario' }}
                     </span>
-                    <!-- <span class="mr-2">Estado formulario: </span>
-                    <span [ngClass]="getStateClass(programasService.stateFormPrograma)">
-                        {{ getStateText(programasService.stateFormPrograma) }}
-                    </span> -->
                 </div>
                 </button>
             </div>
@@ -99,8 +68,8 @@
         <div class="grid flex">
             
             <div [ngClass]="contentWrapperClass">
-                <form [formGroup]="programasService.fbForm">
-                    <p-stepper (activeStepChange)="stepChange($event)" [activeStep]="programasService.activeIndexStepper">
+                <form [formGroup]="form.fbForm">
+                    <p-stepper (activeStepChange)="stepChange($event)" [activeStep]="form.activeIndexStepper">
                         <p-stepperPanel id="paso1">
                             <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
                                 <app-form-programas-step-one></app-form-programas-step-one>
@@ -121,7 +90,7 @@
                         <p-stepperPanel id="paso3">
                             <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback">
                                 <div class="flex flex-column">
-                                    <p-accordion class="w-full" [activeIndex]="programasService.activeIndexAcordionAddPrograma" (onOpen)="openAccordion()">
+                                    <p-accordion class="w-full" [activeIndex]="form.activeIndexAcordionAddPrograma" (onOpen)="openAccordion()">
 
                                         <p-accordionTab id="reglamento">
                                             <ng-template pTemplate="header">
@@ -129,36 +98,34 @@
                                                     <div>
                                                         <span><strong>Reglamento</strong></span>
                                                     </div>
-                                                    <div *ngIf="programasService.reglamentoSelected !== '' ">
-                                                        <span style="font-weight: 100;"><i>{{ programasService.reglamentoSelected }}</i></span>
+                                                    <div *ngIf="form.reglamentoSelected !== '' ">
+                                                        <span style="font-weight: 100;"><i>{{ form.reglamentoSelected }}</i></span>
                                                     </div>
                                                 </div>
                                             </ng-template>
                                             <ng-template pTemplate="body">
-                                                <div class="grid flex justify-content-center align-items-center h-full">
-                                                    <div class="col-12 lg:col-10">
+                                                <div class="flex justify-content-between align-items-center">
+                                                    <div class="flex align-items-center justify-content-center">
                                                         <p-messages severity="info">
                                                             <ng-template pTemplate>
                                                                 <i class="pi pi-info-circle mr-3"></i>
                                                                 <span>
-                                                                    Seleccione un reglamento registrado en la tabla. Si no está registrado, agregue uno presionando el botón <strong>Agregar</strong>.
+                                                                    Seleccione un reglamento registrado en la tabla presionando el botón ( <i class="pi pi-check" style="font-size: 0.8rem; font-weight:1000;"></i> ). 
+                                                                    Si no está registrado, agregue uno presionando el botón <strong>Agregar</strong>.
                                                                 </span>
                                                             </ng-template>
                                                         </p-messages>
                                                     </div>
-                                                    <div class="col-12 lg:col-2">
-                                                        <div class="flex justify-content-end align-items-center h-full">
-                                                            <p-button
-                                                                label="Agregar"
-                                                                icon="pi pi-plus"
-                                                                styleClass="p-button-success"
-                                                                (click)="addNewReglamento()"
-                                                            ></p-button>
-                                                        </div>
+                                                    <div class="flex align-items-center justify-content-center">
+                                                        <p-button
+                                                            label="Agregar"
+                                                            icon="pi pi-plus"
+                                                            styleClass="p-button-success ml-4"
+                                                            (click)="reglamentosMainService.setModeCrud('create')"
+                                                        ></p-button>
                                                     </div>
                                                 </div>
-                                                
-                                                <app-table-programas-reglamentos [data]="reglamentos"></app-table-programas-reglamentos>
+                                                <app-table-programas-reglamentos></app-table-programas-reglamentos>
                                             </ng-template>
                                         </p-accordionTab>
 
@@ -168,8 +135,8 @@
                                                     <div>
                                                         <span><strong>Director(a)</strong></span>
                                                     </div>
-                                                    <div *ngIf="programasService.directorSelected.nombre !== '' ">
-                                                        <span style="font-weight: 100;"><i>{{ programasService.directorSelected.rut }} - {{ programasService.directorSelected.nombre }} </i></span>
+                                                    <div *ngIf="form.directorSelected.nombre !== '' ">
+                                                        <span style="font-weight: 100;"><i>{{ form.directorSelected.rut }} - {{ form.directorSelected.nombre }} </i></span>
                                                     </div>
                                                 </div>
                                             </ng-template>
@@ -187,13 +154,13 @@
                                                         <label><strong>RUT director(a) *</strong></label>
                                                         <p-inputGroup>
                                                             <input type="text" pInputText formControlName="Director" maxlength="10" placeholder="Ingrese RUT director(a)"  />
-                                                            <button type="button" pButton icon="pi pi-search" [disabled]="programasService.fbForm.controls['Director'].invalid" (click)="searchDirector('director')"></button>
+                                                            <button type="button" pButton icon="pi pi-search" [disabled]="form.fbForm.controls['Director'].invalid" (click)="searchDirector('director')"></button>
                                                         </p-inputGroup>
                                                         <small>Sin puntos y con guión. Ejemplo: 11111111-0</small>
-                                                        <app-form-control [control]="programasService.fbForm.controls['Director']" [validators]="['required', 'rut']"></app-form-control>
+                                                        <app-form-control [control]="form.fbForm.controls['Director']" [validators]="['required', 'rut']"></app-form-control>
                                                     </div>
                                                     <div class="col-12 lg:col-8">
-                                                        <div class="field" *ngIf="programasService.showTableDirectores">
+                                                        <div class="field" *ngIf="form.showTableDirectores">
                                                             <label><strong>Director(a) encontrado(a)</strong></label>
                                                             <app-table-programas-directores mode="director" [data]="directores"></app-table-programas-directores>
                                                         </div>
@@ -202,14 +169,14 @@
                                             </ng-template>
                                         </p-accordionTab>
 
-                                        <p-accordionTab id="directoralterno" *ngIf="programasService.fbForm.get('haveDirectorAlterno')?.value">
+                                        <p-accordionTab id="directoralterno" *ngIf="form.fbForm.get('haveDirectorAlterno')?.value">
                                             <ng-template pTemplate="header">
                                                 <div class="flex justify-content-between flex-wrap w-full">
                                                     <div>
                                                         <span><strong>Director(a) alterno(a)</strong></span>
                                                     </div>
-                                                    <div *ngIf="programasService.directorAlternoSelected.nombre !== '' ">
-                                                        <span style="font-weight: 100;"><i>{{ programasService.directorAlternoSelected.rut }} - {{ programasService.directorAlternoSelected.nombre }} </i></span>
+                                                    <div *ngIf="form.directorAlternoSelected.nombre !== '' ">
+                                                        <span style="font-weight: 100;"><i>{{ form.directorAlternoSelected.rut }} - {{ form.directorAlternoSelected.nombre }} </i></span>
                                                     </div>
                                                 </div>
                                             </ng-template>
@@ -227,13 +194,13 @@
                                                         <label><strong>RUT director(a) alterno(a) *</strong></label>
                                                         <p-inputGroup>
                                                             <input type="text" pInputText formControlName="Director_alterno" placeholder="Ingrese RUT de director(a) alterno(a)" />
-                                                            <button type="button" pButton icon="pi pi-search" [disabled]="programasService.fbForm.controls['Director_alterno'].invalid" (click)="searchDirector('directoralterno')"></button>
+                                                            <button type="button" pButton icon="pi pi-search" [disabled]="form.fbForm.controls['Director_alterno'].invalid" (click)="searchDirector('directoralterno')"></button>
                                                         </p-inputGroup>
                                                         <small>Sin puntos y con guión. Ejemplo: 11111111-0</small>
-                                                        <app-form-control [control]="programasService.fbForm.controls['Director_alterno']" [validators]="['required', 'rut', 'notSameAsDirector']"></app-form-control>
+                                                        <app-form-control [control]="form.fbForm.controls['Director_alterno']" [validators]="['required', 'rut', 'notSameAsDirector']"></app-form-control>
                                                     </div>
                                                     <div class="col-12 lg:col-8">
-                                                        <div class="field" *ngIf="programasService.showTableDirectoresAlternos">
+                                                        <div class="field" *ngIf="form.showTableDirectoresAlternos">
                                                             <label><strong>Director(a) alterno(a) encontrado(a)</strong></label>
                                                             <app-table-programas-directores mode="alterno" [data]="directoresAlternos"></app-table-programas-directores>
                                                         </div>
@@ -248,14 +215,14 @@
                                 </div>
                                 <div class="flex pt-4 justify-content-between">
                                     <p-button label="Atrás" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()" />
-                                    <p-button styleClass="p-button-success" label="Confirmar" icon="pi pi-check" iconPos="right" (onClick)="submit()" [disabled]="!programasService.stateFormPrograma" />
+                                    <p-button styleClass="p-button-success" label="Confirmar" icon="pi pi-check" iconPos="right" (onClick)="submit()" [disabled]="!form.stateFormPrograma" />
                                 </div>
                             </ng-template>
                         </p-stepperPanel>
                     </p-stepper>
                 </form>
             </div>
-            <div class="hidden lg:block" *ngIf="programasService.disposition" [ngClass]="sidebarClass" >
+            <div class="hidden lg:block" *ngIf="agregarProgramaMainService.disposition" [ngClass]="sidebarClass" >
                 <p-card styleClass="border-1 surface-border border-round rounded-lg"  >
                     <ng-template pTemplate="header">
                         <div class="flex flex-row justify-content-between flex-wrap"  [style]="{ 'padding-left': '1.5rem' , 'padding-top': '1.5rem' , 'padding-right': '1.5rem' , 'width': '100%'}">
@@ -275,8 +242,8 @@
                                 </div>
                             </div>
                             <div>
-                                <span [ngClass]="getStateClass(programasService.stateFormPrograma)">
-                                    {{ getStateText(programasService.stateFormPrograma) }}
+                                <span [ngClass]="getStateClass(form.stateFormPrograma)">
+                                    {{ getStateText(form.stateFormPrograma) }}
                                 </span>
                             </div>
 
@@ -304,155 +271,243 @@
         <p-messages severity="info" [closable]="true" [style]="{ 'padding': '0rem'}">
             <ng-template pTemplate>
                 <i class="pi pi-info-circle mr-3"></i>
-                <span>A continuación se muestra un resumen con la información del programa que desea agregar</span>
+                <span>A continuación se muestra un resumen con la información del programa que desea agregar.</span>
             </ng-template>
         </p-messages>
 
         <span class="text-xl">Detalles del programa</span>
         <p-divider />
-        <div class="formgrid grid">
-            <div class="col-12 sm:col-6 mb-3">
-                <div class="flex flex-column">
-                    <span class="text-900"> <strong>Nombre</strong> </span>
-                    <span class="text-700"> {{ programasService.fbForm.get('Nombre_programa')!.value }} </span>
-                </div>
-            </div>
-
-            <div class="col-12 sm:col-6 mb-3">
-                <div class="flex flex-column">
-                    <span class="text-900"> <strong>Grupo correo LDAP</strong> </span>
-                    <span class="text-700"> {{ programasService.fbForm.get('Grupo_correo')!.value }} </span>
-                </div>
-            </div>
-
-            <div class="col-12 sm:col-6 mb-3">
-                <div class="flex flex-column">
-                    <span class="text-900"> <strong>Título</strong> </span>
-                    <span class="text-700"> {{ programasService.fbForm.get('Titulo')!.value }} </span>
-                </div>
-            </div>
-
-            <div class="col-12 sm:col-6 mb-3">
-                <div class="flex flex-column">
-                    <span class="text-900"> <strong>Grado académico</strong> </span>
-                    <span class="text-700"> {{ programasService.fbForm.get('Grado_academico')!.value }} </span>
-                </div>
-            </div>
-
-            <div class="col-12 sm:col-2 mb-3">
-                <div class="flex flex-column">
-                    <span class="text-900"> <strong>Centro costo</strong> </span>
-                    <span class="text-700"> {{ programasService.fbForm.get('Centro_costo')!.value }} </span>
-                </div>
-            </div>
-
-            <div class="col-12 sm:col-2 mb-3">
-                <div class="flex flex-column">
-                    <span class="text-900"> <strong>Créditos totales</strong> </span>
-                    <span class="text-700"> {{ programasService.fbForm.get('Creditos_totales')!.value }} </span>
-                </div>
-            </div>
-
-            <div class="col-12 sm:col-2 mb-3">
-                <div class="flex flex-column">
-                    <span class="text-900"> <strong>Horas totales</strong> </span>
-                    <span class="text-700"> {{ programasService.fbForm.get('Horas_totales')!.value }} </span>
-                </div>
-            </div>
-
-            <div class="col-12 sm:col-2 mb-3">
-                <div class="flex flex-column">
-                    <span class="text-900"> <strong>Código SIES</strong> </span>
-                    <span class="text-700"> {{ programasService.fbForm.get('Codigo_SIES')!.value }} </span>
-                </div>
-            </div>
-
-            <div class="col-12 sm:col-2 mb-3">
-                <div class="flex flex-column">
-                    <span class="text-900"> <strong>REXE</strong> </span>
-                    <span class="text-700"> {{ programasService.fbForm.get('REXE')!.value }} </span>
-                </div>
-            </div>
-
-            <div class="col-12 sm:col-2 mb-3">
-                <div class="flex flex-column">
-                    <span class="text-900"> <strong>Campus</strong> </span>
-                    <span class="text-700"> {{ programasService.campusSelected }} </span>
-                </div>
-            </div>
-
-            <div class="col-12 sm:col-6 mb-3">
-                <div class="flex flex-column">
-                    <span class="text-900"> <strong>Tipo de programa (Categoría) </strong> </span>
-                    <span class="text-700"> 
-                        {{ programasService.tipoProgramaSelected }}
-                        ({{ programasService.tipoProgramaCategoriaSelected }})
-                    </span>
-                </div>
-            </div>
-
-            <div class="col-12 sm:col-6 mb-3">
-                <div class="flex flex-column">
-                    <span class="text-900"> <strong>Unidad académica (Facultad)</strong> </span>
-                    <span class="text-700"> 
-                        {{ programasService.unidadAcademicaSelected }}
-                        ({{ programasService.unidadAcademicaFacultadSelected }})
-                    </span>
-                </div>
-            </div>
-            
-
-            <div class="col-12 sm:col-6 mb-3">
-                <div class="flex flex-column">
-                    <span class="text-900"> <strong>Estado maestro</strong> </span>
-                    <span class="text-700"> {{ programasService.estadoMaestroSelected }} </span>
-                </div>
-            </div>
-
-            <ng-container *ngIf="programasService.fbForm.get('Graduacion_Conjunta_Switch')!.value">
+        <form [formGroup]="form.fbForm">
+            <div class="formgrid grid">
                 <div class="col-12 sm:col-6 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Nombre</strong> </span>
+                        <span class="text-700"> {{ form.fbForm.get('Nombre_programa')!.value }} </span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Grupo correo LDAP</strong> </span>
+                        <span class="text-700"> {{ form.fbForm.get('Grupo_correo')!.value }} </span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Título</strong> </span>
+                        <span class="text-700"> {{ form.fbForm.get('Titulo')!.value }} </span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Grado académico</strong> </span>
+                        <span class="text-700"> {{ form.fbForm.get('Grado_academico')!.value }} </span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 md:col-3 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Centro costo</strong> </span>
+                        <span class="text-700"> {{ form.fbForm.get('Centro_costo')!.value }} </span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 md:col-3 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Código SIES</strong> </span>
+                        <span class="text-700"> {{ form.fbForm.get('Codigo_SIES')!.value }} </span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 md:col-3 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Créditos totales</strong> </span>
+                        <span class="text-700"> {{ form.fbForm.get('Creditos_totales')!.value }} </span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 md:col-3 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Horas totales</strong> </span>
+                        <span class="text-700"> {{ form.fbForm.get('Horas_totales')!.value }} </span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-12 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>REXE</strong> </span>
+                        <span class="text-700"> {{ form.fbForm.get('REXE')!.value }} </span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Tipo de programa (Categoría) </strong> </span>
+                        <span class="text-700"> 
+                            {{ form.tipoProgramaSelected }}
+                            ({{ form.tipoProgramaCategoriaSelected }})
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Campus</strong> </span>
+                        <span class="text-700"> {{ form.campusSelected }} </span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Estado maestro</strong> </span>
+                        <span class="text-700"> {{ form.estadoMaestroSelected }} </span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Unidades académicas (Facultad)</strong> </span>
+                        <p-multiSelect
+                            [options]="form.fbForm.get('Unidad_academica')!.value"
+                            [style]="{ 'width': '100%', 'min-width': '100%' }"
+                            [showHeader]="false"
+                            optionDisabled="checkDisabled"
+                            formControlName="Unidades_academicas_Selected"
+                            placeholder="Seleccione unidades académicas"
+                            selectedItemsLabel="{0} unidades academicas seleccionadas"
+                            optionLabel="Descripcion_ua"
+                        >
+                            <ng-template let-value pTemplate="selectedItems">
+                                <div class="inline-flex align-items-center px-1" *ngFor="let option of value">
+                                    <!-- <div>{{ option.Descripcion_ua }} ({{option.Descripcion_facu}})</div> -->
+                                    <p-tag severity="secondary" value="{{ option.Descripcion_ua }} ({{option.Facultad.Descripcion_facu}})" [rounded]="true" [style]="{padding: '0.05rem 0.4rem'}"/>
+                                </div>
+                            </ng-template>
+
+                            <ng-template let-item pTemplate="item">
+                                <div class="inline-flex align-items-center px-1" >
+                                    <div>{{ item.Descripcion_ua }} ({{item.Facultad.Descripcion_facu}})</div>
+                                </div>
+                            </ng-template>
+                        </p-multiSelect>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-4 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>¿Tiene graduación colaborativa?</strong> </span>
+                        <span class="text-700"> {{ form.fbForm.get('Graduacion_Conjunta_Switch')!.value ? 'SI' : 'NO' }} </span>
+                    </div>
+                </div>
+                
+                <div class="col-12 sm:col-4 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Tipo de graduación colaborativa</strong> </span>
+                        <span class="text-700"> {{ form.fbForm.get('Graduacion_Conjunta_Switch')!.value ? form.tipoGraduacionSelected  : 'NO APLICA' }} </span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-4 mb-3">
                     <div class="flex flex-column">
                         <span class="text-900"> <strong>Instituciones asociadas</strong> </span>
-                        <div class="flex flex-row justify-content-start flex-wrap">
-                            <ng-container *ngFor="let item of programasService.fbForm.get('Instituciones')!.value">
-                                <p-tag severity="secondary" value="{{item.nombreInstitucion}}" styleClass="m-1"/>
-                            </ng-container>
-                        </div>
+                        <ng-container *ngIf="form.fbForm.get('Graduacion_Conjunta_Switch')!.value; else sinInstituciones">
+                            <p-multiSelect
+                                [options]="form.fbForm.get('Instituciones')!.value"
+                                [style]="{ 'width': '100%', 'min-width': '100%' }"
+                                [showHeader]="false"
+                                formControlName="Instituciones_Selected"
+                                optionDisabled="checkDisabled"
+                                placeholder="Seleccione instituciones"
+                                selectedItemsLabel="{0} instituciones seleccionadas"
+                                optionLabel="nombreInstitucion"
+                                appendTo="body"
+                            >
+                                <ng-template let-value pTemplate="selectedItems">
+                                    <div class="inline-flex align-items-center px-1" *ngFor="let option of value">
+                                        <p-tag severity="secondary" value="{{ option.nombreInstitucion }}" [rounded]="true" [style]="{padding: '0.05rem 0.4rem'}"/>
+                                    </div>
+                                </ng-template>
+                            </p-multiSelect>
+                        </ng-container>
+                        <ng-template #sinInstituciones>
+                            <span class="text-700">NO APLICA</span>
+                        </ng-template>
                     </div>
                 </div>
-            </ng-container>
 
-            <div class="col-12 sm:col-6 mb-3">
-                <div class="flex flex-column">
-                    <span class="text-900"> <strong>Reglamento</strong> </span>
-                    <span class="text-700"> {{ programasService.reglamentoSelected }} </span>
+                <div class="col-12 sm:col-4 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>¿Tiene certificaciones intermedias?</strong> </span>
+                        <span class="text-700"> {{ form.fbForm.get('Certificacion_intermedia_Switch')!.value ? 'SI' : 'NO' }} </span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="col-12 sm:col-6 mb-3">
-                <div class="flex flex-column">
-                    <span class="text-900"> <strong>Director(a)</strong> </span>
-                    <span class="text-700"> {{ programasService.directorSelected.rut }} - {{ programasService.directorSelected.nombre }} </span>
+                <div class="col-12 sm:col-4 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Certificaciones intermedias</strong> </span>
+                        <ng-container *ngIf="form.fbForm.get('Certificacion_intermedia_Switch')!.value; else sinCertificaciones">
+                            <p-multiSelect
+                                [options]="form.fbForm.get('Certificacion_intermedia')!.value"
+                                [style]="{ 'width': '100%', 'min-width': '100%' }"
+                                [showHeader]="false"
+                                formControlName="Certificacion_intermedia_Selected"
+                                optionDisabled="checkDisabled"
+                                placeholder="Seleccione certificaciones"
+                                selectedItemsLabel="{0} certificaciones seleccionadas"
+                                optionLabel="Descripcion_certif_inter"
+                            >
+                                <ng-template let-value pTemplate="selectedItems">
+                                    <div class="inline-flex align-items-center px-1" *ngFor="let option of value">
+                                        <!-- <div>{{ option.Descripcion_ua }} ({{option.Descripcion_facu}})</div> -->
+                                        <p-tag severity="secondary" value="{{ option.Descripcion_certif_inter }}" [rounded]="true" [style]="{padding: '0.05rem 0.4rem'}"/>
+                                    </div>
+                                </ng-template>
+                            </p-multiSelect>
+                        </ng-container>
+                        <ng-template #sinCertificaciones>
+                            <span class="text-700">NO APLICA</span>
+                        </ng-template>
+                    </div>
                 </div>
-            </div>
+                <div class="col-12 sm:col-4 mb-3"></div>
 
-            <ng-container *ngIf="programasService.fbForm.get('haveDirectorAlterno')!.value">
-                <div class="col-12 sm:col-6 mb-3">
+                <div class="col-12 sm:col-4 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Reglamento</strong> </span>
+                        <span class="text-700"> {{ form.reglamentoSelected }} </span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-4 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Director(a)</strong> </span>
+                        <span class="text-700"> {{ form.directorSelected.rut }} - {{ form.directorSelected.nombre }} </span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-4 mb-3">
                     <div class="flex flex-column">
                         <span class="text-900"> <strong>Director(a) alterno(a)</strong> </span>
-                        <span class="text-700"> {{ programasService.directorAlternoSelected.rut }} - {{ programasService.directorAlternoSelected.nombre }} </span>
+                        <ng-container *ngIf="form.fbForm.get('haveDirectorAlterno')!.value; else sinDirectorAlterno">
+                            <span class="text-700"> {{ form.directorAlternoSelected.rut }} - {{ form.directorAlternoSelected.nombre }} </span>
+                        </ng-container>
+                        <ng-template #sinDirectorAlterno>
+                            <span class="text-700">NO APLICA</span>
+                        </ng-template>
                     </div>
                 </div>
-            </ng-container>
 
-            <div class="col-12">
-                <div class="mb-2">
-                    <label><strong>Documentos maestros adjuntos</strong></label>                                  
+                <div class="col-12">
+                    <div class="mb-2">
+                        <label><strong>Documentos maestros adjuntos</strong></label>                                  
+                    </div>
+                    <app-uploader-files *ngIf="confirmAddPrograma" mode="show"></app-uploader-files>
                 </div>
-                <app-uploader-files mode="show"></app-uploader-files>
-            </div>
 
-        </div>
+            </div>
+        </form>
 
     </div>
     <div footer>
@@ -468,7 +523,7 @@
     </div>
 </app-dialog>
 
-<app-dialog [dialogWidth]="'45vw'" [(visible)]="successAddPrograma" [closable]="false" [maximizable]="false">
+<app-dialog [dialogWidth]="'45vw'" [(visible)]="agregarProgramaMainService.dialogSuccessAddPrograma" [closable]="false" [maximizable]="false">
     <div header>
         <span class="text-xl">Programa agregado exitosamente</span>
     </div>
@@ -476,7 +531,7 @@
     <div content>
         <div class="flex align-items-center justify-content-center flex-column">
                 <i class="pi pi-check-circle text-5xl text-green-400"></i>
-                <span class="text-900">El programa <strong>{{ programasService.nameProgramaAdded }}</strong> ha sido agregado exitosamente.</span>
+                <span class="text-900">El programa <strong>{{ form.nameProgramaAdded }}</strong> ha sido agregado exitosamente.</span>
                 <span class="text-900">¿Con qué desea continuar?</span>
 
         </div>
@@ -503,3 +558,5 @@
         </p-button>
     </div>
 </app-dialog>
+
+<app-form-reglamentos></app-form-reglamentos>

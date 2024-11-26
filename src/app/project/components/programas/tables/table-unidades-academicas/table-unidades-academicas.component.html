@@ -5,12 +5,12 @@
     [rowsPerPageOptions]="[10,25,50]"
     [showCurrentPageReport]="true"
     [rowHover]="true"
-    [value]="data"
-    [columns]="cols"
-    [globalFilterFields]="globalFiltros"
-    [(selection)]="selectedRow"
-    [dataKey]="dataKeyTable"
-    (selectionChange)="selectionChange()"
+    [value]="main.unidadesAcad"
+    [columns]="table.cols"
+    [globalFilterFields]="table.globalFiltros"
+    [(selection)]="table.selectedRows"
+    [dataKey]="table.dataKeyTable"
+    (selectionChange)="table.setSelectedRows()"
     currentPageReportTemplate="{first} hasta {last} de {totalRecords} unidades académicas."
     selectionMode="multiple"
     >
@@ -35,7 +35,7 @@
                 label="Actualizar"
                 icon="pi pi-refresh"
                 styleClass="p-button-info"
-                (click)="refresh()">
+                (click)="main.getUnidadesAcademicas()">
               </p-button>
             </div>
           </div>
@@ -46,7 +46,7 @@
             <th style="width: 3rem">
                 <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
             </th>
-            <ng-container *ngFor="let col of cols">
+            <ng-container *ngFor="let col of table.cols">
                 <ng-container [ngSwitch]="col.field">
                     <th *ngSwitchCase="'Descripcion_ua'" pSortableColumn="{{col.field}}">
                         <div class="flex justify-content-start align-items-center">
@@ -71,8 +71,8 @@
                                 <ng-template pTemplate="filter" let-value let-filter="filterCallback">
                                     <p-multiSelect 
                                         [ngModel]="value" 
-                                        [options]="facultades" 
-                                        (onChange)="filter($event.value); unidadesAcademicasService.countTableValues(dt._totalRecords)" 
+                                        [options]="main.facultades" 
+                                        (onChange)="filter($event.value); main.countTableValues(dt._totalRecords)" 
                                         placeholder="Filtrar por facultad" 
                                         optionLabel="Descripcion_facu" 
                                         optionValue="Cod_facultad" >
@@ -139,7 +139,7 @@
 
     <ng-template pTemplate="emptymessage">
         <tr>
-            <td [attr.colspan]="cols.length + 1">Sin registros</td>
+            <td [attr.colspan]="table.cols.length + 1">Sin registros</td>
         </tr>
     </ng-template>
 </p-table>

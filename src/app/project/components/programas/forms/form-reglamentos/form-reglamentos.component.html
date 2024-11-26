@@ -1,73 +1,107 @@
-<div class="grid" *ngIf="modeForm !== 'show'">
-    <div class="col-12">
-        <app-form-isvalid [valid]="reglamentosService.fbForm.valid"></app-form-isvalid>
+<app-dialog [(visible)]="main.dialogForm">
+    <div header>
+        <ng-container *ngIf="main.modeForm === 'create' || main.modeForm === 'insert' ">
+            <span class="text-xl">Agregar {{ main.namesCrud.singular }}</span>
+        </ng-container>
+        <ng-container *ngIf="main.modeForm === 'edit' || main.modeForm === 'update' ">
+            <span class="text-xl">Actualizar {{ main.namesCrud.singular }}</span>
+        </ng-container>
+        <ng-container *ngIf="main.modeForm === 'show'">
+            <span class="text-xl">Ver {{ main.namesCrud.singular }}</span>
+        </ng-container>
     </div>
-</div>
-<form [formGroup]="reglamentosService.fbForm">
-    <div class="formgrid grid">
-        <div class="col-12">
-            <div class="field">
-                <label><strong>Nombre {{ modeForm !== 'show' ? '*' : '' }}</strong></label>
-                <input type="text" pInputText formControlName="Descripcion_regla" maxlength="50"
-                    class="w-full" placeholder="Ingrese nombre de reglamento de programa" />
-
-                <app-form-control [control]="reglamentosService.fbForm.controls['Descripcion_regla']"
-                    [validators]="['required', 'num_y_letras']"></app-form-control>
+    
+    <div content>
+            <!-- <p-button 
+        label="test" 
+        icon="pi pi-times" 
+        styleClass="p-button-sm p-button-secondary mr-2" 
+        (click)="test()" [text]="true"></p-button> -->
+        <p-messages *ngIf="main.modeForm === 'edit' || main.modeForm === 'update' " [(value)]="main.messages" [enableService]="false" />
+        <div class="grid" *ngIf="main.modeForm !== 'show'">
+            <div class="col-12">
+                <app-form-isvalid [valid]="form.fbForm.valid"></app-form-isvalid>
             </div>
         </div>
-    </div>
-    <div class="formgrid grid">
-        <div class="col-12 md:col-6">
-            <div class="flex flex-wrap justify-content-start">
-                <div class="field">
-                    <label for="Estado"><strong>¿Está vigente?</strong></label>
-                    <br>
-                    <div class="flex flex-row flex-wrap">
-                        <div class="flex align-items-center justify-content-center">
-                            <span>No</span>
+        <form [formGroup]="form.fbForm">
+            <div class="formgrid grid">
+                <div class="col-12">
+                    <div class="field">
+                        <label><strong>Nombre {{ main.modeForm !== 'show' ? '*' : '' }}</strong></label>
+                        <input type="text" pInputText formControlName="Descripcion_regla" maxlength="50"
+                            class="w-full" placeholder="Ingrese nombre de reglamento de programa" />
+        
+                        <app-form-control [control]="form.fbForm.controls['Descripcion_regla']"
+                            [validators]="['required', 'num_y_letras']"></app-form-control>
+                    </div>
+                </div>
+            </div>
+            <div class="formgrid grid">
+                <div class="col-12 md:col-6">
+                    <div class="flex flex-wrap justify-content-start">
+                        <div class="field">
+                            <label for="Estado"><strong>¿Está vigente?</strong></label>
+                            <br>
+                            <div class="flex flex-row flex-wrap">
+                                <div class="flex align-items-center justify-content-center">
+                                    <span>No</span>
+                                </div>
+                                <div class="flex align-items-center justify-content-center mx-2">
+                                    <p-inputSwitch formControlName="vigencia" styleClass="mt-1"></p-inputSwitch>
+                                </div>
+                                <div class="flex align-items-center justify-content-center">
+                                    <span>Si</span>
+                                    <app-form-control [control]="form.fbForm.controls['vigencia']"
+                                        [validators]="['required']"></app-form-control>
+                                </div>
+                            </div>
                         </div>
-                        <div class="flex align-items-center justify-content-center mx-2">
-                            <p-inputSwitch formControlName="vigencia" styleClass="mt-1"></p-inputSwitch>
-                        </div>
-                        <div class="flex align-items-center justify-content-center">
-                            <span>Si</span>
-                            <app-form-control [control]="reglamentosService.fbForm.controls['vigencia']"
-                                [validators]="['required']"></app-form-control>
+                    </div>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <div class="flex flex-wrap">
+                        <div class="w-full">
+                            <div class="mb-2">
+                                <label><strong>Año {{ main.modeForm !== 'show' ? '*' : '' }}</strong></label>
+                            </div>
+                            <p-calendar 
+                                formControlName="anio" 
+                                placeholder="Seleccione año" 
+                                view="year" 
+                                dateFormat="yy" 
+                                [maxDate]="maxDate"
+                                dataType="string"
+                            >
+                            </p-calendar>
+                            <app-form-control [control]="form.fbForm.controls['anio']" [validators]="['required']"></app-form-control>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="field col-12 md:col-6">
-            <div class="flex flex-wrap">
-                <div class="w-full">
+            <div class="grid">
+                <div class="col-12 ">
                     <div class="mb-2">
-                        <label><strong>Año {{ modeForm !== 'show' ? '*' : '' }}</strong></label>
+                        <label>
+                            <strong>
+                              {{ main.modeForm !== 'show' ? 'Adjunte documento(s) *' : 'Documento(s) adjunto(s)' }}
+                            </strong>
+                          </label>                                  
                     </div>
-                    <p-calendar 
-                        formControlName="anio" 
-                        placeholder="Seleccione año" 
-                        view="year" 
-                        dateFormat="yy" 
-                        [maxDate]="maxDate"
-                        dataType="string"
-                    >
-                    </p-calendar>
-                    <app-form-control [control]="reglamentosService.fbForm.controls['anio']" [validators]="['required']"></app-form-control>
+                    <app-uploader-files *ngIf="main.dialogForm" [mode]="main.modeForm!"></app-uploader-files>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
-    <div class="grid">
-        <div class="col-12 ">
-            <div class="mb-2">
-                <label>
-                    <strong>
-                      {{ modeForm !== 'show' ? 'Adjunte documento(s) *' : 'Documento(s) adjunto(s)' }}
-                    </strong>
-                  </label>                                  
-            </div>
-            <app-uploader-files [mode]="modeForm!"></app-uploader-files>
-        </div>
+
+    <div footer>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" 
+            (click)="main.dialogForm = false" [text]="true"></p-button>
+        
+        <p-button *ngIf="main.modeForm === 'create' || main.modeForm === 'edit'"
+            [label]="main.modeForm === 'edit' ? 'Actualizar' : 'Agregar'" icon="pi pi-check"
+            styleClass="mr-2 p-button-success p-button-sm" [disabled]="form.stateForm === 'INVALID'"
+            (click)="submitReglamento()">
+        </p-button>
     </div>
-</form>
+
+</app-dialog>

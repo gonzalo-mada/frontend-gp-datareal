@@ -51,10 +51,9 @@ export class ModalidadesComponent implements OnInit, OnDestroy {
     };
     this.keyPopups = 'modalidades'
     await this.getModalidades();
+    this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => { action==='agregar' ? this.createForm() : this.openConfirmationDeleteSelected(this.tableCrudService.getSelectedRows())}));
 
-    this.subscription.add(this.menuButtonsTableService.onClickButtonAgregar$.subscribe(() => this.createForm()));
     this.subscription.add(this.tableCrudService.onClickRefreshTable$.subscribe(() => this.getModalidades()));
-    this.subscription.add(this.menuButtonsTableService.onClickDeleteSelected$.subscribe(() => this.openConfirmationDeleteSelected(this.tableCrudService.getSelectedRows()) ))
     this.subscription.add(
       this.modalidadesService.crudUpdate$.subscribe(crud => {
         if (crud && crud.mode) {
@@ -72,8 +71,6 @@ export class ModalidadesComponent implements OnInit, OnDestroy {
         }
       })
     );
-    this.menuButtonsTableService.setContext('modalidad', 'dialog');
-
   }
 
   ngOnDestroy(){

@@ -1,14 +1,12 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { MessageService } from 'primeng/api';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Table, TableRowExpandEvent } from 'primeng/table';
 import { Subscription } from 'rxjs';
-import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
+import { Programa } from 'src/app/project/models/programas/Programa';
 import { Reglamento } from 'src/app/project/models/programas/Reglamento';
-import { Context } from 'src/app/project/models/shared/Context';
 import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
-import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
-import { ProgramasService } from 'src/app/project/services/programas/programas.service';
-import { ReglamentosService } from 'src/app/project/services/programas/reglamentos.service';
+import { FormProgramaService } from 'src/app/project/services/programas/programas/form.service';
+import { ReglamentosMainService } from 'src/app/project/services/programas/reglamentos/main.service';
+import { TableReglamentosService } from 'src/app/project/services/programas/reglamentos/table.service';
 
 @Component({
   selector: 'app-table-programas-reglamentos',
@@ -16,44 +14,31 @@ import { ReglamentosService } from 'src/app/project/services/programas/reglament
   styles: [
   ]
 })
-export class TableProgramasReglamentosComponent implements OnInit, OnChanges, OnDestroy {
-  constructor(
-    private errorTemplateHandler: ErrorTemplateHandler,
-    private messageService: MessageService,
-    private reglamentosService: ReglamentosService,
-    public programasService: ProgramasService,
-    private tableCrudService: TableCrudService,
-    private uploaderFilesService: UploaderFilesService
-  ){}
-
-
-  @Input() data: any[] = [];
+export class TableProgramasReglamentosComponent implements OnInit, OnDestroy {
+  
+  @Input() programa: Programa = {};
   @Input() mode: string = '';
   @Input() isAnySelected: boolean = false;
   searchValue: string | undefined;
   originalData: any[] = [];
-  cols: any[] = []
-  globalFiltros: any[] = []
-  dataKeyTable: string = '';
   expandedRows = {};
+  reglamentos: Reglamento[] = [];
   private subscription: Subscription = new Subscription();
 
-  ngOnInit(): void {
-    this.cols = [
-      { field: 'Descripcion_regla', header: 'Nombre' },
-      { field: 'vigencia', header: 'Vigencia' },
-      { field: 'anio', header: 'Año' },
-      { field: 'accion', header: 'Acciones' }
-    ];
-    this.globalFiltros = [ 'Descripcion_regla' , 'anio' ];
-    this.dataKeyTable = 'Cod_reglamento';
-    this.subscription.add(this.tableCrudService.resetExpandedRowsTableSubject$.subscribe( () => {this.resetExpandedRows()} ));
-  }
+  constructor(
+    public reglamentosMainService: ReglamentosMainService,
+    public form: FormProgramaService,
+    public tableReglamentosService: TableReglamentosService,
+    private tableCrudService: TableCrudService,
+  ){}
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data'] && changes['data'].currentValue) {
-      this.originalData = [...this.data];
-    }
+
+
+
+  async ngOnInit() {
+    await this.getReglamentos(false);
+    this.subscription.add(this.tableCrudService.resetExpandedRowsTableSubject$.subscribe( () => this.resetExpandedRows() ));
+    this.subscription.add(this.tableReglamentosService.refreshTableReglamento$.subscribe( () => this.getReglamentos(false) ));
   }
 
   ngOnDestroy(): void {
@@ -62,19 +47,34 @@ export class TableProgramasReglamentosComponent implements OnInit, OnChanges, On
     }
   }
 
-  onGlobalFilter(table: Table, event: Event) {
-    table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
-    
+  async getReglamentos(showCountTableValues: boolean){
+    this.reglamentos = await this.reglamentosMainService.getReglamentos(showCountTableValues);
+    if (this.programa.Cod_Reglamento) {
+      if (this.mode === 'show' ) {
+        this.reglamentos = this.reglamentos.filter( r => r.Cod_reglamento === this.programa.Cod_Reglamento)
+      }else{
+        this.reglamentos.map( reglamento => {
+          if (reglamento.Cod_reglamento === this.programa.Cod_Reglamento) {
+            reglamento.isSelected = true 
+            this.form.stateFormUpdate = 'VALID';
+          }else{
+            reglamento.isSelected = false
+          }
+        });
+      }
+    }
+    this.originalData = [...this.reglamentos];
   }
 
-  refresh(){
-    this.programasService.emitButtonRefreshTableReg();
+  onGlobalFilter(table: Table, event: Event) {
+    table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+    this.resetExpandedRows();
   }
 
   clear(table: Table){
     this.expandedRows = {}    
     this.searchValue = ''
-    this.data = [...this.originalData];
+    this.reglamentos = [...this.originalData];
     table.reset();
   }
 
@@ -83,60 +83,30 @@ export class TableProgramasReglamentosComponent implements OnInit, OnChanges, On
   }
 
   changeSelectSuspension(mode:'select' | 'unselect', data: Reglamento){
-    this.messageService.clear();
     switch (mode) {
       case 'select':
         this.isAnySelected = true
         data.isSelected = true;
-        this.programasService.setSelectReglamento(data);
-        this.messageService.add({
-          key: this.programasService.keyPopups,
-          severity: 'info',
-          detail: `Reglamento: "${data.Descripcion_regla}" seleccionado`,
-        });
+        this.form.setSelectReglamento(data);
       break;
-
       case 'unselect':
         this.isAnySelected = false
         data.isSelected = false;
-        this.programasService.unsetSelectReglamento();
-        this.messageService.add({
-          key: this.programasService.keyPopups,
-          severity: 'info',
-          detail: `Reglamento: "${data.Descripcion_regla}" deseleccionado`,
-        });
+        this.form.unsetSelectReglamento(data);
       break;
-
-    }
-
-
-  }
-
-  async onRowExpand(event: TableRowExpandEvent) {
-    try {
-      this.uploaderFilesService.setLoading(true,true);
-      this.uploaderFilesService.setContext('show','mantenedores','reglamentos');
-      const files = await this.reglamentosService.getDocumentosWithBinary(event.data.Cod_reglamento);
-      this.uploaderFilesService.setFiles(files);
-    } catch (e:any) {
-      this.errorTemplateHandler.processError(e, {
-        notifyMethod: 'alert',
-        summary: 'Error al obtener documentos',
-        message: e.detail.error.message.message
-      }
-    );
-    }finally{
-      this.uploaderFilesService.setLoading(false);
     }
   }
 
-  onRowCollapse(event: any){
+  onRowExpand(event: TableRowExpandEvent) {
+    this.reglamentosMainService.setModeCrud('rowExpandClick',event.data)
+  }
+
+  onRowCollapse(){
     this.resetExpandedRows();
   }
 
-  test(){
-    console.log("DATA: ",this.data);
-    
+  edit(data: Reglamento){
+    this.reglamentosMainService.setModeCrud('edit',data);
   }
 
 }

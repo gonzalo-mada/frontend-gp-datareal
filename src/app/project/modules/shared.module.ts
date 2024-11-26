@@ -52,7 +52,10 @@ import { TableProgramasDirectorAlternoComponent } from 'src/app/project/componen
 import { TableProgramasHistorialActividadComponent } from 'src/app/project/components/programas/tables/programas/table-programas-historial-actividad/table-programas-historial-actividad.component';
 import { LoadinggpComponent } from 'src/app/project/components/shared/loadinggp/loadinggp.component';
 import { TableProgramasDocsMaestroComponent } from '../components/programas/tables/programas/table-programas-docs-maestro/table-programas-docs-maestro.component';
-
+import { TableTiposGraduacionesComponent } from 'src/app/project/components/programas/tables/table-tipos-graduaciones/table-tipos-graduaciones.component';
+import { FormTiposGraduacionComponent } from 'src/app/project/components/programas/forms/form-tipos-graduacion/form-tipos-graduacion.component';
+import { TableCertificacionesIntermediasComponent } from 'src/app/project/components/programas/tables/table-certificaciones-intermedias/table-certificaciones-intermedias.component';
+import { FormCertificacionesIntermediasComponent } from 'src/app/project/components/programas/forms/form-certificaciones-intermedias/form-certificaciones-intermedias.component';
 
 const componentsGp = [
   BreadcrumbgpComponent,
@@ -61,6 +64,7 @@ const componentsGp = [
   DialogComponent,
   DialogVisorPdfComponent,
   FormCategoriasTpComponent,
+  FormCertificacionesIntermediasComponent,
   FormEstadosAcreditacionComponent,
   FormProgramasStepOneComponent,
   FormProgramasStepTwoComponent,
@@ -70,14 +74,17 @@ const componentsGp = [
   FormSuspensionComponent,
   FormJornadasComponent,
   FormModalidadesComponent,
+  FormTiposGraduacionComponent,
   LoadinggpComponent,
   MenuButtonsTableComponent,
   UploaderFilesComponent,
   StateFormComponent,
   TableCampusComponent,
   TableCategoriasTpComponent,
+  TableCertificacionesIntermediasComponent,
   TableEstadosAcreditacionComponent,
   TableFacultadComponent,
+  TableTiposGraduacionesComponent,
   TableTiposProgramasComponent,
   TableProgramasComponent,
   TableProgramasDirectorComponent,

@@ -1,7 +1,7 @@
 
-<form [formGroup]="programasService.fbForm">
+<form [formGroup]="form.fbForm">
     <div class="formgrid grid">
-        <div class="field col-12 md:col-6 lg:col-4">
+        <div class="field col-12 md:col-6">
             <label><strong>Tipo de programa *</strong></label>
             <br>
             <p-dropdown
@@ -18,9 +18,9 @@
                     </div>
                 </ng-template>
             </p-dropdown>
-            <app-form-control [control]="programasService.fbForm.controls['Tipo_programa']" [validators]="['required']"></app-form-control>
+            <app-form-control [control]="form.fbForm.controls['Tipo_programa']" [validators]="['required']"></app-form-control>
         </div>
-        <div class="field col-12 md:col-6 lg:col-4">
+        <div class="field col-12 md:col-6">
             <label><strong>Campus *</strong></label>
             <br>
             <p-dropdown
@@ -33,28 +33,9 @@
                 optionValue="Cod_campus"
             >
             </p-dropdown>
-            <app-form-control [control]="programasService.fbForm.controls['Campus']" [validators]="['required']"></app-form-control>
+            <app-form-control [control]="form.fbForm.controls['Campus']" [validators]="['required']"></app-form-control>
         </div>
-        <div class="field col-12 md:col-6 lg:col-4">
-            <label><strong>Unidad académica *</strong></label>
-            <br>
-            <p-dropdown
-                [options]="unidadesAcademicasGrouped"
-                [group]="true"
-                [style]="{ width: '100%', 'min-width': '100%' }"
-                (onChange)="changeUnidadAcad($event)"
-                formControlName="Unidad_academica"
-                placeholder="Seleccione unidad académica"
-            >
-                <ng-template let-group pTemplate="group">
-                    <div class="flex align-items-center">
-                        <span>{{ group.label }}</span>
-                    </div>
-                </ng-template>
-            </p-dropdown>
-            <app-form-control [control]="programasService.fbForm.controls['Unidad_academica']" [validators]="['required']"></app-form-control>
-        </div>
-        <div class="field col-12 md:col-6 lg:col-4">
+        <div class="field col-12 md:col-6">
             <label><strong>Estado maestro *</strong></label>
             <br>
             <p-dropdown
@@ -66,11 +47,36 @@
                 (onChange)="onEstadoMaestroChange($event)"
             >
             </p-dropdown>
-            <app-form-control [control]="programasService.fbForm.controls['EstadoMaestro']" [validators]="['required']"></app-form-control>
+            <app-form-control [control]="form.fbForm.controls['EstadoMaestro']" [validators]="['required']"></app-form-control>
+        </div>
+        <div class="field col-12 md:col-6">
+            <label><strong>Unidades académicas *</strong></label>
+            <br>
+            <p-multiSelect
+                [options]="unidadesAcademicasGrouped"
+                [group]="true"
+                [style]="{ width: '100%', 'min-width': '100%' }"
+                [virtualScroll]="true"
+                [virtualScrollItemSize]="43"
+                (onChange)="changeUnidadAcad($event)"
+                formControlName="Unidad_academica"
+                placeholder="Seleccione unidades académicas"
+                appendTo="body"
+                selectedItemsLabel="{0} unidades académicas seleccionadas"
+            >
+                <ng-template let-group pTemplate="group">
+                    <div class="flex align-items-center">
+                        <span>{{ group.label }}</span>
+                    </div>
+                </ng-template>
+            </p-multiSelect>
+            <app-form-control [control]="form.fbForm.controls['Unidad_academica']" [validators]="['required']"></app-form-control>
         </div>
 
+    </div>
+    <div class="formgrid grid">
         <div class="field col-12 md:col-6 lg:col-4">
-            <label><strong>¿Tiene graduación conjunta?</strong></label>
+            <label><strong>¿Tiene graduación colaborativa?</strong></label>
             <div class="flex flex-row justify-content-start flex-wrap">
                 <div class="flex align-items-center justify-content-center">
                     <span>No</span>
@@ -84,21 +90,80 @@
             </div>
         </div>
         <div class="field col-12 md:col-6 lg:col-4">
+            <label><strong>Tipo de graduación colaborativa {{ showAsterisk ? '*' : '' }}</strong></label>
+            <br>
+            <p-dropdown
+                [options]="tiposGraduaciones"
+                [style]="{ width: '100%', 'min-width': '100%' }"
+                formControlName="TipoGraduacion"
+                placeholder="Seleccione tipo de graduación"
+                optionLabel="Descripcion_tipoColaborativa"
+                optionValue="Cod_TipoColaborativa"
+                (onChange)="changeTipoGraduacion($event)"
+            >
+            </p-dropdown>
+            <app-form-control [control]="form.fbForm.controls['TipoGraduacion']" [validators]="['required']"></app-form-control>
+        </div>
+        <div class="field col-12 md:col-6 lg:col-4">
             <label><strong>Instituciones {{ showAsterisk ? '*' : '' }}</strong></label>
             <br>
             <p-multiSelect
                 [options]="instituciones"
-                formControlName="Instituciones"
-                placeholder="Seleccione instituciones"
                 [style]="{ width: '100%', 'min-width': '100%' }"
-                optionLabel="nombreInstitucion"
-                appendTo="body"
                 [virtualScroll]="true"
                 [virtualScrollItemSize]="43"
+                formControlName="Instituciones"
+                placeholder="Seleccione instituciones"
+                optionLabel="nombreInstitucion"
+                appendTo="body"
                 selectedItemsLabel="{0} instituciones seleccionadas"
+                (onChange)="changeInstituciones($event)"
             >
             </p-multiSelect>
-            <app-form-control [control]="programasService.fbForm.controls['Instituciones']" [validators]="['required']"></app-form-control>
+            <app-form-control [control]="form.fbForm.controls['Instituciones']" [validators]="['required']"></app-form-control>
+        </div>
+    </div> 
+    <div class="formgrid grid">
+        <div class="field col-12 md:col-6 lg:col-4">
+            <label><strong>¿Tiene certificación intermedia?</strong></label>
+            <div class="flex flex-row justify-content-start flex-wrap">
+                <div class="flex align-items-center justify-content-center">
+                    <span>No</span>
+                </div>
+                <div class="flex align-items-center justify-content-center mx-2">
+                    <p-inputSwitch formControlName="Certificacion_intermedia_Switch"  (onChange)="changeSwitchCI($event)" styleClass="mt-1 mx-1"/>
+                </div>
+                <div class="flex align-items-center justify-content-center">
+                    <span>Si</span>
+                </div>
+            </div>
+        </div>
+        <div class="field col-12 md:col-6 lg:col-4">
+            <label><strong>Certificaciones intermedias {{ showAsteriskCI ? '*' : '' }}</strong></label>
+            <br>
+            <p-inputGroup>
+                <p-multiSelect
+                    [options]="mainCertifIntermedia.certificaciones"
+                    [style]="{ width: '100%', 'min-width': '100%' }"
+                    formControlName="Certificacion_intermedia"
+                    placeholder="Seleccione certificaciones"
+                    optionLabel="Descripcion_certif_inter"
+                    selectedItemsLabel="{0} certificaciones intermedias seleccionadas"
+                    (onChange)="changeCertifIntermedias($event)"
+                >
+                </p-multiSelect>
+                <button 
+                    (click)="mainCertifIntermedia.setModeCrud('create')" 
+                    type="button" pButton icon="pi pi-plus" iconPos="right" 
+                    class="p-button-success" pTooltip="Agregar nueva certificación intermedia" 
+                    tooltipPosition="bottom"
+                    [disabled]="!form.fbForm.get('Certificacion_intermedia_Switch')?.value"
+                >
+                </button>
+            </p-inputGroup>
+            <app-form-control [control]="form.fbForm.controls['Certificacion_intermedia']" [validators]="['required']"></app-form-control>
         </div>
     </div>    
 </form>
+
+<app-form-certificaciones-intermedias></app-form-certificaciones-intermedias>

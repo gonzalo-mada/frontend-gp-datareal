@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
-import { MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { HistorialActividad } from 'src/app/project/models/programas/HistorialActividad';
+import { MessageServiceGP } from 'src/app/project/services/components/message-service.service';
 
 
 @Component({
@@ -12,7 +12,7 @@ import { HistorialActividad } from 'src/app/project/models/programas/HistorialAc
 })
 export class TableProgramasHistorialActividadComponent implements OnInit, OnChanges {
 
-  constructor(private messageService: MessageService){}
+  constructor(private messageService: MessageServiceGP){}
   @Input() data: HistorialActividad[] = [];
   @Input() mode: string = '';
 
@@ -192,7 +192,7 @@ export class TableProgramasHistorialActividadComponent implements OnInit, OnChan
   countTableValues(table: Table){
     this.messageService.clear();
     this.messageService.add({
-      key: 'main-gp',
+      key: 'main',
       severity: 'info',
       detail: table._totalRecords !== 1
        ? `${table._totalRecords} actividades listadas.`

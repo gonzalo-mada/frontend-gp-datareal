@@ -1,9 +1,8 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Table } from 'primeng/table';
-import { Subscription } from 'rxjs';
 import { TipoPrograma } from 'src/app/project/models/programas/TipoPrograma';
-import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
-import { TiposprogramasService } from 'src/app/project/services/programas/tipos-programas.service';
+import { TiposProgramasMainService } from 'src/app/project/services/programas/tipos-programas/main.service';
+import { TableTiposProgramasService } from 'src/app/project/services/programas/tipos-programas/table.service';
 
 @Component({
   selector: 'app-table-tipos-programas',
@@ -11,81 +10,55 @@ import { TiposprogramasService } from 'src/app/project/services/programas/tipos-
   styles: [
   ]
 })
-export class TableTiposProgramasComponent implements OnInit, OnChanges, OnDestroy {
+export class TableTiposProgramasComponent implements OnInit, OnDestroy {
 
-  @Input() data: any[] = [];
-
-  selectedRow: TipoPrograma[] = [] ;
   searchValue: string | undefined;
   originalData: any[] = [];
-  cols: any[] = []
-  globalFiltros: any[] = []
-  dataKeyTable: string = '';
 
-  private subscription: Subscription = new Subscription();
-
-  constructor(private tipoProgramaService: TiposprogramasService, 
-    private tableCrudService: TableCrudService
+  constructor(
+    public main: TiposProgramasMainService, 
+    public table: TableTiposProgramasService
   ){}
 
   ngOnInit(): void {
-    this.subscription = this.tableCrudService.resetSelectedRowsSubject$.subscribe( () => this.selectedRow = []);
-    this.cols = [
-      { field: 'Descripcion_tp', header: 'Nombre' },
-      { field: 'Categoria.Descripcion_categoria', header: 'Categoría' },
-      { field: 'accion', header: 'Acciones' }
-    ];
-
-    this.globalFiltros = [ 'Descripcion_tp', 'Categoria.Descripcion_categoria' ];
-    this.dataKeyTable = 'Cod_tipoPrograma';
+    this.getData(true);
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data'] && changes['data'].currentValue) {
-      this.originalData = [...this.data];
-    }
-  }
-  
   ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
+    this.table.resetSelectedRows();
+  }
+
+  async getData(showCountTableValues: boolean){
+    await this.main.getTiposProgramas(showCountTableValues);
+    await this.main.getCategoriasTp();
+    this.originalData = [...this.main.tiposProg];
   }
 
   onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
-    this.resetSelectedRows();
+    this.table.resetSelectedRows();
   }
 
-  refresh(){
-    this.tableCrudService.emitClickRefreshTable();
-  }
-  
   edit(data: TipoPrograma){
-    this.tipoProgramaService.setModeCrud('edit',data)
+    this.main.setModeCrud('edit',data);
   }
 
   show(data: TipoPrograma){
-    this.tipoProgramaService.setModeCrud('show',data)
+    this.main.setModeCrud('show',data);
   }
 
   delete(data: TipoPrograma){
-    this.tipoProgramaService.setModeCrud('delete',data)
+    this.main.setModeCrud('delete',data);
   }
 
-  selectionChange(){   
-    this.tableCrudService.setSelectedRows(this.selectedRow)
-  }
-
-  resetSelectedRows(){    
-    this.selectedRow = [];
-    this.tableCrudService.setSelectedRows(this.selectedRow)
+  changeState(data: TipoPrograma){
+    this.main.setModeCrud('changeState',data);
   }
 
   clear(table: Table){
-    this.resetSelectedRows();
+    this.table.resetSelectedRows();
     this.searchValue = ''
-    this.data = [...this.originalData];
+    this.main.tiposProg = [...this.originalData];
     table.reset();
   }
 

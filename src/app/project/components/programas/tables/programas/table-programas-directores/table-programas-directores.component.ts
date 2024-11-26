@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { MessageService } from 'primeng/api';
 import { Director } from 'src/app/project/models/programas/Director';
-import { ProgramasService } from 'src/app/project/services/programas/programas.service';
+import { MessageServiceGP } from 'src/app/project/services/components/message-service.service';
+import { FormProgramaService } from 'src/app/project/services/programas/programas/form.service';
 
 @Component({
   selector: 'app-table-programas-directores',
@@ -11,7 +11,7 @@ import { ProgramasService } from 'src/app/project/services/programas/programas.s
 })
 export class TableProgramasDirectoresComponent implements OnChanges {
 
-  constructor(private programasService: ProgramasService, private messageService: MessageService){}
+  constructor(private form: FormProgramaService, private messageService: MessageServiceGP){}
 
   @Input() data: any[] = []
   @Input() mode!: 'director' | 'alterno';
@@ -31,9 +31,9 @@ export class TableProgramasDirectoresComponent implements OnChanges {
       case 'select':
         this.isAnySelected = true
         data.isSelected = true;
-        this.programasService.setSelectDirector(this.mode, nombreCompleto, data.rutcompleto!)
+        this.form.setSelectDirector(this.mode, nombreCompleto, data.rutcompleto!)
         this.messageService.add({
-          key: this.programasService.keyPopups,
+          key: 'main',
           severity: 'info',
           detail: this.mode === 'director' 
           ? `Director(a): "${nombreCompleto}" seleccionado(a)` 
@@ -44,9 +44,9 @@ export class TableProgramasDirectoresComponent implements OnChanges {
       case 'unselect':
         this.isAnySelected = false;
         data.isSelected = false;
-        this.programasService.unsetSelectDirector(this.mode)
+        this.form.unsetSelectDirector(this.mode)
         this.messageService.add({
-          key: this.programasService.keyPopups,
+          key: 'main',
           severity: 'info',
           detail: this.mode === 'director' 
           ? `Director(a): "${nombreCompleto}" deseleccionado(a)` 

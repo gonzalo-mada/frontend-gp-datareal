@@ -1,10 +1,8 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { MessageService } from 'primeng/api';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Table } from 'primeng/table';
-import { Subscription } from 'rxjs';
 import { UnidadAcademica } from 'src/app/project/models/programas/UnidadAcademica';
-import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
-import { UnidadesAcademicasService } from 'src/app/project/services/programas/unidades-academicas.service';
+import { UnidadesAcadMainService } from 'src/app/project/services/programas/unidades-academicas/main.service';
+import { TableUnidadesAcadService } from 'src/app/project/services/programas/unidades-academicas/table.service';
 
 @Component({
   selector: 'app-table-unidades-academicas',
@@ -12,86 +10,55 @@ import { UnidadesAcademicasService } from 'src/app/project/services/programas/un
   styles: [
   ]
 })
-export class TableUnidadesAcademicasComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() data: any[] = [];
-  @Input() facultades: any[] = [];
-  
-  mode : string = '';
-  selectedRow: UnidadAcademica[] = [] ;
+export class TableUnidadesAcademicasComponent implements OnInit, OnDestroy {
   searchValue: string | undefined;
   originalData: any[] = [];
-  cols: any[] = [
-    { field: 'Descripcion_ua', header: 'Nombre' },
-    { field: 'Facultad.Descripcion_facu', header: 'Facultad' },
-    { field: 'accion', header: 'Acciones' }
-  ];
-  globalFiltros: any[] = [ 'Descripcion_ua', 'Facultad.Descripcion_facu' ]
-  dataKeyTable: string = 'Cod_unidad_academica';
-  groupedData: any[] = [];
-  private subscription: Subscription = new Subscription();
- 
+
   constructor(
-    private messageService: MessageService,
-    public unidadesAcademicasService: UnidadesAcademicasService, 
-    private tableCrudService: TableCrudService
+    public main: UnidadesAcadMainService, 
+    public table: TableUnidadesAcadService
   ){}
- 
-  async ngOnInit() {
-    this.subscription = this.tableCrudService.resetSelectedRowsSubject$.subscribe( () => this.selectedRow = []);
-    
+
+  ngOnInit(): void {
+    this.getData(true);
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data'] && changes['data'].currentValue) {
-      this.originalData = [...this.data];
-    }
-  }
-  
   ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
+    this.table.resetSelectedRows();
   }
- 
+
+  async getData(showCountTableValues: boolean){
+    await this.main.getUnidadesAcademicas(showCountTableValues);
+    await this.main.getFacultades();
+    this.originalData = [...this.main.unidadesAcad];
+  }
+
   onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
-    this.resetSelectedRows();
+    this.table.resetSelectedRows();
   }
- 
-  refresh(){
-    this.tableCrudService.emitClickRefreshTable();
-  }
- 
+
   edit(data: UnidadAcademica){
-    this.unidadesAcademicasService.setModeCrud('edit',data);
+    this.main.setModeCrud('edit',data);
   }
- 
+
   show(data: UnidadAcademica){
-    this.unidadesAcademicasService.setModeCrud('show',data);
+    this.main.setModeCrud('show',data);
   }
- 
+
   delete(data: UnidadAcademica){
-    this.unidadesAcademicasService.setModeCrud('delete',data);
-  }
- 
-  selectionChange(){   
-    this.tableCrudService.setSelectedRows(this.selectedRow)
+    this.main.setModeCrud('delete',data);
   }
 
-  resetSelectedRows(){    
-    this.selectedRow = [];
-    this.tableCrudService.setSelectedRows(this.selectedRow)
+  changeState(data: UnidadAcademica){
+    this.main.setModeCrud('changeState',data);
   }
- 
+
   clear(table: Table){
-    this.resetSelectedRows();
+    this.table.resetSelectedRows();
     this.searchValue = ''
-    this.data = [...this.originalData];
+    this.main.unidadesAcad = [...this.originalData];
     table.reset();
-    this.unidadesAcademicasService.countTableValues(this.originalData.length);
   }
-
-  
-
 
 }

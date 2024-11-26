@@ -1,9 +1,8 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Table } from 'primeng/table';
-import { Subscription } from 'rxjs';
 import { Facultad } from 'src/app/project/models/programas/Facultad';
-import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
-import { FacultadService } from 'src/app/project/services/programas/facultad.service';
+import { FacultadesMainService } from 'src/app/project/services/programas/facultad/main.service';
+import { TableFacultadesService } from 'src/app/project/services/programas/facultad/table.service';
 
 @Component({
   selector: 'app-table-facultad',
@@ -11,84 +10,56 @@ import { FacultadService } from 'src/app/project/services/programas/facultad.ser
   styles: [
   ]
 })
-export class TableFacultadComponent implements OnInit, OnChanges, OnDestroy {
+export class TableFacultadComponent implements OnInit, OnDestroy {
 
-  @Input() data: any[] = [];
-
-  selectedRow: Facultad[] = [] ;
   searchValue: string | undefined;
   originalData: any[] = [];
-  cols: any[] = []
-  globalFiltros: any[] = []
-  dataKeyTable: string = '';
 
-  private subscription: Subscription = new Subscription();
-
-  constructor(private facultadService: FacultadService, private tableCrudService: TableCrudService){}
+  constructor(
+    public main: FacultadesMainService, 
+    public table: TableFacultadesService
+  ){}
 
   ngOnInit(): void {
-    this.subscription = this.tableCrudService.resetSelectedRowsSubject$.subscribe( () => this.selectedRow = []);
-    this.cols = [
-      { field: 'Descripcion_facu', header: 'Nombre' },
-      { field: 'Estado_facu', header: 'Estado' },
-      { field: 'accion', header: 'Acciones' }
-    ];
-    this.globalFiltros = [ 'Descripcion_facu' ];
-    this.dataKeyTable = 'Cod_facultad';
+    this.getData(true);
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data'] && changes['data'].currentValue) {
-      this.originalData = [...this.data];
-    }
-  }
   ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
+    this.table.resetSelectedRows();
+  }
+
+  async getData(showCountTableValues: boolean){
+    await this.main.getFacultades(showCountTableValues);
+    this.originalData = [...this.main.facultades];
   }
 
   onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
-    this.resetSelectedRows();
+    this.table.resetSelectedRows();
   }
 
-  refresh(){
-    this.tableCrudService.emitClickRefreshTable();
-  }
-  
   edit(data: Facultad){
-    this.facultadService.setModeCrud('edit',data);
+    this.main.setModeCrud('edit',data);
   }
 
   show(data: Facultad){
-    this.facultadService.setModeCrud('show',data);
+    this.main.setModeCrud('show',data);
   }
 
   delete(data: Facultad){
-    this.facultadService.setModeCrud('delete',data);
+    this.main.setModeCrud('delete',data);
   }
 
   changeState(data: Facultad){
-    this.facultadService.setModeCrud('changeState',data);
-  }
-
-  selectionChange(){   
-    this.tableCrudService.setSelectedRows(this.selectedRow)
-  }
-
-  resetSelectedRows(){    
-    this.selectedRow = [];
-    this.tableCrudService.setSelectedRows(this.selectedRow)
+    this.main.setModeCrud('changeState',data);
   }
 
   clear(table: Table){
-    this.resetSelectedRows();
+    this.table.resetSelectedRows();
     this.searchValue = ''
-    this.data = [...this.originalData];
+    this.main.facultades = [...this.originalData];
     table.reset();
   }
-
 
 
 }

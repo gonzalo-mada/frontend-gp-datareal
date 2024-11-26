@@ -1,9 +1,8 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Table } from 'primeng/table';
-import { Subscription } from 'rxjs';
 import { Suspension } from 'src/app/project/models/programas/Suspension';
-import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
-import { SuspensionesService } from 'src/app/project/services/programas/suspensiones.service';
+import { TiposSuspensionesMainService } from 'src/app/project/services/programas/tipos-suspensiones/main.service';
+import { TableTiposSuspensionesService } from 'src/app/project/services/programas/tipos-suspensiones/table.service';
 
 @Component({
   selector: 'app-table-suspensiones',
@@ -11,79 +10,48 @@ import { SuspensionesService } from 'src/app/project/services/programas/suspensi
   styles: [
   ]
 })
-export class TableSuspensionesComponent implements OnInit, OnChanges, OnDestroy {
-  constructor( private suspensionesService: SuspensionesService,
-    private tableCrudService: TableCrudService)
-  {}
-  @Input() data: any[] = [];
-
-  selectedRow: Suspension[] = [] ;
+export class TableSuspensionesComponent implements OnInit, OnDestroy {
   searchValue: string | undefined;
   originalData: any[] = [];
-  cols: any[] = []
-  globalFiltros: any[] = []
-  dataKeyTable: string = '';
 
-  private subscription: Subscription = new Subscription();
+  constructor( 
+    public main: TiposSuspensionesMainService,
+    public table: TableTiposSuspensionesService
+  ){}
 
   ngOnInit(): void {
-    this.subscription = this.tableCrudService.resetSelectedRowsSubject$.subscribe( () => this.selectedRow = []);
-
-    this.cols = [
-      { field: 'Descripcion_TipoSuspension', header: 'Nombre' },
-      { field: 'accion', header: 'Acciones' }
-    ];
-
-    this.globalFiltros = [ 'Descripcion_TipoSuspension' ];
-    this.dataKeyTable = 'ID_TipoSuspension';
+    this.getData(true);
   }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data'] && changes['data'].currentValue) {
-      this.originalData = [...this.data];
-    }
-  }
-
   ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
+    this.table.resetSelectedRows();
+  }
+
+  async getData(showCountTableValues: boolean){
+    await this.main.getTiposSuspensiones(showCountTableValues);
+    this.originalData = [...this.main.tipos_susp];
   }
 
   onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
-    this.resetSelectedRows();
+    this.table.resetSelectedRows();
   }
 
-  refresh(){
-    this.tableCrudService.emitClickRefreshTable();
-  }
-  
   edit(data: Suspension){
-    this.suspensionesService.setModeCrud('edit',data)
+    this.main.setModeCrud('edit',data);
   }
-
+ 
   show(data: Suspension){
-    this.suspensionesService.setModeCrud('show',data)
+    this.main.setModeCrud('show', data);
   }
-
+ 
   delete(data: Suspension){
-    this.suspensionesService.setModeCrud('delete',data)
+    this.main.setModeCrud('delete', data);
   }
-
-  selectionChange(){   
-    this.tableCrudService.setSelectedRows(this.selectedRow)
-  }
-
-  resetSelectedRows(){    
-    this.selectedRow = [];
-    this.tableCrudService.setSelectedRows(this.selectedRow)
-  }
-
+   
   clear(table: Table){
-    this.resetSelectedRows();
+    this.table.resetSelectedRows();
     this.searchValue = ''
-    this.data = [...this.originalData];
+    this.main.tipos_susp = [...this.originalData];
     table.reset();
   }
 

@@ -1,13 +1,26 @@
 <p-overlayPanel #op>
     <ng-template pTemplate>
-        <div class="flex flex-row flex-wrap">
-            <div class="flex align-items-center justify-content-center">
-                <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
+        <div class="flex flex-column">
+            <div class="flex align-items-center justify-content-start">
+                <div class="flex flex-row align-items-center justify-content-start">
+                    <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
+                    <span class="mx-1" style="font-weight: 100;">Permite ver documentos adjuntos</span>
+                </div>
             </div>
-            <div class="flex align-items-center justify-content-center">
-                <span class="mx-1" style="font-weight: 100;">Permite ver documentos adjuntos</span>
+            <div class="flex align-items-center justify-content-start">
+                <div class="flex flex-row align-items-center justify-content-start">
+                    <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-check" ></button>
+                    <span class="mx-1" style="font-weight: 100;">Permite seleccionar estado de acreditación</span>
+                </div>
+            </div>
+            <div class="flex align-items-center justify-content-start">
+                <div class="flex flex-row align-items-center justify-content-center">
+                    <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-minus" ></button>
+                    <span class="mx-1" style="font-weight: 100;">Permite deseleccionar estado de acreditación</span>
+                </div>
             </div>
         </div>
+
     </ng-template>
 </p-overlayPanel>
 <p-table
@@ -16,16 +29,16 @@
     [paginator]=" mode !== 'show' "
     [rowsPerPageOptions]="[10,25,50]" 
     [showCurrentPageReport]="true"
-    [value]="data" 
-    [columns]="cols" 
-    [globalFilterFields]="globalFiltros"
-    [dataKey]="dataKeyTable" 
+    [value]="estados" 
+    [columns]="table.cols" 
+    [globalFilterFields]="table.globalFiltros"
+    [dataKey]="table.dataKeyTable" 
     [expandedRowKeys]="expandedRows"
     (onRowExpand)="onRowExpand($event)"
-    (onRowCollapse)="onRowCollapse($event)"
+    (onRowCollapse)="onRowCollapse()"
     [customSort]="true"
     (sortFunction)="customSort($event)"
-    currentPageReportTemplate="{first} hasta {last} de {totalRecords} registros."
+    currentPageReportTemplate="{first} hasta {last} de {totalRecords} estados de acreditación."
     autoLayout="true"
     rowExpandMode="single"
 >
@@ -44,17 +57,12 @@
                     (click)="clear(dt)">
                 </p-button>
             </div>
-
-            <div class="hidden lg:flex align-items-center">
-                <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
-                <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
-            </div>
                             
             <div class="flex">
                 <p-button 
                     pTooltip="Muestra la leyenda de íconos" 
                     icon="pi pi-question-circle"
-                    styleClass="p-button-warning mr-2 lg:hidden" 
+                    styleClass="p-button-warning mr-2" 
                     (click)="op.toggle($event)">
                 </p-button>
                 <p-button 
@@ -62,7 +70,7 @@
                     label="Actualizar" 
                     icon="pi pi-refresh" 
                     styleClass="p-button-info" 
-                    (click)="refresh()">
+                    (click)="getData(true)">
                 </p-button>
             </div>
         </div>
@@ -71,9 +79,9 @@
     <ng-template pTemplate="header">
         <tr>
             <th style="width: 5rem"></th>
-            <ng-container *ngFor="let col of cols">
+            <ng-container *ngFor="let col of table.cols">
                 <ng-container *ngIf="col.field !== 'accion'; else actionsColumn">
-                    <th [ngStyle]="getColStyle(col)" *ngIf="showColumn(col.field)" pSortableColumn="{{ col.field }}"  >
+                    <th [ngStyle]="getColStyle(col)" pSortableColumn="{{ col.field }}"  >
                         {{ col.header }} <p-sortIcon *ngIf="col.field != 'tiempo.Fecha_inicio' && mode !== 'show' " field="{{ col.field }}"></p-sortIcon>
                       </th>
                 </ng-container>
@@ -93,7 +101,7 @@
                 <span class="p-column-title">Identificador</span>
                 {{data.Sigla}}
             </td>
-            <td *ngIf="configModeService.config().isPostgrado">
+            <td>
                 <span class="p-column-title">Estado</span>
                 <div class="flex flex-row flex-wrap">
                     <div class="flex align-items-center justify-content-center">
@@ -113,27 +121,6 @@
                 </ng-container>
             </td>
 
-            <td *ngIf="!configModeService.config().isPostgrado">
-                <span class="p-column-title">Estado</span>
-                <div class="flex flex-row flex-wrap">
-                    <div class="flex align-items-center justify-content-center">
-                        <span [ngClass]="data.Certificado == 'SI' ? 'estado-badge estado-activo' : 'estado-badge estado-desactivo'">
-                            {{ data.Certificado == 'SI' ? 'Certificado' : 'no Certificado' }}
-                        </span>
-                    </div>
-                </div>
-            </td>
-
-            <!-- <td *ngIf="configModeService.config().isPostgrado">
-                <span class="p-column-title">Nombre_ag_acredit</span>
-                {{data.Nombre_ag_acredit}}
-            </td>
-
-            <td *ngIf="!configModeService.config().isPostgrado">
-                <span class="p-column-title">Nombre_ag_certif</span>
-                {{data.Nombre_ag_certif}}
-            </td> -->
-
             <td>
                 <span class="p-column-title">Evaluacion_interna</span>
                 <div class="flex flex-row flex-wrap">
@@ -149,28 +136,30 @@
                 {{data.Fecha_informe !== '01-01-1900' ? data.Fecha_informe : 'N/A'}}
             </td>
 
-
-<!-- 
-            <td>
-                <span class="p-column-title">Fecha_termino</span>
-                {{data.tiempo.Fecha_termino == '01-01-1900' ? 'N/A' : data.tiempo.Fecha_termino}}
-            </td> -->
-
             <td *ngIf="mode !== 'show'">
                 <div class="flex">
                     <p-button
                         *ngIf="!data.isSelected" 
-                        label="Seleccionar" 
+                        icon="pi pi-check" 
                         styleClass="p-button-sm p-button-info mr-2" 
+                        pTooltip="Seleccionar"
                         (click)="changeSelectEstadoAcreditacion('select',data)"
                         [disabled]="isAnySelected && !data.isSelected" 
                     >
                     </p-button>
                     <p-button
-                        *ngIf="data.isSelected"    
-                        styleClass="p-button-sm p-button-danger"
-                        label="Deseleccionar"
+                        *ngIf="data.isSelected"
+                        icon="pi pi-minus"    
+                        styleClass="p-button-sm p-button-danger mr-2"
+                        pTooltip="Deseleccionar"
                         (click)="changeSelectEstadoAcreditacion('unselect',data)"
+                    >
+                    </p-button>
+                    <p-button
+                        icon="pi pi-pencil"
+                        styleClass="p-button-sm p-button-warning"
+                        pTooltip="Editar registro"
+                        (click)="edit(data)"
                     >
                     </p-button>
                 </div>
@@ -189,7 +178,7 @@
 
     <ng-template pTemplate="emptymessage">
         <tr>
-            <td [attr.colspan]="mode !== 'show' ? (cols.length + 1) : (cols.length)" >Sin registros</td>
+            <td [attr.colspan]="mode !== 'show' ? (table.cols.length + 1) : (table.cols.length)" >Sin registros</td>
         </tr>
     </ng-template>
 

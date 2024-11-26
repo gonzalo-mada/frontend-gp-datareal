@@ -1,12 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { CategoriaTp } from 'src/app/project/models/programas/CategoriaTp';
-import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
-import { CategoriasTpService } from 'src/app/project/services/programas/categorias-tp.service';
-import { generateMessage } from 'src/app/project/tools/utils/form.utils';
-import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
+import { FormCategoriasTpService } from 'src/app/project/services/programas/categorias-tp/form.service';
+import { CategoriasTpMainService } from 'src/app/project/services/programas/categorias-tp/main.service';
 
 @Component({
   selector: 'app-form-categorias-tp',
@@ -16,16 +12,23 @@ import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
 })
 export class FormCategoriasTpComponent implements OnInit, OnDestroy {
   
-  constructor(public categoriasTpService: CategoriasTpService){}
-
   private subscription: Subscription = new Subscription();
 
+  constructor(
+    public form: FormCategoriasTpService,
+    public main: CategoriasTpMainService
+  ){}
+
   async ngOnInit() {
-    this.subscription.add(this.categoriasTpService.fbForm.statusChanges.subscribe(status => { this.categoriasTpService.stateForm = status as StateValidatorForm }))
+    this.subscription.add(this.form.fbForm.statusChanges.subscribe(status => { this.form.stateForm = status as StateValidatorForm }))
   }
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
+  }
+
+  async submit(){
+    this.main.modeForm === 'create' ? this.main.setModeCrud('insert') : this.main.setModeCrud('update')
   }
 
 }

@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ProgramasService } from '../../../services/programas/programas.service';
+import { Component } from '@angular/core';
+import { FormProgramaService } from 'src/app/project/services/programas/programas/form.service';
 
 @Component({
   selector: 'app-state-form',
@@ -8,13 +8,13 @@ import { ProgramasService } from '../../../services/programas/programas.service'
 })
 export class StateFormComponent  {
   constructor(
-    public programasService: ProgramasService
+    public form: FormProgramaService
   ){
     this.dataForm = [
       {
         step: 1,
         title: 'Paso 1',
-        state: 'programasService.stateStepOne',
+        state: 'stateStepOne',
         fields: [
           { label: 'Nombre de programa', control: 'Nombre_programa' },
           { label: 'Correo LDAP', control: 'Grupo_correo' },
@@ -34,12 +34,22 @@ export class StateFormComponent  {
         fields: [
           { label: 'Tipo de programa', control: 'Tipo_programa' },
           { label: 'Campus', control: 'Campus' },
-          { label: 'Unidad académica', control: 'Unidad_academica' },
           { label: 'Estado maestro', control: 'Cod_EstadoMaestro' },
+          { label: 'Unidad académica', control: 'Unidad_academica' },
+          { 
+            label: 'Tipo de graduación', 
+            control: 'TipoGraduacion', 
+            conditional: { field: 'Graduacion_Conjunta_Switch', value: true }
+          },
           { 
             label: 'Instituciones', 
             control: 'Instituciones', 
             conditional: { field: 'Graduacion_Conjunta_Switch', value: true }
+          },
+          { 
+            label: 'Certificaciones intermedias', 
+            control: 'Certificacion_intermedia', 
+            conditional: { field: 'Certificacion_intermedia_Switch', value: true }
           },
         ]
       },
