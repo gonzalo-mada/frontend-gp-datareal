@@ -1,17 +1,15 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { MessageService } from 'primeng/api';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
-import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 import { ModeDialog, Programa } from 'src/app/project/models/programas/Programa';
 import { Reglamento } from 'src/app/project/models/programas/Reglamento';
-import { ConfigModeService } from 'src/app/project/services/components/config-mode.service';
 import { LoadinggpService } from 'src/app/project/services/components/loadinggp.service';
 import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
 import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
-import { ProgramasService } from 'src/app/project/services/programas/programas.service';
+import { BackendProgramasService } from 'src/app/project/services/programas/programas/backend.service';
+import { FormProgramaService } from 'src/app/project/services/programas/programas/form.service';
+import { VerEditarProgramaMainService } from 'src/app/project/services/programas/programas/ver-editar/main.service';
 import { groupDataTipoPrograma, groupDataUnidadesAcademicas } from 'src/app/project/tools/utils/dropwdown.utils';
-
 
 
 @Component({
@@ -19,21 +17,21 @@ import { groupDataTipoPrograma, groupDataUnidadesAcademicas } from 'src/app/proj
   templateUrl: './form-programas-view-and-edit.component.html',
   styleUrls: ['./form-programas-view-and-edit.component.css']
 })
-export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
+export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnDestroy {
  
   constructor(
-    private commonUtils: CommonUtils,
-    public configModeService: ConfigModeService,
+    private backend: BackendProgramasService,
     private errorTemplateHandler: ErrorTemplateHandler,
-    private messageService: MessageService,
-    public programasService: ProgramasService,
+    public form: FormProgramaService,
     private systemService: LoadinggpService,
     public tableCrudService: TableCrudService,
-    private uploaderFilesService: UploaderFilesService
+    private uploaderFilesService: UploaderFilesService,
+    public verEditarProgramaMainService: VerEditarProgramaMainService
   ){}
 
+
   @Input() mode: string = '';
-  @Input() cod_programa: any;
+  @Input() onClickRefreshPrograma: boolean = false;
   @Output() modeDialogEmitter = new EventEmitter();
 
   programa: Programa = {};
@@ -58,34 +56,24 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
   loadingTab: boolean = true 
   private subscription: Subscription = new Subscription();
   keyPopups: string = 'editar-programa';
+  unidadesAcademicasPrograma: any[] = [];
+  tiposGraduaciones: any[] = [];
+  certifIntermedias: any[] = [];
   
   async ngOnInit() {
-    this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
-      if (from) {
-        if (from.context.component.label) {
-          switch (from.context.component.label) {
-            case 'Maestro': this.downloadDoc(from.file,'maestro'); break;
-            case 'Director': this.downloadDoc(from.file,'director'); break;
-            case 'Director alterno': this.downloadDoc(from.file,'directorAlterno'); break;
-            case 'Estado maestro': this.downloadDoc(from.file,'estado_maestro'); break;
-            case 'Grado académico': this.downloadDoc(from.file,'grado_academico'); break;
-            case 'REXE': this.downloadDoc(from.file,'REXE'); break;
-            case 'Título': this.downloadDoc(from.file,'titulo'); break;
-          }
-        }else{
-          switch (from.context.component.name) {
-            case 'reglamentos': this.downloadDoc(from.file,'reglamentos'); break;
-            case 'estado-acreditacion': this.downloadDoc(from.file,'estados_acreditacion'); break;
-          }
-        }
-      }
-    }));
-    this.subscription.add(this.programasService.buttonRefreshTableReglamento$.subscribe(() => this.getReglamentos()));
-    this.subscription.add(this.programasService.buttonRefreshTableEA$.subscribe(() => this.getEstadosAcreditacion()));
     await this.getPrograma();
     await this.getData();
   }
-  
+
+  async ngOnChanges(changes: SimpleChanges) {
+    if ( changes['onClickRefreshPrograma'] && changes['onClickRefreshPrograma'].currentValue) {
+      console.log("change: ",changes['onClickRefreshPrograma'].currentValue);
+      if (changes['onClickRefreshPrograma'].currentValue){
+        await this.getPrograma();
+        await this.getData();
+      } 
+    }
+  }
 
   ngOnDestroy(): void {
     if (this.subscription) {
@@ -96,21 +84,16 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
   }
 
   async getPrograma(){
-    try {
-      this.systemService.loading(true);
-      this.loading = true;
-      this.programa = await this.programasService.getPrograma({Cod_Programa: this.cod_programa},false);
-      console.log("DATA PROGRAMA FROM VIEW AND EDIT",this.programa);
-      
-      this.programasService.setFormPrograma(this.programa);
-      this.programasService.fbForm.disable();
-
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener el programa. Intente nuevamente.',
-      });
-    }
+    this.systemService.loading(true);
+    this.loading = true;
+    this.programa = await this.backend.getPrograma({Cod_Programa: this.verEditarProgramaMainService.cod_programa},false,this.verEditarProgramaMainService.namesCrud);
+    // console.log("DATA PROGRAMA FROM VIEW AND EDIT",this.programa);
+    
+    this.form.setForm(this.programa);
+    this.form.fbForm.disable();
+    this.form.fbForm.get('Unidades_academicas_Selected')!.enable();
+    this.form.fbForm.get('Instituciones_Selected')!.enable();
+    this.form.fbForm.get('Certificacion_intermedia_Selected')!.enable();
   }
 
   async getData(){
@@ -118,7 +101,7 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
       await Promise.all([
         this.getCampus(),
         this.getUnidadesAcademicas(),
-        this.getInstituciones(),
+        // this.getInstituciones(),
         this.getInstitucionesSelected(),
         this.getReglamentos(),
         this.getEstadosAcreditacion(),
@@ -126,7 +109,9 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
         this.getDirector(),
         this.getDirectorAlterno(),
         this.getTiposProgramas(),
-        this.getLogPrograma()
+        this.getLogPrograma(),
+        this.getUnidadesAcademicasPrograma(),
+        this.getCertificacionIntermediaPrograma()
       ]);
       // Llamadas sincrónicas o que no necesitan espera
       this.getTitulo();
@@ -145,202 +130,114 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
   }
 
   async getTiposProgramas(){
-    try {
-      this.tiposProgramas =  await this.programasService.getTiposProgramas(false);
-      this.tiposProgramas = groupDataTipoPrograma(this.tiposProgramas);
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener tipos de programas. Intente nuevamente.',
-      });
-    }
+    this.tiposProgramas =  await this.backend.getTiposProgramas(false);
+    this.tiposProgramas = groupDataTipoPrograma(this.tiposProgramas);
   }
 
   async getCampus(){
-    try {
-      this.campus =  await this.programasService.getCampus(false);            
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener campus. Intente nuevamente.',
-      });
-    }
+    this.campus =  await this.backend.getCampus(false);            
   }
 
   async getUnidadesAcademicas(){
-    try {
-      this.unidadesAcademicas =  await this.programasService.getUnidadesAcademicas(false);
-      this.unidadesAcademicas = groupDataUnidadesAcademicas(this.unidadesAcademicas);
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener unidades académicas. Intente nuevamente.',
-      });
-    }
+    this.unidadesAcademicas =  await this.backend.getUnidadesAcademicas(false);
+    this.unidadesAcademicas = groupDataUnidadesAcademicas(this.unidadesAcademicas);
   }
 
   async getInstituciones(){
-    try {
-      this.instituciones = await this.programasService.getInstituciones(false);
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener instituciones. Intente nuevamente.',
-      });
-    }
+    if (this.programa.Graduacion_Conjunta === 1) this.instituciones = await this.backend.getInstituciones(false);
   }
 
   async getInstitucionesSelected(){
-    try {
-      this.institucionesSelected = await this.programasService.getInstitucionesSelected({Cod_Programa: this.programa.Cod_Programa},false);
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener instituciones seleccionadas. Intente nuevamente.',
-      });
+    if (this.programa.Graduacion_Conjunta === 1) {
+      this.institucionesSelected = await this.backend.getInstitucionesSelected({Cod_Programa: this.programa.Cod_Programa},false);
+      this.form.fbForm.get('Instituciones_Selected')?.patchValue(this.institucionesSelected);
+      await this.getTiposGraduaciones();
+    }
+  }
+
+  async getTiposGraduaciones(){
+    this.tiposGraduaciones =  await this.backend.getTiposGraduaciones();  
+  }
+
+  async getUnidadesAcademicasPrograma(){
+    this.unidadesAcademicasPrograma = await this.backend.getUnidadesAcademicasPrograma({Cod_Programa: this.programa.Cod_Programa},false);
+    this.form.fbForm.get('Unidades_academicas_Selected')?.patchValue(this.unidadesAcademicasPrograma);
+  }
+
+  async getCertificacionIntermediaPrograma(){
+    if (this.programa.Certificacion_intermedia === 1) {
+      this.certifIntermedias = await this.backend.getCertificacionIntermediaPrograma({Cod_Programa: this.programa.Cod_Programa},false);
+      this.form.fbForm.get('Certificacion_intermedia_Selected')?.patchValue(this.certifIntermedias);
     }
   }
 
   async getLogPrograma(){
-    try {
-      this.logsPrograma = await this.programasService.getLogPrograma({Cod_Programa: this.programa.Cod_Programa},false);
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener historial de actividades. Intente nuevamente.',
-      });
-    }
+    this.logsPrograma = await this.backend.getLogPrograma({Cod_Programa: this.programa.Cod_Programa},false);
   }
 
   async getReglamentos(){
-    try {
-      this.reglamentos = await this.programasService.getReglamentos(false);
-      this.reglamentos = this.reglamentos.filter( r => r.Cod_reglamento === this.programa.Cod_Reglamento)
-            
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener reglamentos. Intente nuevamente.',
-      });
-    }
+    this.reglamentos = await this.backend.getReglamentos(false);
+    this.reglamentos = this.reglamentos.filter( r => r.Cod_reglamento === this.programa.Cod_Reglamento)
   }
 
   async getEstadosAcreditacion(){
-    try {
-      this.estadosAcreditacion = await this.programasService.getEstadosAcreditacion(false);
-      this.estadosAcreditacion = this.estadosAcreditacion.filter( ea => ea.Cod_acreditacion === this.programa.Cod_acreditacion)
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener estados de acreditación. Intente nuevamente.',
-      });
-    }
+    this.estadosAcreditacion = await this.backend.getEstadosAcreditacion(false);
+    this.estadosAcreditacion = this.estadosAcreditacion.filter( ea => ea.Cod_acreditacion === this.programa.Cod_acreditacion)
   }
 
   async getEstadosMaestros(){
-    try {
-      this.estadosMaestros = await this.programasService.getEstadosMaestros(false);
-      this.estadosMaestros = this.estadosMaestros.filter( em => em.Cod_EstadoMaestro === this.programa.Cod_EstadoMaestro)
-      if (this.programa.Cod_EstadoMaestro === 2 && this.estadosMaestros.length > 0) {
-        let suspensiones = await this.programasService.getSuspensiones(false);
-        suspensiones = suspensiones.filter((susp: any) => susp.ID_TipoSuspension === this.programa.ID_TipoSuspension);
-        if (suspensiones.length > 0) {
-            this.estadosMaestros[0] = {
-                ...this.estadosMaestros[0],
-                ...suspensiones[0]
-            };
-        }
-    }
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener estados maestros. Intente nuevamente.',
-      });
+    this.estadosMaestros = await this.backend.getEstadosMaestros(false);
+    this.estadosMaestros = this.estadosMaestros.filter( em => em.Cod_EstadoMaestro === this.programa.Cod_EstadoMaestro)
+    if (this.programa.Cod_EstadoMaestro === 2 && this.estadosMaestros.length > 0) {
+      let suspensiones = await this.backend.getSuspensiones(false);
+      suspensiones = suspensiones.filter((susp: any) => susp.ID_TipoSuspension === this.programa.ID_TipoSuspension);
+      if (suspensiones.length > 0) {
+          this.estadosMaestros[0] = {
+              ...this.estadosMaestros[0],
+              ...suspensiones[0]
+          };
+      }
     }
   }
 
   getDocMaestro(){
-    try {
-      this.docMaestro = [];
-      this.docMaestro.push({Nombre_programa: this.programa.Nombre_programa}) ;
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener documento maestro. Intente nuevamente.',
-      });
-    }finally{
-      this.uploaderFilesService.setLoading(false)
-    }
+    this.docMaestro = [];
+    this.docMaestro.push({Nombre_programa: this.programa.Nombre_programa});
+    this.uploaderFilesService.setLoading(false)
+    
   }
 
   getTitulo(){
-    try {
-      this.titulo = [];
-      this.titulo.push({Titulo: this.programa.Titulo}) ;
-      
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener título. Intente nuevamente.',
-      });
-    }
+    this.titulo = [];
+    this.titulo.push({Titulo: this.programa.Titulo});
   }
 
   getGradoAcademico(){
-    try {
-      this.grado_academico = [];
-      this.grado_academico.push({Grado_academico: this.programa.Grado_academico}) ;
-      
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener grado académico. Intente nuevamente.',
-      });
-    }
+    this.grado_academico = [];
+    this.grado_academico.push({Grado_academico: this.programa.Grado_academico});
   }
 
   getRexe(){
-    try {
-      this.rexe = [];
-      this.rexe.push({Rexe: this.programa.REXE}) ;
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener REXE. Intente nuevamente.',
-      });
-    }
+    this.rexe = [];
+    this.rexe.push({Rexe: this.programa.REXE});
   }
   
   async getDirector(){
-    try {
-      const rut_director = this.programa.Director!.split('-');
-      this.director = await this.programasService.getDirector({rut: parseInt(rut_director[0])},false);
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener director. Intente nuevamente.',
-      });
-    }
+    const rut_director = this.programa.Director!.split('-');
+    this.director = await this.backend.getDirector({rut: parseInt(rut_director[0])},false);
   }
 
   async getDirectorAlterno(){
-    try {
-      if (this.programa.Director_alterno !== '0') {
-        const rut_director_alterno = this.programa.Director_alterno!.split('-');
-        this.directorAlterno = await this.programasService.getDirector({rut: parseInt(rut_director_alterno[0])},false);
-      }else{
-        this.directorAlterno = [];
-      }
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener director alterno. Intente nuevamente.',
-      });
+    if (this.programa.Director_alterno !== '0') {
+      const rut_director_alterno = this.programa.Director_alterno!.split('-');
+      this.directorAlterno = await this.backend.getDirector({rut: parseInt(rut_director_alterno[0])},false);
+    }else{
+      this.directorAlterno = [];
     }
   }
 
   changeSwitch(event: any){
-    const Instituciones = this.programasService.fbForm.get('Instituciones')!;
+    const Instituciones = this.form.fbForm.get('Instituciones')!;
     if (this.mode === 'edit') {
       switch (event.checked) {
         case true: Instituciones?.enable(); this.showAsterisk = true; break;
@@ -352,20 +249,6 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
 
   async changeTab(){
     this.tableCrudService.emitResetExpandedRowsTable();
-  }
-
-  async downloadDoc(documento: any, from: string) {
-    try {
-      let blob: Blob = await this.programasService.getArchiveDoc(documento.id, from);
-      this.commonUtils.downloadBlob(blob, documento.nombre);      
-    } catch (e:any) {
-      this.errorTemplateHandler.processError(
-        e, {
-          notifyMethod: 'alert',
-          summary: 'Error al descargar documento',
-          message: e.detail.error.message.message
-      });
-    }
   }
 
   async openDialog(mode: ModeDialog){
@@ -412,4 +295,18 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
       this.loading = false;
     }
   }
+
+  test(){
+    console.log("fbFormUpdate",this.form.fbFormUpdate.value);
+    console.log("stateFormUpdate programaService: ",this.form.stateFormUpdate);
+    
+    Object.keys(this.form.fbForm.controls).forEach(key => {
+      const control = this.form.fbFormUpdate.get(key);
+      if (control?.invalid) {
+        console.log(`Errores en ${key}:`, control.errors);
+      }
+    });
+  }
+
+
 }

@@ -1,9 +1,8 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Table } from 'primeng/table';
-import { Subscription } from 'rxjs';
 import { UnidadAcademica } from 'src/app/project/models/programas/UnidadAcademica';
-import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
-import { UnidadesAcademicasService } from 'src/app/project/services/programas/unidades-academicas.service';
+import { UnidadesAcadMainService } from 'src/app/project/services/programas/unidades-academicas/main.service';
+import { TableUnidadesAcadService } from 'src/app/project/services/programas/unidades-academicas/table.service';
 
 @Component({
   selector: 'app-table-unidades-academicas',
@@ -11,79 +10,55 @@ import { UnidadesAcademicasService } from 'src/app/project/services/programas/un
   styles: [
   ]
 })
-export class TableUnidadesAcademicasComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() data: any[] = [];
-
- 
-  mode : string = '';
-  selectedRow: UnidadAcademica[] = [] ;
+export class TableUnidadesAcademicasComponent implements OnInit, OnDestroy {
   searchValue: string | undefined;
   originalData: any[] = [];
-  cols: any[] = []
-  globalFiltros: any[] = []
-  dataKeyTable: string = '';
- 
-  private subscription: Subscription = new Subscription();
- 
-  constructor(private unidadesAcademicasService: UnidadesAcademicasService, private tableCrudService: TableCrudService){}
- 
+
+  constructor(
+    public main: UnidadesAcadMainService, 
+    public table: TableUnidadesAcadService
+  ){}
+
   ngOnInit(): void {
-    this.subscription = this.tableCrudService.resetSelectedRowsSubject$.subscribe( () => this.selectedRow = []);
-    this.cols = [
-      { field: 'Descripcion_ua', header: 'Nombre' },
-      { field: 'Facultad.Descripcion_facu', header: 'Facultad' },
-      { field: 'accion', header: 'Acciones' }
-    ];
-    this.globalFiltros = [ 'Descripcion_ua', 'Facultad.Descripcion_facu' ]
-    this.dataKeyTable = 'Cod_unidad_academica';
+    this.getData(true);
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data'] && changes['data'].currentValue) {
-      this.originalData = [...this.data];
-    }
-  }
-  
   ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
+    this.table.resetSelectedRows();
   }
- 
+
+  async getData(showCountTableValues: boolean){
+    await this.main.getUnidadesAcademicas(showCountTableValues);
+    await this.main.getFacultades();
+    this.originalData = [...this.main.unidadesAcad];
+  }
+
   onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
-    this.resetSelectedRows();
-  }
- 
-  refresh(){
-    this.tableCrudService.emitClickRefreshTable();
-  }
- 
-  edit(data: UnidadAcademica){
-    this.unidadesAcademicasService.setModeCrud('edit',data);
-  }
- 
-  show(data: UnidadAcademica){
-    this.unidadesAcademicasService.setModeCrud('show',data);
-  }
- 
-  delete(data: UnidadAcademica){
-    this.unidadesAcademicasService.setModeCrud('delete',data);
-  }
- 
-  selectionChange(){   
-    this.tableCrudService.setSelectedRows(this.selectedRow)
+    this.table.resetSelectedRows();
   }
 
-  resetSelectedRows(){    
-    this.selectedRow = [];
-    this.tableCrudService.setSelectedRows(this.selectedRow)
+  edit(data: UnidadAcademica){
+    this.main.setModeCrud('edit',data);
   }
- 
+
+  show(data: UnidadAcademica){
+    this.main.setModeCrud('show',data);
+  }
+
+  delete(data: UnidadAcademica){
+    this.main.setModeCrud('delete',data);
+  }
+
+  changeState(data: UnidadAcademica){
+    this.main.setModeCrud('changeState',data);
+  }
+
   clear(table: Table){
-    this.resetSelectedRows();
+    this.table.resetSelectedRows();
     this.searchValue = ''
-    this.data = [...this.originalData];
+    this.main.unidadesAcad = [...this.originalData];
     table.reset();
   }
+
 }

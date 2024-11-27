@@ -2,7 +2,7 @@ import { EstadoMaestro } from "./EstadoMaestro";
 import { EstadosAcreditacion } from "./EstadosAcreditacion";
 import { Reglamento } from "./Reglamento";
 import { Suspension } from "./Suspension";
-export type ModeDialog = undefined | 'título' | 'grado académico' | 'REXE' | 'estado maestro' | 'director' | 'director alterno' | 'programa' | 'reglamento' | 'estado acreditación' | 'documentos maestros' | 'nombre' | 'grupo_correo' | 'créditos totales' | 'horas totales'
+export type ModeDialog = undefined | 'título' | 'grado académico' | 'REXE' | 'estado maestro' | 'director' | 'director alterno' | 'programa' | 'reglamento' | 'estado acreditación' | 'maestro' | 'nombre' | 'grupo_correo' | 'créditos totales' | 'horas totales'
 export interface Programa {
     Cod_Programa?: number,
     Centro_costo?: string,
@@ -23,6 +23,7 @@ export interface Programa {
     Unidad_academica?: number,
     Grado_academico?: string,
     Graduacion_Conjunta?: number,
+    Cod_TipoGraduacion?: number,
     Cod_EstadoMaestro?: number,
     ID_TipoSuspension?: number,
     EstadosAreditacion?: EstadosAcreditacion ,
@@ -34,6 +35,7 @@ export interface Programa {
     Descripcion_TipoSuspension?: string,
     Descripcion_acreditacion?: string,
     nombre_Director?: string,
-    nombre_DirectorAlterno?: string
+    nombre_DirectorAlterno?: string,
+    Certificacion_intermedia?: number
 }
 

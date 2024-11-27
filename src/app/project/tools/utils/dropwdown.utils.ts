@@ -35,7 +35,7 @@ export function groupDataUnidadesAcademicas(data: any[]): any[]{
         if (existingGroup) {
           existingGroup.items.push({
             label: item.Descripcion_ua,
-            value: item.Cod_unidad_academica,
+            value: item,
             parentLabel: category.Descripcion_facu
           });
         }else{
@@ -44,7 +44,7 @@ export function groupDataUnidadesAcademicas(data: any[]): any[]{
             value: category.Cod_facultad, 
             items: [{
               label: item.Descripcion_ua,
-              value: item.Cod_unidad_academica,
+              value: item,
               parentLabel: category.Descripcion_facu
             }]
           })

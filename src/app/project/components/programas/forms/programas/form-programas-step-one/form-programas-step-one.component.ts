@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ProgramasService } from 'src/app/project/services/programas/programas.service';
+import { FormProgramaService } from 'src/app/project/services/programas/programas/form.service';
 
 @Component({
   selector: 'app-form-programas-step-one',
@@ -10,10 +10,10 @@ import { ProgramasService } from 'src/app/project/services/programas/programas.s
 
 export class FormProgramasStepOneComponent {
 
-  constructor(public programasService: ProgramasService){}
+  constructor(public form: FormProgramaService){}
 
   get modeForm() {
-    return this.programasService.modeForm;
+    return this.form.modeForm;
   }
 
 }

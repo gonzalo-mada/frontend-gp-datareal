@@ -4,15 +4,15 @@
     [paginator]="true" 
     [rowsPerPageOptions]="[10,25,50]" 
     [showCurrentPageReport]="true"
-    currentPageReportTemplate="{first} hasta {last} de {totalRecords} registros." 
+    currentPageReportTemplate="{first} hasta {last} de {totalRecords} tipos de programas." 
     selectionMode="multiple"
     [rowHover]="true" 
-    [value]="data" 
-    [columns]="cols" 
-    [globalFilterFields]="globalFiltros"
-    [(selection)]="selectedRow" 
-    [dataKey]="dataKeyTable" 
-    (selectionChange)="selectionChange()" >
+    [value]="main.tiposProg" 
+    [columns]="table.cols" 
+    [globalFilterFields]="table.globalFiltros"
+    [(selection)]="table.selectedRows" 
+    [dataKey]="table.dataKeyTable" 
+    (selectionChange)="table.setSelectedRows()" >
     <ng-template pTemplate="caption">
         <div class="flex flex-wrap flex-column md:flex-row justify-content-between align-items-center">
             <div class="flex mb-2 md:mb-0">
@@ -34,7 +34,7 @@
                 label="Actualizar" 
                 icon="pi pi-refresh" 
                 styleClass="p-button-info" 
-                (click)="refresh()">
+                (click)="main.getTiposProgramas()">
               </p-button>
             </div>
           </div>
@@ -45,15 +45,43 @@
             <th style="width: 3rem">
                 <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
             </th>
-            <ng-container *ngFor="let col of cols">
-                <ng-container *ngIf="col.field !== 'accion'; else actionsColumn">
-                    <th pSortableColumn="{{col.field}}">
-                        {{col.header}} <p-sortIcon field="{{col.field}}"></p-sortIcon>
+            <ng-container *ngFor="let col of table.cols">
+                <ng-container [ngSwitch]="col.field">
+                    <th *ngSwitchCase="'Descripcion_tp'" pSortableColumn="{{col.field}}">
+                        <div class="flex justify-content-start align-items-center">
+                            {{col.header}}
+                            <p-sortIcon field="{{col.field}}"></p-sortIcon>
+                            <!-- <p-columnFilter type="text" field="{{col.field}}" display="menu"/> -->
+                        </div>
                     </th>
+                    <th *ngSwitchCase="'Categoria.Descripcion_categoria'" pSortableColumn="{{col.field}}">
+                        <div class="flex justify-content-start align-items-center">
+                            {{col.header}}
+                            <p-sortIcon field="{{col.field}}"></p-sortIcon>
+                            <p-columnFilter 
+                                [showMatchModes]="false" 
+                                [showOperator]="false" 
+                                [showAddButton]="false"
+                                [showButtons]="false"
+                                matchMode="in" 
+                                field="Categoria.Cod_CategoriaTP" 
+                                display="menu" 
+                            > 
+                                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                                    <p-multiSelect 
+                                        [ngModel]="value" 
+                                        [options]="main.categorias" 
+                                        (onChange)="filter($event.value); main.countTableValues(dt._totalRecords)" 
+                                        placeholder="Filtrar por categoría" 
+                                        optionLabel="Descripcion_categoria" 
+                                        optionValue="Cod_CategoriaTP" >
+                                    </p-multiSelect>
+                                </ng-template>
+                            </p-columnFilter>
+                        </div>
+                    </th>
+                    <th *ngSwitchCase="'accion'" style="min-width: 10rem; ">{{ col.header }}</th>
                 </ng-container>
-                <ng-template #actionsColumn>
-                    <th style="min-width: 10rem; ">{{ col.header }}</th>
-                </ng-template>
             </ng-container>
         </tr>
     </ng-template>
@@ -111,7 +139,7 @@
 
     <ng-template pTemplate="emptymessage">
         <tr>
-            <td [attr.colspan]="cols.length + 1">Sin registros</td>
+            <td [attr.colspan]="table.cols.length + 1">Sin registros</td>
         </tr>
     </ng-template>
 </p-table>

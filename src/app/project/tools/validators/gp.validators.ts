@@ -1,4 +1,5 @@
 import { AbstractControl, FormGroup, ValidationErrors, ValidatorFn } from "@angular/forms";
+import { ModeForm } from "../../models/shared/ModeForm";
 
 export class GPValidator {
 
@@ -157,6 +158,24 @@ export class GPValidator {
             } else {
                 return null;
             }
+        };
+    }
+
+    static filesValidator(nameControl: string, getModeForm: () => ModeForm ): ValidatorFn {
+        return (control: AbstractControl): { [key: string]: boolean } | null => {
+            const formGroup = control.parent as FormGroup;
+            if (!formGroup) return null;
+    
+            const files = formGroup.get(nameControl)?.value;
+            const modeForm = getModeForm();
+            
+            if (modeForm === 'create' || modeForm === 'edit') {
+                if (!files || files.length === 0) {
+                    return { required: true };
+                }
+            }
+    
+            return null;
         };
     }
 }

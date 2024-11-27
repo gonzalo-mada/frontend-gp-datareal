@@ -1,12 +1,12 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
-import { SortEvent } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { Subscription } from 'rxjs';
 import { WindowService } from 'src/app/base/services/window.service';
 import { Programa } from 'src/app/project/models/programas/Programa';
-import { ConfigModeService } from 'src/app/project/services/components/config-mode.service';
 import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
-import { ProgramasService } from 'src/app/project/services/programas/programas.service';
+import { ProgramaMainService } from 'src/app/project/services/programas/programas/main.service';
+import { TableProgramasService } from 'src/app/project/services/programas/programas/table.service';
+import { VerEditarProgramaMainService } from 'src/app/project/services/programas/programas/ver-editar/main.service';
 
 interface Column {
   field: string;
@@ -21,32 +21,24 @@ interface Column {
   styles: [
   ]
 })
-export class TableProgramasComponent implements OnInit, OnChanges, OnDestroy {
+export class TableProgramasComponent implements OnInit, OnDestroy {
   
   constructor(
-    public configModeService: ConfigModeService, 
-    private programasService: ProgramasService, 
-    private tableCrudService: TableCrudService,
-    private windowService: WindowService
+    public tableProgramasService: TableProgramasService,
+    private windowService: WindowService,
+    public programaMainService: ProgramaMainService
   ){}
-  @Input() data: any[] = [];
 
   selectedRow: Programa[] = [] ;
   searchValue: string | undefined;
   originalData: any[] = [];
   cols: Column[] = [];
   _selectedColumns!: Column[];
-  globalFiltros: any[] = []
-  dataKeyTable: string = '';
   programaFrozen: boolean = false;
   private subscription: Subscription = new Subscription();
 
-  get isPostgrado() {
-    return this.configModeService.config().isPostgrado
-  }
   
   ngOnInit(): void {
-    this.subscription = this.tableCrudService.resetSelectedRowsSubject$.subscribe( () => this.selectedRow = []);
     this.cols = [
       // { field: 'Nombre_programa', header: '', width: '10rem', useMinWidth: true },
       // { field: 'Programa', header: 'Programa', width: '500px', useMinWidth: true },
@@ -62,9 +54,9 @@ export class TableProgramasComponent implements OnInit, OnChanges, OnDestroy {
       { field: 'Grado_academico', header: 'Grado académico', width: '300px', useMinWidth: true },
       { field: 'Estado_maestro', header: 'Estado maestro', width: 'auto', useMinWidth: false },
       { field: 'Reglamento', header: 'Reglamento', width: 'auto', useMinWidth: false },
-      { field: 'Unidad_academica', header: 'Unidad académica', width: '300px', useMinWidth: true }
+      { field: 'Unidad_academica', header: 'Unidades académicas', width: '300px', useMinWidth: true }
     ];
-
+    this.originalData = [...this.programaMainService.programas];
     const storedColumns = this.windowService.getItemSessionStorage('selectedCols-table-programa');
     if (storedColumns) {
       const parsedColumns = JSON.parse(storedColumns);
@@ -75,9 +67,6 @@ export class TableProgramasComponent implements OnInit, OnChanges, OnDestroy {
       this._selectedColumns = this.cols;
     }
 
-    this.globalFiltros = [ 'Cod_Programa' , 'Nombre_programa' ];
-
-    this.dataKeyTable = 'Cod_Programa';
   }
 
   get selectedColumns(): Column[] {
@@ -89,70 +78,38 @@ export class TableProgramasComponent implements OnInit, OnChanges, OnDestroy {
     this.windowService.setItemSessionStorage('selectedCols-table-programa', JSON.stringify(this._selectedColumns));
   }
 
-  showColumn(field: string): boolean {
-    if ( this.configModeService.config().isPostgrado){
-      return  field === 'Cod_Programa' ||
-              field === 'Campus.Descripcion_campus' ||
-              field === 'Nombre_programa' ||
-              field === 'Tipo_programa' ||
-              field === 'Acreditado' ||
-              field === 'EstadoMaestro'
-    }else{
-      return  field === 'Cod_Programa' ||
-              field === 'Campus.Descripcion_campus' ||
-              field === 'Nombre_programa' ||
-              field === 'Tipo_programa' ||
-              field === 'Certificado' ||
-              field === 'EstadoMaestro' 
-    }
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data'] && changes['data'].currentValue) {
-      this.originalData = [...this.data];
-    }
-  }
-
   ngOnDestroy(): void {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
+    this.tableProgramasService.resetSelectedRows();
   }
 
   onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
-    this.resetSelectedRows();
+    this.tableProgramasService.resetSelectedRows();
   }
 
   refresh(){
-    this.tableCrudService.emitClickRefreshTable();
+    this.programaMainService.getProgramasPorFacultad();
   }
 
   edit(data: Programa){
-    this.programasService.setModeCrud('edit',data);
+    this.programaMainService.setModeCrud('edit',data);
   }
 
   show(data: Programa){
-    this.programasService.setModeCrud('show',data);
+    this.programaMainService.setModeCrud('show',data);
   }
 
   delete(data: Programa){
-    this.programasService.setModeCrud('delete',data);
-  }
-
-  selectionChange(){   
-    this.tableCrudService.setSelectedRows(this.selectedRow)
-  }
-
-  resetSelectedRows(){    
-    this.selectedRow = [];
-    this.tableCrudService.setSelectedRows(this.selectedRow)
+    this.programaMainService.setModeCrud('delete',data);
   }
 
   clear(table: Table){
-    this.resetSelectedRows();
+    this.tableProgramasService.resetSelectedRows();
     this.searchValue = ''
-    this.data = [...this.originalData];
+    this.programaMainService.programas = [...this.originalData];
     table.reset();
   }
 
@@ -214,7 +171,5 @@ export class TableProgramasComponent implements OnInit, OnChanges, OnDestroy {
 
 
   }
-
-
 
 }

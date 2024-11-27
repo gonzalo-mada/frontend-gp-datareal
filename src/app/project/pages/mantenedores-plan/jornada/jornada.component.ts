@@ -52,10 +52,8 @@ export class JornadaComponent implements OnInit, OnDestroy {
     };
     this.keyPopups = 'jornadas'
     await this.getJornadas();
-
-    this.subscription.add(this.menuButtonsTableService.onClickButtonAgregar$.subscribe(() => this.createForm()));
+    this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => { action==='agregar' ? this.createForm() : this.openConfirmationDeleteSelected(this.tableCrudService.getSelectedRows())}));
     this.subscription.add(this.tableCrudService.onClickRefreshTable$.subscribe(() => this.getJornadas()));
-    this.subscription.add(this.menuButtonsTableService.onClickDeleteSelected$.subscribe(() => this.openConfirmationDeleteSelected(this.tableCrudService.getSelectedRows()) ))
     this.subscription.add(
       this.jornadaService.crudUpdate$.subscribe(crud => {
         if (crud && crud.mode) {
@@ -73,7 +71,6 @@ export class JornadaComponent implements OnInit, OnDestroy {
         }
       })
     );
-    this.menuButtonsTableService.setContext('jornada', 'dialog');
   }
 
   ngOnDestroy(): void {

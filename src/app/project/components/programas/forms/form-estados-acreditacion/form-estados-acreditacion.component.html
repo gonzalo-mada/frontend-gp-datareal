@@ -1,198 +1,226 @@
-<div class="grid" *ngIf="modeForm != 'show'">
-    <div class="col-12">
-        <app-form-isvalid [valid]="fbForm.valid"></app-form-isvalid>
+<app-dialog [(visible)]="main.dialogForm" (visibleChange)="onClose()">
+    <div header>
+        <ng-container *ngIf="main.modeForm === 'create' || main.modeForm === 'insert' ">
+            <span class="text-xl">Agregar {{ main.namesCrud.singular }}</span>
+        </ng-container>
+        <ng-container *ngIf="main.modeForm === 'edit' || main.modeForm === 'update' ">
+            <span class="text-xl">Actualizar {{ main.namesCrud.singular }}</span>
+        </ng-container>
+        <ng-container *ngIf="main.modeForm === 'show'">
+            <span class="text-xl">Ver {{ main.namesCrud.singular }}</span>
+        </ng-container>
     </div>
-</div>
-<form [formGroup]="fbForm">
-    <!-- <p-button 
-        label="test" 
-        icon="pi pi-times" 
-        styleClass="p-button-sm p-button-secondary mr-2" 
-        (click)="test()" [text]="true"></p-button>                     -->
-    <div class="formgrid grid">
-        <div class="field col-12 md:col-6 lg:col-3">
-            <div class="flex justify-content-center align-items-center flex-wrap">
-                <div class="field">
-                    <label><strong>¿Tiene evaluación interna?</strong></label>
-                    <div class="flex flex-row justify-content-center flex-wrap">
-                        <div class="flex align-items-center justify-content-center">
-                            <span>No</span>
-                        </div>
-                        <div class="flex align-items-center justify-content-center mx-2">
-                            <p-inputSwitch formControlName="Evaluacion_interna" trueValue="SI" falseValue="NO" styleClass="mt-1 mx-1"/>
-                        </div>
-                        <div class="flex align-items-center justify-content-center">
-                            <span>Si</span>
-                        </div>
-                    </div>
-                </div>
+    
+    <div content>                
+        <div class="grid" *ngIf="main.modeForm !== 'show'">
+            <div class="col-12">
+                <app-form-isvalid [valid]="form.fbForm.valid"></app-form-isvalid>
             </div>
         </div>
-        <div class="field col-12 md:col-6 lg:col-3">
-            <div class="flex justify-content-center align-items-center flex-wrap">
-                <div class="field">
-                    <label><strong>¿Está acreditado?</strong></label>
-                    <div class="flex flex-row justify-content-center flex-wrap">
-                        <div class="flex align-items-center justify-content-center">
-                            <span>No</span>
-                        </div>
-                        <div class="flex align-items-center justify-content-center mx-2">
-                            <p-inputSwitch formControlName="Acreditado" trueValue="SI" falseValue="NO" styleClass="mt-1 mx-1" (onChange)="changeSwitch($event)"/>
-                        </div>
-                        <div class="flex align-items-center justify-content-center">
-                            <span>Si</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="field col-12 lg:col-6">
-            <div class="flex flex-wrap">
-                <div class="w-full">
-                    <div class="mb-2">
-                        <label><strong>Fecha informe {{ modeForm !== 'show' ? '*' : '' }}</strong></label>
-                    </div>
-                    <p-calendar
-                        formControlName="Fecha_informe"
-                        dateFormat="dd-mm-yy"
-                        placeholder="Seleccione fecha de informe"
-                        [monthNavigator]="true" [yearNavigator]="true"
-                        class="w-full p-d-flex p-flex-column"
-                        readonlyInput="true"
-                        appendTo="body"
-                        autofocus="false"
-                        [style]="{ width: '100%', 'min-width': '100%' }"
-                        dataType="string"
-                    ></p-calendar>
-                    <app-form-control [control]="fbForm.controls['Fecha_informe']" [validators]="['required']"></app-form-control>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div *ngIf=" modeForm === 'show' || modeForm === 'edit' || modeForm === 'update'" class="formgrid grid">
-        <div class="field col-12">
-            <label><strong>Nombre agencia acreditadora {{ showAsterisk ? '*' : '' }}</strong></label>
-            <input type="text" pInputText formControlName="Nombre_ag_acredit" maxlength="50" class="w-full mt-1" placeholder="Ingrese nombre de agencia" variant="filled" />
-            <app-form-control [control]="fbForm.controls['Nombre_ag_acredit']" [validators]="['required', 'num_y_letras']"></app-form-control>
-        </div>
-    </div>
-
-    <div formGroupName="tiempo">
-        <div class="formgrid grid">
-            <div class="field col-12 md:col-4">
-                <div class="flex flex-wrap">
-                    <div class="w-full">
-                        <div class="mb-2">
-                            <label><strong>Acreditado desde {{ showAsterisk ? '*' : '' }}</strong></label>
-                        </div>
-                        <p-calendar
-                            formControlName="Fecha_inicio"
-                            dateFormat="dd-mm-yy"
-                            placeholder="Seleccione fecha de inicio..."
-                            [monthNavigator]="true" [yearNavigator]="true"
-                            class="w-full p-d-flex p-flex-column"
-                            readonlyInput="true"
-                            appendTo="body"
-                            [style]="{ width: '100%', 'min-width': '100%' }"
-                            dataType="string"
-                        ></p-calendar>
-                        <app-form-control [control]="fbForm.controls['Fecha_inicio']" [validators]="['required']"></app-form-control>
-                    </div>
-                </div>
-            </div>
-            <div class="field col-12 md:col-4">
-                <div class="flex flex-wrap">
-                    <div class="w-full">
-                        <div class="mb-2">
-                            <label><strong>Acreditado hasta {{ showAsterisk ? '*' : '' }}</strong></label>
-                        </div>
-                        <p-calendar
-                            formControlName="Fecha_termino"
-                            dateFormat="dd-mm-yy"
-                            placeholder="Seleccione fecha de término..."
-                            [monthNavigator]="true" [yearNavigator]="true"
-                            class="w-full p-d-flex p-flex-column"
-                            readonlyInput="true"
-                            appendTo="body"
-                            [style]="{ width: '100%', 'min-width': '100%' }"
-                            dataType="string"
-                        ></p-calendar>
-                        <app-form-control [control]="fbForm.controls['Fecha_termino']" [validators]="['required']"></app-form-control>
-                    </div>
-                </div>
-            </div>
-            <div class="field col-12 md:col-4">
-                <div class="flex flex-wrap">
-                    <div class="w-full">
-                        <div class="mb-2">
-                            <label>
-                                <div class="flex flex-row flex-wrap">
-                                    <div class="flex align-items-center"><strong>Total años acreditado</strong></div>
-                                    <div class="flex align-items-center ml-1">
-                                        <i *ngIf="modeForm != 'show'" class="pi pi-question-circle ml-1"
-                                            [pTooltip]='tooltipContent' tooltipPosition="top"></i>
-                                        <ng-template #tooltipContent>
-                                            <div class="flex align-items-center">
-                                                <small>Los años se calculan automáticamente tras seleccionar ambas fechas</small>
-                                            </div>
-                                        </ng-template>
-                                    </div>
+        <form [formGroup]="form.fbForm">
+            <!-- <p-button 
+                label="test" 
+                icon="pi pi-times" 
+                styleClass="p-button-sm p-button-secondary mr-2" 
+                (click)="test()" [text]="true"></p-button>                     -->
+            <div class="formgrid grid">
+                <div class="field col-12 md:col-6 lg:col-3">
+                    <div class="flex justify-content-center align-items-center flex-wrap">
+                        <div class="field">
+                            <label><strong>¿Tiene evaluación interna?</strong></label>
+                            <div class="flex flex-row justify-content-center flex-wrap">
+                                <div class="flex align-items-center justify-content-center">
+                                    <span>No</span>
                                 </div>
-                            </label>
+                                <div class="flex align-items-center justify-content-center mx-2">
+                                    <p-inputSwitch formControlName="Evaluacion_interna" styleClass="mt-1 mx-1"/>
+                                </div>
+                                <div class="flex align-items-center justify-content-center">
+                                    <span>Si</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <p-chip 
-                        [label]="yearsDifference !== null && yearsDifference !== undefined ? ( (yearsDifference === 1 || yearsDifference === -1) ? (yearsDifference + ' año') : (yearsDifference + ' años')) : '_ años'"
-                        icon="pi pi-calendar-plus" 
-                        styleClass="m-1"
-                        [style]="{'min-width': '6rem', 'min-height': '2rem'}"
-                        >
-                    </p-chip>
-                    <input type="hidden" formControlName="Cantidad_anios"><br/>
-                    <ng-container 
-                        *ngIf=" modeForm != 'show' &&
-                                fbForm.get('Acreditado')?.value == 'SI' && 
-                                yearsDifference !== null && 
-                                fbForm.get('tiempo.Cantidad_anios') as cantidadAnios">
-
-                        <div *ngIf="cantidadAnios.errors?.['notValueNegativeYearsAcredit']">
-                            <small class="p-error">
-                            La cantidad de años totales debe ser mayor o igual a uno.
-                            </small>
-                            <br/>
-                            <small class="p-error">
-                                Seleccione fechas válidas
-                            </small>
+                </div>
+                <div class="field col-12 md:col-6 lg:col-3">
+                    <div class="flex justify-content-center align-items-center flex-wrap">
+                        <div class="field">
+                            <label><strong>¿Está acreditado?</strong></label>
+                            <div class="flex flex-row justify-content-center flex-wrap">
+                                <div class="flex align-items-center justify-content-center">
+                                    <span>No</span>
+                                </div>
+                                <div class="flex align-items-center justify-content-center mx-2">
+                                    <p-inputSwitch formControlName="Acreditado" styleClass="mt-1 mx-1" (onChange)="main.changeSwitch($event)"/>
+                                </div>
+                                <div class="flex align-items-center justify-content-center">
+                                    <span>Si</span>
+                                </div>
+                            </div>
                         </div>
-                        <div *ngIf="cantidadAnios.errors?.['notUpTo15YearsAcredit']">
-                            <small class="p-error">
-                            La cantidad de años totales debe ser menor o igual a 15.
-                            </small>
-                            <br/>
-                            <small class="p-error">
-                                Seleccione fechas válidas
-                            </small>
+                    </div>
+                </div>
+                <div class="field col-12 lg:col-6">
+                    <div class="flex flex-wrap">
+                        <div class="w-full">
+                            <div class="mb-2">
+                                <label><strong>Fecha informe {{ main.modeForm !== 'show' ? '*' : '' }}</strong></label>
+                            </div>
+                            <p-calendar
+                                formControlName="Fecha_informe"
+                                dateFormat="dd-mm-yy"
+                                placeholder="Seleccione fecha de informe"
+                                [monthNavigator]="true" [yearNavigator]="true"
+                                class="w-full p-d-flex p-flex-column"
+                                readonlyInput="true"
+                                appendTo="body"
+                                autofocus="false"
+                                [style]="{ width: '100%', 'min-width': '100%' }"
+                                dataType="string"
+                            ></p-calendar>
+                            <app-form-control [control]="form.fbForm.controls['Fecha_informe']" [validators]="['required']"></app-form-control>
                         </div>
-                    </ng-container>
+                    </div>
                 </div>
             </div>
-        </div>
+        
+            <div *ngIf=" main.modeForm === 'show' || main.modeForm === 'edit' || main.modeForm === 'update'" class="formgrid grid">
+                <div class="field col-12">
+                    <label><strong>Nombre agencia acreditadora {{ form.showAsterisk ? '*' : '' }}</strong></label>
+                    <input type="text" pInputText formControlName="Nombre_ag_acredit" maxlength="50" class="w-full mt-1" placeholder="Ingrese nombre de agencia" variant="filled" />
+                    <app-form-control [control]="form.fbForm.controls['Nombre_ag_acredit']" [validators]="['required', 'num_y_letras']"></app-form-control>
+                </div>
+            </div>
+        
+            <div formGroupName="tiempo">
+                <div class="formgrid grid">
+                    <div class="field col-12 md:col-4">
+                        <div class="flex flex-wrap">
+                            <div class="w-full">
+                                <div class="mb-2">
+                                    <label><strong>Acreditado desde {{ form.showAsterisk ? '*' : '' }}</strong></label>
+                                </div>
+                                <p-calendar
+                                    formControlName="Fecha_inicio"
+                                    dateFormat="dd-mm-yy"
+                                    placeholder="Seleccione fecha de inicio"
+                                    [monthNavigator]="true" [yearNavigator]="true"
+                                    class="w-full p-d-flex p-flex-column"
+                                    readonlyInput="true"
+                                    appendTo="body"
+                                    [style]="{ width: '100%', 'min-width': '100%' }"
+                                    dataType="string"
+                                ></p-calendar>
+                                <app-form-control [control]="form.fbForm.controls['Fecha_inicio']" [validators]="['required']"></app-form-control>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field col-12 md:col-4">
+                        <div class="flex flex-wrap">
+                            <div class="w-full">
+                                <div class="mb-2">
+                                    <label><strong>Acreditado hasta {{ form.showAsterisk ? '*' : '' }}</strong></label>
+                                </div>
+                                <p-calendar
+                                    formControlName="Fecha_termino"
+                                    dateFormat="dd-mm-yy"
+                                    placeholder="Seleccione fecha de término"
+                                    [monthNavigator]="true" [yearNavigator]="true"
+                                    class="w-full p-d-flex p-flex-column"
+                                    readonlyInput="true"
+                                    appendTo="body"
+                                    [style]="{ width: '100%', 'min-width': '100%' }"
+                                    dataType="string"
+                                ></p-calendar>
+                                <app-form-control [control]="form.fbForm.controls['Fecha_termino']" [validators]="['required']"></app-form-control>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field col-12 md:col-4">
+                        <div class="flex flex-wrap">
+                            <div class="w-full">
+                                <div class="mb-2">
+                                    <label>
+                                        <div class="flex flex-row flex-wrap">
+                                            <div class="flex align-items-center"><strong>Total años acreditado</strong></div>
+                                            <div class="flex align-items-center ml-1">
+                                                <i *ngIf="main.modeForm != 'show'" class="pi pi-question-circle ml-1"
+                                                    [pTooltip]='tooltipContent' tooltipPosition="top"></i>
+                                                <ng-template #tooltipContent>
+                                                    <div class="flex align-items-center">
+                                                        <small>Los años se calculan automáticamente tras seleccionar ambas fechas</small>
+                                                    </div>
+                                                </ng-template>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            <p-chip 
+                                [label]="form.yearsDifference !== null && form.yearsDifference !== undefined ? ( (form.yearsDifference === 1 || form.yearsDifference === -1) ? (form.yearsDifference + ' año') : (form.yearsDifference + ' años')) : '_ años'"
+                                icon="pi pi-calendar-plus" 
+                                styleClass="m-1"
+                                [style]="{'min-width': '6rem', 'min-height': '2rem'}"
+                                >
+                            </p-chip>
+                            <input type="hidden" formControlName="Cantidad_anios"><br/>
+                            <ng-container 
+                                *ngIf=" main.modeForm != 'show' &&
+                                        form.fbForm.get('Acreditado')?.value === true && 
+                                        form.yearsDifference !== null && 
+                                        form.fbForm.get('tiempo.Cantidad_anios') as cantidadAnios">
+        
+                                <div *ngIf="cantidadAnios.errors?.['notValueNegativeYearsAcredit']">
+                                    <small class="p-error">
+                                    La cantidad de años totales debe ser mayor o igual a uno.
+                                    </small>
+                                    <br/>
+                                    <small class="p-error">
+                                        Seleccione fechas válidas
+                                    </small>
+                                </div>
+                                <div *ngIf="cantidadAnios.errors?.['notUpTo15YearsAcredit']">
+                                    <small class="p-error">
+                                    La cantidad de años totales debe ser menor o igual a 15.
+                                    </small>
+                                    <br/>
+                                    <small class="p-error">
+                                        Seleccione fechas válidas
+                                    </small>
+                                </div>
+                            </ng-container>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+            
+            
+            <div class="grid">
+                <div class="col-12 ">
+                    <div class="mb-2">
+                        <label>
+                            <strong>
+                              {{ main.modeForm !== 'show' ? 'Adjunte documento(s)' : 'Documento(s) adjunto(s)' }}
+                              {{ main.modeForm !== 'show' && form.showAsterisk ? '*' : '' }}
+                            </strong>
+                          </label>                                  
+                    </div>
+                    <app-uploader-files [mode]="main.modeForm!"></app-uploader-files>
+                </div>
+            </div>
+        </form>
     </div>
 
-    
-    
-    <div class="grid">
-        <div class="col-12 ">
-            <div class="mb-2">
-                <label>
-                    <strong>
-                      {{ modeForm !== 'show' ? 'Adjunte documento(s)' : 'Documento(s) adjunto(s)' }}
-                      {{ modeForm !== 'show' && showAsterisk ? '*' : '' }}
-                    </strong>
-                  </label>                                  
-            </div>
-            <app-uploader-files [mode]="modeForm!"></app-uploader-files>
-        </div>
+    <div footer>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" 
+            (click)="main.dialogForm = false" [text]="true"></p-button>
+        
+        <p-button *ngIf="main.modeForm === 'create' || main.modeForm === 'edit'"
+            [label]="main.modeForm === 'edit' ? 'Actualizar' : 'Agregar'" icon="pi pi-check"
+            styleClass="mr-2 p-button-success p-button-sm" [disabled]="form.stateForm === 'INVALID'"
+            (click)="submit()">
+        </p-button>
     </div>
-</form>
+
+</app-dialog>

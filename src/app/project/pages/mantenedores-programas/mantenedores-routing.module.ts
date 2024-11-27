@@ -46,8 +46,17 @@ const routes: Routes = [
     path: 'reglamentos',
     loadChildren: () => import('./reglamentos/reglamentos.module').then((m) => m.ReglamentosModule),
     title: 'Reglamentos'
-  }
-
+  },
+  {
+    path: 'graduaciones',
+    loadChildren: () => import('./tipos-graduaciones/tipos-graduaciones.module').then((m) => m.GraduacionesModule),
+    title: 'Graduaciones'
+  },
+  {
+    path: 'certiIntermedias',
+    loadChildren: () => import('./certificacion-intermedia/certificacion-intermedia.module').then((m) => m.CertificacionIntermediaModule),
+    title: 'Certificaciones intermedias'
+  },
   
 ];
 

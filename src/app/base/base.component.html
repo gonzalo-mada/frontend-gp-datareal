@@ -4,6 +4,7 @@
 <app-idle *ngIf="!blocking_session"></app-idle>
 
 <p-toast [baseZIndex]="5000" key="main"></p-toast>
+<p-confirmDialog key="main-gp" [style]="{ width: '500px' }"></p-confirmDialog>
 <app-header
   *ngIf="usuario"
   [blocking]="blocking"

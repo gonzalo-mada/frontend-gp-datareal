@@ -88,3 +88,23 @@
   border-radius: 5px !important;
 }
 
+.p-message .p-message-wrapper {
+  padding: 0.5rem 1rem !important;
+}
+
+.p-message .p-message-icon {
+  font-size: 0.1rem;
+}
+
+.p-message .p-message-close {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: transparent;
+  transition: box-shadow 0.15s;
+}
+
+.p-datatable .p-sortable-column .p-column-title, .p-datatable .p-sortable-column .p-sortable-column-icon, .p-datatable .p-sortable-column .p-sortable-column-badge {
+  vertical-align: unset !important;
+}
+

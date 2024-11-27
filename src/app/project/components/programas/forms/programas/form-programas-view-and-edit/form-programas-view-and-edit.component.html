@@ -1,13 +1,15 @@
-
-<p-toast [key]="programasService.keyPopups"></p-toast>
-
-<form [formGroup]="programasService.fbForm">
+<!-- <p-button 
+label="test" 
+icon="pi pi-times" 
+styleClass="p-button-sm p-button-secondary mr-2" 
+(click)="test()" [text]="true">
+</p-button>  -->
+<form [formGroup]="form.fbForm">
     <div class="formgrid grid">
         <div class="field col-12 lg:col-4">
             <label><strong>Centro costo</strong></label>
             <input *ngIf="!loading" type="number" pInputText formControlName="Centro_costo" maxlength="80" class="w-full" placeholder="Ingrese centro costo de programa"/>
             <p-skeleton *ngIf="loading" height="2.5rem" />
-            <app-form-control [control]="programasService.fbForm.controls['Centro_costo']" [validators]="['required', 'pattern']"></app-form-control>
         </div>
         <div class="field col-12 lg:col-4">
             <label><strong>Nombre</strong></label>
@@ -16,7 +18,6 @@
                 <button *ngIf="mode === 'edit' " (click)="openDialog('nombre')" type="button" pButton icon="pi pi-pencil" iconPos="right" class="p-button-warning" pTooltip="Editar registro" tooltipPosition="bottom"></button>
             </p-inputGroup>
             <p-skeleton *ngIf="loading" height="2.5rem" />
-            <app-form-control [control]="programasService.fbForm.controls['Nombre_programa']" [validators]="['required', 'pattern']"></app-form-control>
         </div>
         <div class="field col-12 lg:col-4">
             <label><strong>Grupo de correo en LDAP</strong></label>
@@ -25,7 +26,6 @@
                 <button *ngIf="mode === 'edit' " (click)="openDialog('grupo_correo')" type="button" pButton icon="pi pi-pencil" iconPos="right" class="p-button-warning" pTooltip="Editar registro" tooltipPosition="bottom"></button>
             </p-inputGroup>
             <p-skeleton *ngIf="loading" height="2.5rem" />
-            <app-form-control [control]="programasService.fbForm.controls['Grupo_correo']" [validators]="['required', 'pattern']"></app-form-control>
         </div>
     
 
@@ -33,13 +33,11 @@
             <label><strong>Código de programa</strong></label>
             <input *ngIf="!loading" type="number" pInputText formControlName="Cod_Programa" min="0" maxlength="50" class="w-full" placeholder="Ingrese código de programa"/>
             <p-skeleton *ngIf="loading" height="2.5rem" />
-            <app-form-control [control]="programasService.fbForm.controls['Cod_Programa']" [validators]="['required', 'pattern']"></app-form-control>
         </div>
         <div class="field col-12 lg:col-4">
             <label><strong>Código SIES</strong></label>
             <input *ngIf="!loading" type="text" pInputText formControlName="Codigo_SIES" maxlength="50" class="w-full" placeholder="Ingrese código SIES"/>
             <p-skeleton *ngIf="loading" height="2.5rem" />
-            <app-form-control [control]="programasService.fbForm.controls['Codigo_SIES']" [validators]="['required', 'pattern']"></app-form-control>
         </div>
         <div class="field col-12 lg:col-2">
             <label><strong>Créditos totales</strong></label>
@@ -48,7 +46,6 @@
                 <button *ngIf="mode === 'edit' " (click)="openDialog('créditos totales')" type="button" pButton icon="pi pi-pencil" iconPos="right" class="p-button-warning" pTooltip="Editar registro" tooltipPosition="bottom"></button>
             </p-inputGroup>
             <p-skeleton *ngIf="loading" height="2.5rem" />
-            <app-form-control [control]="programasService.fbForm.controls['Creditos_totales']" [validators]="['required', 'pattern']"></app-form-control>
         </div>
         <div class="field col-12 lg:col-2">
             <label><strong>Horas totales</strong></label>
@@ -57,7 +54,6 @@
                 <button *ngIf="mode === 'edit' " (click)="openDialog('horas totales')" type="button" pButton icon="pi pi-pencil" iconPos="right" class="p-button-warning" pTooltip="Editar registro" tooltipPosition="bottom"></button>
             </p-inputGroup>
             <p-skeleton *ngIf="loading" height="2.5rem" />
-            <app-form-control [control]="programasService.fbForm.controls['Horas_totales']" [validators]="['required', 'pattern']"></app-form-control>
         </div>
 
         <div class="field col-12 lg:col-4">
@@ -87,7 +83,6 @@
                 </ng-template>
             </p-dropdown>
             <p-skeleton *ngIf="loading" height="2.5rem" />
-            <app-form-control [control]="programasService.fbForm.controls['Tipo_programa']" [validators]="['required']"></app-form-control>
         </div>
 
         <div class="field col-12 lg:col-4">
@@ -104,13 +99,12 @@
             >
             </p-dropdown>
             <p-skeleton *ngIf="loading" height="2.5rem" />
-            <app-form-control [control]="programasService.fbForm.controls['Campus']" [validators]="['required']"></app-form-control>
         </div>
 
         <div class="field col-12 lg:col-4">
             <div class="flex flex-row flex-wrap mb-2">
                 <div class="align-items-center">
-                    <label><strong>Unidad académica (Facultad)</strong></label>
+                    <label><strong>Unidades académicas (Facultad)</strong></label>
                 </div>
                 <div class="align-items-center ml-1" [style]="{'margin-top': '0.1rem !important'}">
                     <i class="pi pi-question-circle" [pTooltip]='tooltipUa' tooltipPosition="top"></i>
@@ -119,26 +113,42 @@
                     </ng-template>
                 </div>
             </div>
-            <p-dropdown
-                *ngIf="!loading"
-                [options]="unidadesAcademicas"
-                [group]="true"
-                formControlName="Unidad_academica"
-                placeholder="Seleccione unidad académica"
-                [style]="{ width: '100%', 'min-width': '100%' }"
-            >
-                <ng-template let-selectedItem pTemplate="selectedItem">
-                    <div class="flex align-items-center">
-                        <span>{{ selectedItem.label }} ({{ selectedItem.parentLabel }})</span>
-                    </div>
-                </ng-template>
-            </p-dropdown>
+            <p-inputGroup *ngIf="!loading">
+                <p-multiSelect
+                    [options]="unidadesAcademicasPrograma"
+                    [style]="{ 'width': '100%', 'min-width': '100%' }"
+                    [showHeader]="false"
+                    optionDisabled="disabled"
+                    formControlName="Unidades_academicas_Selected"
+                    placeholder="Seleccione unidades académicas"
+                    selectedItemsLabel="{0} unidades academicas seleccionadas"
+                    optionLabel="Descripcion_ua"
+                >
+                    <ng-template let-value pTemplate="selectedItems">
+                        <div class="inline-flex align-items-center px-1" *ngFor="let option of value">
+                            <!-- <div>{{ option.Descripcion_ua }} ({{option.Descripcion_facu}})</div> -->
+                            <p-tag severity="secondary" value="{{ option.Descripcion_ua }} ({{option.Descripcion_facu}})" [rounded]="true" [style]="{padding: '0.05rem 0.4rem'}"/>
+                        </div>
+                    </ng-template>
+
+                    <ng-template let-item pTemplate="item">
+                        <div class="inline-flex align-items-center px-1" >
+                            <div>{{ item.Descripcion_ua }} ({{item.Descripcion_facu}})</div>
+                        </div>
+                    </ng-template>
+                </p-multiSelect>
+            </p-inputGroup>
+
+            <!-- <div *ngIf="!loading" class="flex flex-row justify-content-start flex-wrap">
+                <ng-container *ngFor="let item of unidadesAcademicasPrograma">
+                    <p-tag severity="secondary" value="{{item.Descripcion_ua}} ({{item.Descripcion_facu}})" styleClass="m-1"/>
+                </ng-container>
+            </div> -->
             <p-skeleton *ngIf="loading" height="2.5rem" />
-            <app-form-control [control]="programasService.fbForm.controls['Unidad_academica']" [validators]="['required']"></app-form-control>
         </div>
 
         <div class="field col-12 lg:col-4">
-            <label><strong>¿Tiene graduación conjunta?</strong></label>
+            <label><strong>¿Tiene graduación colaborativa?</strong></label>
             <div *ngIf="!loading" class="flex flex-row justify-content-start flex-wrap">
                 <div class="flex align-items-center justify-content-center">
                     <span>No</span>
@@ -153,18 +163,103 @@
             <p-skeleton *ngIf="loading" height="2.5rem" />
         </div>
         
-        <!-- <ng-container *ngIf="mode === 'show' "> -->
-            <div *ngIf="!loading" class="field col-12 lg:col-8" >
-                <ng-container *ngIf="programasService.fbForm.get('Graduacion_Conjunta_Switch')!.value">
-                    <label><strong>Instituciones asociadas</strong></label>
-                    <div *ngIf="!loading" class="flex flex-row justify-content-start flex-wrap">
-                        <ng-container *ngFor="let item of institucionesSelected">
-                            <p-tag severity="secondary" value="{{item.Descripcion_institucion}}" styleClass="m-1"/>
-                        </ng-container>
-                    </div>
-                </ng-container>
-                <p-skeleton *ngIf="loading" [styleClass]="programasService.fbForm.get('Graduacion_Conjunta_Switch')!.value ? '' : 'mt-5'" height="2.5rem" />
+        <div class="field col-12 lg:col-4" >
+            <label><strong>Tipo de graduación colaborativa</strong></label>
+            <br>
+            <ng-container *ngIf="form.fbForm.get('Graduacion_Conjunta_Switch')!.value; else sinGraduacion">
+                <p-dropdown
+                    *ngIf="!loading"
+                    [options]="tiposGraduaciones"
+                    [style]="{ width: '100%', 'min-width': '100%' }"
+                    formControlName="Cod_TipoGraduacion"
+                    placeholder="Seleccione tipo de graduación"
+                    optionLabel="Descripcion_tipoColaborativa"
+                    optionValue="Cod_TipoColaborativa"
+                >
+                </p-dropdown>
+            </ng-container>
+            <ng-template #sinGraduacion>
+                <input *ngIf="!loading" type="text" pInputText value="NO APLICA" [disabled]="true" class="w-full" />
+            </ng-template>
+            <p-skeleton *ngIf="loading" height="2.5rem" />
+        </div>
+
+        <div class="field col-12 lg:col-4" >
+            <label><strong>Instituciones asociadas</strong></label>
+            <ng-container *ngIf="form.fbForm.get('Graduacion_Conjunta_Switch')!.value else sinInstituciones">
+                <p-inputGroup *ngIf="!loading">
+                    <p-multiSelect
+                        [options]="institucionesSelected"
+                        [style]="{ 'width': '100%', 'min-width': '100%' }"
+                        [showHeader]="false"
+                        formControlName="Instituciones_Selected"
+                        optionDisabled="disabled"
+                        placeholder="Seleccione instituciones"
+                        selectedItemsLabel="{0} instituciones seleccionadas"
+                        optionLabel="Descripcion_institucion"
+                    >
+                        <ng-template let-value pTemplate="selectedItems">
+                            <div class="inline-flex align-items-center px-1" *ngFor="let option of value">
+                                <!-- <div>{{ option.Descripcion_ua }} ({{option.Descripcion_facu}})</div> -->
+                                <p-tag severity="secondary" value="{{ option.Descripcion_institucion }}" [rounded]="true" [style]="{padding: '0.05rem 0.4rem'}"/>
+                            </div>
+                        </ng-template>
+                    </p-multiSelect>
+                </p-inputGroup>
+            </ng-container>
+            <ng-template #sinInstituciones>
+                <input *ngIf="!loading" type="text" pInputText value="NO APLICA" [disabled]="true" class="w-full" />
+            </ng-template>
+            <p-skeleton *ngIf="loading" height="2.5rem" />
+        </div>
+
+        <div class="field col-12 lg:col-4">
+            <label><strong>¿Tiene certificación intermedia?</strong></label>
+            <div *ngIf="!loading" class="flex flex-row justify-content-start flex-wrap">
+                <div class="flex align-items-center justify-content-center">
+                    <span>No</span>
+                </div>
+                <div class="flex align-items-center justify-content-center mx-2">
+                    <p-inputSwitch formControlName="Certificacion_intermedia_Switch"  (onChange)="changeSwitch($event)" styleClass="mt-1 mx-1"/>
+                </div>
+                <div class="flex align-items-center justify-content-center">
+                    <span>Si</span>
+                </div>
             </div>
+            <p-skeleton *ngIf="loading" height="2.5rem" />
+        </div>
+
+        <div class="field col-12 lg:col-4" >
+            <label><strong>Certificaciones intermedias</strong></label>
+            <ng-container *ngIf="form.fbForm.get('Certificacion_intermedia_Switch')!.value; else sinCertificacion">
+                <p-inputGroup *ngIf="!loading">
+                    <p-multiSelect
+                        [options]="certifIntermedias"
+                        [style]="{ 'width': '100%', 'min-width': '100%' }"
+                        [showHeader]="false"
+                        formControlName="Certificacion_intermedia_Selected"
+                        optionDisabled="disabled"
+                        placeholder="Seleccione certificaciones"
+                        selectedItemsLabel="{0} certificaciones seleccionadas"
+                        optionLabel="Descripcion_certif_inter"
+                    >
+                        <ng-template let-value pTemplate="selectedItems">
+                            <div class="inline-flex align-items-center px-1" *ngFor="let option of value">
+                                <!-- <div>{{ option.Descripcion_ua }} ({{option.Descripcion_facu}})</div> -->
+                                <p-tag severity="secondary" value="{{ option.Descripcion_certif_inter }}" [rounded]="true" [style]="{padding: '0.05rem 0.4rem'}"/>
+                            </div>
+                        </ng-template>
+                    </p-multiSelect>
+                </p-inputGroup>
+                
+            </ng-container>
+            <ng-template #sinCertificacion>
+                <input *ngIf="!loading" type="text" pInputText value="NO APLICA" [disabled]="true" class="w-full"/>
+            </ng-template>
+            <p-skeleton *ngIf="loading" height="2.5rem" />
+        </div>
+
+
     </div> 
        
     <!-- <div *ngIf="loading">
@@ -189,9 +284,9 @@
                                 <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
                                 <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
                             </div>
-                            <!-- <ng-container *ngIf="mode === 'edit' ">
-                                <p-button (onClick)="openDialog('documentos maestros')" styleClass="p-button-warning"  icon="pi pi-pencil" iconPos="right" />
-                            </ng-container> -->
+                            <ng-container *ngIf="mode === 'edit' ">
+                                <p-button (onClick)="openDialog('maestro')" styleClass="p-button-warning"  icon="pi pi-pencil" iconPos="right" />
+                            </ng-container>
                         </div>
                     </div>
                     <app-table-programas-docs-maestro [data]="docMaestro" [mode]="mode"></app-table-programas-docs-maestro>
@@ -270,7 +365,7 @@
                             </ng-container>
                         </div>
                     </div>
-                    <app-table-programas-reglamentos [data]="reglamentos" mode="show" ></app-table-programas-reglamentos>
+                    <app-table-programas-reglamentos [programa]="programa" mode="show"></app-table-programas-reglamentos>
                 </div>
             </p-tabPanel>
     
@@ -346,7 +441,7 @@
                             </ng-container>
                         </div>
                     </div>
-                    <app-table-programas-estados-acreditacion [data]="estadosAcreditacion" mode="show"></app-table-programas-estados-acreditacion>
+                    <app-table-programas-estados-acreditacion [programa]="programa" mode="show"></app-table-programas-estados-acreditacion>
                 </div>
             </p-tabPanel>
     
@@ -363,4 +458,7 @@
 >
 </app-form-programas-update>
 
+<app-form-suspension></app-form-suspension>
+<app-form-reglamentos></app-form-reglamentos>
+<app-form-estados-acreditacion></app-form-estados-acreditacion>
 

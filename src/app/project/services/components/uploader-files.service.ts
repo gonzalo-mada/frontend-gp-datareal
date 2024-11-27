@@ -1,10 +1,13 @@
 import {  effect, Injectable, signal } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { Context, LabelComponent, ModeUploader, Module, NameComponent } from '../../models/shared/Context';
+import { CollectionsMongo, Context, LabelComponent, ModeUploader, Module, NameComponent } from '../../models/shared/Context';
 import { LoadinggpService } from './loadinggp.service';
+import { ModeDialog } from '../../models/programas/Programa';
 
-type ActionUploader = 'upload' | 'reset'
-
+export type ActionUploader = 'upload' | 'uploaded' | 'reset' | 'delete-uploaded' | 'delete-selected' | 'select' | 'cancel-delete'
+// acciones -> upload: usuario solicita subir | uploaded: docs descargados desde mongo | reset: resetea uploader | 
+// acciones -> delete-uploaded: usuario desea eliminar archivos subidos en mongo | delete-selected: usuario elimina archivos en cola 
+// acciones -> select: usuario selecciona archivos | cancel-delete: usuario cancela eliminacion de archivos en mongo
 
 @Injectable({
   providedIn: 'root'
@@ -17,12 +20,12 @@ export class UploaderFilesService {
     module: undefined,
     component: {
       name: undefined,
-      label: undefined
+      collection: undefined
     }
   }
 
   context = signal<Context>(this._context);
-  keyToast = 'main-gp'
+  keyToast = 'main'
   disabledButtonSeleccionarArchivos : boolean | null = null;
   loading : boolean = false ;
 
@@ -35,7 +38,7 @@ export class UploaderFilesService {
   private downloadDocSubject = new BehaviorSubject<{context: Context, file:any} | null>(null);
   downloadDoc$ = this.downloadDocSubject.asObservable();
 
-  private validatorFilesSubject = new BehaviorSubject<{context: Context, files:any} | null>(null);
+  private validatorFilesSubject = new BehaviorSubject<{action: ActionUploader, context: Context, files:any} | null>(null);
   validatorFiles$ = this.validatorFilesSubject.asObservable();
 
   private filesSubject = new Subject<any[] | null>();
@@ -44,8 +47,7 @@ export class UploaderFilesService {
   public files: any[] = []; // los files en este arreglo son los que se muestran en el uploader
   public filesToDelete: any[] = []; //este arreglo se llena cuando el usuario elimina un file que esta subido a mongo
   public filesUploaded: any[] = []; //este arreglo se llena cuando son files que vienen cargados de mongo (show/edit)
-  public filesFromModeSelect: any[] = []; //este arreglo se llena cuando el uploader se inicializa en modo select (agregar-programa)
-  public filesFromModeCreateOrEdit: any[] = []; // este arreglo se llena cuando el uploader se inicializa dentro de un mantenedor (modo: create/edit/show)
+  public filesSelected: any[] = []; // este arreglo se llena cuando el uploader se inicializa dentro de un mantenedor (modo: create/edit/show)
   totalFileSize: number = 0;
   limitValueUploader: number = 10485760;
 
@@ -74,9 +76,9 @@ export class UploaderFilesService {
     this.downloadDocSubject.next(null);
   }
 
-  updateValidatorFiles(context: Context, files: any){
-    this.validatorFilesSubject.next({context, files});
-    this.validatorFilesSubject.next(null);
+  updateValidatorFiles(action: ActionUploader, context: Context, files: any){
+    this.validatorFilesSubject.next({action, context, files});
+    // this.validatorFilesSubject.next(null);
   }
 
   resetValidatorFiles(){
@@ -85,7 +87,7 @@ export class UploaderFilesService {
 
   setAction(action: ActionUploader, resolve?: Function, reject?: Function){
     this.actionSubject.next({action, resolve, reject});
-    this.actionSubject.next(null);
+    if (action === 'reset') this.actionSubject.next(null);
   }
 
   setFiles(newFiles: any[] | null) {
@@ -103,21 +105,26 @@ export class UploaderFilesService {
     
   }
 
+  async updateFilesFromMongo(files: any): Promise<boolean>{
+    return new Promise((success) => {
+      this.updateValidatorFiles('uploaded',this.context(),{filesUploaded: files})
+      success(true)
+    })
+  }
+
   resetFilesUploaded(){
     //esta funcion se llama cuando un mantenedor se destruye
     // console.log("me llamaron: resetFilesUploaded");
     this.filesUploaded = [];
     this.filesToDelete = [];
-    this.filesFromModeCreateOrEdit = [];
   }
 
   resetUploader(){
     // console.log("me llamaron: resetUploader");
     this.files = [];
     this.filesToDelete = [];
-    this.filesFromModeCreateOrEdit = [];
-    this.filesFromModeSelect = [];
     this.filesUploaded = [];
+    this.filesSelected = [];
   }
 
   setContext(modeUploader: ModeUploader, moduleName: Module, name: NameComponent, label?: LabelComponent){
@@ -130,6 +137,19 @@ export class UploaderFilesService {
           label: label
         }
     }))
+  }
+
+  newSetContext(modeUploader: ModeUploader, moduleName: Module, name: NameComponent, collection?: CollectionsMongo): Promise<boolean> {
+    this.context.update((context) => ({
+      ...context,
+      mode: modeUploader,
+      module: moduleName,
+      component: {
+          name: name,
+          collection: collection
+      }
+    }));
+    return Promise.resolve(true);
   }
 
   setLoading(loading: boolean, showMessage = false){
@@ -151,32 +171,34 @@ export class UploaderFilesService {
     }
   }
 
-  setConfigModeUploader(){
-    let mode = this.context().mode ;
-    // console.log("--> MODE:",mode);
-    switch (mode) {
-      case 'show':
-        this.files = this.filesUploaded
-      break;
-      case 'create':
-        this.files = this.filesFromModeCreateOrEdit
-      break;
-      case 'edit':
-        this.files = [...this.filesUploaded, ...this.filesFromModeCreateOrEdit]
-      break;
-      case 'select':
-        this.files = this.filesFromModeSelect 
-      break;
-    }
-
-    if (this.files.length !== 0) {
-      this.totalFileSize = 0
-      for (let i = 0; i < this.files.length; i++) {
-        const element = this.files[i];
-        this.totalFileSize += element.extras.pesoDocumento
+  async setConfigModeUploader(): Promise<any[]>{
+    return new Promise(async (success) => {
+      let mode = this.context().mode ;
+      // console.log("--> MODE:",mode);
+      switch (mode) {
+        case 'show':
+          this.files = this.filesUploaded
+        break;
+        case 'create':
+          this.files = this.filesSelected
+        break;
+        case 'edit':
+          this.files = [...this.filesUploaded, ...this.filesSelected]
+        break;
+        case 'select':
+          this.files = this.filesSelected 
+        break;
       }
-    }
-    
+  
+      if (this.files.length !== 0) {
+        this.totalFileSize = 0
+        for (let i = 0; i < this.files.length; i++) {
+          const element = this.files[i];
+          this.totalFileSize += element.extras.pesoDocumento
+        }
+      }
+      success(this.files)
+    })
   }
 
 }

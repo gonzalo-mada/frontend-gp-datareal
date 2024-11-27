@@ -1,11 +1,14 @@
 //sirve para saber desde que modulo y que componente se esta solicitando cargar/descargar un documento 
 
-export type Module = undefined | 'mantenedores' | 'programa' ;
+import { ModeDialog } from "../programas/Programa";
+
+export type Module = undefined | 'mantenedores' | 'programa' | 'servicio' | 'table' ;
 export type ModeUploader = undefined | 'show' | 'edit' | 'create' | 'select' | 'delete' | 'init-component';
 export type NameComponent = undefined | 
                 'agregar-programa' | 
                 'editar-programa' |
                 'ver-programa' | 
+                'ver/editar-programa' |
                 'estado-acreditacion' | 
                 'campus' | 
                 'facultad' | 
@@ -24,7 +27,9 @@ export type NameComponent = undefined |
                 'form-stepone' |
                 'jornada' | 
                 'modalidad' |
-                'programa'
+                'programa' |
+                'tipo-graduacion' |
+                'certificacion-intermedia'
 
 export type LabelComponent = 
 undefined | 
@@ -41,13 +46,35 @@ undefined |
 'Nombre programa' |
 'Grupo correo' |
 'Créditos totales' |
-'Horas totales' ;            
+'Horas totales' |
+'Resumen_programa' ;            
+
+export type CollectionsMongo = 
+undefined | 
+'REXE' | 
+'campus' | 
+'certificacion_intermedia' | 
+'creditos_totales' | 
+'director' | 
+'directorAlterno' | 
+'estado_maestro' | 
+'estados_acreditacion' | 
+'facultades' | 
+'grado_academico' | 
+'grupo_correo' | 
+'horas_totales' | 
+'maestro' | 
+'nombre_programa' | 
+'reglamentos' | 
+'titulo' | 
+'unidades_academicas' ; 
+
 
 export interface Context {
   mode: ModeUploader,
   module: Module,
   component: {
     name: NameComponent,
-    label?: LabelComponent
+    collection?: CollectionsMongo 
   }
 }

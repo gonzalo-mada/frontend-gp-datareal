@@ -1,13 +1,14 @@
 <p-overlayPanel #op>
     <ng-template pTemplate>
-        <div class="flex flex-row flex-wrap">
-            <div class="flex align-items-center justify-content-center">
-                <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
-            </div>
-            <div class="flex align-items-center justify-content-center">
-                <span class="mx-1" style="font-weight: 100;">Permite ver documentos adjuntos</span>
+        <div class="flex flex-column">
+            <div *ngFor="let leyenda of table.leyendas" class="flex align-items-center justify-content-start">
+                <div class="flex flex-row align-items-center justify-content-start">
+                    <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" [icon]="leyenda.icon" ></button>
+                    <span class="mx-1" style="font-weight: 100;">{{ leyenda.leyenda }}</span>
+                </div>
             </div>
         </div>
+
     </ng-template>
 </p-overlayPanel>
 <p-table
@@ -16,15 +17,15 @@
     [paginator]=" mode !== 'show' "
     [rowsPerPageOptions]="[10,25,50]" 
     [showCurrentPageReport]="true"
-    currentPageReportTemplate="{first} hasta {last} de {totalRecords} registros."
-    [value]="data" 
-    [columns]="cols" 
-    [globalFilterFields]="globalFiltros"
-    [dataKey]="dataKeyTable" 
+    currentPageReportTemplate="{first} hasta {last} de {totalRecords} reglamentos."
+    [value]="reglamentos" 
+    [columns]="table.cols" 
+    [globalFilterFields]="table.globalFiltros"
+    [dataKey]="table.dataKeyTable" 
     autoLayout="true"
     [expandedRowKeys]="expandedRows"
     (onRowExpand)="onRowExpand($event)"
-    (onRowCollapse)="onRowCollapse($event)"
+    (onRowCollapse)="onRowCollapse()"
     rowExpandMode="single"
 >
 
@@ -42,17 +43,12 @@
                     (click)="clear(dt)">
                 </p-button>
             </div>
-
-            <div  class="hidden lg:flex align-items-center">
-                <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
-                <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
-            </div>
                             
             <div class="flex">
                 <p-button 
                     pTooltip="Muestra la leyenda de íconos" 
                     icon="pi pi-question-circle"
-                    styleClass="p-button-warning mr-2 lg:hidden" 
+                    styleClass="p-button-warning mr-2" 
                     (click)="op.toggle($event)">
                 </p-button>
                 <p-button 
@@ -60,7 +56,7 @@
                     label="Actualizar" 
                     icon="pi pi-refresh" 
                     styleClass="p-button-info" 
-                    (click)="refresh()">
+                    (click)="getReglamentos(true)">
                 </p-button>
             </div>
         </div>
@@ -69,7 +65,7 @@
     <ng-template pTemplate="header">
         <tr>
             <th style="width: 5rem"></th>
-            <ng-container *ngFor="let col of cols">
+            <ng-container *ngFor="let col of table.cols">
                 <ng-container *ngIf="col.field !== 'accion'; else actionsColumn">
                     <th pSortableColumn="{{col.field}}">
                         {{col.header}} <p-sortIcon *ngIf="mode !== 'show'" field="{{col.field}}"></p-sortIcon>
@@ -109,17 +105,26 @@
                 <div class="flex">
                     <p-button
                         *ngIf="!data.isSelected" 
-                        label="Seleccionar" 
-                        styleClass="p-button-sm p-button-info mr-2" 
+                        icon="pi pi-check" 
+                        styleClass="p-button-sm p-button-info mr-2"
+                        pTooltip="Seleccionar" 
                         (click)="changeSelectSuspension('select',data)"
                         [disabled]="isAnySelected && !data.isSelected" 
                     >
                     </p-button>
                     <p-button
                         *ngIf="data.isSelected"    
-                        styleClass="p-button-sm p-button-danger"
-                        label="Deseleccionar"
+                        icon="pi pi-minus"
+                        styleClass="p-button-sm p-button-danger mr-2"
+                        pTooltip="Deseleccionar"
                         (click)="changeSelectSuspension('unselect',data)"
+                    >
+                    </p-button>
+                    <p-button
+                        icon="pi pi-pencil"
+                        styleClass="p-button-sm p-button-warning"
+                        pTooltip="Editar registro"
+                        (click)="edit(data)"
                     >
                     </p-button>
                 </div>
@@ -138,7 +143,7 @@
 
     <ng-template pTemplate="emptymessage">
         <tr>
-            <td [attr.colspan]="mode !== 'show' ? (cols.length + 1) : (cols.length)" >Sin registros</td>
+            <td [attr.colspan]="mode !== 'show' ? (table.cols.length + 1) : (table.cols.length)" >Sin registros</td>
         </tr>
     </ng-template>
 

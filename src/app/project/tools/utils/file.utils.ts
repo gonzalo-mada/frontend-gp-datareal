@@ -34,4 +34,9 @@ export class FileUtils {
       size: null,
     };
   }
+
+  public areFilesEqual(file1: any , file2: File): boolean {
+    return (file1.nombre === file2.name &&
+      file1.extras.pesoDocumento === file2.size)
+  }
 }

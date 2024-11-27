@@ -1,43 +1,40 @@
-<p-toast [key]="keyPopups"></p-toast>
-<p-confirmDialog [key]="keyPopups" [style]="{ width: '500px' }"></p-confirmDialog>
-<p-confirmDialog key="campusUpdateByDeleted" [style]="{ width: '500px' }"></p-confirmDialog>
-
 <div class="grid">
     <div class="col-12">
         <app-card header="Mantenedor de campus" subheader="Permite ver, crear, actualizar y eliminar campus.">
 
             <app-menu-buttons-table></app-menu-buttons-table>
 
-            <app-table-campus [data]="campuses" ></app-table-campus>
+            <app-table-campus></app-table-campus>
 
-            <app-dialog [(visible)]="dialog">
+            <app-dialog [(visible)]="main.dialogForm">
 
                 <div header>
-                    <ng-container *ngIf="modeForm === 'create' || modeForm === 'insert' ">
-                        <span class="text-xl">Agregar {{ namesCrud.singular }}</span>
+                    <ng-container *ngIf="main.modeForm === 'create' || main.modeForm === 'insert' ">
+                        <span class="text-xl">Agregar {{ main.namesCrud.singular }}</span>
                     </ng-container>
-                    <ng-container *ngIf="modeForm === 'edit' || modeForm === 'update' ">
-                        <span class="text-xl">Actualizar {{ namesCrud.singular }}</span>
+                    <ng-container *ngIf="main.modeForm === 'edit' || main.modeForm === 'update' ">
+                        <span class="text-xl">Actualizar {{ main.namesCrud.singular }}</span>
                     </ng-container>
-                    <ng-container *ngIf="modeForm === 'show'">
-                        <span class="text-xl">Ver {{ namesCrud.singular }}</span>
+                    <ng-container *ngIf="main.modeForm === 'show'">
+                        <span class="text-xl">Ver {{ main.namesCrud.singular }}</span>
                     </ng-container>
                 </div>
 
                 <div content>
-                    <div class="grid" *ngIf="modeForm != 'show'">
+                    <p-messages *ngIf="main.modeForm === 'edit' || main.modeForm === 'update' " [(value)]="main.messages" [enableService]="false" />
+                    <div class="grid" *ngIf="main.modeForm != 'show'">
                         <div class="col-12">
-                            <app-form-isvalid [valid]="fbForm.valid"></app-form-isvalid>
+                            <app-form-isvalid [valid]="form.fbForm.valid"></app-form-isvalid>
                         </div>
                     </div>
-                    <form [formGroup]="fbForm">
+                    <form [formGroup]="form.fbForm">
                         <div class="grid">
                             <div class="col-12 lg:col-8">
                                 <div class="field">
                                     <label><strong>Nombre *</strong></label>
                                     <input type="text" pInputText formControlName="Descripcion_campus" maxlength="50"
                                         class="w-full"  placeholder="Ingrese nombre de campus" autofocus />
-                                    <app-form-control [control]="fbForm.controls['Descripcion_campus']"
+                                    <app-form-control [control]="form.fbForm.controls['Descripcion_campus']"
                                         [validators]="['required' , 'num_y_letras']"></app-form-control>
                                 </div>
                             </div>
@@ -51,7 +48,7 @@
                                                 <span>Inactivo</span>
                                             </div>
                                             <div class="flex align-items-center justify-content-center mx-2">
-                                                <p-inputSwitch formControlName="Estado_campus" styleClass="mt-1" (onChange)="changeState($event)" />
+                                                <p-inputSwitch formControlName="Estado_campus" styleClass="mt-1" (onChange)="form.changeState($event)" />
                                             </div>
                                             <div class="flex align-items-center justify-content-center">
                                                 <span>Activo</span>
@@ -67,25 +64,27 @@
                             <div class="mb-2">
                                 <label>
                                     <strong>
-                                      {{ modeForm! !== 'show' ? 'Adjunte documento(s)' : 'Documento(s) adjunto(s)' }}
-                                      {{ modeForm! !== 'show' && showAsterisk ? '*' : '' }}
+                                      {{ main.modeForm! !== 'show' ? 'Adjunte documento(s)' : 'Documento(s) adjunto(s)' }}
+                                      {{ main.modeForm! !== 'show' && form.showAsterisk ? '*' : '' }}
                                     </strong>
                                   </label>                                  
                             </div>
-                            <app-uploader-files [mode]="modeForm!"></app-uploader-files>
+                            <app-uploader-files [mode]="main.modeForm!"></app-uploader-files>
                         </div>
                     </div>
                 </div>
 
                 <div footer>
                     <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
-                        (click)="dialog = false" [text]="true">
+                        (click)="main.dialogForm = false" [text]="true">
                     </p-button>
                     <p-button 
-                        *ngIf="modeForm == 'create' || modeForm == 'edit' "
-                        [label]="modeForm === 'edit' ? 'Actualizar' : 'Guardar'" icon="pi pi-check"
-                        styleClass="mr-2 p-button-success p-button-sm" [disabled]="!fbForm.valid"
-                        (click)="fbForm.valid && submit()">
+                        *ngIf="main.modeForm == 'create' || main.modeForm == 'edit' "
+                        [label]="main.modeForm === 'edit' ? 'Actualizar' : 'Agregar'" 
+                        icon="pi pi-check"
+                        styleClass="mr-2 p-button-success p-button-sm" 
+                        [disabled]="form.stateForm === 'INVALID'"
+                        (click)="submit()">
                     </p-button>
                 </div>
             </app-dialog>

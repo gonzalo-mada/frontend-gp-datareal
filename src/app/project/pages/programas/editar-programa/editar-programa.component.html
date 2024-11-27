@@ -9,11 +9,22 @@
             <div class="flex align-items-center">
                 <button pButton [plain]="true" [text]="true" type="button" icon="pi pi-pencil" ></button>
                 <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite editar registro</span>
+                <p-button 
+                pRipple 
+                label="Actualizar" 
+                icon="pi pi-refresh" 
+                styleClass="p-button-info ml-2" 
+                (click)="refreshPrograma()">
+              </p-button>
             </div>
         </div>
     </ng-template>
     <ng-template pTemplate="content">
-        <app-form-programas-view-and-edit [mode]="mode" [cod_programa]="cod_programa" ></app-form-programas-view-and-edit>
+        <app-form-programas-view-and-edit 
+            [mode]="mode" 
+            [onClickRefreshPrograma]="onClickRefreshPrograma"
+            >
+        </app-form-programas-view-and-edit>
     </ng-template>
 </p-card>
 

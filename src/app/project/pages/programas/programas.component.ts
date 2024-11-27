@@ -1,7 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { MenuButtonsTableService } from '../../services/components/menu-buttons-table.service';
-import { ProgramasService } from '../../services/programas/programas.service';
-import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
+import { Component } from '@angular/core';
+import { ProgramaMainService } from '../../services/programas/programas/main.service';
 
 @Component({
   selector: 'app-programas',
@@ -10,8 +8,6 @@ import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 })
 export class ProgramasComponent {
 
-  constructor(){}
-
-
+  constructor(private main: ProgramaMainService){this.main.reset()}
   
 }
