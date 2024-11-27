@@ -59,6 +59,7 @@ export class VerEditarProgramaMainService {
                 severity: 'success',
                 detail:generateMessage(this.main.namesCrud,response.dataUpdated,'actualizado',true,false)
             });
+            this.files.resetLocalFiles();
         }
     
         this.dialogUpdate = false;

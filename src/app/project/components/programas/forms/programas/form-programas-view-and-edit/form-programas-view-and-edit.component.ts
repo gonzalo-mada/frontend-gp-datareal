@@ -169,7 +169,6 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
       this.certifIntermedias = await this.backend.getCertificacionIntermediaPrograma({Cod_Programa: this.programa.Cod_Programa},false);
       this.form.fbForm.get('Certificacion_intermedia_Selected')?.patchValue(this.certifIntermedias);
     }
-
   }
 
   async getLogPrograma(){
@@ -297,7 +296,16 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
     }
   }
 
-  closeDialogFormReglamento(){
+  test(){
+    console.log("fbFormUpdate",this.form.fbFormUpdate.value);
+    console.log("stateFormUpdate programaService: ",this.form.stateFormUpdate);
+    
+    Object.keys(this.form.fbForm.controls).forEach(key => {
+      const control = this.form.fbFormUpdate.get(key);
+      if (control?.invalid) {
+        console.log(`Errores en ${key}:`, control.errors);
+      }
+    });
   }
 
 

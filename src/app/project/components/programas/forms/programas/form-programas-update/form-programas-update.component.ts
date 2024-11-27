@@ -1,19 +1,16 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
-import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 import { ModeDialog, Programa } from 'src/app/project/models/programas/Programa';
 import { MessageServiceGP } from 'src/app/project/services/components/message-service.service';
-import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
+import { EstadosAcreditacionMainService } from 'src/app/project/services/programas/estados-acreditacion/main.service';
 import { BackendProgramasService } from 'src/app/project/services/programas/programas/backend.service';
 import { FormProgramaService } from 'src/app/project/services/programas/programas/form.service';
 import { FilesVerEditarProgramaService } from 'src/app/project/services/programas/programas/ver-editar/files.service';
 import { VerEditarProgramaMainService } from 'src/app/project/services/programas/programas/ver-editar/main.service';
 import { ReglamentosMainService } from 'src/app/project/services/programas/reglamentos/main.service';
 import { TiposSuspensionesMainService } from 'src/app/project/services/programas/tipos-suspensiones/main.service';
-import { generateMessage } from 'src/app/project/tools/utils/form.utils';
 import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
 
 @Component({
@@ -26,13 +23,11 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
 
   constructor(
     private backend: BackendProgramasService,
-    private commonUtils: CommonUtils,
     private errorTemplateHandler: ErrorTemplateHandler,
-    private fb: FormBuilder,
+    private estadosAcreditacionMain: EstadosAcreditacionMainService,
     private files: FilesVerEditarProgramaService,
     public form: FormProgramaService,
     private messageService: MessageServiceGP,
-    private router: Router,
     public reglamentosMainService: ReglamentosMainService,
     public mainTipoSuspension: TiposSuspensionesMainService,
     public main: VerEditarProgramaMainService
@@ -43,7 +38,6 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
   @Output() formUpdated = new EventEmitter<string>();
   @Output() resetDialog = new EventEmitter();
 
-  public fbForm!: FormGroup;
   showForm: boolean = false
   selectedReglamento: boolean = true;
   selectedDirector: boolean = true;
@@ -59,7 +53,6 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
   private subscription: Subscription = new Subscription();
 
   async ngOnInit(){
-    this.fbForm = this.fb.group({});
 
     await this.getData();
   }
@@ -456,21 +449,12 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
 
   async createFormEstadoAcreditacion(){
     try {
-      this.estadosAcreditacion = await this.backend.getEstadosAcreditacion(false);
-      this.estadosAcreditacion.map( eA => {
-        if (eA.Cod_acreditacion === this.programa.Cod_acreditacion) {
-          eA.isSelected = true; 
-          this.form.stateFormUpdate = 'VALID';
-        }else{
-          eA.isSelected = false; 
-        }
-      })
-
+      this.estadosAcreditacionMain.emitResetExpandedRows();
+      await this.form.setFormUpdate('estado acreditación', this.programa);
       this.form.fbForm.get('Cod_acreditacion')!.valueChanges.subscribe( value => {
         this.form.fbFormUpdate.get('Cod_acreditacion')?.patchValue(value);
         this.form.fbFormUpdate.get('nombreEstadoAcreditacion')?.patchValue(this.form.estadoAcreditacionSiglaSelected);
       })
-
       this.main.dialogUpdate = true;
       this.showButtonSubmit = true;
     } catch (error) {
@@ -500,9 +484,7 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
     filesControl?.setValidators([this.filesValidator.bind(this)]);
     filesControl?.updateValueAndValidity();
   }
-
-
-  
+ 
   filesValidator(control: AbstractControl): { [key: string]: boolean } | null {
     const formGroup = control.parent as FormGroup;
     if (!formGroup) {
@@ -538,10 +520,6 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
         console.log(`Errores en ${key}:`, control.errors);
       }
     });
-  }
-
-  redirectToEstadosAcreditacion(){
-    this.router.navigate(['/mantenedores/estadosAcreditacion']);
   }
 
   closeDialog(){

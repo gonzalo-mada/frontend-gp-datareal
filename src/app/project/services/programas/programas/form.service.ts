@@ -482,7 +482,7 @@ export class FormProgramaService {
           });  
         break;
         case 'estado acreditación':
-          this.fbForm = this.fb.group({
+          this.fbFormUpdate = this.fb.group({
             Cod_acreditacion: [programa.Cod_acreditacion, [Validators.required]],
             nombreEstadoAcreditacion: [programa.Descripcion_acreditacion],
           });  
