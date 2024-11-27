@@ -28,7 +28,7 @@ export class TableProgramasReglamentosComponent implements OnInit, OnDestroy {
   constructor(
     public reglamentosMainService: ReglamentosMainService,
     public form: FormProgramaService,
-    public tableReglamentosService: TableReglamentosService,
+    public table: TableReglamentosService,
     private tableCrudService: TableCrudService,
   ){}
 
@@ -38,7 +38,7 @@ export class TableProgramasReglamentosComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     await this.getReglamentos(false);
     this.subscription.add(this.tableCrudService.resetExpandedRowsTableSubject$.subscribe( () => this.resetExpandedRows() ));
-    this.subscription.add(this.tableReglamentosService.refreshTableReglamento$.subscribe( () => this.getReglamentos(false) ));
+    this.subscription.add(this.table.refreshTableReglamento$.subscribe( () => this.getReglamentos(false) ));
   }
 
   ngOnDestroy(): void {

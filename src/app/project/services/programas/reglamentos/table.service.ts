@@ -11,7 +11,12 @@ export class TableReglamentosService {
 
     private refreshTablesReglamentos = new Subject<void>();
     refreshTableReglamento$ = this.refreshTablesReglamentos.asObservable();
-
+    leyendas: any[] = [
+        {icon: 'pi pi-chevron-right' , leyenda: 'Permite ver documentos adjuntos'},
+        {icon: 'pi pi-check' , leyenda: 'Permite seleccionar reglamento'},
+        {icon: 'pi pi-minus' , leyenda: 'Permite deseleccionar reglamento'},
+        {icon: 'pi pi-pencil' , leyenda: 'Permite editar reglamento'}
+    ];
     cols : any[] = [
         { field: 'Descripcion_regla', header: 'Nombre' },
         { field: 'vigencia', header: 'Vigencia' },

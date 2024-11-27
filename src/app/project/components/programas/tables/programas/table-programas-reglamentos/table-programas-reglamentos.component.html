@@ -1,22 +1,10 @@
 <p-overlayPanel #op>
     <ng-template pTemplate>
         <div class="flex flex-column">
-            <div class="flex align-items-center justify-content-start">
+            <div *ngFor="let leyenda of table.leyendas" class="flex align-items-center justify-content-start">
                 <div class="flex flex-row align-items-center justify-content-start">
-                    <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
-                    <span class="mx-1" style="font-weight: 100;">Permite ver documentos adjuntos</span>
-                </div>
-            </div>
-            <div class="flex align-items-center justify-content-start">
-                <div class="flex flex-row align-items-center justify-content-start">
-                    <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-check" ></button>
-                    <span class="mx-1" style="font-weight: 100;">Permite seleccionar reglamento</span>
-                </div>
-            </div>
-            <div class="flex align-items-center justify-content-start">
-                <div class="flex flex-row align-items-center justify-content-center">
-                    <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-minus" ></button>
-                    <span class="mx-1" style="font-weight: 100;">Permite deseleccionar reglamento</span>
+                    <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" [icon]="leyenda.icon" ></button>
+                    <span class="mx-1" style="font-weight: 100;">{{ leyenda.leyenda }}</span>
                 </div>
             </div>
         </div>
@@ -31,9 +19,9 @@
     [showCurrentPageReport]="true"
     currentPageReportTemplate="{first} hasta {last} de {totalRecords} reglamentos."
     [value]="reglamentos" 
-    [columns]="tableReglamentosService.cols" 
-    [globalFilterFields]="tableReglamentosService.globalFiltros"
-    [dataKey]="tableReglamentosService.dataKeyTable" 
+    [columns]="table.cols" 
+    [globalFilterFields]="table.globalFiltros"
+    [dataKey]="table.dataKeyTable" 
     autoLayout="true"
     [expandedRowKeys]="expandedRows"
     (onRowExpand)="onRowExpand($event)"
@@ -77,7 +65,7 @@
     <ng-template pTemplate="header">
         <tr>
             <th style="width: 5rem"></th>
-            <ng-container *ngFor="let col of tableReglamentosService.cols">
+            <ng-container *ngFor="let col of table.cols">
                 <ng-container *ngIf="col.field !== 'accion'; else actionsColumn">
                     <th pSortableColumn="{{col.field}}">
                         {{col.header}} <p-sortIcon *ngIf="mode !== 'show'" field="{{col.field}}"></p-sortIcon>
@@ -155,7 +143,7 @@
 
     <ng-template pTemplate="emptymessage">
         <tr>
-            <td [attr.colspan]="mode !== 'show' ? (tableReglamentosService.cols.length + 1) : (tableReglamentosService.cols.length)" >Sin registros</td>
+            <td [attr.colspan]="mode !== 'show' ? (table.cols.length + 1) : (table.cols.length)" >Sin registros</td>
         </tr>
     </ng-template>
 

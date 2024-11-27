@@ -1,17 +1,5 @@
 <p-overlayPanel #op>
     <ng-template pTemplate>
-        <div class="flex flex-row flex-wrap">
-            <div class="flex align-items-center justify-content-center">
-                <span style="font-size: 0.8rem;">Desfijar Programa</span>
-            </div>
-            <div class="flex align-items-center justify-content-center mx-2">
-                <p-inputSwitch [(ngModel)]="programaFrozen" styleClass="mt-1" pTooltip="Permite fijar columna Programa" tooltipPosition="bottom" />
-            </div>
-            <div class="flex align-items-center justify-content-center">
-                <span style="font-size: 0.8rem;">Fijar Programa</span>
-            </div>
-        </div>
-        <br>
         <p-multiSelect 
             [options]="cols" 
             [(ngModel)]="selectedColumns" 
@@ -63,15 +51,6 @@
                               
             <div class="flex">
                 <div class="hidden lg:flex flex-row flex-wrap">
-                    <div class="flex align-items-center justify-content-center">
-                        <span style="font-size: 0.8rem;">Desfijar Programa</span>
-                    </div>
-                    <div class="flex align-items-center justify-content-center mx-2">
-                        <p-inputSwitch [(ngModel)]="programaFrozen" styleClass="mt-1" pTooltip="Permite fijar columna Programa" tooltipPosition="bottom" />
-                    </div>
-                    <div class="flex align-items-center justify-content-center">
-                        <span style="font-size: 0.8rem;">Fijar Programa</span>
-                    </div>
                     <p-multiSelect 
                         [options]="cols" 
                         [(ngModel)]="selectedColumns" 
@@ -111,13 +90,37 @@
                 [frozen]="programaFrozen"
                 pSortableColumn="Nombre_programa"
             >
-                Programa <p-sortIcon field="Nombre_programa" />
+                <div class="flex align-items-center">
+                    Programa 
+                    <p-sortIcon field="Nombre_programa" />
+                    <p-button
+                        *ngIf="programaFrozen"
+                        (click)="programaFrozen = !programaFrozen; $event.stopPropagation()" 
+                        [text]="true"
+                        [rounded]="true"
+                        pTooltip="Desfijar columna" 
+                        severity="secondary"
+                    >
+                        <i class="fa fa-thumbtack-slash" style="font-size: 1.2rem; margin-bottom: 0.3rem"></i>
+                    </p-button>
+                    <p-button
+                        *ngIf="!programaFrozen"
+                        (click)="programaFrozen = !programaFrozen; $event.stopPropagation()" 
+                        [text]="true"
+                        [rounded]="true"
+                        pTooltip="Fijar columna" 
+                        severity="secondary"
+                    >
+                        <i class="fa fa-thumbtack" style="font-size: 1.2rem; margin-bottom: 0.3rem"></i>
+                    </p-button>
+                </div>
             </th>
             <ng-container *ngFor="let col of columns">
                 <ng-container [ngSwitch]="col.field">
                     <ng-container *ngSwitchCase="'Acreditacion'">
                         <th pSortableColumn="{{col.field}}" [ngStyle]="getColStyle(col)"   >
-                            {{col.header}} <p-sortIcon field="{{col.field}}"></p-sortIcon>
+                            {{col.header}} 
+                            <p-sortIcon field="{{col.field}}"></p-sortIcon>
                         </th>
                     </ng-container>
                     <ng-container *ngSwitchDefault>
