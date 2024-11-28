@@ -28,7 +28,7 @@
                         <div class="grid p-fluid">
                             <div class="col-12 lg:col-6">
                                 <div class="field">
-                                    <label><strong>Nombre *</strong></label>
+                                    <label><strong>Nombre {{  main.modeForm! !== 'show' ? '*' : '' }}</strong></label>
                                     <input type="text" pInputText formControlName="Descripcion_tp" class="w-full"
                                         placeholder="Ingrese nombre de tipo de programa" maxlength="50" />
 
@@ -40,7 +40,7 @@
                                 <div class="field">
                                     <label>
                                         <div class="flex flex-row flex-wrap">
-                                            <div class="flex align-items-center"><strong>Categoría *</strong></div>
+                                            <div class="flex align-items-center"><strong>Categoría {{  main.modeForm! !== 'show' ? '*' : '' }}</strong></div>
                                             <div class="flex align-items-center ml-1">
                                                 <i *ngIf="main.modeForm != 'show'" class="pi pi-question-circle ml-1"
                                                     [pTooltip]='tooltipContent' tooltipPosition="top"></i>
@@ -65,7 +65,8 @@
                                                     appendTo="body" class="flex-grow-1" 
                                                     formControlName="Cod_CategoriaTP"
                                                 />
-                                                <button 
+                                                <button
+                                                *ngIf="main.modeForm !== 'show' "
                                                 (click)="mainCategoriasTp.setModeCrud('create')" 
                                                 type="button" pButton icon="pi pi-plus" iconPos="right" 
                                                 class="p-button-success" pTooltip="Agregar nueva categoría de tipo de programa" 
