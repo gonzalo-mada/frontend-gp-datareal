@@ -70,9 +70,13 @@ export class CertifIntermediaMainService {
         this.table.emitResetExpandedRows();
     }
 
+    countTableValues(value?: number){
+        value ? this.backend.countTableRegisters(value,this.namesCrud) : this.backend.countTableRegisters(this.certificaciones.length, this.namesCrud);
+    }
+
     async getCertificacionesIntermedias(showCountTableValues: boolean = true): Promise<CertificacionIntermedia[]>{
         this.certificaciones = await this.backend.getCertificacionIntermedia(this.namesCrud);
-        if (showCountTableValues) this.backend.countTableRegisters(this.certificaciones.length, this.namesCrud);
+        if (showCountTableValues) this.countTableValues();
         return this.certificaciones;
     }
 

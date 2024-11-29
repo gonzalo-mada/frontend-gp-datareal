@@ -21,7 +21,6 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnDes
   @Input() mode: string = '';
   @Input() isAnySelected: boolean = false;
   searchValue: string | undefined;
-  originalData: any[] = [];
   expandedRows = {};
   estados: EstadosAcreditacion[] = [];
   private subscription: Subscription = new Subscription();
@@ -61,7 +60,6 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnDes
         });
       }
     }
-    this.originalData = [...this.estados];
   }
 
   onGlobalFilter(table: Table, event: Event) {
@@ -72,8 +70,8 @@ export class TableProgramasEstadosAcreditacionComponent implements OnInit, OnDes
   clear(table: Table){
     this.expandedRows = {}; 
     this.searchValue = '';
-    this.estados = [...this.originalData];
     table.reset();
+    this.main.countTableValues();
   }
 
   resetExpandedRows(){

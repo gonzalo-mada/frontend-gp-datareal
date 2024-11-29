@@ -11,7 +11,7 @@ import { ModalidadesService } from 'src/app/project/services/plan-de-estudio/mod
   styles: [
   ]
 })
-export class TableModalidadesComponent implements OnInit, OnChanges, OnDestroy {
+export class TableModalidadesComponent implements OnInit, OnDestroy {
   constructor( private modalidadesService: ModalidadesService,
     private tableCrudService: TableCrudService)
   {}
@@ -20,7 +20,6 @@ export class TableModalidadesComponent implements OnInit, OnChanges, OnDestroy {
 
   selectedRow: Modalidad[] = [] ;
   searchValue: string | undefined;
-  originalData: any[] = [];
   cols: any[] = []
   globalFiltros: any[] = []
   dataKeyTable: string = '';
@@ -39,12 +38,6 @@ export class TableModalidadesComponent implements OnInit, OnChanges, OnDestroy {
     this.dataKeyTable = 'Cod_modalidad';
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data'] && changes['data'].currentValue) {
-      this.originalData = [...this.data];
-    }
-  }
-
   ngOnDestroy(): void {
     if (this.subscription) {
       this.subscription.unsubscribe();
@@ -54,7 +47,6 @@ export class TableModalidadesComponent implements OnInit, OnChanges, OnDestroy {
   clear(table: Table){
     this.resetSelectedRows();
     this.searchValue = ''
-    this.data = [...this.originalData];
     table.reset();
   }
   resetSelectedRows(){    

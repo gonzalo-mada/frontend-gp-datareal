@@ -12,7 +12,6 @@ import { TableCertifIntermediaService } from 'src/app/project/services/programas
 })
 export class TableCertificacionesIntermediasComponent implements OnInit, OnDestroy {
   searchValue: string | undefined;
-  originalData: any[] = [];
 
   constructor( 
     public main: CertifIntermediaMainService,
@@ -28,7 +27,6 @@ export class TableCertificacionesIntermediasComponent implements OnInit, OnDestr
 
   async getData(showCountTableValues: boolean){
     await this.main.getCertificacionesIntermedias(showCountTableValues);
-    this.originalData = [...this.main.certificaciones];
   }
 
   onGlobalFilter(table: Table, event: Event) {
@@ -51,8 +49,8 @@ export class TableCertificacionesIntermediasComponent implements OnInit, OnDestr
   clear(table: Table){
     this.table.resetSelectedRows();
     this.searchValue = ''
-    this.main.certificaciones = [...this.originalData];
     table.reset();
+    this.main.countTableValues();
   }
 
 }

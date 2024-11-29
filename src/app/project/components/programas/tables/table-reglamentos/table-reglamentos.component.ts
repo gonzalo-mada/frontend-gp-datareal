@@ -15,7 +15,6 @@ import { TableReglamentosService } from 'src/app/project/services/programas/regl
 export class TableReglamentosComponent implements OnInit, OnDestroy {
 
   searchValue: string | undefined;
-  originalData: any[] = [];
   private subscription: Subscription = new Subscription();
 
   constructor(
@@ -35,7 +34,6 @@ export class TableReglamentosComponent implements OnInit, OnDestroy {
 
   async getReglamentos(showCountTableValues: boolean){
     await this.reglamentosMainService.getReglamentos(showCountTableValues);
-    this.originalData = [...this.reglamentosMainService.reglamentos];
   }
   
   onGlobalFilter(table: Table, event: Event) {
@@ -58,7 +56,7 @@ export class TableReglamentosComponent implements OnInit, OnDestroy {
   clear(table: Table){
     this.tableReglamentosService.resetSelectedRows();
     this.searchValue = ''
-    this.reglamentosMainService.reglamentos = [...this.originalData];
     table.reset();
+    this.reglamentosMainService.countTableValues();
   }
 }

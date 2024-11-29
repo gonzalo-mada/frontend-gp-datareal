@@ -70,9 +70,13 @@ export class EstadosAcreditacionMainService {
         this.table.emitResetExpandedRows();
     }
 
+    countTableValues(value?: number){
+        value ? this.backend.countTableRegisters(value,this.namesCrud) : this.backend.countTableRegisters(this.estados.length, this.namesCrud);
+    }
+
     async getEstadosAcreditacion(showCountTableValues: boolean = true): Promise<EstadosAcreditacion[]>{
         this.estados = await this.backend.getEstadosAcreditacion(this.namesCrud);
-        if (showCountTableValues) this.backend.countTableRegisters(this.estados.length, this.namesCrud);
+        if (showCountTableValues) this.countTableValues();
         return this.estados;
     }
 

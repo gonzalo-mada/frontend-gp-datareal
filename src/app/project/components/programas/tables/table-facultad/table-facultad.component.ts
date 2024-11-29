@@ -13,7 +13,6 @@ import { TableFacultadesService } from 'src/app/project/services/programas/facul
 export class TableFacultadComponent implements OnInit, OnDestroy {
 
   searchValue: string | undefined;
-  originalData: any[] = [];
 
   constructor(
     public main: FacultadesMainService, 
@@ -30,7 +29,6 @@ export class TableFacultadComponent implements OnInit, OnDestroy {
 
   async getData(showCountTableValues: boolean){
     await this.main.getFacultades(showCountTableValues);
-    this.originalData = [...this.main.facultades];
   }
 
   onGlobalFilter(table: Table, event: Event) {
@@ -57,9 +55,8 @@ export class TableFacultadComponent implements OnInit, OnDestroy {
   clear(table: Table){
     this.table.resetSelectedRows();
     this.searchValue = ''
-    this.main.facultades = [...this.originalData];
     table.reset();
+    this.main.countTableValues();
   }
-
 
 }

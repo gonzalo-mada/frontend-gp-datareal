@@ -63,8 +63,8 @@ export class UnidadesAcadMainService {
         }
     }
 
-    countTableValues(value: number){
-        this.backend.countTableRegisters(value,this.namesCrud);
+    countTableValues(value?: number){
+        value ? this.backend.countTableRegisters(value,this.namesCrud) : this.backend.countTableRegisters(this.unidadesAcad.length, this.namesCrud);
     }
 
     reset(){
@@ -79,7 +79,7 @@ export class UnidadesAcadMainService {
 
     async getUnidadesAcademicas(showCountTableValues: boolean = true): Promise<UnidadAcademica[]>{
         this.unidadesAcad = await this.backend.getUnidadesAcademicas(this.namesCrud);
-        if (showCountTableValues) this.backend.countTableRegisters(this.unidadesAcad.length, this.namesCrud);
+        if (showCountTableValues) this.countTableValues();
         return this.unidadesAcad;
     }
 

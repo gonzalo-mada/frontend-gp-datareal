@@ -13,7 +13,6 @@ import { TableEstadosAcreditacionService } from 'src/app/project/services/progra
 })
 export class TableEstadosAcreditacionComponent implements OnInit, OnDestroy {
   searchValue: string | undefined;
-  originalData: any[] = [];
   private subscription: Subscription = new Subscription();
 
   constructor(
@@ -32,7 +31,6 @@ export class TableEstadosAcreditacionComponent implements OnInit, OnDestroy {
 
   async getData(showCountTableValues: boolean){
     await this.main.getEstadosAcreditacion(showCountTableValues);
-    this.originalData = [...this.main.estados];
   }
   
   onGlobalFilter(table: Table, event: Event) {
@@ -55,8 +53,8 @@ export class TableEstadosAcreditacionComponent implements OnInit, OnDestroy {
   clear(table: Table){
     this.table.resetSelectedRows();
     this.searchValue = ''
-    this.main.estados = [...this.originalData];
     table.reset();
+    this.main.countTableValues();
   }
 
   customSort(event:any){

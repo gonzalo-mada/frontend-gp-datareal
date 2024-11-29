@@ -72,9 +72,13 @@ export class ReglamentosMainService {
         this.table.emitResetExpandedRows();
     }
 
+    countTableValues(value?: number){
+        value ? this.backend.countTableRegisters(value,this.namesCrud) : this.backend.countTableRegisters(this.reglamentos.length, this.namesCrud);
+    }
+
     async getReglamentos(showCountTableValues: boolean = true): Promise<Reglamento[]>{
         this.reglamentos = await this.backend.getReglamentosBackend(this.namesCrud);
-        if (showCountTableValues) this.backend.countTableRegisters(this.reglamentos.length, this.namesCrud);
+        if (showCountTableValues) this.countTableValues();
         return this.reglamentos;
     }
 

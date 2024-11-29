@@ -13,7 +13,6 @@ import { TableTiposProgramasService } from 'src/app/project/services/programas/t
 export class TableTiposProgramasComponent implements OnInit, OnDestroy {
 
   searchValue: string | undefined;
-  originalData: any[] = [];
 
   constructor(
     public main: TiposProgramasMainService, 
@@ -31,7 +30,6 @@ export class TableTiposProgramasComponent implements OnInit, OnDestroy {
   async getData(showCountTableValues: boolean){
     await this.main.getTiposProgramas(showCountTableValues);
     await this.main.getCategoriasTp();
-    this.originalData = [...this.main.tiposProg];
   }
 
   onGlobalFilter(table: Table, event: Event) {
@@ -58,8 +56,8 @@ export class TableTiposProgramasComponent implements OnInit, OnDestroy {
   clear(table: Table){
     this.table.resetSelectedRows();
     this.searchValue = ''
-    this.main.tiposProg = [...this.originalData];
     table.reset();
+    this.main.countTableValues();
   }
 
 }

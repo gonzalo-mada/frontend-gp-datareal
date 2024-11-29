@@ -66,9 +66,13 @@ export class TiposGraduacionesMainService {
         this.table.emitResetExpandedRows();
     }
 
+    countTableValues(value?: number){
+        value ? this.backend.countTableRegisters(value,this.namesCrud) : this.backend.countTableRegisters(this.tipos.length, this.namesCrud);
+    }
+
     async getTiposGraduaciones(showCountTableValues: boolean = true): Promise<TipoGraduacion[]>{
         this.tipos = await this.backend.getTipoGradConjunta(this.namesCrud);
-        if (showCountTableValues) this.backend.countTableRegisters(this.tipos.length, this.namesCrud);
+        if (showCountTableValues) this.countTableValues();
         return this.tipos;
     }
 

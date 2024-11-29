@@ -49,6 +49,10 @@ export class ProgramaMainService {
         }
     }
 
+    countTableValues(value?: number){
+      value ? this.backend.countTableRegisters(value,this.namesCrud) : this.backend.countTableRegisters(this.programas.length, this.namesCrud);
+    }
+
     reset(){
         this.programas = [];
         this.cod_facultad_selected = 0;

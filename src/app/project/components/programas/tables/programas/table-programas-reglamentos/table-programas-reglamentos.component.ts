@@ -20,7 +20,6 @@ export class TableProgramasReglamentosComponent implements OnInit, OnDestroy {
   @Input() mode: string = '';
   @Input() isAnySelected: boolean = false;
   searchValue: string | undefined;
-  originalData: any[] = [];
   expandedRows = {};
   reglamentos: Reglamento[] = [];
   private subscription: Subscription = new Subscription();
@@ -63,7 +62,6 @@ export class TableProgramasReglamentosComponent implements OnInit, OnDestroy {
         });
       }
     }
-    this.originalData = [...this.reglamentos];
   }
 
   onGlobalFilter(table: Table, event: Event) {
@@ -74,7 +72,6 @@ export class TableProgramasReglamentosComponent implements OnInit, OnDestroy {
   clear(table: Table){
     this.expandedRows = {}    
     this.searchValue = ''
-    this.reglamentos = [...this.originalData];
     table.reset();
   }
 

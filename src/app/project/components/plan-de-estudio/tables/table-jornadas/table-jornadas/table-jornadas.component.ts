@@ -11,7 +11,7 @@ import { JornadaService } from 'src/app/project/services/plan-de-estudio/jornada
   styles: [
   ]
 })
-export class TableJornadasComponent implements OnInit, OnChanges, OnDestroy {
+export class TableJornadasComponent implements OnInit, OnDestroy {
   constructor( private jornadasService: JornadaService,
     private tableCrudService: TableCrudService)
   {}
@@ -19,7 +19,6 @@ export class TableJornadasComponent implements OnInit, OnChanges, OnDestroy {
 
   selectedRow: Jornada[] = [] ;
   searchValue: string | undefined;
-  originalData: any[] = [];
   cols: any[] = []
   globalFiltros: any[] = []
   dataKeyTable: string = '';
@@ -38,12 +37,6 @@ export class TableJornadasComponent implements OnInit, OnChanges, OnDestroy {
     this.dataKeyTable = 'Cod_jornada';
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data'] && changes['data'].currentValue) {
-      this.originalData = [...this.data];
-    }
-  }
-
   ngOnDestroy(): void {
     if (this.subscription) {
       this.subscription.unsubscribe();
@@ -53,7 +46,6 @@ export class TableJornadasComponent implements OnInit, OnChanges, OnDestroy {
   clear(table: Table){
     this.resetSelectedRows();
     this.searchValue = ''
-    this.data = [...this.originalData];
     table.reset();
   }
   resetSelectedRows(){    

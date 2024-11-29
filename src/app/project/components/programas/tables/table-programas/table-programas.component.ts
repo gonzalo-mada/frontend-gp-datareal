@@ -31,7 +31,6 @@ export class TableProgramasComponent implements OnInit, OnDestroy {
 
   selectedRow: Programa[] = [] ;
   searchValue: string | undefined;
-  originalData: any[] = [];
   cols: Column[] = [];
   _selectedColumns!: Column[];
   programaFrozen: boolean = false;
@@ -56,7 +55,6 @@ export class TableProgramasComponent implements OnInit, OnDestroy {
       { field: 'Reglamento', header: 'Reglamento', width: '170px', useMinWidth: true },
       { field: 'Unidad_academica', header: 'Unidades académicas', width: '300px', useMinWidth: true }
     ];
-    this.originalData = [...this.programaMainService.programas];
     const storedColumns = this.windowService.getItemSessionStorage('selectedCols-table-programa');
     if (storedColumns) {
       const parsedColumns = JSON.parse(storedColumns);
@@ -109,8 +107,8 @@ export class TableProgramasComponent implements OnInit, OnDestroy {
   clear(table: Table){
     this.tableProgramasService.resetSelectedRows();
     this.searchValue = ''
-    this.programaMainService.programas = [...this.originalData];
     table.reset();
+    this.programaMainService.countTableValues();
   }
 
   getColStyle(col: any) {

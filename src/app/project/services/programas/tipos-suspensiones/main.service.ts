@@ -65,9 +65,13 @@ export class TiposSuspensionesMainService {
         this.table.emitResetExpandedRows();
     }
 
+    countTableValues(value?: number){
+        value ? this.backend.countTableRegisters(value,this.namesCrud) : this.backend.countTableRegisters(this.tipos_susp.length, this.namesCrud);
+    }
+
     async getTiposSuspensiones(showCountTableValues: boolean = true): Promise<Suspension[]>{
         this.tipos_susp = await this.backend.getSuspensiones(this.namesCrud);
-        if (showCountTableValues) this.backend.countTableRegisters(this.tipos_susp.length, this.namesCrud);
+        if (showCountTableValues) this.countTableValues();
         return this.tipos_susp;
     }
 

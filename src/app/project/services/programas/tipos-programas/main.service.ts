@@ -59,8 +59,8 @@ export class TiposProgramasMainService {
         }
     }
 
-    countTableValues(value: number){
-        this.backend.countTableRegisters(value,this.namesCrud);
+    countTableValues(value?: number){
+        value ? this.backend.countTableRegisters(value,this.namesCrud) : this.backend.countTableRegisters(this.tiposProg.length, this.namesCrud);
     }
 
     reset(){
@@ -74,7 +74,7 @@ export class TiposProgramasMainService {
 
     async getTiposProgramas(showCountTableValues: boolean = true): Promise<TipoPrograma[]>{
         this.tiposProg = await this.backend.getTiposProgramas(this.namesCrud);
-        if (showCountTableValues) this.backend.countTableRegisters(this.tiposProg.length, this.namesCrud);
+        if (showCountTableValues) this.countTableValues();
         return this.tiposProg;
     }
 
