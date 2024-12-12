@@ -1,91 +1,57 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Table } from 'primeng/table';
-import { Subscription } from 'rxjs';
-import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
 import { Modalidad } from 'src/app/project/models/plan-de-estudio/Modalidad';
-import { ModalidadesService } from 'src/app/project/services/plan-de-estudio/modalidades.service';
+import { ModalidadMainService } from 'src/app/project/services/plan-de-estudio/modalidades/main.service';
+import { TableModalidadService } from 'src/app/project/services/plan-de-estudio/modalidades/table.service';
 
 @Component({
   selector: 'app-table-modalidades',
   templateUrl: './table-modalidades.component.html',
-  styles: [
-  ]
+  styles: []
 })
-export class TableModalidadesComponent implements OnInit, OnChanges, OnDestroy {
-  constructor( private modalidadesService: ModalidadesService,
-    private tableCrudService: TableCrudService)
-  {}
-
-  @Input() data: any[] = [];
-
-  selectedRow: Modalidad[] = [] ;
+export class TableModalidadesComponent implements OnInit, OnDestroy {
   searchValue: string | undefined;
   originalData: any[] = [];
-  cols: any[] = []
-  globalFiltros: any[] = []
-  dataKeyTable: string = '';
 
-  private subscription: Subscription = new Subscription();
+  constructor(
+    public main: ModalidadMainService,
+    public table: TableModalidadService
+  ) {}
 
   ngOnInit(): void {
-    this.subscription = this.tableCrudService.resetSelectedRowsSubject$.subscribe( () => this.selectedRow = []);
-
-    this.cols = [
-      { field: 'Descripcion_modalidad', header: 'Nombre' },
-      { field: 'accion', header: 'Acciones' }
-    ];
-
-    this.globalFiltros = [ 'Descripcion_modalidad' ];
-    this.dataKeyTable = 'Cod_modalidad';
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data'] && changes['data'].currentValue) {
-      this.originalData = [...this.data];
-    }
+    this.getData(true);
   }
 
   ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
+    this.table.resetSelectedRows();
   }
 
-  clear(table: Table){
-    this.resetSelectedRows();
-    this.searchValue = ''
-    this.data = [...this.originalData];
-    table.reset();
-  }
-  resetSelectedRows(){    
-    this.selectedRow = [];
-    this.tableCrudService.setSelectedRows(this.selectedRow)
+  async getData(showCountTableValues: boolean) {
+    await this.main.getModalidades(showCountTableValues);
+    this.originalData = [...this.main.modalidades];
   }
 
-  selectionChange(){   
-    this.tableCrudService.setSelectedRows(this.selectedRow)
-  }
-
-  
   onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
-    this.resetSelectedRows();
+    this.table.resetSelectedRows();
   }
 
-  refresh(){
-    this.tableCrudService.emitClickRefreshTable();
-  }
-  
-  edit(data: Modalidad){
-    this.modalidadesService.setModeCrud('edit',data)
+  edit(data: Modalidad) {
+    this.main.setModeCrud('edit', data);
   }
 
-  show(data: Modalidad){
-    this.modalidadesService.setModeCrud('show',data)
+  show(data: Modalidad) {
+    this.main.setModeCrud('show', data);
   }
 
-  delete(data: Modalidad){
-    this.modalidadesService.setModeCrud('delete',data)
+  delete(data: Modalidad) {
+    this.main.setModeCrud('delete', data);
   }
 
+  clear(table: Table) {
+    this.table.resetSelectedRows();
+    this.searchValue = '';
+    this.main.modalidades = [...this.originalData];
+    table.reset();
+  }
 }
