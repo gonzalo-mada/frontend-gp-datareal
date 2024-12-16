@@ -9,6 +9,6 @@ export const project_form_validator = [
                                         'solo_letras',
                                         'checkCorreoUV',
                                         'notSameAsDirector',
-                                        'rutMustBeDifferent',
-                                        'notSameDirectorsInUpdate'
+                                        'notSameDirectorInUpdate',
+                                        'notSameDirectorAlternoInUpdate'
                                     ];

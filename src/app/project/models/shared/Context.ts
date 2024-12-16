@@ -29,7 +29,26 @@ export type NameComponent = undefined |
                 'modalidad' |
                 'programa' |
                 'tipo-graduacion' |
-                'certificacion-intermedia';
+                'certificacion-intermedia'
+
+export type LabelComponent = 
+undefined | 
+'Título' | 
+'Grado académico' | 
+'REXE' | 
+'Estado maestro' | 
+'Director' | 
+'Director alterno' | 
+'Maestro' |
+'Programa' | 
+'Reglamento' | 
+'Estado acreditación' |
+'Nombre programa' |
+'Grupo correo' |
+'Créditos totales' |
+'Horas totales' |
+'Resumen_programa' ;            
+
 export type CollectionsMongo = 
 undefined | 
 'REXE' | 
@@ -48,11 +67,7 @@ undefined |
 'nombre_programa' | 
 'reglamentos' | 
 'titulo' | 
-'unidades_academicas' |
-'centro_costo' |
-'codigo_sies' |
-'tipo_programa' |
-'graduacion_colaborativa' ; 
+'unidades_academicas' ; 
 
 
 export interface Context {

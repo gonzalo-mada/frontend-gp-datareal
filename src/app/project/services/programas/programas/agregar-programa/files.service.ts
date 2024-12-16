@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { FormProgramaService } from '../form.service';
 import { ActionUploader, UploaderFilesService } from '../../../components/uploader-files.service';
-import { CollectionsMongo, ModeUploader, Module, NameComponent } from 'src/app/project/models/shared/Context';
+import { CollectionsMongo, LabelComponent, ModeUploader, Module, NameComponent } from 'src/app/project/models/shared/Context';
 import { ActionUploadDoc } from 'src/app/project/models/shared/ActionUploadDoc';
 
 @Injectable({
@@ -48,7 +48,7 @@ export class FilesAgregarProgramaService {
                 this.filesSelected = [...from.files.filesSelected]; 
             break;
             case 'cancel-delete':
-                this.filesToDelete = [...from.files.filesToDelete];
+                this.filesSelected = [...from.files.filesSelected];
                 this.filesUploaded = [...from.files.filesUploaded];
             break;
             case 'delete-uploaded':

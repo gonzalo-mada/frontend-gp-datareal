@@ -33,9 +33,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       ? this.programaMainService.setModeCrud('create') 
       : this.programaMainService.setModeCrud('delete-selected')
     }));
-    if (this.programaMainService.cod_facultad_selected !== 0) {
-      this.programaMainService.getProgramasPorFacultad();
-    }
+
   }
 
   ngOnDestroy(): void {

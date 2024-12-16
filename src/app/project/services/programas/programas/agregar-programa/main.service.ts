@@ -30,6 +30,7 @@ export class AgregarProgramaMainService {
         private confirmationService: ConfirmationService,
         private files: FilesAgregarProgramaService,
         private form: FormProgramaService,
+        private messageService: MessageServiceGP
     ){
         this.form.initForm();
         this.files.initFiles();
@@ -47,40 +48,45 @@ export class AgregarProgramaMainService {
         }
     }
 
-    reset(){
-        this.files.resetLocalFiles();
-        this.form.resetForm();
+    chooseDocsMaestro(){
+        this.files.setContextUploader('select','servicio','agregar-programa')
+        .then(() => {
+            this.dialogChooseDocsMaestro = true;
+        })
+        .catch((error)=> {
+            console.log("error al inicializar uploader de docs maestros",error);
+        })
     }
 
-    async createForm(){
-        await this.files.setContextUploader('create','servicio','agregar-programa');
-        this.reset();
-    }
-
-    async openDialogChooseDocsMaestro(){
-        await this.files.setContextUploader('create','servicio','agregar-programa');
-        this.dialogChooseDocsMaestro = true;
+    createForm(){
+        this.files.setContextUploader('create','servicio','agregar-programa')
+        .then(() => {
+            this.form.resetForm();
+        })
     }
 
     async insertForm(){
-        try {
-            const responseUploader = await this.files.setActionUploader('upload');
+        this.files.setActionUploader('upload')
+        .then(async (responseUploader) => {
             if (responseUploader) {
                 const { files, ...formData } =  this.form.fbForm.value;
                 let params = {
                     ...formData,
                     docsToUpload: responseUploader.docsToUpload
                 };
-                const response = await this.backend.insertProgramaBackend(params, this.namesCrud);
-                if (response && response.dataWasInserted) {
-                    this.form.nameProgramaAdded = response.dataInserted.Nombre_programa;
-                    this.form.codProgramaAdded = response.dataInserted.Cod_Programa;
-                    this.dialogSuccessAddPrograma = true;
-                }
+                await this.backend.insertProgramaBackend(params, this.namesCrud)
+                .then((response) => {
+                    if (response && response.dataWasInserted) {
+                        this.form.nameProgramaAdded = response.dataInserted.Nombre_programa;
+                        this.form.codProgramaAdded = response.dataInserted.Cod_Programa;
+                        this.dialogSuccessAddPrograma = true;
+                    }
+                })
+                .finally(() => {
+                    this.files.resetLocalFiles();
+                })
             }
-        } catch (error) {
-            console.log(error);
-        }
+        })
     }
 
     haveDirectorAlterno(){
@@ -102,5 +108,5 @@ export class AgregarProgramaMainService {
             }
           })
         }, 700);
-    }
+      }
 }

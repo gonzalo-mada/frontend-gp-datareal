@@ -2,22 +2,15 @@ import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, S
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
-import { RutValidator } from 'src/app/base/tools/validators/rut.validator';
-import { Campus } from 'src/app/project/models/programas/Campus';
-import { ModeDialog, Programa, UpdatePrograma } from 'src/app/project/models/programas/Programa';
-import { TipoGraduacion } from 'src/app/project/models/programas/TipoGraduacion';
-import { TipoPrograma } from 'src/app/project/models/programas/TipoPrograma';
-import { CollectionsMongo } from 'src/app/project/models/shared/Context';
-import { ModeForm } from 'src/app/project/models/shared/ModeForm';
+import { ModeDialog, Programa } from 'src/app/project/models/programas/Programa';
 import { MessageServiceGP } from 'src/app/project/services/components/message-service.service';
-import { CertifIntermediaMainService } from 'src/app/project/services/programas/certificaciones-intermedias/main.service';
+import { EstadosAcreditacionMainService } from 'src/app/project/services/programas/estados-acreditacion/main.service';
 import { BackendProgramasService } from 'src/app/project/services/programas/programas/backend.service';
 import { FormProgramaService } from 'src/app/project/services/programas/programas/form.service';
 import { FilesVerEditarProgramaService } from 'src/app/project/services/programas/programas/ver-editar/files.service';
 import { VerEditarProgramaMainService } from 'src/app/project/services/programas/programas/ver-editar/main.service';
-import { TiposGraduacionesMainService } from 'src/app/project/services/programas/tipos-graduaciones/main.service';
+import { ReglamentosMainService } from 'src/app/project/services/programas/reglamentos/main.service';
 import { TiposSuspensionesMainService } from 'src/app/project/services/programas/tipos-suspensiones/main.service';
-import { groupDataTipoPrograma, groupDataUnidadesAcademicas } from 'src/app/project/tools/utils/dropwdown.utils';
 import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
 
 @Component({
@@ -31,90 +24,259 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
   constructor(
     private backend: BackendProgramasService,
     private errorTemplateHandler: ErrorTemplateHandler,
+    private estadosAcreditacionMain: EstadosAcreditacionMainService,
     private files: FilesVerEditarProgramaService,
     public form: FormProgramaService,
     private messageService: MessageServiceGP,
-    public main: VerEditarProgramaMainService,
+    public reglamentosMainService: ReglamentosMainService,
     public mainTipoSuspension: TiposSuspensionesMainService,
-    public mainTipoGraduacion: TiposGraduacionesMainService,
-    public mainCertifIntermedia: CertifIntermediaMainService
+    public main: VerEditarProgramaMainService
   ){}
 
-  @Input() mode: string = '';
-  @Input() modeDialogInput: UpdatePrograma | undefined;
+  @Input() modeDialogInput: ModeDialog;
   @Input() programa!: Programa;
-  @Input() refreshPrograma: boolean = false;
-  @Output() formUpdated = new EventEmitter<ModeDialog>();
+  @Output() formUpdated = new EventEmitter<string>();
   @Output() resetDialog = new EventEmitter();
 
+  showForm: boolean = false
+  selectedReglamento: boolean = true;
   selectedDirector: boolean = true;
   selectedDirectorAlterno: boolean = true;
-  disabledSearchButton: boolean = true;
+  selectedEstadoAcreditacion: boolean = true;
   directores: any[] = [];
   directoresAlternos: any[] = [];
+  estadosMaestros: any[] = [];
+  suspensiones: any[] = [];
   estadosAcreditacion: any[] = [];
-  showAsterisk: boolean = true;
+  showSuspension: boolean = false;
+  showButtonSubmit: boolean = false;
   private subscription: Subscription = new Subscription();
 
   async ngOnInit(){
+
+    await this.getData();
   }
 
-  async ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges): void {
     if ( changes['modeDialogInput'] && changes['modeDialogInput'].currentValue) {
-      // console.log("MODE DIALOG: ",changes['modeDialogInput'].currentValue);
-      this.main.showButtonSubmitUpdate = false;
-      let modeDialogFromInput : UpdatePrograma = changes['modeDialogInput'].currentValue
-      this.setForm(modeDialogFromInput.modeDialog , modeDialogFromInput.collection);
+      console.log("MODE DIALOG: ",changes['modeDialogInput'].currentValue);
+      this.showButtonSubmit = false;
+      let modeDialogFromInput : ModeDialog = changes['modeDialogInput'].currentValue
+      this.setForm(modeDialogFromInput);
     }
-  }
-
-  ngOnDestroy(): void {
-    if (this.subscription) this.subscription.unsubscribe();
-  }
-
-  async setForm(modeDialog: ModeDialog, collection: CollectionsMongo){
-    this.main.dialogUpdateMode = modeDialog;
-    this.main.reset();
-    switch (modeDialog) {
-      case 'director': await this.createFormDirector(); break;
-      case 'director alterno': await this.createFormDirectorAlterno(); break;
-      case 'estado maestro': await this.createFormEstadoMaestro(); break;
-      case 'certificación intermedia': await this.createFormCertificacionIntermedia(); break;
-      case 'graduación colaborativa': await this.createFormGraduacionColaborativa(); break;
-      // case 'unidades académicas': await this.createUnidadesAcademicas(); break;
-      default: 
-        await this.main.createFormUpdate(modeDialog, collection); 
-      break;
-    }
-    console.log("this.mode",this.mode);
     
   }
 
-  changeTipoPrograma(event: any){
-    let dataSelected : TipoPrograma = this.main.tiposProgramas.find( tp => tp.Cod_tipoPrograma === event.value )
-    this.form.fbFormUpdate.get('Description_TP_New')?.patchValue(dataSelected.Descripcion_tp);
+  ngOnDestroy(): void {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
-  changeCampus(event: any){
-    let dataSelected : Campus = this.main.campus.find( c => c.Cod_campus === event.value )!
-    this.form.fbFormUpdate.get('Description_Campus_New')?.patchValue(dataSelected.Descripcion_campus);
+  async setForm(modeDialog: ModeDialog){
+    this.main.dialogUpdateMode = modeDialog;
+    switch (modeDialog) {
+      case 'nombre': await this.createFormNombre(); break;
+      case 'grupo_correo': this.createFormGrupoCorreo(); break;
+      case 'créditos totales': this.createFormCreditosTotales(); break;
+      case 'horas totales': this.createFormHorasTotales(); break;
+      case 'título': this.createFormTitulo(); break;
+      case 'grado académico': this.createFormGradoAcademico(); break;
+      case 'REXE': this.createFormREXE(); break;
+      case 'maestro': this.createFormDocsMaestro(); break;
+      case 'reglamento': this.createFormReglamento(); break;
+      case 'director': this.createFormDirector(); break;
+      case 'director alterno': this.createFormDirectorAlterno(); break;
+      case 'estado maestro': this.createFormEstadoMaestro(); break;
+      case 'estado acreditación': this.createFormEstadoAcreditacion(); break;
+      default: break;
+    }
+
   }
 
-  changeTipoGraduacion(event: any){
-    let dataSelected : TipoGraduacion = this.mainTipoGraduacion.tipos.find( c => c.Cod_TipoColaborativa === event.value )!
-    this.form.fbFormUpdate.get('Description_TG_New')?.patchValue(dataSelected.Descripcion_tipoColaborativa);
+  async getData(){
+    try {
+      await Promise.all([this.getEstadosMaestros(),this.mainTipoSuspension.getTiposSuspensiones(false)]);
+    } catch (error) {
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al obtener los registros. Intente nuevamente.',
+      });
+    }
   }
 
-  changeInstituciones(event:any){
-    this.form.fbFormUpdate.get('Instituciones')?.patchValue(event.value);
+  async getEstadosMaestros(){
+    this.estadosMaestros = await this.backend.getEstadosMaestros(false);
   }
 
-  changeCertifIntermedias(event:any){
-    this.form.fbFormUpdate.get('Certificacion_intermedia')?.patchValue(event.value);
+  async createFormNombre(){
+    try {
+      await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', 'nombre_programa');
+      await this.form.setFormUpdate('nombre', this.programa);
+      this.main.dialogUpdate = true;
+      const response = await this.loadDocsWithBinary('nombre_programa');
+      if (response) {
+        this.form.fbFormUpdate.get('files')?.setValidators([this.filesValidator.bind(this)]);
+        this.form.fbFormUpdate.get('files')?.updateValueAndValidity();
+        this.showButtonSubmit = true;
+      }
+    } catch (error) {
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al crear el formulario de nombre de programa. Intente nuevamente.',
+      });
+    }
   }
 
-  changeUnidadAcad(event: any){
-    this.form.fbForm.get('Unidades_academicas_Selected')?.patchValue(event.value);
+  async createFormGrupoCorreo(){
+    try {
+      await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', 'grupo_correo');
+      await this.form.setFormUpdate('grupo_correo', this.programa);
+      this.main.dialogUpdate = true;
+      const response = await this.loadDocsWithBinary('grupo_correo');
+      if (response) {
+        this.form.fbFormUpdate.get('files')?.setValidators([this.filesValidator.bind(this)]);
+        this.form.fbFormUpdate.get('files')?.updateValueAndValidity();
+        this.showButtonSubmit = true;
+      }
+    } catch (error) {
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al crear el formulario de Programa. Intente nuevamente.',
+      });
+    }
+  }
+
+  async createFormCreditosTotales(){
+    try {
+      await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', 'creditos_totales');
+      await this.form.setFormUpdate('créditos totales', this.programa);
+      this.main.dialogUpdate = true;
+      const response = await this.loadDocsWithBinary('creditos_totales');
+      if (response) {
+        this.form.fbFormUpdate.get('files')?.setValidators([this.filesValidator.bind(this)]);
+        this.form.fbFormUpdate.get('files')?.updateValueAndValidity();
+        this.showButtonSubmit = true;
+      }
+    } catch (error) {
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al crear el formulario de créditos totales de programa. Intente nuevamente.',
+      });
+    }
+  }
+
+  async createFormHorasTotales(){
+    try {
+      await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', 'horas_totales');
+      await this.form.setFormUpdate('horas totales', this.programa);
+      this.main.dialogUpdate = true;
+      const response = await this.loadDocsWithBinary('horas_totales');
+      if (response) {
+        this.form.fbFormUpdate.get('files')?.setValidators([this.filesValidator.bind(this)]);
+        this.form.fbFormUpdate.get('files')?.updateValueAndValidity();
+        this.showButtonSubmit = true;
+      }
+    } catch (error) {
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al crear el formulario de horas totales de programa. Intente nuevamente.',
+      });
+    }
+  }
+
+  async createFormTitulo(){
+    try {
+      await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', 'titulo');
+      await this.form.setFormUpdate('título', this.programa);
+      this.main.dialogUpdate = true;
+      const response = await this.loadDocsWithBinary('titulo');
+      if (response) {
+        this.form.fbFormUpdate.get('files')?.setValidators([this.filesValidator.bind(this)]);
+        this.form.fbFormUpdate.get('files')?.updateValueAndValidity();
+        this.showButtonSubmit = true;
+      }
+    } catch (error) {
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al crear el formulario de Título. Intente nuevamente.',
+      });
+    }
+  }
+
+  async createFormGradoAcademico(){
+    try {
+      await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', 'grado_academico');
+      await this.form.setFormUpdate('grado académico', this.programa);
+      this.main.dialogUpdate = true;
+      const response = await this.loadDocsWithBinary('grado_academico');
+      if (response) {
+        this.form.fbFormUpdate.get('files')?.setValidators([this.filesValidator.bind(this)]);
+        this.form.fbFormUpdate.get('files')?.updateValueAndValidity();
+        this.showButtonSubmit = true;
+      }
+    } catch (error) {
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al crear el formulario de Grado académico. Intente nuevamente.',
+      });
+    }
+  }
+
+  async createFormREXE(){
+    try {
+      await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', 'REXE');
+      await this.form.setFormUpdate('REXE', this.programa);
+      this.main.dialogUpdate = true;
+      const response = await this.loadDocsWithBinary('REXE');
+      if (response) {
+        this.form.fbFormUpdate.get('files')?.setValidators([this.filesValidator.bind(this)]);
+        this.form.fbFormUpdate.get('files')?.updateValueAndValidity();
+        this.showButtonSubmit = true;
+      }
+    } catch (error) {
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al crear el formulario de REXE. Intente nuevamente.',
+      });
+    }
+  }
+
+  async createFormDocsMaestro(){
+    try {
+      await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', 'maestro');
+      await this.form.setFormUpdate('maestro', this.programa);
+      this.main.dialogUpdate = true;
+      const response = await this.loadDocsWithBinary('maestro');
+      if (response) {
+        this.form.fbFormUpdate.get('files')?.setValidators([this.filesValidator.bind(this)]);
+        this.form.fbFormUpdate.get('files')?.updateValueAndValidity();
+        this.showButtonSubmit = true;
+      }
+    } catch (error) {
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al crear el formulario de Documentos maestros. Intente nuevamente.',
+      });
+    }
+  }
+
+  async createFormReglamento(){
+    try {
+      this.reglamentosMainService.emitResetExpandedRows();
+      await this.form.setFormUpdate('reglamento', this.programa);
+      this.form.fbForm.get('Cod_Reglamento')!.valueChanges.subscribe( value => {
+        this.form.fbFormUpdate.get('Cod_Reglamento')?.patchValue(value);
+        this.form.fbFormUpdate.get('nombreReglamento')?.patchValue(this.form.reglamentoSelected);
+      })
+      this.main.dialogUpdate = true;
+      this.showButtonSubmit = true;
+    } catch (error) {
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al crear el formulario de Reglamentos. Intente nuevamente.',
+      });
+    }
   }
 
   async createFormDirector(){
@@ -147,11 +309,11 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
 
       this.main.dialogUpdate = true;
 
-      const response = await this.main.setLoadDocsWithBinary(this.programa.Cod_Programa!,'director');
+      const response = await this.loadDocsWithBinary('director');
       if (response) {
-        this.form.fbFormUpdate.get('files')?.setValidators([GPValidator.filesValidator('files',() => this.mode as ModeForm)]);
+        this.form.fbFormUpdate.get('files')?.setValidators([this.filesValidator.bind(this)]);
         this.form.fbFormUpdate.get('files')?.updateValueAndValidity();
-        this.main.showButtonSubmitUpdate = true;
+        this.showButtonSubmit = true;
       }
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
@@ -168,35 +330,21 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
       await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', 'directorAlterno');
       await this.form.setFormUpdate('director alterno', this.programa);
 
-      if (this.mode === 'show') this.form.fbFormUpdate.disable();
-      
-      if (this.form.fbFormUpdate.get('Director_alterno')?.value !== '0') {
-        // si tiene director alterno
-        this.selectedDirectorAlterno = true;
-        const rut_director = this.programa.Director_alterno!.split('-');
-        this.directoresAlternos = await this.backend.getDirector({rut: parseInt(rut_director[0])},false,'alterno');
-        this.directoresAlternos.map( director => {
-          if (director.rutcompleto === this.programa.Director_alterno) {
-            director.isSelected = true;
-            this.form.stateFormUpdate = 'VALID';
-          }else{
-            director.isSelected = false;
-          }
-        })
-      }else{
-        //no tiene director alterno
-        this.form.unsetSelectDirectorFormUpdate('alterno');
-        this.form.fbFormUpdate.get('Director_alterno')?.reset();
-        this.form.fbFormUpdate.get('DirectorAlterno_selected')?.clearValidators();
-        this.form.fbFormUpdate.get('Director_alterno')?.disable()
-        this.main.disabledButtonSeleccionar();
-        this.selectedDirectorAlterno = false;
-        this.showAsterisk = false;
-        this.disabledSearchButton = true;
-      }
+      this.form.fbFormUpdate.get('DirectorAlterno_selected')?.value !== '' ? this.selectedDirectorAlterno = true : this.selectedDirectorAlterno = false
+      this.checkDirectorSelected('alterno');
+
+      const rut_director = this.programa.Director_alterno!.split('-');
+      this.directoresAlternos = await this.backend.getDirector({rut: parseInt(rut_director[0])},false,'alterno');
+      this.directoresAlternos.map( director => {
+        if (director.rutcompleto === this.programa.Director_alterno) {
+          director.isSelected = true;
+          this.form.stateFormUpdate = 'VALID';
+        }else{
+          director.isSelected = false;
+        }
+      })
 
       this.form.fbForm.get('DirectorAlterno_selected')!.valueChanges.subscribe( value => {
-        
         if (value === '' || value === null) {
           this.selectedDirectorAlterno = false
         }else{
@@ -208,11 +356,11 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
       })
       this.main.dialogUpdate = true;
 
-      const response = await this.main.setLoadDocsWithBinary(this.programa.Cod_Programa!,'directorAlterno');
+      const response = await this.loadDocsWithBinary('directorAlterno');
       if (response) {
-        this.form.fbFormUpdate.get('files')?.setValidators([GPValidator.filesValidatorWithStatus('files', 'haveDirectorAlterno',() => this.mode as ModeForm)]);
+        this.form.fbFormUpdate.get('files')?.setValidators([this.filesValidator.bind(this)]);
         this.form.fbFormUpdate.get('files')?.updateValueAndValidity();
-        this.main.showButtonSubmitUpdate = true;
+        this.showButtonSubmit = true;
       }
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
@@ -222,87 +370,13 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
     }
   }
 
-  async createFormCertificacionIntermedia(){
-    try {
-      await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', 'certificacion_intermedia');
-      await this.form.setFormUpdate('certificación intermedia', this.programa);
-      if (this.mode === 'show'){
-        this.form.fbFormUpdate.get('Certificacion_intermedia_Switch')!.disable();
-        this.form.fbFormUpdate.get('Certificacion_intermedia_old')!.enable();
-      } 
-      const cert_int_switch = this.form.fbFormUpdate.get('Certificacion_intermedia_Switch')!;
-      if (!cert_int_switch.value) {
-        this.form.fbFormUpdate.get('Certificacion_intermedia')?.disable()
-        this.main.disabledButtonSeleccionar();
-        this.showAsterisk = false; 
-      }
-      this.main.dialogUpdate = true;
-
-      const response = await this.main.setLoadDocsWithBinary(this.programa.Cod_Programa!,'certificacion_intermedia');
-      if (response) {
-        this.form.fbFormUpdate.get('files')?.setValidators([GPValidator.filesValidatorWithStatus('files', 'Certificacion_intermedia_Switch',() => this.mode as ModeForm)]);
-        this.form.fbFormUpdate.get('files')?.updateValueAndValidity();
-        this.main.showButtonSubmitUpdate = true;
-      } 
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al crear el formulario de Graduación colaborativa. Intente nuevamente.',
-      });
-    }
-  }
-
-  async createFormGraduacionColaborativa(){
-    try {
-      await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', 'graduacion_colaborativa');
-      await this.form.setFormUpdate('graduación colaborativa', this.programa);
-      if (this.mode === 'show'){
-        this.form.fbFormUpdate.get('Graduacion_Conjunta_Switch')!.disable();
-        this.form.fbFormUpdate.get('Cod_TipoGraduacion')!.disable();
-        this.form.fbFormUpdate.get('Instituciones_old')!.enable();
-      } 
-      const grad_conj_switch = this.form.fbFormUpdate.get('Graduacion_Conjunta_Switch')!;
-      if (!grad_conj_switch.value) {
-        this.form.fbFormUpdate.get('Certificacion_intermedia')?.disable()
-        this.form.fbFormUpdate.get('Cod_TipoGraduacion')?.disable()
-        this.form.fbFormUpdate.get('Instituciones')?.disable()
-        this.main.disabledButtonSeleccionar();
-        this.showAsterisk = false; 
-      }
-      this.main.dialogUpdate = true;
-
-      const response = await this.main.setLoadDocsWithBinary(this.programa.Cod_Programa!,'graduacion_colaborativa');
-      if (response) {
-        this.form.fbFormUpdate.get('files')?.setValidators([GPValidator.filesValidatorWithStatus('files', 'Graduacion_Conjunta_Switch',() => this.mode as ModeForm)]);
-        this.form.fbFormUpdate.get('files')?.updateValueAndValidity();
-        this.main.showButtonSubmitUpdate = true;
-      } 
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al crear el formulario de Graduación colaborativa. Intente nuevamente.',
-      });
-    }
-  }
-
   checkDirectorSelected(mode: 'director' | 'alterno'){
     switch (mode) {
       case 'director':
-        if (this.selectedDirector) {
-          this.form.fbFormUpdate.get('Director')?.disable()
-          this.disabledSearchButton = true
-        }else{
-          this.form.fbFormUpdate.get('Director')?.enable()
-          this.disabledSearchButton = false
-        }
+        this.selectedDirector ? this.form.fbFormUpdate.get('Director')?.disable() : this.form.fbFormUpdate.get('Director')?.enable()
       break;
       case 'alterno':
-        if (this.selectedDirectorAlterno) {
-          this.disabledSearchButton = true
-        }else{
-          this.disabledSearchButton = false
-        }
-        this.form.fbFormUpdate.get('Director_alterno')?.disable()
+        this.selectedDirectorAlterno ? this.form.fbFormUpdate.get('Director_alterno')?.disable() : this.form.fbFormUpdate.get('Director_alterno')?.enable()
       break;
     }
   }
@@ -345,25 +419,25 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
 
   async createFormEstadoMaestro(){
     try {
+      this.showSuspension = false
       await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', 'estado_maestro');
       await this.form.setFormUpdate('estado maestro', this.programa);
-      if (this.mode === 'show') this.form.fbFormUpdate.disable();
 
       if (this.programa.Cod_EstadoMaestro === 2 ) {
-        this.form.fbFormUpdate.get('TipoSuspension')?.enable();
         let suspensionSelected = this.mainTipoSuspension.tipos_susp.filter( r => r.ID_TipoSuspension === this.programa.ID_TipoSuspension)
         this.form.fbFormUpdate.get('TipoSuspension')?.patchValue(suspensionSelected[0]);
         this.form.fbFormUpdate.get('TipoSuspension')?.setValidators([Validators.required, GPValidator.notMinusOneCategory()]);
         this.form.fbFormUpdate.get('TipoSuspension')?.updateValueAndValidity();
+        this.showSuspension = true;
       }
 
       this.main.dialogUpdate = true;
 
-      const response = await this.main.setLoadDocsWithBinary(this.programa.Cod_Programa!,'estado_maestro');
+      const response = await this.loadDocsWithBinary('estado_maestro');
       if (response) {
-        this.form.fbFormUpdate.get('files')?.setValidators([GPValidator.filesValidator('files',() => this.mode as ModeForm)]);
+        this.form.fbFormUpdate.get('files')?.setValidators([this.filesValidator.bind(this)]);
         this.form.fbFormUpdate.get('files')?.updateValueAndValidity();
-        this.main.showButtonSubmitUpdate = true;
+        this.showButtonSubmit = true;
       }
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
@@ -373,26 +447,63 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
     }
   }
 
+  async createFormEstadoAcreditacion(){
+    try {
+      this.estadosAcreditacionMain.emitResetExpandedRows();
+      await this.form.setFormUpdate('estado acreditación', this.programa);
+      this.form.fbForm.get('Cod_acreditacion')!.valueChanges.subscribe( value => {
+        this.form.fbFormUpdate.get('Cod_acreditacion')?.patchValue(value);
+        this.form.fbFormUpdate.get('nombreEstadoAcreditacion')?.patchValue(this.form.estadoAcreditacionSiglaSelected);
+      })
+      this.main.dialogUpdate = true;
+      this.showButtonSubmit = true;
+    } catch (error) {
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al crear el formulario de Estado acreditación. Intente nuevamente.',
+      });
+    }
+  }
+
   onEstadoMaestroChange(event: any){
     const tipoSuspensionControl = this.form.fbFormUpdate.get('TipoSuspension');
     const filesControl = this.form.fbFormUpdate.get('files');
     switch (event.value) {
       case 2: 
-        tipoSuspensionControl?.enable();
+        this.showSuspension = true;
         tipoSuspensionControl?.setValidators([Validators.required, GPValidator.notMinusOneCategory()]);
       break;
 
       default: 
-        tipoSuspensionControl?.disable();
+        this.showSuspension = false;
         tipoSuspensionControl?.clearValidators();
         tipoSuspensionControl?.reset();
       break;
     }
     tipoSuspensionControl?.updateValueAndValidity();
-    filesControl?.setValidators([GPValidator.filesValidator('files',() => this.mode as ModeForm)]);
+    filesControl?.setValidators([this.filesValidator.bind(this)]);
     filesControl?.updateValueAndValidity();
   }
  
+  filesValidator(control: AbstractControl): { [key: string]: boolean } | null {
+    const formGroup = control.parent as FormGroup;
+    if (!formGroup) {
+        return null;
+    }
+    
+    const files = formGroup.get('files')?.value;
+    
+    if (files.length === 0 ) {
+      return { required: true };
+    }
+
+    return null;
+  }
+
+  async loadDocsWithBinary(from: 'titulo' | 'REXE' | 'grado_academico' | 'estado_maestro' | 'director' | 'directorAlterno' | 'maestro' | 'nombre_programa' | 'grupo_correo' | 'creditos_totales' | 'horas_totales'){
+    return this.main.setLoadDocsWithBinary(this.programa.Cod_Programa!,from)
+  }
+
   async submit(){
     this.main.programa = this.programa
     const response = await this.main.updateForm()
@@ -403,7 +514,7 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
     console.log("fbFormUpdate",this.form.fbFormUpdate.value);
     console.log("stateFormUpdate programaService: ",this.form.stateFormUpdate);
     
-    Object.keys(this.form.fbFormUpdate.controls).forEach(key => {
+    Object.keys(this.form.fbForm.controls).forEach(key => {
       const control = this.form.fbFormUpdate.get(key);
       if (control?.invalid) {
         console.log(`Errores en ${key}:`, control.errors);
@@ -413,75 +524,6 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
 
   closeDialog(){
     this.resetDialog.emit();
-    this.main.enabledButtonSeleccionar();
-  }
-
-  changeSwitchDirectorAlterno(event: any){
-    if ( event.checked === false ) {
-      this.form.unsetSelectDirectorFormUpdate('alterno');
-      this.form.fbFormUpdate.get('Director_alterno')?.reset();
-      this.form.fbFormUpdate.get('Director_alterno')?.disable();
-      this.form.fbFormUpdate.get('DirectorAlterno_selected')?.disable();
-      this.disabledSearchButton = true;
-      this.directoresAlternos = [];
-      this.showAsterisk = false;
-      this.main.disabledButtonSeleccionar();
-    }else{
-      this.form.fbFormUpdate.get('Director_alterno')?.enable();
-      this.form.fbFormUpdate.get('DirectorAlterno_selected')?.enable();
-      this.form.fbFormUpdate.get('Director_alterno')?.setValidators([Validators.required, RutValidator.rut, GPValidator.notSameAsDirectorInUpdate('A',this.programa.Director!, this.programa.Director_alterno!)]);
-      this.form.fbFormUpdate.get('DirectorAlterno_selected')?.setValidators([Validators.required]);
-      this.form.fbFormUpdate.get('Director_alterno')?.updateValueAndValidity();
-      this.form.fbFormUpdate.get('DirectorAlterno_selected')?.updateValueAndValidity();
-
-      this.showAsterisk = true;
-      this.disabledSearchButton = false;
-      this.main.enabledButtonSeleccionar();
-      
-    }
-    this.form.fbFormUpdate.get('files')?.setValidators([GPValidator.filesValidatorWithStatus('files', 'haveDirectorAlterno',() => this.mode as ModeForm)]);
-    this.form.fbFormUpdate.get('files')?.updateValueAndValidity();
-  }
-
-  changeSwitchCI(event: any){
-    const Certificacion_intermedia = this.form.fbFormUpdate.get('Certificacion_intermedia')!;
-
-    switch (event.checked) {
-      case true: 
-        Certificacion_intermedia.enable(); 
-        this.main.enabledButtonSeleccionar();
-        this.showAsterisk = true; 
-      break;
-      case false : 
-        Certificacion_intermedia.disable(); 
-        this.main.disabledButtonSeleccionar();
-        this.showAsterisk = false; 
-      break;
-    }
-    this.form.fbFormUpdate.get('files')?.setValidators([GPValidator.filesValidatorWithStatus('files', 'Certificacion_intermedia_Switch',() => this.mode as ModeForm)]);
-    this.form.fbFormUpdate.get('files')?.updateValueAndValidity();
-  }
-
-  changeSwitchGradConjunta(event: any){
-    const tipo_graduacion = this.form.fbFormUpdate.get('Cod_TipoGraduacion')!;
-    const instituciones = this.form.fbFormUpdate.get('Instituciones')!;
-
-    switch (event.checked) {
-      case true: 
-        tipo_graduacion.enable(); 
-        instituciones.enable(); 
-        this.main.enabledButtonSeleccionar();
-        this.showAsterisk = true; 
-      break;
-      case false : 
-        tipo_graduacion.disable(); 
-        instituciones.disable(); 
-        this.main.disabledButtonSeleccionar();
-        this.showAsterisk = false; 
-      break;
-    }
-    this.form.fbFormUpdate.get('files')?.setValidators([GPValidator.filesValidatorWithStatus('files', 'Graduacion_Conjunta_Switch',() => this.mode as ModeForm)]);
-    this.form.fbFormUpdate.get('files')?.updateValueAndValidity();
   }
 
 }

@@ -5,7 +5,7 @@ import { FormReglamentosService } from './form.service';
 import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 import { BackendReglamentosService } from './backend.service';
 import { Reglamento } from 'src/app/project/models/programas/Reglamento';
-import { CollectionsMongo, ModeUploader, Module, NameComponent } from 'src/app/project/models/shared/Context';
+import { CollectionsMongo, LabelComponent, ModeUploader, Module, NameComponent } from 'src/app/project/models/shared/Context';
 import { ActionUploadDoc } from 'src/app/project/models/shared/ActionUploadDoc';
 
 @Injectable({
@@ -28,27 +28,23 @@ export class FilesReglamentosService {
     initFiles(){
         this.subscription.add(this.uploaderFilesService.contextUpdate$.subscribe( context => {
             if (context && context.component.name === 'reglamentos') {
-                console.log("-->context files.service reglamento",context);
+                // console.log("-->context files.service reglamento",context);
                 this.setFiles();
 
             }
         }));
         this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( async from => {
         if (from && from.context.component.name === 'reglamentos'){
-            console.log("valitador files.service reglamento",from);
+            // console.log("valitador files.service reglamento",from);
             await this.handleFileAction(from);
             await this.updateFiles();
         }
         }));
-        this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(async from => {
+        this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
             if (from) {
                 if (from.context.component.name === 'reglamentos') {
-                    if (from.mode === 'd') {
-                        console.log("DESCARGA REALIZADA DESDE SERVICIO FILES reglamentos");
-                        await this.downloadDoc(from.file)
-                    }else{
-                        await this.getDocWithBinary(from.file, from.mode, from.resolve! , from.reject!);
-                    }
+                    console.log("DESCARGA REALIZADA DESDE SERVICIO FILES REGLAMENTOS");
+                    this.downloadDoc(from.file)
                 }
             }
         }));
@@ -66,7 +62,7 @@ export class FilesReglamentosService {
                 this.filesSelected = [...from.files.filesSelected]; 
             break;
             case 'cancel-delete':
-                this.filesToDelete = [...from.files.filesToDelete];
+                this.filesSelected = [...from.files.filesSelected];
                 this.filesUploaded = [...from.files.filesUploaded];
             break;
             case 'delete-uploaded':
@@ -111,29 +107,13 @@ export class FilesReglamentosService {
     }
 
     async downloadDoc(documento: any) {
-        let blob: Blob = await this.backend.getArchiveDoc(documento.id,false);
+        let blob: Blob = await this.backend.getArchiveDoc(documento.id);
         this.commonUtils.downloadBlob(blob, documento.nombre);      
-    }
-
-    async getDocWithBinary(documento: any, mode: 'g' | 'b', resolve: Function, reject: Function) {
-        try {
-            if (mode === 'g') {
-                //no se necesita binario en formato string
-                const response = await this.backend.getArchiveDoc(documento.id, false);
-                resolve(response)
-            }else{
-                //si se necesita binario en formato string
-                const response = await this.backend.getArchiveDoc(documento.id, true);
-                resolve(response)
-            }
-        } catch (error) {
-            reject(error)
-        }
     }
 
     async loadDocsWithBinary(reglamento: Reglamento){
         this.uploaderFilesService.setLoading(true,true);  
-        const files = await this.backend.getDocsMongo(reglamento.Cod_reglamento!);
+        const files = await this.backend.getDocumentosWithBinary(reglamento.Cod_reglamento!);
         await this.uploaderFilesService.updateFilesFromMongo(files);
         this.uploaderFilesService.setLoading(false); 
     }

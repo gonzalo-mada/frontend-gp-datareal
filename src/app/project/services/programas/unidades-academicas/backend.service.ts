@@ -109,10 +109,10 @@ export class BackendUnidadAcadService {
         }
     }
 
-    async getDocsMongo(Cod_unidad_academica: any) {
+    async getDocumentosWithBinary(Cod_unidad_academica: any) {
         try {
             return await this.invoker.httpInvoke(
-                    this.serviceUtils.generateServiceMongo('unidadesAcademicas/getDocsMongo', false),
+                    this.serviceUtils.generateServiceMongo('unidadesAcademicas/getDocumentosWithBinary'),
                     { Cod_unidad_academica }
                 )
         } catch (error: any) {
@@ -127,27 +127,16 @@ export class BackendUnidadAcadService {
         }
     }
 
-    async getArchiveDoc(id: any, needBinaryString: boolean) {
+    async getArchiveDoc(idDocumento: any) {
         try {
-            if (needBinaryString) {
-                return await this.invoker.httpInvoke(
-                    this.serviceUtils.generateServiceMongo('unidadesAcademicas/getArchiveDoc',false),
-                    { id , needBinaryString }
-                )
-            }else{
-                return await this.invoker.httpInvokeReport(
-                    this.serviceUtils.generateServiceMongo('unidadesAcademicas/getArchiveDoc',false), 
-                    'pdf', 
-                    { id , needBinaryString }
-                )
-            }
+            return await this.invoker.httpInvokeReport('unidadesAcademicas/getArchivoDocumento', 'pdf', { id: idDocumento })
         } catch (error: any) {
             this.errorTemplateHandler.processError(
                 error, 
                 {
                     notifyMethod: 'alert',
                     summary: `Error al descargar documento.`,
-                    message: error?.message || error.detail.error.message.message
+                    message: error?.message
                 }
             );
         }

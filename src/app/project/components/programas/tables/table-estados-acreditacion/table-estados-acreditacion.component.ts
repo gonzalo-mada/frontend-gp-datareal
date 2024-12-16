@@ -1,12 +1,9 @@
-import { Component,Input,OnDestroy, OnInit } from '@angular/core';
-import { Table, TableRowExpandEvent } from 'primeng/table';
+import { Component,OnDestroy, OnInit } from '@angular/core';
+import { Table } from 'primeng/table';
 import { Subscription } from 'rxjs';
 import { EstadosAcreditacion } from 'src/app/project/models/programas/EstadosAcreditacion';
-import { Programa } from 'src/app/project/models/programas/Programa';
-import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
 import { EstadosAcreditacionMainService } from 'src/app/project/services/programas/estados-acreditacion/main.service';
 import { TableEstadosAcreditacionService } from 'src/app/project/services/programas/estados-acreditacion/table.service';
-import { FormProgramaService } from 'src/app/project/services/programas/programas/form.service';
 
 @Component({
   selector: 'app-table-estados-acreditacion',
@@ -15,50 +12,25 @@ import { FormProgramaService } from 'src/app/project/services/programas/programa
   ]
 })
 export class TableEstadosAcreditacionComponent implements OnInit, OnDestroy {
-  @Input() programa: Programa = {};
-  @Input() mode: string = '';
-  @Input() from: string = '';
-
   searchValue: string | undefined;
-  expandedRows = {};
-  estados: EstadosAcreditacion[] = [];
-  isAnySelected: boolean = false;
-
   private subscription: Subscription = new Subscription();
 
   constructor(
-    public formPrograma: FormProgramaService,
     public main: EstadosAcreditacionMainService, 
-    public table: TableEstadosAcreditacionService,
-    private tableCrudService: TableCrudService
+    public table: TableEstadosAcreditacionService
   ){}
 
   async ngOnInit() {
-    this.from === 'mantenedor' ? this.getData(true) : this.getData(false)
     this.subscription.add(this.table.refreshTableEA$.subscribe( () => this.getData(false) ));
-    this.subscription.add(this.tableCrudService.resetExpandedRowsTableSubject$.subscribe( () => this.resetExpandedRows() ));
+    this.getData(true);
   }
 
   ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
     this.table.resetSelectedRows();
   }
 
   async getData(showCountTableValues: boolean){
-    this.estados = await this.main.getEstadosAcreditacion(showCountTableValues);
-    if (this.programa.Cod_acreditacion) {
-      this.estados.map( estado => {
-        if (estado.Cod_acreditacion === this.programa.Cod_acreditacion) {
-          estado.isSelected = true 
-          this.formPrograma.stateFormUpdate = 'VALID';
-          this.isAnySelected = true;
-        }else{
-          estado.isSelected = false
-        }
-      });
-    }
+    await this.main.getEstadosAcreditacion(showCountTableValues);
   }
   
   onGlobalFilter(table: Table, event: Event) {
@@ -79,7 +51,7 @@ export class TableEstadosAcreditacionComponent implements OnInit, OnDestroy {
   }
    
   clear(table: Table){
-    this.expandedRows = {};
+    this.table.resetSelectedRows();
     this.searchValue = ''
     table.reset();
     this.main.countTableValues();
@@ -125,45 +97,6 @@ export class TableEstadosAcreditacionComponent implements OnInit, OnDestroy {
   convertirStringAFecha(fechaStr: string): Date {
     const [day, month, year] = fechaStr.split("-");
     return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-  }
-
-  onRowExpand(event: TableRowExpandEvent) {
-    this.main.setModeCrud('rowExpandClick',event.data)
-  }
-
-  onRowCollapse(){
-    this.resetExpandedRows();
-  }
-
-  resetExpandedRows(){
-    this.expandedRows = {} 
-  }
-
-  changeSelectEstadoAcreditacion(mode:'select' | 'unselect', data: EstadosAcreditacion){
-    switch (mode) {
-      case 'select':
-        this.isAnySelected = true
-        data.isSelected = true;
-        this.formPrograma.setSelectEstadoAcreditacion(data);
-      break;
-      case 'unselect':
-        this.isAnySelected = false
-        data.isSelected = false;
-        this.formPrograma.unsetSelectEstadoAcreditacion(data);
-      break;
-    }
-  }
-
-  resetSelected(){
-    if (this.from !== 'mantenedor') {
-      this.isAnySelected = false;
-      this.formPrograma.unsetSelectEstadoAcreditacion();
-    }
-  }
-
-  refresh(){
-    this.resetSelected();
-    this.getData(true);
   }
 
 }

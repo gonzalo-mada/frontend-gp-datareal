@@ -60,7 +60,7 @@ export class BackendProgramasService {
 
     async getUnidadesAcademicas(loading = true) {
         try {
-            return await this.invoker.httpInvoke({ service: 'unidadesAcademicas/logica_getUnidadesAcademicasWithoutColor', loading: loading });
+            return await this.invoker.httpInvoke({ service: 'unidadesAcademicas/logica_getUnidadesAcademicas', loading: loading });
         } catch (error: any) {
             this.errorTemplateHandler.processError(error, {
                 notifyMethod: 'alert',
@@ -185,36 +185,26 @@ export class BackendProgramasService {
         }
     }
     
-    async getArchiveDoc(id: any, from: string, needBinaryString: boolean) {
+    async getArchiveDoc(idDocumento: string, from: string) {
         try {
-            if (needBinaryString) {
-                return await this.invoker.httpInvoke(
-                    this.serviceUtils.generateServiceMongo('programas/getArchiveDoc',false),
-                    { id , needBinaryString, from }
-                )
-            }else{
-                return await this.invoker.httpInvokeReport(
-                    this.serviceUtils.generateServiceMongo('programas/getArchiveDoc',false), 
-                    'pdf', 
-                    { id , needBinaryString, from }
-                )
-            }
-        } catch (error: any) {
-            this.errorTemplateHandler.processError(
-                error, 
-                {
-                    notifyMethod: 'alert',
-                    summary: `Error al descargar documento.`,
-                    message: error?.message || error.detail.error.message.message
-                }
+            return await this.invoker.httpInvokeReport(
+                'programas/getArchiveDoc',
+                'pdf',
+                { id: idDocumento, from: from }
             );
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(error, {
+                notifyMethod: 'alert',
+                summary: 'Error al descargar documento',
+                message: error.detail.error.message.message
+            });
         }
     }
     
-    async getDocsMongo(cod_programa: number, from: string, loading = true) {
+    async getDocumentosWithBinary(cod_programa: number, from: string, loading = true) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('programas/getDocsMongo', false),
+                this.serviceUtils.generateServiceMongo('programas/getDocumentosWithBinary', false),
                 { Cod_Programa: cod_programa, from: from }
             );
         } catch (error: any) {
@@ -315,7 +305,6 @@ export class BackendProgramasService {
                 ),
                 namesCrud
             );
-
             return response;
         } catch (error: any) {
             this.errorTemplateHandler.processError(
@@ -331,13 +320,7 @@ export class BackendProgramasService {
 
     async deleteProgramaBackend(params: any, namesCrud: NamesCrud){
         try {
-            return this.serviceUtils.checkResponse(
-                await this.invoker.httpInvoke(
-                    this.serviceUtils.generateServiceMongo('programas/deletePrograma'),
-                    {programasToDelete: params}
-                ),
-                namesCrud
-            );
+            return await this.invoker.httpInvoke('programas/deletePrograma',{programasToDelete: params})
         } catch (error: any) {
             this.errorTemplateHandler.processError(
                 error, {
