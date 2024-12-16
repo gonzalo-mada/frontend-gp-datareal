@@ -1,15 +1,45 @@
+<p-toast [key]="keyPopups"></p-toast>
+<p-confirmDialog [key]="keyPopups" [style]="{ width: '500px' }"></p-confirmDialog>
+
 <div class="grid">
     <div class="col-12">
-        <app-card 
-            header="Mantenedor de {{ main.namesCrud.plural }}" 
-            subheader="Permite ver, crear, actualizar y eliminar {{ main.namesCrud.plural }}.">
-            
+        <app-card header="Mantenedor de {{ namesCrud.plural }}"
+            subheader="Permite ver, crear, actualizar y eliminar {{ namesCrud.plural }}.">
             <app-menu-buttons-table></app-menu-buttons-table>
+            <app-table-jornadas [data]="jornadas"></app-table-jornadas>
 
-            <app-table-jornadas></app-table-jornadas>
+            <app-dialog [(visible)]="dialog">
+                <div header>
+                    <ng-container [ngSwitch]="modeForm">
+                        <ng-container *ngSwitchCase="'create'">
+                            <span class="text-xl">Agregar {{ namesCrud.singular }}</span>
+                        </ng-container>
+                        <ng-container *ngSwitchCase="'edit'">
+                            <span class="text-xl">Actualizar {{ namesCrud.singular }}</span>
+                        </ng-container>
+                        <ng-container *ngSwitchCase="'show'">
+                            <span class="text-xl">Ver {{ namesCrud.singular }}</span>
+                        </ng-container>
+                    </ng-container>
+                </div>
 
-            <app-form-jornadas></app-form-jornadas>
+                <div content>
+                    <!-- Formulario de jornadas -->
+                    <app-form-jornadas></app-form-jornadas>
+                </div>
 
+                <!-- Botones de acción en el footer -->
+                <div footer>
+                    <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" 
+                        (click)="dialog = false" [text]="true"></p-button>
+                    
+                    <p-button *ngIf="modeForm === 'create' || modeForm === 'edit'"
+                        [label]="modeForm === 'edit' ? 'Actualizar' : 'Guardar'" icon="pi pi-check"
+                        styleClass="mr-2 p-button-success p-button-sm" [disabled]="jornadaService.stateForm === 'INVALID'"
+                        (click)="submit()"></p-button>
+                </div>
+            </app-dialog>
         </app-card>
+
     </div>
 </div>

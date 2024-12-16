@@ -2,43 +2,42 @@
     #dt 
     [rows]="10" 
     [paginator]="true" 
-    [rowsPerPageOptions]="[10, 25, 50]" 
+    [rowsPerPageOptions]="[10,25,50]" 
     [showCurrentPageReport]="true"
-    currentPageReportTemplate="{first} hasta {last} de {totalRecords} modalidades." 
+    currentPageReportTemplate="{first} hasta {last} de {totalRecords} registros." 
     selectionMode="multiple"
     [rowHover]="true" 
-    [value]="main.modalidades" 
-    [columns]="table.cols" 
-    [globalFilterFields]="table.globalFiltros"
-    [(selection)]="table.selectedRows" 
-    [dataKey]="table.dataKeyTable" 
-    (selectionChange)="table.setSelectedRows()">
-
+    [value]="data" 
+    [columns]="cols" 
+    [globalFilterFields]="globalFiltros"
+    [(selection)]="selectedRow" 
+    [dataKey]="dataKeyTable" 
+    (selectionChange)="selectionChange()" >
     <ng-template pTemplate="caption">
         <div class="flex flex-wrap flex-column md:flex-row justify-content-between align-items-center">
             <div class="flex mb-2 md:mb-0">
-                <span class="p-input-icon-left">
-                    <i class="pi pi-search"></i>
-                    <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)" />
-                </span>
-                <p-button 
-                    styleClass="p-button-text p-button-sm ml-2" 
-                    icon="pi pi-filter-slash" 
-                    pTooltip="Limpiar filtros" 
-                    (click)="clear(dt)">
-                </p-button>
+              <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)" />
+              </span>
+              <p-button 
+                styleClass="p-button-text p-button-sm ml-2" 
+                icon="pi pi-filter-slash" 
+                pTooltip="Limpiar filtros" 
+                (click)="clear(dt)">
+              </p-button>
             </div>
-
+                              
             <div class="flex">
-                <p-button 
-                    pRipple 
-                    label="Actualizar" 
-                    icon="pi pi-refresh" 
-                    styleClass="p-button-info" 
-                    (click)="getData(true)">
-                </p-button>
+              <p-button 
+                pRipple 
+                label="Actualizar" 
+                icon="pi pi-refresh" 
+                styleClass="p-button-info" 
+                (click)="refresh()">
+              </p-button>
             </div>
-        </div>
+          </div>
     </ng-template>
 
     <ng-template pTemplate="header">
@@ -46,14 +45,14 @@
             <th style="width: 3rem">
                 <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
             </th>
-            <ng-container *ngFor="let col of table.cols">
+            <ng-container *ngFor="let col of cols">
                 <ng-container *ngIf="col.field !== 'accion'; else actionsColumn">
                     <th pSortableColumn="{{col.field}}">
                         {{col.header}} <p-sortIcon field="{{col.field}}"></p-sortIcon>
                     </th>
                 </ng-container>
                 <ng-template #actionsColumn>
-                    <th style="min-width: 10rem;">{{ col.header }}</th>
+                    <th style="min-width: 10rem; ">{{ col.header }}</th>
                 </ng-template>
             </ng-container>
         </tr>
@@ -64,9 +63,9 @@
             <td>
                 <p-tableCheckbox [value]="data"></p-tableCheckbox>
             </td>
-            <td style="width: 100%;">
+            <td style="width:100%;">
                 <span class="p-column-title">Nombre</span>
-                {{ data.Descripcion_modalidad }}
+                {{data.Descripcion_modalidad}}
             </td>
             <td>
                 <div class="flex">
@@ -96,7 +95,7 @@
 
     <ng-template pTemplate="emptymessage">
         <tr>
-            <td [attr.colspan]="table.cols.length + 1">Sin registros</td>
+            <td [attr.colspan]="cols.length + 1">Sin registros</td>
         </tr>
     </ng-template>
 </p-table>

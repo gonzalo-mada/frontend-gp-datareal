@@ -17,11 +17,6 @@ const routes: Routes = [
     loadChildren: () => import('../mantenedores-plan/modalidades/modalidades.module').then((j) => j.ModalidadesModule),
     title: 'Modalidades'
   },
-  {
-    path: 'regimenes',
-    loadChildren: () => import('../mantenedores-plan/regimen/regimen.module').then((r) => r.RegimenModule),
-    title: 'Regimenes'
-  }
 ];
 
 @NgModule({
