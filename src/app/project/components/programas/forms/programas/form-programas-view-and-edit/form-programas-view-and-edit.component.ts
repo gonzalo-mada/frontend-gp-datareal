@@ -55,7 +55,6 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
   loading: boolean = true 
   loadingTab: boolean = true 
   private subscription: Subscription = new Subscription();
-  keyPopups: string = 'editar-programa';
   unidadesAcademicasPrograma: any[] = [];
   tiposGraduaciones: any[] = [];
   certifIntermedias: any[] = [];
@@ -224,13 +223,13 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
   
   async getDirector(){
     const rut_director = this.programa.Director!.split('-');
-    this.director = await this.backend.getDirector({rut: parseInt(rut_director[0])},false);
+    this.director = await this.backend.getDirector({rut: parseInt(rut_director[0])},false,'director');
   }
 
   async getDirectorAlterno(){
     if (this.programa.Director_alterno !== '0') {
       const rut_director_alterno = this.programa.Director_alterno!.split('-');
-      this.directorAlterno = await this.backend.getDirector({rut: parseInt(rut_director_alterno[0])},false);
+      this.directorAlterno = await this.backend.getDirector({rut: parseInt(rut_director_alterno[0])},false,'alterno');
     }else{
       this.directorAlterno = [];
     }

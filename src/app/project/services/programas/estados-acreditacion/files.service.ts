@@ -59,6 +59,8 @@ export class FilesEstadosAcreditacionService {
                 this.filesUploaded = [...from.files.filesUploaded];
             break;
             case 'delete-selected':
+                this.filesSelected = [...from.files.filesSelected]; 
+            break;
             case 'cancel-delete':
                 this.filesSelected = [...from.files.filesSelected];
                 this.filesUploaded = [...from.files.filesUploaded];

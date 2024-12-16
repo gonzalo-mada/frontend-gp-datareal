@@ -10,6 +10,7 @@ import { TableJornadaService } from 'src/app/project/services/plan-de-estudio/jo
   styles: []
 })
 export class TableJornadasComponent implements OnInit, OnDestroy {
+
   searchValue: string | undefined;
   originalData: any[] = [];
 

@@ -31,7 +31,7 @@
                         <div class="grid p-fluid">
                             <div class="col-12 lg:col-8">
                                 <div class="field">
-                                    <label><strong>Nombre *</strong></label>
+                                    <label><strong>Nombre {{  main.modeForm! !== 'show' ? '*' : '' }}</strong></label>
                                     <input type="text" pInputText formControlName="Descripcion_facu" maxlength="50" class="w-full"  placeholder="Ingrese nombre de facultad" autofocus />
                                     <app-form-control [control]="form.fbForm.controls['Descripcion_facu']" [validators]="['required' , 'num_y_letras']"></app-form-control>
                                 </div>

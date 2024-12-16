@@ -12,7 +12,6 @@ import { TableTiposSuspensionesService } from 'src/app/project/services/programa
 })
 export class TableSuspensionesComponent implements OnInit, OnDestroy {
   searchValue: string | undefined;
-  originalData: any[] = [];
 
   constructor( 
     public main: TiposSuspensionesMainService,
@@ -28,7 +27,6 @@ export class TableSuspensionesComponent implements OnInit, OnDestroy {
 
   async getData(showCountTableValues: boolean){
     await this.main.getTiposSuspensiones(showCountTableValues);
-    this.originalData = [...this.main.tipos_susp];
   }
 
   onGlobalFilter(table: Table, event: Event) {
@@ -51,7 +49,6 @@ export class TableSuspensionesComponent implements OnInit, OnDestroy {
   clear(table: Table){
     this.table.resetSelectedRows();
     this.searchValue = ''
-    this.main.tipos_susp = [...this.originalData];
     table.reset();
   }
 

@@ -23,7 +23,7 @@ export class TableReglamentosService {
         { field: 'anio', header: 'Año' },
         { field: 'accion', header: 'Acciones' }
     ];
-    globalFiltros : any[] = [ 'Descripcion_regla' ];
+    globalFiltros : any[] = [ 'Descripcion_regla' , 'anio' ];
     dataKeyTable : string = 'Cod_reglamento';
     selectedRows: Reglamento[] = [];
 

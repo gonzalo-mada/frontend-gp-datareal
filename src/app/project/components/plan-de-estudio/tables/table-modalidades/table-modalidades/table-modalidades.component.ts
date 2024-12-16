@@ -10,8 +10,10 @@ import { TableModalidadService } from 'src/app/project/services/plan-de-estudio/
   styles: []
 })
 export class TableModalidadesComponent implements OnInit, OnDestroy {
+
   searchValue: string | undefined;
   originalData: any[] = [];
+
 
   constructor(
     public main: ModalidadMainService,
@@ -21,7 +23,7 @@ export class TableModalidadesComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.getData(true);
   }
-
+  
   ngOnDestroy(): void {
     this.table.resetSelectedRows();
   }

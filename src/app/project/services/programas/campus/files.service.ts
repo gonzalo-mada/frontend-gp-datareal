@@ -28,14 +28,14 @@ export class FilesCampusService {
     initFiles(){
         this.subscription.add(this.uploaderFilesService.contextUpdate$.subscribe( context => {
             if (context && context.component.name === 'campus') {
-                console.log("-->context files.service campus",context);
+                // console.log("-->context files.service campus",context);
                 this.setFiles();
 
             }
         }));
         this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( async from => {
         if (from && from.context.component.name === 'campus'){
-            console.log("valitador files.service campus",from);
+            // console.log("valitador files.service campus",from);
             await this.handleFileAction(from);
             await this.updateFiles();
         }
@@ -59,6 +59,8 @@ export class FilesCampusService {
                 this.filesUploaded = [...from.files.filesUploaded];
             break;
             case 'delete-selected':
+                this.filesSelected = [...from.files.filesSelected]; 
+            break;
             case 'cancel-delete':
                 this.filesSelected = [...from.files.filesSelected];
                 this.filesUploaded = [...from.files.filesUploaded];

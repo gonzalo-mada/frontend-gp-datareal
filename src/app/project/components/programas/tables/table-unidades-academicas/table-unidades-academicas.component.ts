@@ -12,7 +12,6 @@ import { TableUnidadesAcadService } from 'src/app/project/services/programas/uni
 })
 export class TableUnidadesAcademicasComponent implements OnInit, OnDestroy {
   searchValue: string | undefined;
-  originalData: any[] = [];
 
   constructor(
     public main: UnidadesAcadMainService, 
@@ -30,7 +29,6 @@ export class TableUnidadesAcademicasComponent implements OnInit, OnDestroy {
   async getData(showCountTableValues: boolean){
     await this.main.getUnidadesAcademicas(showCountTableValues);
     await this.main.getFacultades();
-    this.originalData = [...this.main.unidadesAcad];
   }
 
   onGlobalFilter(table: Table, event: Event) {
@@ -57,8 +55,8 @@ export class TableUnidadesAcademicasComponent implements OnInit, OnDestroy {
   clear(table: Table){
     this.table.resetSelectedRows();
     this.searchValue = ''
-    this.main.unidadesAcad = [...this.originalData];
     table.reset();
+    this.main.countTableValues();
   }
 
 }

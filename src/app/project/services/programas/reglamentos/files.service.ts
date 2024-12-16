@@ -28,14 +28,14 @@ export class FilesReglamentosService {
     initFiles(){
         this.subscription.add(this.uploaderFilesService.contextUpdate$.subscribe( context => {
             if (context && context.component.name === 'reglamentos') {
-                console.log("-->context files.service reglamento",context);
+                // console.log("-->context files.service reglamento",context);
                 this.setFiles();
 
             }
         }));
         this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( async from => {
         if (from && from.context.component.name === 'reglamentos'){
-            console.log("valitador files.service reglamento",from);
+            // console.log("valitador files.service reglamento",from);
             await this.handleFileAction(from);
             await this.updateFiles();
         }
@@ -59,6 +59,8 @@ export class FilesReglamentosService {
                 this.filesUploaded = [...from.files.filesUploaded];
             break;
             case 'delete-selected':
+                this.filesSelected = [...from.files.filesSelected]; 
+            break;
             case 'cancel-delete':
                 this.filesSelected = [...from.files.filesSelected];
                 this.filesUploaded = [...from.files.filesUploaded];

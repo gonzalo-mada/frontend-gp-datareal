@@ -152,17 +152,6 @@
             <ng-container *ngFor="let col of columns">
                 <ng-container [ngSwitch]="col.field">
 
-                    <!-- <ng-container *ngSwitchCase="'Programa'">
-                        <td [ngStyle]="getColStyle(col)" pFrozenColumn [frozen]="programaFrozen">
-                            <span> {{data.Nombre_programa}} </span> <br>
-                            <span style="font-size: 0.8rem;">
-                                <strong>CÓDIGO:</strong> {{data.Cod_Programa}} <br>
-                                <strong>FACULTADES:</strong> {{data.Facultad | slice:0:30}} {{ (data.Facultad.length > 30 ) ? '...' : '' }}<br>
-                                <strong>CAMPUS:</strong> {{data.Campus}} 
-                            </span>
-                        </td>
-                    </ng-container> -->
-
                     <ng-container *ngSwitchCase="'Tipo_programa'">
                         <td [ngStyle]="getColStyle(col)">
                             <span> {{data.Tipo_programa.Descripcion_tp}} </span> <br>

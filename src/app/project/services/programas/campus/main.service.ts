@@ -73,9 +73,13 @@ export class CampusMainService {
         this.table.emitResetExpandedRows();
     }
 
+    countTableValues(value?: number){
+        value ? this.backend.countTableRegisters(value,this.namesCrud) : this.backend.countTableRegisters(this.campuses.length, this.namesCrud);
+    }
+
     async getCampus(showCountTableValues: boolean = true): Promise<Campus[]>{
         this.campuses = await this.backend.getCampus(this.namesCrud);
-        if (showCountTableValues) this.backend.countTableRegisters(this.campuses.length, this.namesCrud);
+        if (showCountTableValues) this.countTableValues();
         return this.campuses;
     }
 

@@ -13,7 +13,6 @@ import { TableTiposGraduacionesService } from 'src/app/project/services/programa
 export class TableTiposGraduacionesComponent implements OnInit, OnDestroy {
 
   searchValue: string | undefined;
-  originalData: any[] = [];
 
   constructor( 
     public main: TiposGraduacionesMainService,
@@ -29,7 +28,6 @@ export class TableTiposGraduacionesComponent implements OnInit, OnDestroy {
 
   async getData(showCountTableValues: boolean){
     await this.main.getTiposGraduaciones(showCountTableValues);
-    this.originalData = [...this.main.tipos];
   }
 
   onGlobalFilter(table: Table, event: Event) {
@@ -52,8 +50,8 @@ export class TableTiposGraduacionesComponent implements OnInit, OnDestroy {
   clear(table: Table){
     this.table.resetSelectedRows();
     this.searchValue = ''
-    this.main.tipos = [...this.originalData];
     table.reset();
+    this.main.countTableValues();
   }
 
 }

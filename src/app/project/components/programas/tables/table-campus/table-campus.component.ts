@@ -13,7 +13,6 @@ import { TableCampusService } from 'src/app/project/services/programas/campus/ta
 export class TableCampusComponent implements OnInit, OnDestroy {
   
   searchValue: string | undefined;
-  originalData: any[] = [];
 
   constructor(
     public main: CampusMainService, 
@@ -30,7 +29,6 @@ export class TableCampusComponent implements OnInit, OnDestroy {
 
   async getData(showCountTableValues: boolean){
     await this.main.getCampus(showCountTableValues);
-    this.originalData = [...this.main.campuses];
   }
 
   onGlobalFilter(table: Table, event: Event) {
@@ -57,8 +55,8 @@ export class TableCampusComponent implements OnInit, OnDestroy {
   clear(table: Table){
     this.table.resetSelectedRows();
     this.searchValue = ''
-    this.main.campuses = [...this.originalData];
     table.reset();
+    this.main.countTableValues();
   }
 
 }

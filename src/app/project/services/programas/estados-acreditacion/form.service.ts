@@ -79,6 +79,7 @@ export class FormEstadosAcreditacionService {
           this.fbForm.get('tiempo.Fecha_termino')?.disable();
           this.fbForm.get('tiempo.Cantidad_anios')?.disable();
           this.showAsterisk = false;
+          this.yearsDifference = null;
           this.fbForm.controls['files'].updateValueAndValidity();
     }
 

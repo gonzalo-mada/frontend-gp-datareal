@@ -73,9 +73,13 @@ export class FacultadesMainService {
         this.table.emitResetExpandedRows();
     }
 
+    countTableValues(value?: number){
+        value ? this.backend.countTableRegisters(value,this.namesCrud) : this.backend.countTableRegisters(this.facultades.length, this.namesCrud);
+    }
+
     async getFacultades(showCountTableValues: boolean = true): Promise<Facultad[]>{
         this.facultades = await this.backend.getFacultades(this.namesCrud);
-        if (showCountTableValues) this.backend.countTableRegisters(this.facultades.length, this.namesCrud);
+        if (showCountTableValues) this.countTableValues();
         return this.facultades;
     }
 

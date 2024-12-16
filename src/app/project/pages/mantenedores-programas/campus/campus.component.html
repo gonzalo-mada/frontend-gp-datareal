@@ -31,7 +31,7 @@
                         <div class="grid">
                             <div class="col-12 lg:col-8">
                                 <div class="field">
-                                    <label><strong>Nombre *</strong></label>
+                                    <label><strong>Nombre {{  main.modeForm! !== 'show' ? '*' : '' }}</strong></label>
                                     <input type="text" pInputText formControlName="Descripcion_campus" maxlength="50"
                                         class="w-full"  placeholder="Ingrese nombre de campus" autofocus />
                                     <app-form-control [control]="form.fbForm.controls['Descripcion_campus']"

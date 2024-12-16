@@ -65,9 +65,13 @@ export class CategoriasTpMainService {
         this.table.emitResetExpandedRows();
     }
 
+    countTableValues(value?: number){
+        value ? this.backend.countTableRegisters(value,this.namesCrud) : this.backend.countTableRegisters(this.categoriasTp.length, this.namesCrud);
+    }
+
     async getCategoriasTp(showCountTableValues: boolean = true): Promise<CategoriaTp[]>{
         this.categoriasTp = await this.backend.getCategoriasTp(this.namesCrud);
-        if (showCountTableValues) this.backend.countTableRegisters(this.categoriasTp.length, this.namesCrud);
+        if (showCountTableValues) this.countTableValues();
         return this.categoriasTp;
     }
 

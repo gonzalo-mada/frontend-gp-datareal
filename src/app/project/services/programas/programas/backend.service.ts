@@ -20,7 +20,7 @@ export class BackendProgramasService {
         this.serviceUtils.countTableValues(value,namesCrud);
     }
 
-    async getDirector( params: any , loading = true){
+    async getDirector( params: any , loading = true, type: 'director' | 'alterno'){
         try {
             return await this.invoker.httpInvoke({service: 'programas/getDirector', loading: loading},params)
             
@@ -28,7 +28,7 @@ export class BackendProgramasService {
             this.errorTemplateHandler.processError(
                 error, {
                   notifyMethod: 'alert',
-                  message: 'Hubo un error al buscar director(a). Intente nuevamente.',
+                  message: `Hubo un error al buscar director(a) ${ type === 'alterno' ? 'alterno(a)' : ''}. Intente nuevamente.`,
                 }
             );
         }

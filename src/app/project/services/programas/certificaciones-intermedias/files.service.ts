@@ -28,14 +28,14 @@ export class FilesCertifIntermediaService {
     initFiles(){
         this.subscription.add(this.uploaderFilesService.contextUpdate$.subscribe( context => {
             if (context && context.component.name === 'certificacion-intermedia') {
-                console.log("-->context files.service 'certificacion-intermedia",context);
+                // console.log("-->context files.service 'certificacion-intermedia",context);
                 this.setFiles();
 
             }
         }));
         this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( async from => {
         if (from && from.context.component.name === 'certificacion-intermedia'){
-            console.log("valitador files.service 'certificacion-intermedia",from);
+            // console.log("valitador files.service 'certificacion-intermedia",from);
             await this.handleFileAction(from);
             await this.updateFiles();
         }
@@ -59,6 +59,8 @@ export class FilesCertifIntermediaService {
                 this.filesUploaded = [...from.files.filesUploaded];
             break;
             case 'delete-selected':
+                this.filesSelected = [...from.files.filesSelected]; 
+            break;
             case 'cancel-delete':
                 this.filesSelected = [...from.files.filesSelected];
                 this.filesUploaded = [...from.files.filesUploaded];

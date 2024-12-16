@@ -290,7 +290,7 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
       this.checkDirectorSelected('director');
 
       const rut_director = this.programa.Director!.split('-');
-      this.directores = await this.backend.getDirector({rut: parseInt(rut_director[0])},false);
+      this.directores = await this.backend.getDirector({rut: parseInt(rut_director[0])},false,'director');
       this.directores.map( director => {
         if (director.rutcompleto === this.programa.Director) {
           director.isSelected = true;
@@ -334,7 +334,7 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
       this.checkDirectorSelected('alterno');
 
       const rut_director = this.programa.Director_alterno!.split('-');
-      this.directoresAlternos = await this.backend.getDirector({rut: parseInt(rut_director[0])},false);
+      this.directoresAlternos = await this.backend.getDirector({rut: parseInt(rut_director[0])},false,'alterno');
       this.directoresAlternos.map( director => {
         if (director.rutcompleto === this.programa.Director_alterno) {
           director.isSelected = true;
@@ -385,7 +385,7 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
     if (tipo === 'director') {
       const inputRutDirector = this.form.fbFormUpdate.get('Director')!.value
       const rut_director = inputRutDirector.split('-')
-      let result: any[] = await this.backend.getDirector({rut: parseInt(rut_director[0])});
+      let result: any[] = await this.backend.getDirector({rut: parseInt(rut_director[0])}, undefined, 'director');
       if (result.length === 0 ) {
         //no se encontraron directores
         this.messageService.add({
@@ -402,7 +402,7 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
       //tipo directoralterno
       const inputRutDirectorAlt = this.form.fbFormUpdate.get('Director_alterno')!.value
       const rut_director = inputRutDirectorAlt.split('-')
-      let resultAlt: any[] = await this.backend.getDirector({rut: parseInt(rut_director[0])});
+      let resultAlt: any[] = await this.backend.getDirector({rut: parseInt(rut_director[0])},undefined,'alterno');
       
       if (resultAlt.length === 0 ) {
         //no se encontraron directores

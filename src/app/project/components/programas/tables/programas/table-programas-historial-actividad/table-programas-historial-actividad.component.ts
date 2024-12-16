@@ -10,7 +10,7 @@ import { MessageServiceGP } from 'src/app/project/services/components/message-se
   styles: [
   ]
 })
-export class TableProgramasHistorialActividadComponent implements OnInit, OnChanges {
+export class TableProgramasHistorialActividadComponent implements OnInit {
 
   constructor(private messageService: MessageServiceGP){}
   @Input() data: HistorialActividad[] = [];
@@ -18,7 +18,6 @@ export class TableProgramasHistorialActividadComponent implements OnInit, OnChan
 
   dataKeyTable: string = ''
   searchValue: string | undefined;
-  originalData: any[] = [];
   globalFiltros: any[] = [
     'descripcion.descripcion' , 
     'descripcion.valor_antes' , 
@@ -34,13 +33,6 @@ export class TableProgramasHistorialActividadComponent implements OnInit, OnChan
   async ngOnInit() {
     this.dataKeyTable = 'Cod_Programa';
     this.groupedData = this.formatData(this.data);
-    
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data'] && changes['data'].currentValue) {
-      this.originalData = [...this.data];
-    }
   }
 
   onGlobalFilter(table: Table, event: Event) {
@@ -50,7 +42,6 @@ export class TableProgramasHistorialActividadComponent implements OnInit, OnChan
   clear(table: Table){
     this.searchValue = '';
     this.selectedDate = '';
-    this.data = [...this.originalData];
     table.reset();
     this.countTableValues(table);
   }
@@ -106,7 +97,6 @@ export class TableProgramasHistorialActividadComponent implements OnInit, OnChan
 
   clearCalendar(table: Table){
     this.searchValue = ''
-    this.data = [...this.originalData];
     table.reset();
     this.selectedDate = '';
   }
@@ -172,7 +162,6 @@ export class TableProgramasHistorialActividadComponent implements OnInit, OnChan
 
   filterData(valueSelected: string[], from: 'actividad' | 'tipo_mov' | 'usuario'){
     console.log("valueSelected",valueSelected);
-    this.data = [...this.originalData];
     if (valueSelected.length !== 0) {
       switch (from) {
         case 'actividad':

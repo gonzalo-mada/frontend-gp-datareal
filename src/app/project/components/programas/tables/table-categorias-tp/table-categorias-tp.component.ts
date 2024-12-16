@@ -12,7 +12,6 @@ import { TableCategoriasTpService } from 'src/app/project/services/programas/cat
 })
 export class TableCategoriasTpComponent implements OnInit, OnDestroy {
   searchValue: string | undefined;
-  originalData: any[] = [];
 
   constructor( 
     public main: CategoriasTpMainService,
@@ -28,7 +27,6 @@ export class TableCategoriasTpComponent implements OnInit, OnDestroy {
 
   async getData(showCountTableValues: boolean){
     await this.main.getCategoriasTp(showCountTableValues);
-    this.originalData = [...this.main.categoriasTp];
   }
 
   onGlobalFilter(table: Table, event: Event) {
@@ -51,7 +49,7 @@ export class TableCategoriasTpComponent implements OnInit, OnDestroy {
   clear(table: Table){
     this.table.resetSelectedRows();
     this.searchValue = ''
-    this.main.categoriasTp = [...this.originalData];
     table.reset();
+    this.main.countTableValues();
   }
 }
