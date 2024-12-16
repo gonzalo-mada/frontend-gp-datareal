@@ -141,7 +141,7 @@ export class GPValidator {
         }
     }
 
-    static notSameAsDirectorInUpdate(mode: 'D' | 'A' ,rut_director: string, rut_directorAlterno: string): ValidatorFn {
+    static notSameAsDirectorInUpdate(rut_director: string, rut_directorAlterno: string): ValidatorFn {
         return (control: AbstractControl): ValidationErrors | null => {
             const formGroup = control.parent as FormGroup;
 
@@ -149,28 +149,15 @@ export class GPValidator {
                 return null; 
             }
             
-            const input = control.value;
+            const director = control.value;
             
-            if (mode === 'D') {
-                //modo director
-                if (input && input === rut_director ) {
-                    return { rutMustBeDifferent: true };
-                }else if(input && input === rut_directorAlterno){
-                    return { notSameDirectorsInUpdate: true };
-                } else {
-                    return null;
-                }
-            }else{
-                //modo director alterno
-                if (input && input === rut_directorAlterno ) {
-                    return { rutMustBeDifferent: true };
-                }else if(input && input === rut_director){
-                    return { notSameDirectorsInUpdate: true };
-                } else {
-                    return null;
-                }
+            if (director && director === rut_director ) {
+                return { notSameDirectorInUpdate: true };
+            }else if(director && director === rut_directorAlterno){
+                return { notSameDirectorInUpdate: true };
+            } else {
+                return null;
             }
-
         };
     }
 
@@ -184,25 +171,6 @@ export class GPValidator {
             
             if (modeForm === 'create' || modeForm === 'edit') {
                 if (!files || files.length === 0) {
-                    return { required: true };
-                }
-            }
-    
-            return null;
-        };
-    }
-
-    static filesValidatorWithStatus(nameControlFiles: string, nameControlStatus: string, getModeForm: () => ModeForm ): ValidatorFn {
-        return (control: AbstractControl): { [key: string]: boolean } | null => {
-            const formGroup = control.parent as FormGroup;
-            if (!formGroup) return null;
-    
-            const files = formGroup.get(nameControlFiles)?.value;
-            const state = formGroup.get(nameControlStatus)?.value;
-            const modeForm = getModeForm();
-            
-            if (modeForm === 'create' || modeForm === 'edit') {
-                if (!files || ( files.length === 0 && state === true )) {
                     return { required: true };
                 }
             }

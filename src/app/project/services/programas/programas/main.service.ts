@@ -23,7 +23,6 @@ export class ProgramaMainService {
         articulo_plural: 'los programas',
         genero: 'masculino'
     };
-    mode: ModeForm;
     programas: Programa[] = [];
     programa: Programa = {};
     cod_programa: number = 0;
@@ -40,14 +39,14 @@ export class ProgramaMainService {
     ){}
 
     async setModeCrud(mode: ModeForm, data?: Programa | null, from?: CollectionsMongo | null ){
-      if (data) this.programa = {...data};
-      switch (mode) {
-          case 'create': this.createForm(); break;
-          case 'show': this.showForm(); break;
-          case 'edit': this.editForm(); break;
-          case 'delete': this.openConfirmationDelete(); break;
-          case 'delete-selected': await this.openConfirmationDeleteSelected(); break;
-      }
+        if (data) this.programa = {...data};
+        switch (mode) {
+            case 'create': this.createForm(); break;
+            case 'show': this.showForm(); break;
+            case 'edit': this.editForm(); break;
+            case 'delete': this.openConfirmationDelete(); break;
+            case 'delete-selected': await this.openConfirmationDeleteSelected(); break;
+        }
     }
 
     countTableValues(value?: number){
@@ -55,18 +54,18 @@ export class ProgramaMainService {
     }
 
     reset(){
-      this.programas = [];
-      this.cod_facultad_selected = 0;
-      this.loadedProgramas = false;
+        this.programas = [];
+        this.cod_facultad_selected = 0;
+        this.loadedProgramas = false;
     }
 
     createForm(){
-      this.router.navigate([`/programa/add/`])
+        this.router.navigate([`/programa/add/`])
     }
 
     showForm(){
-      const cod_programa = this.programa.Cod_Programa;
-      this.router.navigate([`/programa/show/${cod_programa}`])
+        const cod_programa = this.programa.Cod_Programa;
+        this.router.navigate([`/programa/show/${cod_programa}`])
     }
 
     editForm(){

@@ -94,10 +94,10 @@ export class BackendCertifIntermediaService {
         }
     }
 
-    async getDocsMongo(Cod_CertificacionIntermedia: number) {
+    async getDocumentosWithBinary(Cod_CertificacionIntermedia: number) {
         try {
             return await this.invoker.httpInvoke(
-                    this.serviceUtils.generateServiceMongo('certificacionIntermedia/getDocsMongo', false),
+                    this.serviceUtils.generateServiceMongo('certificacionIntermedia/getDocumentosWithBinary'),
                     { Cod_CertificacionIntermedia }
                 )
         } catch (error: any) {
@@ -112,20 +112,9 @@ export class BackendCertifIntermediaService {
         }
     }
 
-    async getArchiveDoc(id: any, needBinaryString: boolean) {
+    async getArchiveDoc(idDocumento: any) {
         try {
-            if (needBinaryString) {
-                return await this.invoker.httpInvoke(
-                    this.serviceUtils.generateServiceMongo('certificacionIntermedia/getArchiveDoc',false),
-                    { id , needBinaryString }
-                )
-            }else{
-                return await this.invoker.httpInvokeReport(
-                    this.serviceUtils.generateServiceMongo('certificacionIntermedia/getArchiveDoc',false), 
-                    'pdf', 
-                    { id , needBinaryString }
-                )
-            }
+            return await this.invoker.httpInvokeReport('certificacionIntermedia/getArchiveDoc', 'pdf', { id: idDocumento })
         } catch (error: any) {
             this.errorTemplateHandler.processError(
                 error, 
