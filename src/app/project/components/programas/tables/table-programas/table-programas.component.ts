@@ -45,7 +45,7 @@ export class TableProgramasComponent implements OnInit, OnDestroy {
       { field: 'Tipo_programa', header: 'Tipo de programa', width: '200px', useMinWidth: true },
       { field: 'Centro_costo', header: 'Centro costo', width: '155px', useMinWidth: true },
       { field: 'Titulo', header: 'Título', width: '150px', useMinWidth: true },
-      { field: 'Rexe', header: 'REXE', width: 'auto', useMinWidth: false },
+      { field: 'Rexe', header: 'REXE', width: '130px', useMinWidth: true },
       { field: 'Codigo_SIES', header: 'Código SIES', width: '155px', useMinWidth: true },
       { field: 'Creditos_totales', header: 'Créditos totales', width: '180px', useMinWidth: true },
       { field: 'Horas_totales', header: 'Horas totales', width: '170px', useMinWidth: true },
@@ -93,14 +93,17 @@ export class TableProgramasComponent implements OnInit, OnDestroy {
   }
 
   edit(data: Programa){
+    this.programaMainService.mode = 'edit';
     this.programaMainService.setModeCrud('edit',data);
   }
 
   show(data: Programa){
+    this.programaMainService.mode = 'show';
     this.programaMainService.setModeCrud('show',data);
   }
 
   delete(data: Programa){
+    this.programaMainService.mode = 'delete';
     this.programaMainService.setModeCrud('delete',data);
   }
 

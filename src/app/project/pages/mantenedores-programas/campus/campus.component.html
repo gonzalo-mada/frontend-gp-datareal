@@ -79,7 +79,7 @@
                         (click)="main.dialogForm = false" [text]="true">
                     </p-button>
                     <p-button 
-                        *ngIf="main.modeForm == 'create' || main.modeForm == 'edit' "
+                        *ngIf="main.modeForm !== 'show' "
                         [label]="main.modeForm === 'edit' ? 'Actualizar' : 'Agregar'" 
                         icon="pi pi-check"
                         styleClass="mr-2 p-button-success p-button-sm" 

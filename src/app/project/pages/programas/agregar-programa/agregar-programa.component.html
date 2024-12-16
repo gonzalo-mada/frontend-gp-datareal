@@ -1,14 +1,14 @@
 <app-breadcrumbgp></app-breadcrumbgp>
 
-<app-dialog [(visible)]="agregarProgramaMainService.dialogChooseDocsMaestro">
+<app-dialog [(visible)]="main.dialogChooseDocsMaestro">
     <div header>
-        <span class="text-xl">Adjuntar documentos</span>
+        <span class="text-xl">Adjuntar documentos maestros</span>
     </div>
     <div content>
-        <app-uploader-files *ngIf="agregarProgramaMainService.dialogChooseDocsMaestro"></app-uploader-files>
+        <app-uploader-files *ngIf="main.dialogChooseDocsMaestro"></app-uploader-files>
     </div>
     <div footer>
-        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" (click)="agregarProgramaMainService.dialogChooseDocsMaestro = false" [text]="true"></p-button>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" (click)="main.dialogChooseDocsMaestro = false" [text]="true"></p-button>
     </div>
 </app-dialog>
 
@@ -17,7 +17,7 @@
         <div class="flex justify-content-between flex-wrap"  [style]="{ 'padding-left': '1.5rem' , 'padding-top': '1.5rem' , 'padding-right': '1.5rem'}">
             <div>
                 <div class="p-card-title">Agregar programa</div>
-                <div class="p-card-subtitle">Permite agregar un programa.</div>
+                <div class="p-card-subtitle">Permite agregar un programa. <br/> Los campos con (*) son requeridos.</div>
 
             </div>
             <div>
@@ -35,16 +35,16 @@
                     (click)="test2()" [text]="true">
                 </p-button> -->
                     
-                <button pButton icon="pi pi-upload" label="Adjuntar documento maestro" (click)="chooseDocsMaestro()"></button>
+                <button pButton icon="pi pi-upload" label="Adjuntar documento maestro" (click)="main.openDialogChooseDocsMaestro()"></button>
                 <button 
                     pButton 
                     class="hidden p-button-secondary p-button-outlined ml-2 lg:inline" 
                     (click)="changeDisposition()" 
                 >
                 <div class="flex align-items-center justify-content-center">
-                        <i [ngClass]="agregarProgramaMainService.disposition ? 'pi pi-eye-slash' : 'pi pi-eye'" ></i>
+                        <i [ngClass]="main.disposition ? 'pi pi-eye-slash' : 'pi pi-eye'" ></i>
                         <span class="ml-1">
-                            {{ agregarProgramaMainService.disposition ? 'Ocultar estado formulario' : 'Ver estado formulario' }}
+                            {{ main.disposition ? 'Ocultar estado formulario' : 'Ver estado formulario' }}
                         </span>
                     </div>
                 </button>
@@ -70,17 +70,286 @@
             <div [ngClass]="contentWrapperClass">
                 <form [formGroup]="form.fbForm">
                     <p-stepper (activeStepChange)="stepChange($event)" [activeStep]="form.activeIndexStepper">
+
                         <p-stepperPanel id="paso1">
                             <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
-                                <app-form-programas-step-one></app-form-programas-step-one>
+
+                                <div class="formgrid grid">
+                                    <div class="field col-12 md:col-6">
+                                        <label><strong>Nombre *</strong></label>
+                                        <input type="text" pInputText formControlName="Nombre_programa" maxlength="80" class="w-full" placeholder="Ingrese nombre del programa"/>
+                                        <app-form-control [control]="form.fbForm.controls['Nombre_programa']" [validators]="['required', 'num_y_letras']"></app-form-control>
+                                    </div>
+                                    <div class="field col-12 md:col-6">
+                                        <label><strong>Grupo de correo en LDAP *</strong></label>
+                                        <input type="email" pInputText formControlName="Grupo_correo" maxlength="80" class="w-full" placeholder="Ingrese correo LDAP del programa"/>
+                                        <app-form-control [control]="form.fbForm.controls['Grupo_correo']" [validators]="['required', 'checkCorreoUV']"></app-form-control>
+                                    </div>
+                                    <div class="field col-12 md:col-6">
+                                        <label><strong>Título *</strong></label>
+                                        <input type="text" pInputText formControlName="Titulo" maxlength="50" class="w-full" placeholder="Ingrese nombre de título del programa"/>
+                                        <app-form-control [control]="form.fbForm.controls['Titulo']" [validators]="['required', 'num_y_letras']"></app-form-control>
+                                    </div>
+                                    <div class="field col-12 md:col-6">
+                                        <label><strong>Grado académico *</strong></label>
+                                        <input type="text" pInputText formControlName="Grado_academico" maxlength="50" class="w-full" placeholder="Ingrese nombre de grado académico del programa"/>
+                                        <app-form-control [control]="form.fbForm.controls['Grado_academico']" [validators]="['required', 'num_y_letras']"></app-form-control>
+                                    </div>
+                                    <div class="field col-12 md:col-6 lg:col-3">
+                                        <label><strong>Centro costo</strong></label>
+                                        <p-inputNumber 
+                                            formControlName="Centro_costo"
+                                            format="false"
+                                            [allowEmpty]="true"
+                                            placeholder="Ingrese centro costo del programa"
+                                            maxlength="9"
+                                            class="w-full p-d-flex p-flex-column"
+                                            [style]="{ width: '100%', 'min-width': '100%' }"
+                                        />
+                                        <app-form-control [control]="form.fbForm.controls['Centro_costo']" [validators]="['required' , 'solo_num']"></app-form-control>
+                                    </div>
+                                    <div class="field col-12 md:col-6 lg:col-3">
+                                        <label><strong>Código SIES</strong></label>
+                                        <input type="text" pInputText formControlName="Codigo_SIES" maxlength="50" class="w-full" placeholder="Ingrese código SIES del programa"/>
+                                        <app-form-control [control]="form.fbForm.controls['Codigo_SIES']" [validators]="['required', 'num_y_letras']"></app-form-control>
+                                    </div>
+                                    <div class="field col-12 md:col-6 lg:col-3">
+                                        <label><strong>Créditos totales *</strong></label>
+                                        <p-inputNumber 
+                                            formControlName="Creditos_totales"
+                                            format="false"
+                                            [allowEmpty]="true"
+                                            maxlength="8"
+                                            placeholder="Ingrese créditos totales del programa"
+                                            class="w-full p-d-flex p-flex-column"
+                                            [style]="{ width: '100%', 'min-width': '100%' }"
+                                        />
+                                        <app-form-control [control]="form.fbForm.controls['Creditos_totales']" [validators]="['required' , 'solo_num']"></app-form-control>
+                                    </div>
+                                    <div class="field col-12 md:col-6 lg:col-3">
+                                        <label><strong>Horas totales *</strong></label>
+                                        <p-inputNumber 
+                                            formControlName="Horas_totales"
+                                            format="false"
+                                            [allowEmpty]="true"
+                                            maxlength="8"
+                                            placeholder="Ingrese horas totales del programa"
+                                            class="w-full p-d-flex p-flex-column"
+                                            [style]="{ width: '100%', 'min-width': '100%' }"
+                                        />
+                                        <app-form-control [control]="form.fbForm.controls['Horas_totales']" [validators]="['required' , 'solo_num']"></app-form-control>
+                                    </div>
+                            
+                                    <div class="field col-12 md:col-6 lg:col-3">
+                                        <label><strong>REXE *</strong></label>
+                                        <input type="text" pInputText formControlName="REXE" maxlength="50" class="w-full" placeholder="Ingrese REXE del programa"/>
+                                        <app-form-control [control]="form.fbForm.controls['REXE']" [validators]="['required', 'num_o_letras']"></app-form-control>
+                                    </div>
+                                </div>
+
                                 <div class="flex pt-4 justify-content-end">
                                     <p-button label="Siguiente" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextCallback.emit()" />
                                 </div>
+
                             </ng-template>
                         </p-stepperPanel>
+
                         <p-stepperPanel id="paso2">
                             <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback" let-index="index">
-                                <app-form-programas-step-two></app-form-programas-step-two>
+                                
+                                <div class="formgrid grid">
+                                    <div class="field col-12 md:col-6">
+                                        <div class="flex flex-row flex-wrap mb-2">
+                                            <div class="align-items-center">
+                                                <label><strong>Tipo de programa *</strong></label>
+                                            </div>
+                                            <div class="align-items-center ml-1" [style]="{'margin-top': '0.1rem !important'}">
+                                                <i class="pi pi-question-circle" [pTooltip]='tooltipTp' tooltipPosition="top"></i>
+                                                <ng-template #tooltipTp>
+                                                    <small>Los tipos de programas están organizados por la categoría a la cual pertenecen</small>
+                                                </ng-template>
+                                            </div>
+                                        </div>
+                                        <p-dropdown
+                                            [options]="tiposProgramasGrouped"
+                                            [group]="true"
+                                            [style]="{ width: '100%', 'min-width': '100%' }"
+                                            (onChange)="changeTipoPrograma($event)"
+                                            formControlName="Tipo_programa"
+                                            placeholder="Seleccione tipo de programa"
+                                        >
+                                            <ng-template let-group pTemplate="group">
+                                                <div class="flex align-items-center">
+                                                    <span>{{ group.label }}</span>
+                                                </div>
+                                            </ng-template>
+                                        </p-dropdown>
+                                        <app-form-control [control]="form.fbForm.controls['Tipo_programa']" [validators]="['required']"></app-form-control>
+                                    </div>
+                                    <div class="field col-12 md:col-6">
+                                        <label><strong>Campus *</strong></label>
+                                        <br>
+                                        <p-dropdown
+                                            [options]="campus"
+                                            [style]="{ width: '100%', 'min-width': '100%' }"
+                                            (onChange)="changeCampus($event)"
+                                            formControlName="Campus"
+                                            placeholder="Seleccione campus"
+                                            optionLabel="Descripcion_campus"
+                                            optionValue="Cod_campus"
+                                        >
+                                        </p-dropdown>
+                                        <app-form-control [control]="form.fbForm.controls['Campus']" [validators]="['required']"></app-form-control>
+                                    </div>
+                                    <div class="field col-12 md:col-6">
+                                        <label><strong>Estado maestro *</strong></label>
+                                        <br>
+                                        <p-dropdown
+                                            [options]="estadosMaestros"
+                                            [style]="{ width: '100%', 'min-width': '100%' }"
+                                            formControlName="EstadoMaestro"
+                                            placeholder="Seleccione estado maestro"
+                                            optionLabel="Descripcion_EstadoMaestro"
+                                            (onChange)="onEstadoMaestroChange($event)"
+                                        >
+                                        </p-dropdown>
+                                        <app-form-control [control]="form.fbForm.controls['EstadoMaestro']" [validators]="['required']"></app-form-control>
+                                    </div>
+                                    <div class="field col-12 md:col-6">
+                                        <div class="flex flex-row flex-wrap mb-2">
+                                            <div class="align-items-center">
+                                                <label><strong>Unidades académicas *</strong></label>
+                                            </div>
+                                            <div class="align-items-center ml-1" [style]="{'margin-top': '0.1rem !important'}">
+                                                <i class="pi pi-question-circle" [pTooltip]='tooltipUa' tooltipPosition="top"></i>
+                                                <ng-template #tooltipUa>
+                                                    <small>Las unidades académicas están organizadas por la facultad a la cual pertenecen</small>
+                                                </ng-template>
+                                            </div>
+                                        </div>
+                                        <p-multiSelect
+                                            [options]="unidadesAcademicasGrouped"
+                                            [group]="true"
+                                            [style]="{ width: '100%', 'min-width': '100%' }"
+                                            [virtualScroll]="true"
+                                            [virtualScrollItemSize]="43"
+                                            (onChange)="changeUnidadAcad($event)"
+                                            formControlName="Unidad_academica"
+                                            placeholder="Seleccione unidades académicas"
+                                            appendTo="body"
+                                            selectedItemsLabel="{0} unidades académicas seleccionadas"
+                                        >
+                                            <ng-template let-group pTemplate="group">
+                                                <div class="flex align-items-center">
+                                                    <span>{{ group.label }}</span>
+                                                </div>
+                                            </ng-template>
+                                        </p-multiSelect>
+                                        <app-form-control [control]="form.fbForm.controls['Unidad_academica']" [validators]="['required']"></app-form-control>
+                                    </div>
+                            
+                                </div>
+                                <div class="formgrid grid">
+                                    <div class="field col-12 md:col-6 lg:col-4">
+                                        <label><strong>¿Tiene graduación colaborativa?</strong></label>
+                                        <div class="flex flex-row justify-content-start flex-wrap">
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>No</span>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                <p-inputSwitch formControlName="Graduacion_Conjunta_Switch"  (onChange)="changeSwitch($event)" styleClass="mt-1 mx-1"/>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>Si</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field col-12 md:col-6 lg:col-4">
+                                        <label><strong>Tipo de graduación colaborativa {{ showAsterisk ? '*' : '' }}</strong></label>
+                                        <br>
+                                        <p-inputGroup>
+                                            <p-dropdown
+                                                [options]="mainTipoGraduacion.tipos"
+                                                [style]="{ width: '100%', 'min-width': '100%' }"
+                                                formControlName="TipoGraduacion"
+                                                placeholder="Seleccione tipo de graduación"
+                                                optionLabel="Descripcion_tipoColaborativa"
+                                                optionValue="Cod_TipoColaborativa"
+                                                (onChange)="changeTipoGraduacion($event)"
+                                            >
+                                            </p-dropdown>
+                                            <button 
+                                                (click)="mainTipoGraduacion.setModeCrud('create')" 
+                                                type="button" pButton icon="pi pi-plus" iconPos="right" 
+                                                class="p-button-success" pTooltip="Agregar nuevo tipo de graduación" 
+                                                tooltipPosition="bottom"
+                                                [disabled]="!form.fbForm.get('Graduacion_Conjunta_Switch')?.value"
+                                            >
+                                            </button>
+                                        </p-inputGroup>
+                                        <app-form-control [control]="form.fbForm.controls['TipoGraduacion']" [validators]="['required']"></app-form-control>
+                                    </div>
+                                    <div class="field col-12 md:col-6 lg:col-4">
+                                        <label><strong>Instituciones {{ showAsterisk ? '*' : '' }}</strong></label>
+                                        <br>
+                                        <p-multiSelect
+                                            [options]="instituciones"
+                                            [style]="{ width: '100%', 'min-width': '100%' }"
+                                            [virtualScroll]="true"
+                                            [virtualScrollItemSize]="43"
+                                            formControlName="Instituciones"
+                                            placeholder="Seleccione instituciones"
+                                            optionLabel="Descripcion_institucion"
+                                            appendTo="body"
+                                            selectedItemsLabel="{0} instituciones seleccionadas"
+                                            (onChange)="changeInstituciones($event)"
+                                        >
+                                        </p-multiSelect>
+                                        <app-form-control [control]="form.fbForm.controls['Instituciones']" [validators]="['required']"></app-form-control>
+                                    </div>
+                                </div> 
+                                <div class="formgrid grid">
+                                    <div class="field col-12 md:col-6 lg:col-4">
+                                        <label><strong>¿Tiene certificación intermedia?</strong></label>
+                                        <div class="flex flex-row justify-content-start flex-wrap">
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>No</span>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                <p-inputSwitch formControlName="Certificacion_intermedia_Switch"  (onChange)="changeSwitchCI($event)" styleClass="mt-1 mx-1"/>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>Si</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field col-12 md:col-6 lg:col-4">
+                                        <label><strong>Certificaciones intermedias {{ showAsteriskCI ? '*' : '' }}</strong></label>
+                                        <br>
+                                        <p-inputGroup>
+                                            <p-multiSelect
+                                                [options]="mainCertifIntermedia.certificaciones"
+                                                [style]="{ width: '100%', 'min-width': '100%' }"
+                                                formControlName="Certificacion_intermedia"
+                                                placeholder="Seleccione certificaciones"
+                                                optionLabel="Descripcion_certif_inter"
+                                                selectedItemsLabel="{0} certificaciones intermedias seleccionadas"
+                                                (onChange)="changeCertifIntermedias($event)"
+                                            >
+                                            </p-multiSelect>
+                                            <button 
+                                                (click)="mainCertifIntermedia.setModeCrud('create')" 
+                                                type="button" pButton icon="pi pi-plus" iconPos="right" 
+                                                class="p-button-success" pTooltip="Agregar nueva certificación intermedia" 
+                                                tooltipPosition="bottom"
+                                                [disabled]="!form.fbForm.get('Certificacion_intermedia_Switch')?.value"
+                                            >
+                                            </button>
+                                        </p-inputGroup>
+                                        <app-form-control [control]="form.fbForm.controls['Certificacion_intermedia']" [validators]="['required']"></app-form-control>
+                                    </div>
+                                </div>   
+                                
                                 <div class="flex pt-4 justify-content-between">
                                     <p-button label="Atrás" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()" />
                                     <p-button label="Siguiente" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextCallback.emit()" />
@@ -90,7 +359,7 @@
                         <p-stepperPanel id="paso3">
                             <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback">
                                 <div class="flex flex-column">
-                                    <p-accordion class="w-full" [activeIndex]="form.activeIndexAcordionAddPrograma" (onOpen)="openAccordion()">
+                                    <p-accordion class="w-full" [activeIndex]="form.activeIndexAcordionAddPrograma">
 
                                         <p-accordionTab id="reglamento">
                                             <ng-template pTemplate="header">
@@ -104,28 +373,7 @@
                                                 </div>
                                             </ng-template>
                                             <ng-template pTemplate="body">
-                                                <div class="flex justify-content-between align-items-center">
-                                                    <div class="flex align-items-center justify-content-center">
-                                                        <p-messages severity="info">
-                                                            <ng-template pTemplate>
-                                                                <i class="pi pi-info-circle mr-3"></i>
-                                                                <span>
-                                                                    Seleccione un reglamento registrado en la tabla presionando el botón ( <i class="pi pi-check" style="font-size: 0.8rem; font-weight:1000;"></i> ). 
-                                                                    Si no está registrado, agregue uno presionando el botón <strong>Agregar</strong>.
-                                                                </span>
-                                                            </ng-template>
-                                                        </p-messages>
-                                                    </div>
-                                                    <div class="flex align-items-center justify-content-center">
-                                                        <p-button
-                                                            label="Agregar"
-                                                            icon="pi pi-plus"
-                                                            styleClass="p-button-success ml-4"
-                                                            (click)="reglamentosMainService.setModeCrud('create')"
-                                                        ></p-button>
-                                                    </div>
-                                                </div>
-                                                <app-table-programas-reglamentos></app-table-programas-reglamentos>
+                                                <app-table-reglamentos></app-table-reglamentos>
                                             </ng-template>
                                         </p-accordionTab>
 
@@ -162,7 +410,7 @@
                                                     <div class="col-12 lg:col-8">
                                                         <div class="field" *ngIf="form.showTableDirectores">
                                                             <label><strong>Director(a) encontrado(a)</strong></label>
-                                                            <app-table-programas-directores mode="director" [data]="directores"></app-table-programas-directores>
+                                                            <app-table-programas-directores type="director" [data]="directores"></app-table-programas-directores>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -202,7 +450,7 @@
                                                     <div class="col-12 lg:col-8">
                                                         <div class="field" *ngIf="form.showTableDirectoresAlternos">
                                                             <label><strong>Director(a) alterno(a) encontrado(a)</strong></label>
-                                                            <app-table-programas-directores mode="alterno" [data]="directoresAlternos"></app-table-programas-directores>
+                                                            <app-table-programas-directores type="alterno" [data]="directoresAlternos"></app-table-programas-directores>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -215,14 +463,14 @@
                                 </div>
                                 <div class="flex pt-4 justify-content-between">
                                     <p-button label="Atrás" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()" />
-                                    <p-button styleClass="p-button-success" label="Confirmar" icon="pi pi-check" iconPos="right" (onClick)="submit()" [disabled]="!form.stateFormPrograma" />
+                                    <p-button styleClass="p-button-success" label="Confirmar" icon="pi pi-check" iconPos="right" (onClick)="confirmAddPrograma = true" [disabled]="!form.stateFormPrograma" />
                                 </div>
                             </ng-template>
                         </p-stepperPanel>
                     </p-stepper>
                 </form>
             </div>
-            <div class="hidden lg:block" *ngIf="agregarProgramaMainService.disposition" [ngClass]="sidebarClass" >
+            <div class="hidden lg:block" *ngIf="main.disposition" [ngClass]="sidebarClass" >
                 <p-card styleClass="border-1 surface-border border-round rounded-lg"  >
                     <ng-template pTemplate="header">
                         <div class="flex flex-row justify-content-between flex-wrap"  [style]="{ 'padding-left': '1.5rem' , 'padding-top': '1.5rem' , 'padding-right': '1.5rem' , 'width': '100%'}">
@@ -265,9 +513,9 @@
 
 <app-dialog [dialogWidth]="'80vw'" [(visible)]="confirmAddPrograma">
     <div header>
-        <span class="text-xl">Confirmación de agregación de programa</span>
+        <span class="text-xl">Confirma para agregar el programa</span>
     </div>
-    <div content>
+    <div content *ngIf="confirmAddPrograma">
         <p-messages severity="info" [closable]="true" [style]="{ 'padding': '0rem'}">
             <ng-template pTemplate>
                 <i class="pi pi-info-circle mr-3"></i>
@@ -310,14 +558,14 @@
                 <div class="col-12 sm:col-6 md:col-3 mb-3">
                     <div class="flex flex-column">
                         <span class="text-900"> <strong>Centro costo</strong> </span>
-                        <span class="text-700"> {{ form.fbForm.get('Centro_costo')!.value }} </span>
+                        <span class="text-700"> {{ form.fbForm.get('Centro_costo')!.value !== ''  ? form.fbForm.get('Centro_costo')!.value : 'NO APLICA'}} </span>
                     </div>
                 </div>
 
                 <div class="col-12 sm:col-6 md:col-3 mb-3">
                     <div class="flex flex-column">
                         <span class="text-900"> <strong>Código SIES</strong> </span>
-                        <span class="text-700"> {{ form.fbForm.get('Codigo_SIES')!.value }} </span>
+                        <span class="text-700"> {{ form.fbForm.get('Codigo_SIES')!.value !== ''  ? form.fbForm.get('Codigo_SIES')!.value : 'NO APLICA'}} </span>
                     </div>
                 </div>
 
@@ -381,8 +629,7 @@
                         >
                             <ng-template let-value pTemplate="selectedItems">
                                 <div class="inline-flex align-items-center px-1" *ngFor="let option of value">
-                                    <!-- <div>{{ option.Descripcion_ua }} ({{option.Descripcion_facu}})</div> -->
-                                    <p-tag severity="secondary" value="{{ option.Descripcion_ua }} ({{option.Facultad.Descripcion_facu}})" [rounded]="true" [style]="{padding: '0.05rem 0.4rem'}"/>
+                                    <div>{{ option.Descripcion_ua }} ({{option.Facultad.Descripcion_facu}})</div>
                                 </div>
                             </ng-template>
 
@@ -421,12 +668,12 @@
                                 optionDisabled="checkDisabled"
                                 placeholder="Seleccione instituciones"
                                 selectedItemsLabel="{0} instituciones seleccionadas"
-                                optionLabel="nombreInstitucion"
+                                optionLabel="Descripcion_institucion"
                                 appendTo="body"
                             >
                                 <ng-template let-value pTemplate="selectedItems">
                                     <div class="inline-flex align-items-center px-1" *ngFor="let option of value">
-                                        <p-tag severity="secondary" value="{{ option.nombreInstitucion }}" [rounded]="true" [style]="{padding: '0.05rem 0.4rem'}"/>
+                                        <div>{{ option.Descripcion_institucion }}</div>
                                     </div>
                                 </ng-template>
                             </p-multiSelect>
@@ -460,8 +707,7 @@
                             >
                                 <ng-template let-value pTemplate="selectedItems">
                                     <div class="inline-flex align-items-center px-1" *ngFor="let option of value">
-                                        <!-- <div>{{ option.Descripcion_ua }} ({{option.Descripcion_facu}})</div> -->
-                                        <p-tag severity="secondary" value="{{ option.Descripcion_certif_inter }}" [rounded]="true" [style]="{padding: '0.05rem 0.4rem'}"/>
+                                        <div>{{ option.Descripcion_certif_inter }} </div>
                                     </div>
                                 </ng-template>
                             </p-multiSelect>
@@ -523,12 +769,12 @@
     </div>
 </app-dialog>
 
-<app-dialog [dialogWidth]="'45vw'" [(visible)]="agregarProgramaMainService.dialogSuccessAddPrograma" [closable]="false" [maximizable]="false">
+<app-dialog [dialogWidth]="'45vw'" [(visible)]="main.dialogSuccessAddPrograma" [closable]="false" [maximizable]="false">
     <div header>
         <span class="text-xl">Programa agregado exitosamente</span>
     </div>
 
-    <div content>
+    <div content *ngIf="main.dialogSuccessAddPrograma">
         <div class="flex align-items-center justify-content-center flex-column">
                 <i class="pi pi-check-circle text-5xl text-green-400"></i>
                 <span class="text-900">El programa <strong>{{ form.nameProgramaAdded }}</strong> ha sido agregado exitosamente.</span>
@@ -560,3 +806,5 @@
 </app-dialog>
 
 <app-form-reglamentos></app-form-reglamentos>
+<app-form-certificaciones-intermedias></app-form-certificaciones-intermedias>
+<app-form-tipos-graduacion></app-form-tipos-graduacion>

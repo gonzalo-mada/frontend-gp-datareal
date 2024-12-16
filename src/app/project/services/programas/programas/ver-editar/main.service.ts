@@ -8,6 +8,8 @@ import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.ut
 import { MessageServiceGP } from '../../../components/message-service.service';
 import { CollectionsMongo } from 'src/app/project/models/shared/Context';
 import { ProgramaMainService } from '../main.service';
+import { Campus } from 'src/app/project/models/programas/Campus';
+import { TipoGraduacion } from 'src/app/project/models/programas/TipoGraduacion';
 
 @Injectable({
     providedIn: 'root'
@@ -15,10 +17,27 @@ import { ProgramaMainService } from '../main.service';
 
 
 export class VerEditarProgramaMainService {
-
+    
     programa: Programa = {};
     dialogUpdate: boolean = false
     dialogUpdateMode!: ModeDialog;
+    showButtonSubmitUpdate: boolean = false;
+    dialogHistorialActividades: boolean = false;
+
+    //arrays para update
+    campus: Campus[] = [];
+    instituciones: any[] = [];
+    institucionesSelected: any[] = [];
+    tiposProgramas : any[] = [];
+    tiposProgramasGrouped : any[] = [];
+    estadosMaestros: any[] = [];
+    unidadesAcademicasPrograma: any[] = [];
+    unidadesAcademicas: any[] = [];
+    unidadesAcademicasGrouped: any[] = [];
+    tiposGraduaciones: any[] = [];
+    certificaciones: any[] = [];
+    certificacionesPrograma: any[] = [];
+    suspensiones: any[] = [];
 
     constructor(
         private backend: BackendProgramasService,
@@ -39,6 +58,10 @@ export class VerEditarProgramaMainService {
         return this.main.namesCrud
     }
 
+    get mode(){
+        return this.main.mode
+    }
+
     async setModeCrud(mode: ModeForm, data?: Programa | null, from?: CollectionsMongo | null ){
         this.form.modeForm = mode;
         if (data) this.programa = {...data};
@@ -48,22 +71,26 @@ export class VerEditarProgramaMainService {
         }
     }
 
+    reset(){
+        this.files.resetLocalFiles();
+    }
+
     async updateForm(): Promise<ModeDialog> {
         const params = await this.setForm();
-        
-        const response = await this.backend.updateProgramaBackend(params, this.main.namesCrud);
-    
-        if (response && response.dataWasUpdated) {
-            this.messageService.add({
-                key: 'main',
-                severity: 'success',
-                detail:generateMessage(this.main.namesCrud,response.dataUpdated,'actualizado',true,false)
-            });
-            this.files.resetLocalFiles();
+        if (params) {
+            const response = await this.backend.updateProgramaBackend(params, this.main.namesCrud);
+            if (response && response.dataWasUpdated) {
+                this.messageService.add({
+                    key: 'main',
+                    severity: 'success',
+                    detail:generateMessage(this.main.namesCrud,response.dataUpdated,'actualizado',true,false)
+                });
+                this.files.resetLocalFiles();
+            }
         }
-    
         this.dialogUpdate = false;
         return this.dialogUpdateMode;
+
     }
     
 
@@ -100,6 +127,62 @@ export class VerEditarProgramaMainService {
         await this.files.setContextUploader('show','servicio','ver/editar-programa',from!)
         this.files.resetLocalFiles();
         await this.setLoadDocsWithBinary(this.cod_programa, from!)
+    }
+
+    async createFormUpdate(form: ModeDialog, collection: CollectionsMongo){
+
+        switch (form) {
+            case 'estado acreditación':
+                await this.commonFormUpdate(form, collection, false);
+                this.form.fbForm.get('Cod_acreditacion')!.valueChanges.subscribe( value => {
+                    this.form.fbFormUpdate.get('Cod_acreditacion')?.patchValue(value);
+                    this.form.fbFormUpdate.get('nombreEstadoAcreditacion')?.patchValue(this.form.estadoAcreditacionSiglaSelected);
+                });
+            break;
+
+            case 'reglamento':
+                await this.commonFormUpdate(form, collection, false);
+                this.form.fbForm.get('Cod_Reglamento')!.valueChanges.subscribe( value => {
+                    this.form.fbFormUpdate.get('Cod_Reglamento')?.patchValue(value);
+                    this.form.fbFormUpdate.get('nombreReglamento')?.patchValue(this.form.reglamentoSelected);
+                });
+            break;
+        
+            default:
+                await this.commonFormUpdate(form, collection, true);
+            break;
+        }
+
+    }
+
+    async commonFormUpdate(form: ModeDialog, collection: CollectionsMongo, needFiles: boolean){
+        await this.form.setFormUpdate(form, this.programa);
+        if (this.mode === 'show' && form !== 'unidades académicas') this.form.fbFormUpdate.disable();
+        this.dialogUpdate = true;
+        if (needFiles) {
+            await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', collection);
+            const response = await this.files.loadDocsWithBinary(this.cod_programa , collection!);
+            if (response) {
+                this.form.fbFormUpdate.get('files')?.updateValueAndValidity();
+            }
+        }
+        this.showButtonSubmitUpdate = true;
+    }
+
+    disabledButtonSeleccionar(){
+        this.files.disabledButtonSeleccionar();
+    }
+
+    enabledButtonSeleccionar(){
+        this.files.enabledButtonSeleccionar();
+    }
+
+    goToShowPrograma(){
+        this.main.showForm();
+    }
+
+    goToEditPrograma(){
+        this.main.editForm();
     }
     
 

@@ -1,5 +1,6 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Director } from 'src/app/project/models/programas/Director';
+import { ModeForm } from 'src/app/project/models/shared/ModeForm';
 import { MessageServiceGP } from 'src/app/project/services/components/message-service.service';
 import { FormProgramaService } from 'src/app/project/services/programas/programas/form.service';
 
@@ -14,14 +15,13 @@ export class TableProgramasDirectoresComponent implements OnChanges {
   constructor(private form: FormProgramaService, private messageService: MessageServiceGP){}
 
   @Input() data: any[] = []
-  @Input() mode!: 'director' | 'alterno';
+  @Input() type!: 'director' | 'alterno';
+  @Input() mode: string = '';
   @Input() isAnySelected: boolean = false;
   isSelected: boolean = false; 
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data']){
-      this.isSelected = false;
-    }
+    if (changes['data']) this.isSelected = false;
   }
 
   changeSelectDirector(modeSelect:'select' | 'unselect', data: Director){
@@ -31,11 +31,11 @@ export class TableProgramasDirectoresComponent implements OnChanges {
       case 'select':
         this.isAnySelected = true
         data.isSelected = true;
-        this.form.setSelectDirector(this.mode, nombreCompleto, data.rutcompleto!)
+        this.form.setSelectDirector(this.type, nombreCompleto, data.rutcompleto!)
         this.messageService.add({
           key: 'main',
           severity: 'info',
-          detail: this.mode === 'director' 
+          detail: this.type === 'director' 
           ? `Director(a): "${nombreCompleto}" seleccionado(a)` 
           : `Director(a) alterno(a): "${nombreCompleto}" seleccionado(a)`
         });
@@ -44,11 +44,11 @@ export class TableProgramasDirectoresComponent implements OnChanges {
       case 'unselect':
         this.isAnySelected = false;
         data.isSelected = false;
-        this.form.unsetSelectDirector(this.mode)
+        this.form.unsetSelectDirector(this.type)
         this.messageService.add({
           key: 'main',
           severity: 'info',
-          detail: this.mode === 'director' 
+          detail: this.type === 'director' 
           ? `Director(a): "${nombreCompleto}" deseleccionado(a)` 
           : `Director(a) alterno(a): "${nombreCompleto}" deseleccionado(a)`
         });

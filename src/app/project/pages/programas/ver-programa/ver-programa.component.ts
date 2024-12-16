@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { FormProgramaService } from 'src/app/project/services/programas/programas/form.service';
 import { ProgramaMainService } from 'src/app/project/services/programas/programas/main.service';
 
 @Component({
@@ -12,7 +13,8 @@ export class VerProgramaComponent implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private programaMainService: ProgramaMainService
+    private programaMainService: ProgramaMainService,
+    public form: FormProgramaService
   ){}
 
   mode: string = 'show';

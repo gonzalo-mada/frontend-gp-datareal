@@ -8,7 +8,7 @@
         "solo_letras": "Field only accepts letters",
         "checkCorreoUV": "Field only accepts emails from @uv.cl, @postgrado.uv.cl",
         "notSameAsDirector": "Alternate Director cannot be the same as Director",
-        "notSameDirectorInUpdate": "RUT must be different from the RUT already registered",
-        "notSameDirectorAlternoInUpdate": "Alternate Director cannot be the same as Director"
+        "rutMustBeDifferent": "RUT must be different from the RUT already registered",
+        "notSameDirectorsInUpdate": "The RUT entered is already associated with the Director or Alternate Director."
     }
 }

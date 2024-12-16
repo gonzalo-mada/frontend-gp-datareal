@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
-import { UploaderFilesService } from '../../../services/components/uploader-files.service';
-import { Context } from '../../../models/shared/Context';
+import { DocMongo } from 'src/app/project/models/shared/DocMongo';
 
 @Component({
   selector: 'app-dialog-visor-pdf',
@@ -12,54 +11,24 @@ import { Context } from '../../../models/shared/Context';
 export class DialogVisorPdfComponent implements OnChanges {
   
   @Input() visible: boolean = false;
-  @Input() archivo!: any;
+  @Input() archivo!: DocMongo;
   @Input() id!: string;
-  @Input() context!: Context;
   @Output() visibleChange = new EventEmitter<boolean>();
 
-  nameArchive : string = '';
-
-  constructor(private commonUtils : CommonUtils, private uploaderFilesService: UploaderFilesService){}
+  constructor(private commonUtils : CommonUtils){}
 
   ngOnChanges(changes: SimpleChanges): void {
-   
-    if (changes['archivo']){
-      if (!this.archivo.id) {
-        this.nameArchive = this.archivo.name;
-        
-        setTimeout(() => {
-          this.commonUtils.visorPDF(this.archivo, this.id, '800px', '100%', true);
-        }, 100);
-
-      }else{
-
-        this.nameArchive = this.archivo.nombre;
-
-        const pdfBlob = this.convertBase64ToBlob(this.archivo.dataBase64);
-        setTimeout(() => {
-          this.commonUtils.visorPDF(pdfBlob, this.id, '800px', '100%', true);
-        }, 100);
-
-      }
+    if (changes['archivo'] && changes['archivo'].currentValue){
+      console.log("archivo-->",this.archivo);
+      
+      setTimeout(() => {
+        this.commonUtils.visorPDF(this.archivo.file, this.id, '800px', '100%', true);
+      }, 100);
     }
   }
 
-  download() {
-    if (this.archivo.id) {
-      this.commonUtils.downloadBlob(
-        this.fileToBlob(this.archivo),
-        this.archivo.nombre,
-      );
-    }else{
-      this.commonUtils.downloadBlob(
-        this.fileToBlob(this.archivo),
-        this.archivo.name,
-      );
-    }
-  }
-
-  downloadMongo(){
-    this.uploaderFilesService.triggerDownloadDoc(this.context,this.archivo);
+  download(){
+    this.commonUtils.downloadBlob( this.fileToBlob(this.archivo) , this.archivo.data?.nombre!);
   }
 
   print() {
@@ -75,7 +44,7 @@ export class DialogVisorPdfComponent implements OnChanges {
   }
 
   private fileToBlob(file: any) {
-    if (this.archivo.id) {
+    if (this.archivo.data!.id) {
       return new Blob([file], { type: file.tipo });
     }else{
       return new Blob([file], { type: file.type });
@@ -87,14 +56,4 @@ export class DialogVisorPdfComponent implements OnChanges {
     this.visibleChange.emit(this.visible);
   }
 
-  convertBase64ToBlob(base64String: string, contentType = 'application/pdf'): Blob {
-    const byteString = window.atob(base64String);
-    const arrayBuffer = new ArrayBuffer(byteString.length);
-    const uint8Array = new Uint8Array(arrayBuffer);
-    for (let i = 0; i < byteString.length; i++) {
-      uint8Array[i] = byteString.charCodeAt(i);
-    }
-    return new Blob([uint8Array], { type: contentType });
-  }
-  
 }

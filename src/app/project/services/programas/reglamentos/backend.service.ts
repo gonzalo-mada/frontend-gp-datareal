@@ -83,10 +83,10 @@ export class BackendReglamentosService {
     }
     
     // Servicios relacionados con documentos en MongoDB
-    async getDocumentosWithBinary(Cod_reglamento: number) {
+    async getDocsMongo(Cod_reglamento: number) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('reglamentos/getDocumentosWithBinary', false),
+                this.serviceUtils.generateServiceMongo('reglamentos/getDocsMongo', false),
                 { Cod_reglamento }
             );
         } catch (error: any) {
@@ -97,20 +97,30 @@ export class BackendReglamentosService {
             });
         }
     }
-    
-    async getArchiveDoc(idDocumento: any) {
+
+    async getArchiveDoc(id: any, needBinaryString: boolean) {
         try {
-            return await this.invoker.httpInvokeReport(
-                'reglamentos/getArchiveDoc',
-                'pdf',
-                { id: idDocumento }
-            );
+            if (needBinaryString) {
+                return await this.invoker.httpInvoke(
+                    this.serviceUtils.generateServiceMongo('reglamentos/getArchiveDoc',false),
+                    { id , needBinaryString }
+                )
+            }else{
+                return await this.invoker.httpInvokeReport(
+                    this.serviceUtils.generateServiceMongo('reglamentos/getArchiveDoc',false), 
+                    'pdf', 
+                    { id , needBinaryString }
+                )
+            }
         } catch (error: any) {
-            this.errorTemplateHandler.processError(error, {
-                notifyMethod: 'alert',
-                summary: 'Error al descargar documento',
-                message: error?.message || error.detail.error.message.message
-            });
+            this.errorTemplateHandler.processError(
+                error, 
+                {
+                    notifyMethod: 'alert',
+                    summary: `Error al descargar documento.`,
+                    message: error?.message || error.detail.error.message.message
+                }
+            );
         }
     }
     

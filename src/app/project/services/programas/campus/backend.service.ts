@@ -94,10 +94,10 @@ export class BackendCampusService {
         }
     }
 
-    async getDocumentosWithBinary(Cod_campus: any) {
+    async getDocsMongo(Cod_campus: any) {
         try {
             return await this.invoker.httpInvoke(
-                    this.serviceUtils.generateServiceMongo('campus/getDocumentosWithBinary'),
+                    this.serviceUtils.generateServiceMongo('campus/getDocsMongo', false),
                     { Cod_campus }
                 )
         } catch (error: any) {
@@ -112,9 +112,20 @@ export class BackendCampusService {
         }
     }
 
-    async getArchiveDoc(idDocumento: any) {
+    async getArchiveDoc(id: any, needBinaryString: boolean) {
         try {
-            return await this.invoker.httpInvokeReport('campus/getArchivoDocumento', 'pdf', { id: idDocumento })
+            if (needBinaryString) {
+                return await this.invoker.httpInvoke(
+                    this.serviceUtils.generateServiceMongo('campus/getArchiveDoc',false),
+                    { id , needBinaryString }
+                )
+            }else{
+                return await this.invoker.httpInvokeReport(
+                    this.serviceUtils.generateServiceMongo('campus/getArchiveDoc',false), 
+                    'pdf', 
+                    { id , needBinaryString }
+                )
+            }
         } catch (error: any) {
             this.errorTemplateHandler.processError(
                 error, 

@@ -1,27 +1,2 @@
 <app-breadcrumbgp></app-breadcrumbgp>
-<p-card>
-    <ng-template pTemplate="header">
-        <div class="flex justify-content-between flex-wrap"  [style]="{ 'padding-left': '1.5rem' , 'padding-top': '1.5rem' , 'padding-right': '1.5rem'}">
-            <div>
-                <div class="p-card-title">Ver programa</div>
-                <div class="p-card-subtitle">Permite visualizar un programa.</div>
-            </div>
-            <div class="flex align-items-center">
-                <p-button 
-                pRipple 
-                label="Actualizar" 
-                icon="pi pi-refresh" 
-                styleClass="p-button-info ml-2" 
-                (click)="refreshPrograma()">
-              </p-button>
-            </div>
-        </div>
-    </ng-template>
-    <ng-template pTemplate="content">
-        <app-form-programas-view-and-edit 
-            [mode]="mode" 
-            [onClickRefreshPrograma]="onClickRefreshPrograma"
-            >
-        </app-form-programas-view-and-edit>
-    </ng-template>
-</p-card>
+<app-form-programas-view-and-edit [mode]="mode"></app-form-programas-view-and-edit>
