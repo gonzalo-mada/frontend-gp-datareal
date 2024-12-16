@@ -1,23 +1,29 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { SelectItemGroup } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
-import { ModeDialog, Programa } from 'src/app/project/models/programas/Programa';
+import { Campus } from 'src/app/project/models/programas/Campus';
+import { ModeDialog, Programa, UpdatePrograma } from 'src/app/project/models/programas/Programa';
 import { Reglamento } from 'src/app/project/models/programas/Reglamento';
+import { TipoGraduacion } from 'src/app/project/models/programas/TipoGraduacion';
+import { TipoPrograma } from 'src/app/project/models/programas/TipoPrograma';
+import { CollectionsMongo } from 'src/app/project/models/shared/Context';
 import { LoadinggpService } from 'src/app/project/services/components/loadinggp.service';
 import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
 import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
+import { CertifIntermediaMainService } from 'src/app/project/services/programas/certificaciones-intermedias/main.service';
 import { BackendProgramasService } from 'src/app/project/services/programas/programas/backend.service';
 import { FormProgramaService } from 'src/app/project/services/programas/programas/form.service';
 import { VerEditarProgramaMainService } from 'src/app/project/services/programas/programas/ver-editar/main.service';
-import { groupDataTipoPrograma, groupDataUnidadesAcademicas } from 'src/app/project/tools/utils/dropwdown.utils';
-
+import { TiposSuspensionesMainService } from 'src/app/project/services/programas/tipos-suspensiones/main.service';
+import { groupDataTipoPrograma, groupDataUnidadesAcademicas, groupDataUnidadesAcademicasWithDisabled } from 'src/app/project/tools/utils/dropwdown.utils';
 
 @Component({
   selector: 'app-form-programas-view-and-edit',
   templateUrl: './form-programas-view-and-edit.component.html',
-  styleUrls: ['./form-programas-view-and-edit.component.css']
+  styleUrls: []
 })
-export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnDestroy {
+export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
  
   constructor(
     private backend: BackendProgramasService,
@@ -26,68 +32,46 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
     private systemService: LoadinggpService,
     public tableCrudService: TableCrudService,
     private uploaderFilesService: UploaderFilesService,
-    public verEditarProgramaMainService: VerEditarProgramaMainService
+    public main: VerEditarProgramaMainService,
   ){}
 
 
   @Input() mode: string = '';
-  @Input() onClickRefreshPrograma: boolean = false;
   @Output() modeDialogEmitter = new EventEmitter();
 
   programa: Programa = {};
-  tiposProgramas: any[] = [];
-  campus: any[] = [];
-  instituciones: any[] = [];
-  institucionesSelected: any[] = [];
   logsPrograma: any[] = [];
-  unidadesAcademicas: any[] = [];
-  estadosAcreditacion: any[] = [];
-  estadosMaestros: any[] = [];
-  titulo: any[] = [];
-  docMaestro: any[] = [];
-  grado_academico: any[] = [];
-  rexe: any[] = [];
-  director: any[] = [];
-  directorAlterno: any[] = [];
-  reglamentos: Reglamento[] = [];
-  showAsterisk: boolean = false;
-  modeDialog: ModeDialog;
+  updatePrograma!: UpdatePrograma | undefined;
   loading: boolean = true 
-  loadingTab: boolean = true 
+  onClickRefreshPrograma: boolean = false;
   private subscription: Subscription = new Subscription();
-  unidadesAcademicasPrograma: any[] = [];
-  tiposGraduaciones: any[] = [];
-  certifIntermedias: any[] = [];
   
   async ngOnInit() {
     await this.getPrograma();
     await this.getData();
   }
 
-  async ngOnChanges(changes: SimpleChanges) {
-    if ( changes['onClickRefreshPrograma'] && changes['onClickRefreshPrograma'].currentValue) {
-      console.log("change: ",changes['onClickRefreshPrograma'].currentValue);
-      if (changes['onClickRefreshPrograma'].currentValue){
-        await this.getPrograma();
-        await this.getData();
-      } 
-    }
+  ngOnDestroy(): void {
+    if (this.subscription) this.subscription.unsubscribe();
+    this.uploaderFilesService.resetValidatorFiles();
   }
 
-  ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
-    this.uploaderFilesService.resetValidatorFiles();
-    this.uploaderFilesService.setFiles(null);
+  async refreshPrograma(){
+    await this.getPrograma();
+    await this.getData();
+    this.onClickRefreshPrograma = true;
+    setTimeout(() => {
+      this.onClickRefreshPrograma = false
+    }, 500); 
   }
 
   async getPrograma(){
     this.systemService.loading(true);
     this.loading = true;
-    this.programa = await this.backend.getPrograma({Cod_Programa: this.verEditarProgramaMainService.cod_programa},false,this.verEditarProgramaMainService.namesCrud);
-    // console.log("DATA PROGRAMA FROM VIEW AND EDIT",this.programa);
-    
+    this.programa = await this.backend.getPrograma({Cod_Programa: this.main.cod_programa},false,this.main.namesCrud);
+    this.main.programa = {...this.programa};
+    console.log("DATA PROGRAMA FROM VIEW AND EDIT",this.programa);
+    this.form.resetForm();
     this.form.setForm(this.programa);
     this.form.fbForm.disable();
     this.form.fbForm.get('Unidades_academicas_Selected')!.enable();
@@ -99,24 +83,17 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
     try {
       await Promise.all([
         this.getCampus(),
-        this.getUnidadesAcademicas(),
-        // this.getInstituciones(),
         this.getInstitucionesSelected(),
-        this.getReglamentos(),
-        this.getEstadosAcreditacion(),
-        this.getEstadosMaestros(),
-        this.getDirector(),
-        this.getDirectorAlterno(),
         this.getTiposProgramas(),
         this.getLogPrograma(),
+        this.getUnidadesAcademicas(),
         this.getUnidadesAcademicasPrograma(),
-        this.getCertificacionIntermediaPrograma()
+        this.getCertificacionIntermediaPrograma(),
+        this.getTiposGraduaciones(),
+        this.getEstadosMaestros(),
+        this.getTiposSuspensiones(),
       ]);
       // Llamadas sincrónicas o que no necesitan espera
-      this.getTitulo();
-      this.getGradoAcademico();
-      this.getRexe();
-      this.getDocMaestro();
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
@@ -129,44 +106,61 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
   }
 
   async getTiposProgramas(){
-    this.tiposProgramas =  await this.backend.getTiposProgramas(false);
-    this.tiposProgramas = groupDataTipoPrograma(this.tiposProgramas);
+    this.main.tiposProgramas  =  await this.backend.getTiposProgramas(false);
+    this.main.tiposProgramasGrouped = groupDataTipoPrograma(this.main.tiposProgramas);
+    let tipoProgramaSelected = this.main.tiposProgramas.find( tp => tp.Cod_tipoPrograma === this.programa.Tipo_programa);
+    this.form.setSelectTipoPrograma(tipoProgramaSelected as TipoPrograma)
+  }
+
+  async getEstadosMaestros(){
+    this.main.estadosMaestros = await this.backend.getEstadosMaestros(false);
+  }
+
+  async getTiposSuspensiones(){
+    this.main.suspensiones = await this.backend.getSuspensiones(false);
   }
 
   async getCampus(){
-    this.campus =  await this.backend.getCampus(false);            
-  }
-
-  async getUnidadesAcademicas(){
-    this.unidadesAcademicas =  await this.backend.getUnidadesAcademicas(false);
-    this.unidadesAcademicas = groupDataUnidadesAcademicas(this.unidadesAcademicas);
-  }
-
-  async getInstituciones(){
-    if (this.programa.Graduacion_Conjunta === 1) this.instituciones = await this.backend.getInstituciones(false);
+    this.main.campus = await this.backend.getCampus(false);
+    let campusSelected = this.main.campus.find( c => c.Cod_campus === this.programa.Campus);
+    this.form.setSelectCampus(campusSelected as Campus)           
   }
 
   async getInstitucionesSelected(){
+    this.main.instituciones = await this.backend.getInstituciones(false);
     if (this.programa.Graduacion_Conjunta === 1) {
-      this.institucionesSelected = await this.backend.getInstitucionesSelected({Cod_Programa: this.programa.Cod_Programa},false);
-      this.form.fbForm.get('Instituciones_Selected')?.patchValue(this.institucionesSelected);
+      this.main.institucionesSelected = await this.backend.getInstitucionesSelected({Cod_Programa: this.programa.Cod_Programa},false);
+      this.form.fbForm.get('Instituciones_Selected')?.patchValue(this.main.institucionesSelected);
       await this.getTiposGraduaciones();
+    }else{
+      this.form.unsetSelectTipoGraduacion();
     }
   }
 
   async getTiposGraduaciones(){
-    this.tiposGraduaciones =  await this.backend.getTiposGraduaciones();  
+    this.main.tiposGraduaciones =  await this.backend.getTiposGraduaciones(false);
+    if (this.programa.Cod_TipoGraduacion !== null) {
+      let tipoGraduacionSelected = this.main.tiposGraduaciones.find( tg => tg.Cod_TipoColaborativa === this.programa.Cod_TipoGraduacion);
+      this.form.setSelectTipoGraduacion(tipoGraduacionSelected as TipoGraduacion)   
+    }
+  }
+
+  async getUnidadesAcademicas(){
+    this.main.unidadesAcademicas =  await this.backend.getUnidadesAcademicas();
+    this.main.unidadesAcademicasGrouped = groupDataUnidadesAcademicas(this.main.unidadesAcademicas);
   }
 
   async getUnidadesAcademicasPrograma(){
-    this.unidadesAcademicasPrograma = await this.backend.getUnidadesAcademicasPrograma({Cod_Programa: this.programa.Cod_Programa},false);
-    this.form.fbForm.get('Unidades_academicas_Selected')?.patchValue(this.unidadesAcademicasPrograma);
+    this.main.unidadesAcademicasPrograma = await this.backend.getUnidadesAcademicasPrograma({Cod_Programa: this.programa.Cod_Programa},false);
+    this.form.fbForm.get('Unidades_academicas_Selected')?.patchValue(this.main.unidadesAcademicasPrograma);
+    this.main.unidadesAcademicasPrograma = groupDataUnidadesAcademicasWithDisabled(this.main.unidadesAcademicasPrograma);
   }
 
   async getCertificacionIntermediaPrograma(){
+    this.main.certificaciones =  await this.backend.getCertificacionIntermedia(false);
     if (this.programa.Certificacion_intermedia === 1) {
-      this.certifIntermedias = await this.backend.getCertificacionIntermediaPrograma({Cod_Programa: this.programa.Cod_Programa},false);
-      this.form.fbForm.get('Certificacion_intermedia_Selected')?.patchValue(this.certifIntermedias);
+      this.main.certificacionesPrograma = await this.backend.getCertificacionIntermediaPrograma({Cod_Programa: this.programa.Cod_Programa},false);
+      this.form.fbForm.get('Certificacion_intermedia_Selected')?.patchValue(this.main.certificacionesPrograma);
     }
   }
 
@@ -174,85 +168,13 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
     this.logsPrograma = await this.backend.getLogPrograma({Cod_Programa: this.programa.Cod_Programa},false);
   }
 
-  async getReglamentos(){
-    this.reglamentos = await this.backend.getReglamentos(false);
-    this.reglamentos = this.reglamentos.filter( r => r.Cod_reglamento === this.programa.Cod_Reglamento)
-  }
-
-  async getEstadosAcreditacion(){
-    this.estadosAcreditacion = await this.backend.getEstadosAcreditacion(false);
-    this.estadosAcreditacion = this.estadosAcreditacion.filter( ea => ea.Cod_acreditacion === this.programa.Cod_acreditacion)
-  }
-
-  async getEstadosMaestros(){
-    this.estadosMaestros = await this.backend.getEstadosMaestros(false);
-    this.estadosMaestros = this.estadosMaestros.filter( em => em.Cod_EstadoMaestro === this.programa.Cod_EstadoMaestro)
-    if (this.programa.Cod_EstadoMaestro === 2 && this.estadosMaestros.length > 0) {
-      let suspensiones = await this.backend.getSuspensiones(false);
-      suspensiones = suspensiones.filter((susp: any) => susp.ID_TipoSuspension === this.programa.ID_TipoSuspension);
-      if (suspensiones.length > 0) {
-          this.estadosMaestros[0] = {
-              ...this.estadosMaestros[0],
-              ...suspensiones[0]
-          };
-      }
-    }
-  }
-
-  getDocMaestro(){
-    this.docMaestro = [];
-    this.docMaestro.push({Nombre_programa: this.programa.Nombre_programa});
-    this.uploaderFilesService.setLoading(false)
-    
-  }
-
-  getTitulo(){
-    this.titulo = [];
-    this.titulo.push({Titulo: this.programa.Titulo});
-  }
-
-  getGradoAcademico(){
-    this.grado_academico = [];
-    this.grado_academico.push({Grado_academico: this.programa.Grado_academico});
-  }
-
-  getRexe(){
-    this.rexe = [];
-    this.rexe.push({Rexe: this.programa.REXE});
-  }
-  
-  async getDirector(){
-    const rut_director = this.programa.Director!.split('-');
-    this.director = await this.backend.getDirector({rut: parseInt(rut_director[0])},false,'director');
-  }
-
-  async getDirectorAlterno(){
-    if (this.programa.Director_alterno !== '0') {
-      const rut_director_alterno = this.programa.Director_alterno!.split('-');
-      this.directorAlterno = await this.backend.getDirector({rut: parseInt(rut_director_alterno[0])},false,'alterno');
-    }else{
-      this.directorAlterno = [];
-    }
-  }
-
-  changeSwitch(event: any){
-    const Instituciones = this.form.fbForm.get('Instituciones')!;
-    if (this.mode === 'edit') {
-      switch (event.checked) {
-        case true: Instituciones?.enable(); this.showAsterisk = true; break;
-        case false : Instituciones?.disable(); this.showAsterisk = false; break;
-        default: Instituciones?.disable(); this.showAsterisk = false; break;
-      }
-    }
-  }
-
   async changeTab(){
     this.tableCrudService.emitResetExpandedRowsTable();
   }
 
-  async openDialog(mode: ModeDialog){
+  async openDialog(modeDialog: ModeDialog, collection: CollectionsMongo){
     try {
-      this.modeDialog = mode;
+      this.updatePrograma = {modeDialog , collection};
     } catch (error) {
       console.log("error en openDialog()",error);
       this.errorTemplateHandler.processError(error, {
@@ -263,26 +185,21 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
   }
 
   resetDialog(){
-    this.modeDialog = undefined;
+    this.updatePrograma = undefined;
   }
 
-  async formUpdated(modeDialog: any){
-    console.log("evenvnenv",modeDialog);
+  async formUpdated(modeDialog: ModeDialog){
     try {
       await this.getPrograma();
       this.loading = true;
-      switch (modeDialog) {
-        case 'título': this.getTitulo(); break;
-        case 'grado académico': this.getGradoAcademico(); break;
-        case 'REXE': this.getRexe(); break;
-        // case 'documentos maestros': this.createFormDocsMaestro(); break;
-        case 'reglamento': await this.getReglamentos(); break;
-        case 'director': await this.getDirector(); break;
-        case 'director alterno': await this.getDirectorAlterno(); break;
-        case 'estado maestro': await this.getEstadosMaestros(); break;
-        case 'estado acreditación': await this.getEstadosAcreditacion(); break;
-        default: break;
-      }
+      // switch (modeDialog) {
+      //   case 'unidades académicas': await this.getUnidadesAcademicasPrograma(); break;
+      //   case 'tipo de programa': await this.getTiposProgramas(); break;
+      //   case 'campus': await this.getCampus(); break;
+      //   case 'graduación colaborativa': await this.getInstitucionesSelected(); break;
+      //   case 'certificación intermedia': await this.getCertificacionIntermediaPrograma(); break;
+      // }
+      await this.getData();
       await this.getLogPrograma();
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
@@ -307,5 +224,39 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
     });
   }
 
+  getDynamicPrincipalValue(input: any): any {
+    if (input.control) {
+      return this.form.fbForm.get(input.control)?.value; 
+    }
+    if (input.principalValue) {
+      return this.resolveValue(input.principalValue); 
+    }
+    if (input.secondaryValue) {
+      return this.resolveValue(input.secondaryValue); 
+    }
+    return null; // Si no hay control ni inputValue
+  }
+
+  getDynamicSecondaryValue(input: any): any {
+    if (input.secondaryValue) {
+      return this.resolveValue(input.secondaryValue); 
+    }
+    return null; // Si no hay control ni inputValue
+  }
+  
+  private resolveValue(value: string): any {
+    return value.split('.').reduce((acc: any, key: any) => acc?.[key], this); // Resolver valor dinámico como 'form.inputEstadoAcreditacion'
+  }
+
+  getToolTip(isEditable: boolean): string {
+    let message = '';
+    if (isEditable) {
+      this.mode === 'show' ? message = 'Ver mas detalles' : message = 'Editar registro'
+      return message
+    }else{
+      this.mode === 'show' ? message = 'No cuenta con mas detalles' : message = 'No es posible editar'
+      return message
+    }
+  }
 
 }

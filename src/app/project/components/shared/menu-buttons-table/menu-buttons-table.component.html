@@ -1,5 +1,5 @@
-<div class="flex justify-content-between align-content-center mb-2 mt-4">
-    <div>
+<div class="flex flex-row justify-content-between align-content-center mb-2 mt-4 gap-2">
+    <div class="flex justify-content-center">
         <p-button
         label="Eliminar seleccionados"
         icon="pi pi-trash"
@@ -8,11 +8,16 @@
         (click)="menuButtonsTableService.emitClickDeleteSelected()"
         ></p-button>
     </div>
-    <div>
+    <div class="flex justify-content-center">
         <p-button
         label="Agregar"
         icon="pi pi-plus"
-        styleClass="p-button-success"
+        styleClass="p-button-success hidden sm:flex"
+        (click)="menuButtonsTableService.emitClickButtonAgregar()"
+        ></p-button>
+        <p-button
+        icon="pi pi-plus"
+        styleClass="p-button-success flex sm:hidden"
         (click)="menuButtonsTableService.emitClickButtonAgregar()"
         ></p-button>
     </div>

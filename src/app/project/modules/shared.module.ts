@@ -27,37 +27,24 @@ import { FormEstadosAcreditacionComponent } from 'src/app/project/components/pro
 import { BreadcrumbgpComponent } from 'src/app/project/components/shared/breadcrumbgp/breadcrumbgp.component';
 import { TableProgramasDirectoresComponent } from 'src/app/project/components/programas/tables/programas/table-programas-directores/table-programas-directores.component';
 import { ConfigModeComponent } from 'src/app/project/components/shared/config-mode/config-mode.component';
-import { TableProgramasEstadosAcreditacionComponent } from 'src/app/project/components/programas/tables/programas/table-programas-estados-acreditacion/table-programas-estados-acreditacion.component';
 import { FormSuspensionComponent } from 'src/app/project/components/programas/forms/form-suspension/form-suspension.component';
 import { TableSuspensionesComponent } from 'src/app/project/components/programas/tables/table-suspensiones/table-suspensiones.component';
 import { TableProgramasComponent } from 'src/app/project/components/programas/tables/table-programas/table-programas.component';
 import { TableReglamentosComponent } from 'src/app/project/components/programas/tables/table-reglamentos/table-reglamentos.component';
 import { FormReglamentosComponent } from 'src/app/project/components/programas/forms/form-reglamentos/form-reglamentos.component';
-import { TableProgramasReglamentosComponent } from 'src/app/project/components/programas/tables/programas/table-programas-reglamentos/table-programas-reglamentos.component';
 import { TableJornadasComponent } from 'src/app/project/components/plan-de-estudio/tables/table-jornadas/table-jornadas/table-jornadas.component';
 import { FormJornadasComponent } from 'src/app/project/components/plan-de-estudio/forms/form-jornadas/form-jornadas/form-jornadas.component';
 import { FormModalidadesComponent } from 'src/app/project/components/plan-de-estudio/forms/form-modalidades/form-modalidades/form-modalidades.component';
 import { TableModalidadesComponent } from 'src/app/project/components/plan-de-estudio/tables/table-modalidades/table-modalidades/table-modalidades.component';
 import { StateFormComponent } from 'src/app/project/components/shared/state-form/state-form.component';
-import { FormProgramasStepOneComponent } from 'src/app/project/components/programas/forms/programas/form-programas-step-one/form-programas-step-one.component';
-import { FormProgramasStepTwoComponent } from 'src/app/project/components/programas/forms/programas/form-programas-step-two/form-programas-step-two.component';
 import { FormProgramasUpdateComponent } from '../components/programas/forms/programas/form-programas-update/form-programas-update.component';
 import { FormProgramasViewAndEditComponent } from 'src/app/project/components/programas/forms/programas/form-programas-view-and-edit/form-programas-view-and-edit.component';
-import { TableProgramasEstadoMaestroComponent } from 'src/app/project/components/programas/tables/programas/table-programas-estado-maestro/table-programas-estado-maestro.component';
-import { TableProgramasTituloComponent } from 'src/app/project/components/programas/tables/programas/table-programas-titulo/table-programas-titulo.component';
-import { TableProgramasGradoAcademicoComponent } from 'src/app/project/components/programas/tables/programas/table-programas-grado-academico/table-programas-grado-academico.component';
-import { TableProgramasRexeComponent } from 'src/app/project/components/programas/tables/programas/table-programas-rexe/table-programas-rexe.component';
-import { TableProgramasDirectorComponent } from 'src/app/project/components/programas/tables/programas/table-programas-director/table-programas-director.component';
-import { TableProgramasDirectorAlternoComponent } from 'src/app/project/components/programas/tables/programas/table-programas-director-alterno/table-programas-director-alterno.component';
 import { TableProgramasHistorialActividadComponent } from 'src/app/project/components/programas/tables/programas/table-programas-historial-actividad/table-programas-historial-actividad.component';
 import { LoadinggpComponent } from 'src/app/project/components/shared/loadinggp/loadinggp.component';
-import { TableProgramasDocsMaestroComponent } from '../components/programas/tables/programas/table-programas-docs-maestro/table-programas-docs-maestro.component';
 import { TableTiposGraduacionesComponent } from 'src/app/project/components/programas/tables/table-tipos-graduaciones/table-tipos-graduaciones.component';
 import { FormTiposGraduacionComponent } from 'src/app/project/components/programas/forms/form-tipos-graduacion/form-tipos-graduacion.component';
 import { TableCertificacionesIntermediasComponent } from 'src/app/project/components/programas/tables/table-certificaciones-intermedias/table-certificaciones-intermedias.component';
 import { FormCertificacionesIntermediasComponent } from 'src/app/project/components/programas/forms/form-certificaciones-intermedias/form-certificaciones-intermedias.component';
-import { FormRegimenesComponent } from '../components/plan-de-estudio/forms/form-regimenes/form-regimenes.component';
-import { TableRegimenesComponent } from '../components/plan-de-estudio/tables/table-regimenes/table-regimenes.component';
 
 const componentsGp = [
   BreadcrumbgpComponent,
@@ -68,8 +55,6 @@ const componentsGp = [
   FormCategoriasTpComponent,
   FormCertificacionesIntermediasComponent,
   FormEstadosAcreditacionComponent,
-  FormProgramasStepOneComponent,
-  FormProgramasStepTwoComponent,
   FormProgramasUpdateComponent,
   FormProgramasViewAndEditComponent,
   FormReglamentosComponent,
@@ -77,7 +62,6 @@ const componentsGp = [
   FormJornadasComponent,
   FormModalidadesComponent,
   FormTiposGraduacionComponent,
-  FormRegimenesComponent,
   LoadinggpComponent,
   MenuButtonsTableComponent,
   UploaderFilesComponent,
@@ -90,23 +74,13 @@ const componentsGp = [
   TableTiposGraduacionesComponent,
   TableTiposProgramasComponent,
   TableProgramasComponent,
-  TableProgramasDirectorComponent,
-  TableProgramasDirectorAlternoComponent,
   TableProgramasDirectoresComponent,
-  TableProgramasDocsMaestroComponent,
-  TableProgramasEstadosAcreditacionComponent,
-  TableProgramasEstadoMaestroComponent,
-  TableProgramasGradoAcademicoComponent,
   TableProgramasHistorialActividadComponent,
-  TableProgramasReglamentosComponent,
-  TableProgramasRexeComponent,
-  TableProgramasTituloComponent,
   TableReglamentosComponent,
   TableSuspensionesComponent,
   TableUnidadesAcademicasComponent,
   TableJornadasComponent,
-  TableModalidadesComponent,
-  TableRegimenesComponent
+  TableModalidadesComponent
 ]
 
 @NgModule({

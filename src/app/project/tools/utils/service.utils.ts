@@ -3,20 +3,6 @@ import { NamesCrud } from '../../models/shared/NamesCrud';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { MessageServiceGP } from '../../services/components/message-service.service';
 
-export function generateServiceMongo(
-    nameService: string, 
-    loading: boolean = true, 
-    retry: number = 0, 
-    timeout: number = 40000
-  ) {
-    return {
-      service: nameService,
-      loading: loading,
-      retry: retry,
-      timeout: timeout
-    };
-}
-
 @Injectable({
   providedIn: 'root',
 })
@@ -47,7 +33,7 @@ export class ServiceUtils {
     nameService: string, 
     loading: boolean = true, 
     retry: number = 0, 
-    timeout: number = 40000
+    timeout: number = 80000
   ){
     return {
       service: nameService,

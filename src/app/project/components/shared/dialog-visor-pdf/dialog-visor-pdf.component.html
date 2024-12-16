@@ -11,15 +11,12 @@
   appendTo="body"
   >
   <div class="flex justify-content-between align-items-center box-file mb-2">
-    <div>{{ nameArchive }}</div>
+    <div>{{ archivo.data?.nombre }}</div>
     <div>
       <!-- <p-button styleClass="p-button-info mr-2 mb-2" label="Imprimir" icon="pi pi-print" (click)="print()" size="small">
       </p-button> -->
-      <p-button *ngIf="!archivo.id" styleClass="p-button-danger mb-2" label="Descargar" icon="pi pi-download"
+      <p-button styleClass="p-button-danger mb-2" label="Descargar" icon="pi pi-download"
         (click)="download()" size="small">
-      </p-button>
-      <p-button *ngIf="archivo.id" styleClass="p-button-danger mb-2" label="Descargar" icon="pi pi-download"
-        (click)="downloadMongo()" size="small">
       </p-button>
     </div>
   </div>

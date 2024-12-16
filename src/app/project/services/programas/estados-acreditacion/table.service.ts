@@ -11,7 +11,13 @@ export class TableEstadosAcreditacionService {
 
     private refreshTableEA = new Subject<void>();
     refreshTableEA$ = this.refreshTableEA.asObservable();
-
+    
+    leyendas: any[] = [
+        {icon: 'pi pi-chevron-right' , leyenda: 'Permite ver documentos adjuntos'},
+        {icon: 'pi pi-check' , leyenda: 'Permite seleccionar estado de acreditación'},
+        {icon: 'pi pi-minus' , leyenda: 'Permite deseleccionar estado de acreditación'},
+        {icon: 'pi pi-pencil' , leyenda: 'Permite editar estado de acreditación'}
+    ];
     cols : any[] = [
         { field: 'Sigla', header: 'Identificador', width: '350px', useMinWidth: true },
         { field: 'Acreditado', header: 'Estado', width: '180px', useMinWidth: true },

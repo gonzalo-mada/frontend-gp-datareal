@@ -232,6 +232,7 @@ export class EstadosAcreditacionMainService {
             console.log(error);
         }finally{
             this.getEstadosAcreditacion(false);
+            this.table.emitRefreshTablesEA();
             this.reset();
         }
     }

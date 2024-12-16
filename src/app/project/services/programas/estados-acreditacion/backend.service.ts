@@ -94,10 +94,10 @@ export class BackendEstadosAcreditacionService {
         }
     }
 
-    async getDocumentosWithBinary(params: any) {
+    async getDocsMongo(params: any) {
         try {
             return await this.invoker.httpInvoke(
-                    this.serviceUtils.generateServiceMongo('estados_acreditacion/getDocumentosWithBinary',false),
+                    this.serviceUtils.generateServiceMongo('estados_acreditacion/getDocsMongo',false),
                     params
                 )
         } catch (error: any) {
@@ -112,9 +112,20 @@ export class BackendEstadosAcreditacionService {
         }
     }
 
-    async getArchiveDoc(idDocumento: any) {
+    async getArchiveDoc(id: any, needBinaryString: boolean) {
         try {
-            return await this.invoker.httpInvokeReport('estados_acreditacion/getArchiveDoc', 'pdf', { id: idDocumento })
+            if (needBinaryString) {
+                return await this.invoker.httpInvoke(
+                    this.serviceUtils.generateServiceMongo('estados_acreditacion/getArchiveDoc',false),
+                    { id , needBinaryString }
+                )
+            }else{
+                return await this.invoker.httpInvokeReport(
+                    this.serviceUtils.generateServiceMongo('estados_acreditacion/getArchiveDoc',false), 
+                    'pdf', 
+                    { id , needBinaryString }
+                )
+            }
         } catch (error: any) {
             this.errorTemplateHandler.processError(
                 error, 
