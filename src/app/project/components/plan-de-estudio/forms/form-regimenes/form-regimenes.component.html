@@ -21,9 +21,9 @@
             <div class="formgrid grid">
                 <div class="field col-12">
                     <label><strong>Nombre {{ main.modeForm === 'show' ? '' : '*' }}</strong></label>
-                    <input type="text" pInputText formControlName="Descripcion_jornada" maxlength="50"
-                        class="w-full" placeholder="Ingrese nombre de jornada" />
-                    <app-form-control [control]="form.fbForm.controls['Descripcion_jornada']"
+                    <input type="text" pInputText formControlName="Descripcion_regimen" maxlength="50"
+                        class="w-full" placeholder="Ingrese nombre de regimen" />
+                    <app-form-control [control]="form.fbForm.controls['Descripcion_regimen']"
                         [validators]="['required', 'num_y_letras']">
                     </app-form-control>
                 </div>

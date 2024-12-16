@@ -1,21 +1,21 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { ModalidadesRoutingModule } from './modalidades-routing.module';
-import { ModalidadComponent } from './modalidades.component';
+import { RegimenComponent } from './regimen.component';
+import { RegimenRoutingModule } from './regimen-routing.module';
 
 import { PrimengModule } from '../../../modules/primeng.module';
 import { SharedModule } from '../../../modules/shared.module';
 
 @NgModule({
   declarations: [
-    ModalidadComponent
+    RegimenComponent
   ],
   imports: [
     CommonModule,
-    ModalidadesRoutingModule,
+    RegimenRoutingModule,
     PrimengModule,
     SharedModule
   ]
 })
-export class ModalidadesModule { }
+export class RegimenModule { }
