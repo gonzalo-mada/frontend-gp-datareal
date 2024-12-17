@@ -14,7 +14,9 @@ import { UploaderFilesService } from 'src/app/project/services/components/upload
 import { CertifIntermediaMainService } from 'src/app/project/services/programas/certificaciones-intermedias/main.service';
 import { BackendProgramasService } from 'src/app/project/services/programas/programas/backend.service';
 import { FormProgramaService } from 'src/app/project/services/programas/programas/form.service';
+import { ProgramaMainService } from 'src/app/project/services/programas/programas/main.service';
 import { VerEditarProgramaMainService } from 'src/app/project/services/programas/programas/ver-editar/main.service';
+import { TiposGraduacionesMainService } from 'src/app/project/services/programas/tipos-graduaciones/main.service';
 import { TiposSuspensionesMainService } from 'src/app/project/services/programas/tipos-suspensiones/main.service';
 import { groupDataTipoPrograma, groupDataUnidadesAcademicas, groupDataUnidadesAcademicasWithDisabled } from 'src/app/project/tools/utils/dropwdown.utils';
 
@@ -33,10 +35,12 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
     public tableCrudService: TableCrudService,
     private uploaderFilesService: UploaderFilesService,
     public main: VerEditarProgramaMainService,
+    private mainProgramas: ProgramaMainService,
+    public mainTipoSuspension: TiposSuspensionesMainService,
+    public mainTipoGraduacion: TiposGraduacionesMainService,
+    public mainCertifIntermedia: CertifIntermediaMainService
   ){}
 
-
-  @Input() mode: string = '';
   @Output() modeDialogEmitter = new EventEmitter();
 
   programa: Programa = {};
@@ -47,6 +51,9 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
   private subscription: Subscription = new Subscription();
   
   async ngOnInit() {
+    this.subscription.add(this.mainCertifIntermedia.onInsertedData$.subscribe(() => this.getCertificacionIntermediaPrograma()));
+    this.subscription.add(this.mainTipoSuspension.onInsertedData$.subscribe(() => this.getTiposSuspensiones()));
+    this.subscription.add(this.mainTipoGraduacion.onInsertedData$.subscribe(() => this.getTiposGraduaciones()));
     await this.getPrograma();
     await this.getData();
   }
@@ -56,6 +63,10 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
     this.uploaderFilesService.resetValidatorFiles();
   }
 
+  get mode(){
+    return this.mainProgramas.mode;
+  }
+  
   async refreshPrograma(){
     await this.getPrograma();
     await this.getData();
@@ -93,7 +104,6 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
         this.getEstadosMaestros(),
         this.getTiposSuspensiones(),
       ]);
-      // Llamadas sincrónicas o que no necesitan espera
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
@@ -257,6 +267,10 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
       this.mode === 'show' ? message = 'No cuenta con mas detalles' : message = 'No es posible editar'
       return message
     }
+  }
+
+  updateFilesUploader(){
+    this.main.updateFilesUploader();
   }
 
 }

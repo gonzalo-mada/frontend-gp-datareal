@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { RutValidator } from 'src/app/base/tools/validators/rut.validator';
@@ -17,7 +17,6 @@ import { FilesVerEditarProgramaService } from 'src/app/project/services/programa
 import { VerEditarProgramaMainService } from 'src/app/project/services/programas/programas/ver-editar/main.service';
 import { TiposGraduacionesMainService } from 'src/app/project/services/programas/tipos-graduaciones/main.service';
 import { TiposSuspensionesMainService } from 'src/app/project/services/programas/tipos-suspensiones/main.service';
-import { groupDataTipoPrograma, groupDataUnidadesAcademicas } from 'src/app/project/tools/utils/dropwdown.utils';
 import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
 
 @Component({
@@ -40,7 +39,7 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
     public mainCertifIntermedia: CertifIntermediaMainService
   ){}
 
-  @Input() mode: string = '';
+  @Input() mode: ModeForm;
   @Input() modeDialogInput: UpdatePrograma | undefined;
   @Input() programa!: Programa;
   @Input() refreshPrograma: boolean = false;
@@ -86,7 +85,6 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
         await this.main.createFormUpdate(modeDialog, collection); 
       break;
     }
-    console.log("this.mode",this.mode);
     
   }
 
@@ -183,6 +181,7 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
             director.isSelected = false;
           }
         })
+        this.form.fbFormUpdate.get('Director_alterno')?.disable()
       }else{
         //no tiene director alterno
         this.form.unsetSelectDirectorFormUpdate('alterno');
@@ -196,7 +195,6 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
       }
 
       this.form.fbForm.get('DirectorAlterno_selected')!.valueChanges.subscribe( value => {
-        
         if (value === '' || value === null) {
           this.selectedDirectorAlterno = false
         }else{
@@ -220,6 +218,65 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
         message: 'Hubo un error al crear el formulario de Director(a) alterno(a). Intente nuevamente.',
       });
     }
+  }
+
+  checkDirectorSelected(mode: 'director' | 'alterno'){
+    switch (mode) {
+      case 'director':
+        if (this.selectedDirector) {
+          this.form.fbFormUpdate.get('Director')?.disable()
+          this.disabledSearchButton = true
+        }else{
+          this.form.fbFormUpdate.get('Director')?.enable()
+          this.disabledSearchButton = false
+        }
+      break;
+      case 'alterno':
+        if (this.selectedDirectorAlterno) {
+          this.form.fbFormUpdate.get('Director_alterno')?.disable()
+          this.disabledSearchButton = true
+        }else{
+          this.form.fbFormUpdate.get('Director_alterno')?.enable()
+          this.disabledSearchButton = false
+        }
+      break;
+    }
+  }
+
+  async searchDirector(tipo: string){
+    if (tipo === 'director') {
+      const inputRutDirector = this.form.fbFormUpdate.get('Director')!.value
+      const rut_director = inputRutDirector.split('-')
+      let result: any[] = await this.backend.getDirector({rut: parseInt(rut_director[0])}, undefined, 'director');
+      if (result.length === 0 ) {
+        //no se encontraron directores
+        this.messageService.add({
+          key: 'main',
+          severity: 'warn',
+          detail: `No se encontraron directores(as) con el RUT: ${inputRutDirector}.`
+        });
+      }else{
+        this.directores = result;
+      }
+      
+      
+    }else{
+      //tipo directoralterno
+      const inputRutDirectorAlt = this.form.fbFormUpdate.get('Director_alterno')!.value
+      const rut_director = inputRutDirectorAlt.split('-')
+      let resultAlt: any[] = await this.backend.getDirector({rut: parseInt(rut_director[0])},undefined,'alterno');
+      
+      if (resultAlt.length === 0 ) {
+        //no se encontraron directores
+        this.messageService.add({
+          key: 'main',
+          severity: 'warn',
+          detail: `No se encontraron directores(as) con el RUT: ${inputRutDirectorAlt}.`
+        });
+      }else{
+        this.directoresAlternos = resultAlt;
+      }
+    }    
   }
 
   async createFormCertificacionIntermedia(){
@@ -285,63 +342,7 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
     }
   }
 
-  checkDirectorSelected(mode: 'director' | 'alterno'){
-    switch (mode) {
-      case 'director':
-        if (this.selectedDirector) {
-          this.form.fbFormUpdate.get('Director')?.disable()
-          this.disabledSearchButton = true
-        }else{
-          this.form.fbFormUpdate.get('Director')?.enable()
-          this.disabledSearchButton = false
-        }
-      break;
-      case 'alterno':
-        if (this.selectedDirectorAlterno) {
-          this.disabledSearchButton = true
-        }else{
-          this.disabledSearchButton = false
-        }
-        this.form.fbFormUpdate.get('Director_alterno')?.disable()
-      break;
-    }
-  }
 
-  async searchDirector(tipo: string){
-    if (tipo === 'director') {
-      const inputRutDirector = this.form.fbFormUpdate.get('Director')!.value
-      const rut_director = inputRutDirector.split('-')
-      let result: any[] = await this.backend.getDirector({rut: parseInt(rut_director[0])}, undefined, 'director');
-      if (result.length === 0 ) {
-        //no se encontraron directores
-        this.messageService.add({
-          key: 'main',
-          severity: 'warn',
-          detail: `No se encontraron directores(as) con el RUT: ${inputRutDirector}.`
-        });
-      }else{
-        this.directores = result;
-      }
-      
-      
-    }else{
-      //tipo directoralterno
-      const inputRutDirectorAlt = this.form.fbFormUpdate.get('Director_alterno')!.value
-      const rut_director = inputRutDirectorAlt.split('-')
-      let resultAlt: any[] = await this.backend.getDirector({rut: parseInt(rut_director[0])},undefined,'alterno');
-      
-      if (resultAlt.length === 0 ) {
-        //no se encontraron directores
-        this.messageService.add({
-          key: 'main',
-          severity: 'warn',
-          detail: `No se encontraron directores(as) con el RUT: ${inputRutDirectorAlt}.`
-        });
-      }else{
-        this.directoresAlternos = resultAlt;
-      }
-    }    
-  }
 
   async createFormEstadoMaestro(){
     try {

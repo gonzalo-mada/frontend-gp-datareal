@@ -10,6 +10,7 @@ import { CollectionsMongo } from 'src/app/project/models/shared/Context';
 import { ProgramaMainService } from '../main.service';
 import { Campus } from 'src/app/project/models/programas/Campus';
 import { TipoGraduacion } from 'src/app/project/models/programas/TipoGraduacion';
+import { Router } from '@angular/router';
 
 @Injectable({
     providedIn: 'root'
@@ -45,6 +46,7 @@ export class VerEditarProgramaMainService {
         private form: FormProgramaService,
         private files: FilesVerEditarProgramaService,
         private messageService: MessageServiceGP,
+        private router: Router
     ){
         this.form.initForm();
         this.files.initFiles();
@@ -178,11 +180,17 @@ export class VerEditarProgramaMainService {
     }
 
     goToShowPrograma(){
-        this.main.showForm();
+        const cod_programa = this.programa.Cod_Programa;
+        this.router.navigate([`/programa/show/${cod_programa}`])
     }
 
     goToEditPrograma(){
-        this.main.editForm();
+        const cod_programa = this.programa.Cod_Programa;
+        this.router.navigate([`/programa/edit/${cod_programa}`])
+    }
+
+    updateFilesUploader(){
+        this.files.setFiles();
     }
     
 

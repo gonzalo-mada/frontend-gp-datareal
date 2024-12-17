@@ -25,7 +25,8 @@
                         pRipple 
                         label="Editar programa" 
                         icon="pi pi-pencil" 
-                        styleClass="p-button-warning w-full mr-2 mt-1 sm:mt-0 sm:w-auto" 
+                        styleClass="p-button-warning w-full mr-2 mt-1 sm:mt-0 sm:w-auto"
+                         
                         (click)="main.goToEditPrograma()">
                     </p-button>
 
@@ -298,7 +299,7 @@
 <app-form-suspension></app-form-suspension>
 <app-form-reglamentos></app-form-reglamentos>
 <app-form-estados-acreditacion></app-form-estados-acreditacion>
-<app-form-certificaciones-intermedias></app-form-certificaciones-intermedias>
+<app-form-certificaciones-intermedias (formWasClosed)="updateFilesUploader()"></app-form-certificaciones-intermedias>
 <app-form-tipos-graduacion></app-form-tipos-graduacion>
 
 

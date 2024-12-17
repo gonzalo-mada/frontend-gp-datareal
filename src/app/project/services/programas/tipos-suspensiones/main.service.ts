@@ -8,6 +8,7 @@ import { Suspension } from 'src/app/project/models/programas/Suspension';
 import { BackendTiposSuspensionesService } from './backend.service';
 import { FormTiposSuspensionesService } from './form.service';
 import { TableTiposSuspensionesService } from './table.service';
+import { Subject } from 'rxjs';
 @Injectable({
     providedIn: 'root'
 })
@@ -27,6 +28,9 @@ export class TiposSuspensionesMainService {
 
     //MODAL
     dialogForm: boolean = false
+
+    private onInsertedData = new Subject<void>();
+    onInsertedData$ = this.onInsertedData.asObservable();
 
     constructor(
         private backend: BackendTiposSuspensionesService,
@@ -103,6 +107,7 @@ export class TiposSuspensionesMainService {
                     severity: 'success',
                     detail: generateMessage(this.namesCrud,response.dataInserted,'creado',true,false)
                 });
+                this.emitInsertedData();
             }
         }catch (error) {
             console.log(error);
@@ -209,6 +214,10 @@ export class TiposSuspensionesMainService {
                 await this.deleteRegisters(data);
             }
         }) 
+    }
+
+    emitInsertedData(){
+        this.onInsertedData.next();
     }
 
 

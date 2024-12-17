@@ -10,12 +10,12 @@
     </div>
 
     <div content>
-        <!-- <p-button 
+        <p-button 
             label="test" 
             icon="pi pi-times" 
             styleClass="p-button-sm p-button-secondary mr-2" 
             (click)="test()" [text]="true">
-        </p-button>  -->
+        </p-button> 
 
         <form *ngIf="main.dialogUpdate" [formGroup]="form.fbFormUpdate">
             <div class="formgrid grid">
@@ -208,7 +208,7 @@
         
                 <ng-container *ngIf="main.dialogUpdateMode === 'reglamento'">
                     <div class="col-12 mt-2">
-                        <app-table-reglamentos [programa]="programa" [mode]="mode" ></app-table-reglamentos>
+                        <app-table-reglamentos [programa]="programa" [mode]="mode!" ></app-table-reglamentos>
                     </div>
                 </ng-container>
         
@@ -225,7 +225,7 @@
                     <div class="col-12 my-2">
                         <div class="field">
                             <label><strong>Director(a) encontrado(a)</strong></label>
-                            <app-table-programas-directores [mode]="mode" type="director" [data]="directores" [isAnySelected]="selectedDirector"></app-table-programas-directores>
+                            <app-table-programas-directores [mode]="mode!" type="director" [data]="directores" [isAnySelected]="selectedDirector"></app-table-programas-directores>
                         </div>
                     </div>
                 </ng-container>
@@ -332,7 +332,7 @@
                     <div class="col-12 my-2">
                         <div class="field">
                             <label><strong>Director(a) alterno(a) encontrado(a)</strong></label>
-                            <app-table-programas-directores [mode]="mode" type="alterno" [data]="directoresAlternos" [isAnySelected]="selectedDirectorAlterno"></app-table-programas-directores>
+                            <app-table-programas-directores [mode]="mode!" type="alterno" [data]="directoresAlternos" [isAnySelected]="selectedDirectorAlterno"></app-table-programas-directores>
                         </div>
                     </div>
                 </ng-container>
@@ -386,7 +386,7 @@
         
                 <ng-container *ngIf="main.dialogUpdateMode === 'estado acreditación'">
                     <div class="col-12 mt-2">
-                        <app-table-estados-acreditacion [programa]="programa" [mode]="mode"></app-table-estados-acreditacion>
+                        <app-table-estados-acreditacion [programa]="programa" [mode]="mode!"></app-table-estados-acreditacion>
                     </div>
                 </ng-container>
 
@@ -494,6 +494,8 @@
                                     [options]="main.certificacionesPrograma"
                                     [showHeader]="false"
                                     [maxSelectedLabels]="1"
+                                    [virtualScroll]="true"
+                                    [virtualScrollItemSize]="43"
                                     formControlName="Certificacion_intermedia_old"
                                     optionDisabled="checkDisabled"
                                     placeholder="Seleccione certificaciones"
@@ -517,11 +519,14 @@
                             <p-inputGroup>
                                 <p-multiSelect
                                     [options]="main.certificaciones"
+                                    [virtualScroll]="true"
+                                    [virtualScrollItemSize]="43"
                                     [style]="{ width: '100%', 'min-width': '100%' }"
                                     formControlName="Certificacion_intermedia"
                                     placeholder="Seleccione certificaciones"
                                     optionLabel="Descripcion_certif_inter"
                                     selectedItemsLabel="{0} certificaciones intermedias seleccionadas"
+                                    appendTo="body"
                                     (onChange)="changeCertifIntermedias($event)"
                                 >
                                 </p-multiSelect>
@@ -547,7 +552,7 @@
                             {{ showAsterisk ? '*' : ''}} 
                         </strong>
                     </label>
-                    <app-uploader-files [mode]="mode"></app-uploader-files>
+                    <app-uploader-files [mode]="mode!"></app-uploader-files>
                 </div>
 
             </div>

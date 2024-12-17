@@ -28,13 +28,13 @@ export class FilesVerEditarProgramaService {
     initFiles(){
         this.subscription.add(this.uploaderFilesService.contextUpdate$.subscribe( context => {
             if (context && context.component.name === 'ver/editar-programa') {
-                console.log("-->context files.service ver/editar-programa",context);
+                // console.log("-->context files.service ver/editar-programa",context);
                 this.setFiles();
             }
         }));
         this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( async from => {
             if (from && from.context.component.name === 'ver/editar-programa'){
-                console.log("valitador files.service ver/editar-programa",from);
+                // console.log("valitador files.service ver/editar-programa",from);
                 await this.handleFileAction(from);
                 await this.updateFiles(from);
             }

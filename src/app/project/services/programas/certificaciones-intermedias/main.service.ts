@@ -9,6 +9,7 @@ import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.ut
 import { ConfirmationService, Message } from 'primeng/api';
 import { TableCertifIntermediaService } from './table.service';
 import { CertificacionIntermedia } from 'src/app/project/models/programas/CertificacionIntermedia';
+import { Subject } from 'rxjs';
 @Injectable({
     providedIn: 'root'
 })
@@ -29,6 +30,9 @@ export class CertifIntermediaMainService {
 
     //MODAL
     dialogForm: boolean = false
+
+    private onInsertedData = new Subject<void>();
+    onInsertedData$ = this.onInsertedData.asObservable();
 
     constructor(
         private backend: BackendCertifIntermediaService,
@@ -122,6 +126,7 @@ export class CertifIntermediaMainService {
                         severity: 'success',
                         detail: generateMessage(this.namesCrud,response.dataInserted,'creado',true,false)
                     });
+                    this.emitInsertedData();
                 }
             }
         }catch (error) {
@@ -240,6 +245,10 @@ export class CertifIntermediaMainService {
                 await this.deleteCertificaciones(data);
             }
         }) 
+    }
+
+    emitInsertedData(){
+        this.onInsertedData.next();
     }
 
 
