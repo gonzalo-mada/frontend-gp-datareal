@@ -33,6 +33,7 @@ export class FormMencionesService {
 
     resetForm(): void {
         this.fbForm.reset({
+            Nombre_mencion: '',
             Descripcion_mencion: '',
             Rexe_mencion: '',
             Fecha_creacion: '',

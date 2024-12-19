@@ -17,17 +17,13 @@ export class FormMencionesComponent implements OnInit, OnDestroy{
     public main: MencionesMainService
   ){}
 
-  actualDate: string = '';
   today: Date = new Date(); // Inicialización directa
-  minDate: Date = new Date('1900-01-01');
 
   private subscription: Subscription = new Subscription();
 
   ngOnInit(): void {
-    this.minDate = new Date();
-    this.today = new Date();
-    this.actualDate = this.getActualDate();
     this.subscription.add(this.form.fbForm.statusChanges.subscribe(status => { this.form.stateForm = status as StateValidatorForm}));
+    this.today = new Date();
   }
 
   ngOnDestroy(): void {
@@ -41,19 +37,6 @@ export class FormMencionesComponent implements OnInit, OnDestroy{
         console.log(`Errores en ${key}:`, control.errors);
       }
     });
-  }
-
-  getActualDate(): any {
-    const today = new Date();
-    const date = String(today.getDate()).padStart(2, '0');      // Día con dos dígitos
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // Mes con dos dígitos (Enero es 0)
-    const year = String(today.getFullYear());                    // Año con cuatro dígitos
-
-    return {
-      date: date,
-      month: month,
-      year: year
-    };
   }
 
   async submitMencion(){

@@ -3,7 +3,7 @@ export interface Mencion {
     Nombre_mencion?: string;
     Descripcion_mencion?: string;
     Rexe_mencion?: string;
-    Fecha_creacion?: Date;
+    Fecha_creacion?: string;
     Vigencia?: boolean;
     BadgeClass?: string,
     isSelected?: boolean

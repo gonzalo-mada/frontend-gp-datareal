@@ -34,6 +34,8 @@ export class BackendMencionesService {
 
   async insertMencionBackend(params: any, namesCrud: NamesCrud) {
     try {
+        console.log(params);
+        
         return this.serviceUtils.checkResponse(
             await this.invoker.httpInvoke(
                 this.serviceUtils.generateServiceMongo('menciones/insertMencion'),
