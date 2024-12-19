@@ -15,10 +15,10 @@ import { TableRegimenService } from './table.service';
 export class RegimenMainService {
 
     namesCrud: NamesCrud = {
-        singular: 'regimen',
-        plural: 'regimenes',
-        articulo_singular: 'el regimen',
-        articulo_plural: 'los regimenes',
+        singular: 'régimen',
+        plural: 'regímenes',
+        articulo_singular: 'el régimen',
+        articulo_plural: 'los regímenes',
         genero: 'masculino'
     };
 

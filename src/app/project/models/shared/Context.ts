@@ -29,7 +29,8 @@ export type NameComponent = undefined |
                 'modalidad' |
                 'programa' |
                 'tipo-graduacion' |
-                'certificacion-intermedia'
+                'certificacion-intermedia' | 
+                'menciones'
 
 export type LabelComponent = 
 undefined | 
@@ -67,7 +68,8 @@ undefined |
 'nombre_programa' | 
 'reglamentos' | 
 'titulo' | 
-'unidades_academicas' ; 
+'unidades_academicas' | 
+'menciones' ; 
 
 
 export interface Context {

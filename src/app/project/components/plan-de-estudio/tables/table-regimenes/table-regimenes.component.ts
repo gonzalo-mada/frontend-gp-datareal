@@ -28,6 +28,8 @@ export class TableRegimenesComponent implements OnInit, OnDestroy {
 
   async getData(showCountTableValues: boolean) {
     await this.main.getRegimenes(showCountTableValues);
+    console.log('Regímenes recibidos:', this.main.regimenes); //no se trae el cod_regimen
+
     this.originalData = [...this.main.regimenes];
   }
 
