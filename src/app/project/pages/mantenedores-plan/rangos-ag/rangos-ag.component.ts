@@ -19,7 +19,7 @@ export class RangosAGComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
       this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe(action => {
-        action === 'agregar' 
+        action === 'agregar'
           ? this.main.setModeCrud('create') 
           : this.main.setModeCrud('delete-selected');
       }));
