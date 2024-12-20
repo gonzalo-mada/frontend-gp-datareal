@@ -28,7 +28,7 @@ export class TableRangosAgComponent implements OnInit, OnDestroy {
 
   async getData(showCountTableValues: boolean) {
     await this.main.getRangosAprobacion(showCountTableValues);
-    console.log('Regímenes recibidos:', this.main.rangosAG); //no se trae el cod_regimen
+    console.log('Rangos recibidos:', this.main.rangosAG); //no se trae el cod_regimen
 
     this.originalData = [...this.main.rangosAG];
   }
@@ -39,21 +39,21 @@ export class TableRangosAgComponent implements OnInit, OnDestroy {
   }
 
   edit(data: RangosAG) {
-      this.main.setModeCrud('edit', data);
-    }
-  
-    show(data: RangosAG) {
-      this.main.setModeCrud('show', data);
-    }
-  
-    delete(data: RangosAG) {
-      this.main.setModeCrud('delete', data);
-    }
-  
-    clear(table: Table) {
-      this.table.resetSelectedRows();
-      this.searchValue = '';
-      this.main.rangosAG = [...this.originalData];
-      table.reset();
-    }
+    this.main.setModeCrud('edit', data);
+  }
+
+  show(data: RangosAG) {
+    this.main.setModeCrud('show', data);
+  }
+
+  delete(data: RangosAG) {
+    this.main.setModeCrud('delete', data);
+  }
+
+  clear(table: Table) {
+    this.table.resetSelectedRows();
+    this.searchValue = '';
+    this.main.rangosAG = [...this.originalData];
+    table.reset();
+  }
 }
