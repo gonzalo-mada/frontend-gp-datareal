@@ -19,11 +19,11 @@ export class TableMencionesService {
   cols : any[] = [
       { field: 'Nombre_mencion', header: 'Nombre' },
       { field: 'Descripcion_mencion', header: 'Título' },
-      { field: 'Rexe_mencion', header: 'N° Rexe' },
-      { field: 'Fecha_creacion', header: 'Fecha de creación' },
+      { field: 'Mencion_rexe', header: 'N° Rexe' },
       { field: 'Vigencia', header: 'Vigencia' },
+      { field: 'Acciones', header: 'Acciones' },
   ];
-  globalFiltros : any[] = [ 'Descripcion_mencion' , ];
+  globalFiltros : any[] = [ 'Nombre_mencion' , ];
   dataKeyTable : string = 'Cod_mencion';
   selectedRows: Mencion[] = [];
 

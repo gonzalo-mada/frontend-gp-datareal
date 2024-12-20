@@ -21,7 +21,7 @@ export class FormMencionesService {
           this.fbForm = this.fb.group({
             Nombre_mencion: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
             Descripcion_mencion: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
-            Rexe_mencion: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
+            Mencion_rexe: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
             Fecha_creacion: ['', Validators.required],
             Vigencia: [false],
             files: [[], GPValidator.filesValidator('files',() => this.modeForm)], 
@@ -35,7 +35,7 @@ export class FormMencionesService {
         this.fbForm.reset({
             Nombre_mencion: '',
             Descripcion_mencion: '',
-            Rexe_mencion: '',
+            Mencion_rexe: '',
             Fecha_creacion: '',
             Vigencia: false,
             files: [],

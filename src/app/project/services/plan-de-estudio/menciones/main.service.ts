@@ -77,6 +77,8 @@ countTableValues(value?: number){
 
 async getMenciones(showCountTableValues: boolean = true): Promise<Mencion[]>{
         this.menciones = await this.backend.getMencionesBackend(this.namesCrud);
+        console.log(this.menciones);
+        
         if (showCountTableValues) this.countTableValues();
         return this.menciones;
     }

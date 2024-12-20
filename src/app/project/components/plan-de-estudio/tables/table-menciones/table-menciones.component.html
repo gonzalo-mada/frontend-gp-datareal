@@ -65,14 +65,22 @@
             </td>
             <td style="width:50%; min-width:10rem;">
                 <span class="p-column-title">Nombre</span>
+                {{data.Nombre_mencion}}
+            </td>
+            <td style="width:50%; min-width:10rem;">
+                <span class="p-column-title">Título</span>
                 {{data.Descripcion_mencion}}
+            </td>
+            <td style="width:25%; min-width:10rem;">
+                <span class="p-column-title">N° REXE</span>
+                {{data.Mencion_rexe}}
             </td>
             <td style="width:25%; min-width:10rem;">
                 <span class="p-column-title">Vigencia</span>
                 <div class="flex flex-row flex-wrap">
                     <div class="flex align-items-center justify-content-center">
                         <span [ngClass]="data.Vigencia ? 'estado-badge estado-activo' : 'estado-badge estado-desactivo'">
-                            {{ data.vigencia ? 'vigente' : 'no vigente' }}
+                            {{ data.Vigencia ? 'vigente' : 'no vigente' }}
                           </span>
                     </div>
                 </div>
