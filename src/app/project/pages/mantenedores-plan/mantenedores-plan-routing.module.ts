@@ -28,7 +28,7 @@ const routes: Routes = [
     title: 'Menciones'
   },
   {
-    path: 'certificaciones',
+    path: 'rangoAprobacion',
     loadChildren: () => import('../mantenedores-plan/rangos-ag/rangos-ag.module').then((m) => m.RangosAGModule),
     title: 'Rangos de aprobación de grados'
   }

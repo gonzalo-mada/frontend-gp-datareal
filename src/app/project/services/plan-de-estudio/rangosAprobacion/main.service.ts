@@ -4,11 +4,10 @@ import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { MessageServiceGP } from '../../components/message-service.service';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
 import { ConfirmationService } from 'primeng/api';
-import { Modalidad } from 'src/app/project/models/plan-de-estudio/Modalidad';
+import { RangosAG } from 'src/app/project/models/plan-de-estudio/RangosAG';
 import { BackendRangosAGService } from './backend.service';
 import { FormRangosAGService } from './form.service';
 import { TableRangosAGService } from './table.service';
-import { RangosAG } from 'src/app/project/models/plan-de-estudio/RangosAG';
 
 @Injectable({
   providedIn: 'root'

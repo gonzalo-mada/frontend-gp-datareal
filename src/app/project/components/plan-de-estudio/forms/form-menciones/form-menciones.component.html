@@ -61,17 +61,18 @@
             <div class="formgrid grid">
                 <div class="col-12 md:col-6">
                     <div class="field">
-                        <label><strong>Fecha informe {{ main.modeForm !== 'show' ? '*' : '' }}</strong></label>
+                        <label><strong>Fecha creación {{ main.modeForm !== 'show' ? '*' : '' }}</strong></label>
                         <p-calendar
                             formControlName="Fecha_creacion"
                             dateFormat="dd-mm-yy"
                             placeholder="Seleccione fecha de informe"
                             [monthNavigator]="true"
                             [yearNavigator]="true"
-                            class="w-full"
+                            class="w-full p-d-flex p-flex-column"
                             readonlyInput="true"
                             appendTo="body"
                             autofocus="false"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
                             [maxDate]="today"
                             dataType="string"
                         ></p-calendar>
