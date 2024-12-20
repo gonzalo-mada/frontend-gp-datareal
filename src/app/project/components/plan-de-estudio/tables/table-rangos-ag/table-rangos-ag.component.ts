@@ -10,6 +10,7 @@ import { TableRangosAGService } from 'src/app/project/services/plan-de-estudio/r
   styles: [
   ]
 })
+
 export class TableRangosAgComponent implements OnInit, OnDestroy {
   searchValue: string | undefined;
   originalData: any[] = [];

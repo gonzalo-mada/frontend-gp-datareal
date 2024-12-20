@@ -9,10 +9,6 @@ export class TableRangosAGService {
 
   cols: any[] = [
     { field: 'Descripcion_RangoAprobG', header: 'Nombre' },
-    { field: 'NotaMinima', header: 'Nota mínima' },
-    { field: 'NotaMaxima', header: 'Nota máxima' },
-    { field: 'RexeReglamentoEstudio', header: 'Rexe plan de estudio' },
-
     { field: 'accion', header: 'Acciones' }
   ];
 

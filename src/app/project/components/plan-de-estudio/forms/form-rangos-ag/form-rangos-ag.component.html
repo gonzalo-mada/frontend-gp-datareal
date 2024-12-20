@@ -27,6 +27,32 @@
                         [validators]="['required', 'num_y_letras']">
                     </app-form-control>
                 </div>
+                
+                <div class="field col-12">
+                    <label><strong>Nota mínima {{ main.modeForm === 'show' ? '' : '*' }}</strong></label>
+                    <input type="text" pInputText formControlName="NotaMinima" maxlength="5"
+                        class="w-full" placeholder="Ingrese la nota mínima" />
+                    <app-form-control [control]="form.fbForm.controls['NotaMinima']"
+                        [validators]="['required', 'num_y_letras']">
+                    </app-form-control>
+                </div>
+                <div class="field col-12">
+                    <label><strong>Nota máxima {{ main.modeForm === 'show' ? '' : '*' }}</strong></label>
+                    <input type="text" pInputText formControlName="NotaMaxima" maxlength="5"
+                        class="w-full" placeholder="Ingrese la nota máxima" />
+                    <app-form-control [control]="form.fbForm.controls['NotaMaxima']"
+                        [validators]="['required', 'num_y_letras']">
+                    </app-form-control>
+                </div>
+
+                <div class="field col-12">
+                    <label><strong>N° REXE {{ main.modeForm !== 'show' ? '*' : '' }}</strong></label>
+                    <input type="text" pInputText formControlName="RexeReglamentoEstudio" maxlength="50"
+                        class="w-full" placeholder="Ingrese el número de REXE del plan de estudio" />
+
+                    <app-form-control [control]="form.fbForm.controls['RexeReglamentoEstudio']"
+                        [validators]="['required', 'num_y_letras']"></app-form-control>
+                </div>
             </div>
         </form>
     </div>

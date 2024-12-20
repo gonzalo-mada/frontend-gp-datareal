@@ -48,6 +48,4 @@ export class FormRangosAGService {
           this.fbForm.patchValue({ aux: data });
       }
   }
-
-
 }

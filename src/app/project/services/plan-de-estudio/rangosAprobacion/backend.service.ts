@@ -74,7 +74,7 @@ export class BackendRangosAGService {
 
   async deleteRangoAprobacion(params: any, namesCrud: NamesCrud) {
     try {
-      return await this.invoker.httpInvoke('rangoAprobacion/deleteRangoAprobacion', { modalidadToDelete: params });
+      return await this.invoker.httpInvoke('rangoAprobacion/deleteRangoAprobacion', { rangoToDelete: params });
     } catch (error: any) {
       this.errorTemplateHandler.processError(
         error, 
