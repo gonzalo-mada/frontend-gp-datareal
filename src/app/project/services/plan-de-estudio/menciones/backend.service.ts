@@ -72,9 +72,7 @@ async updateMencionBackend(params: any, namesCrud: NamesCrud) {
 
 async deleteMencionBackend(params: any, namesCrud: NamesCrud) {
   try {
-      return await this.invoker.httpInvoke('menciones/deleteMencion', {
-          mencionToDelete: params
-      });
+      return await this.invoker.httpInvoke('menciones/deleteMencion', {mencionToDelete: params});
   } catch (error: any) {
       this.errorTemplateHandler.processError(error, {
           notifyMethod: 'alert',
