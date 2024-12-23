@@ -1,0 +1,93 @@
+<div class="grid">
+    <div class="col-12">
+        <app-card header="Mantenedor de unidades académicas"
+            subheader="Permite ver, crear, actualizar y eliminar unidades académicas.">
+            <app-menu-buttons-table></app-menu-buttons-table>
+
+            <app-table-unidades-academicas></app-table-unidades-academicas>
+
+            <app-dialog [(visible)]="main.dialogForm">
+                <div header>
+                    <ng-container *ngIf="main.modeForm === 'create' || main.modeForm === 'insert' ">
+                        <span class="text-xl">Agregar {{ main.namesCrud.singular }}</span>
+                    </ng-container>
+                    <ng-container *ngIf="main.modeForm === 'edit' || main.modeForm === 'update' ">
+                        <span class="text-xl">Actualizar {{ main.namesCrud.singular }}</span>
+                    </ng-container>
+                    <ng-container *ngIf="main.modeForm === 'show'">
+                        <span class="text-xl">Ver {{ main.namesCrud.singular }}</span>
+                    </ng-container>
+                </div>
+                <div content>
+                    <p-messages *ngIf="main.modeForm === 'edit' || main.modeForm === 'update' " [(value)]="main.messages" [enableService]="false" />
+                    <div class="grid" *ngIf="main.modeForm != 'show'">
+                        <div class="col-12">
+                            <app-form-isvalid [valid]="form.fbForm.valid"></app-form-isvalid>
+                        </div>
+                    </div>
+                    <form [formGroup]="form.fbForm">
+                        <div class="grid p-fluid">
+                            <div class="col-12 lg:col-6">
+                                <div class="field">
+                                    <label><strong>Nombre {{  main.modeForm! !== 'show' ? '*' : '' }}</strong></label>
+                                    <input type="text" pInputText formControlName="Descripcion_ua" maxlength="50"
+                                        class="w-full" placeholder="Ingrese nombre de unidad académica" autofocus />
+
+                                    <app-form-control [control]="form.fbForm.controls['Descripcion_ua']"
+                                        [validators]="['required' , 'num_y_letras']"></app-form-control>
+                                </div>
+                            </div>
+                            <div class="col-12 lg:col-6">
+                                <div formGroupName="Facultad">
+                                    <div class="field">
+                                        <label><strong>Facultad {{  main.modeForm! !== 'show' ? '*' : '' }}</strong></label>
+                                        <div class="flex align-items-center">
+                                            <p-dropdown 
+                                                [options]="main.facultades" 
+                                                optionLabel="Descripcion_facu"
+                                                optionValue="Cod_facultad" 
+                                                placeholder="Seleccione facultad"
+                                                appendTo="body" 
+                                                class="flex-grow-1"
+                                                formControlName="Cod_facultad">
+                                            </p-dropdown>
+                                        </div>
+                                        <div class="flex align-items-center">
+                                            <app-form-control [control]="form.fbForm.get('Facultad.Cod_facultad')"
+                                                [validators]="['required']"></app-form-control>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+
+                        </div>
+                    </form>
+                    <div class="grid">
+                        <div class="col-12">
+                            <div class="mb-2">
+                                <label>
+                                    <strong>
+                                      {{ main.modeForm !== 'show' ? 'Adjunte documento(s) *' : 'Documento(s) adjunto(s)' }}
+                                    </strong>
+                                  </label>                                  
+                            </div>
+                            <app-uploader-files [mode]="main.modeForm!"></app-uploader-files>
+                        </div>
+                    </div>
+                </div>
+                <div footer>
+                    <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
+                        (click)="main.dialogForm= false" [text]="true"></p-button>
+
+                    <p-button *ngIf="main.modeForm == 'create' || main.modeForm == 'edit' "
+                        [label]="main.modeForm === 'edit' ? 'Actualizar' : 'Guardar'" icon="pi pi-check"
+                        styleClass="mr-2 p-button-success p-button-sm" [disabled]="!form.fbForm.valid"
+                        (click)="form.fbForm.valid && submit()">
+                    </p-button>
+                </div>
+            </app-dialog>
+        </app-card>
+
+    </div>
+</div>

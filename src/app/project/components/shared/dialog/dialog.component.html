@@ -1,0 +1,23 @@
+<p-dialog
+    [(visible)]="visible"
+    [modal]="true"
+    [style]="{ width: dialogWidth || '60vw' }"
+    [draggable]="false"
+    [resizable]="false"
+    [maximizable]="maximizable"
+    [closable]="closable"
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+    (onHide)="onChange()"
+>
+    <ng-template pTemplate="header">
+        <ng-content select="[header]"></ng-content>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+        <ng-content select="[content]"></ng-content>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <ng-content select="[footer]"></ng-content>
+    </ng-template>
+</p-dialog>

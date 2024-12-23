@@ -1,7 +1,14 @@
 {
     "form" : {
-        "notMinusOneCategory": "Seleccione categoría válida",
-        "notValueNegativeYearsAcredit": "Selecciones fechas válidas",
-        "num_y_letras": "Escriba al menos una letra"
+        "notMinusOneCategory": "Seleccione opción válida",
+        "notValueNegativeYearsAcredit": "Seleccione fechas válidas",
+        "num_y_letras": "Campo debe contener al menos una letra",
+        "num_o_letras": "Campo no debe contener espacios en blanco",
+        "solo_num": "Campo solo acepta números",
+        "solo_letras": "Campo solo acepta letras",
+        "checkCorreoUV": "Campo solo acepta correos @uv.cl, @postgrado.uv.cl",
+        "notSameAsDirector": "Director(a) alterno(a) no puede ser igual que Director(a)",
+        "rutMustBeDifferent": "RUT debe ser distinto al RUT ya registrado",
+        "notSameDirectorsInUpdate": "El RUT ingresado ya se encuentra asociado a Director(a) o Director(a) alterno(a)"
     }
 }

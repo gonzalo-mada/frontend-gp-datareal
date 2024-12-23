@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
-import { Programa } from 'src/app/project/models/Programa';
-import { ProgramasService } from 'src/app/project/services/programas.service';
+import { FormProgramaService } from 'src/app/project/services/programas/programas/form.service';
+import { ProgramaMainService } from 'src/app/project/services/programas/programas/main.service';
 
 @Component({
   selector: 'app-ver-programa',
@@ -14,35 +13,22 @@ export class VerProgramaComponent implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private errorTemplateHandler: ErrorTemplateHandler,
-    private programasService: ProgramasService
+    private programaMainService: ProgramaMainService,
+    public form: FormProgramaService
   ){}
 
-  programa: Programa = {};
-  cod_programa: number = 0;
-  mode: string = 'show';
-  showForm: boolean = false;
+  onClickRefreshPrograma: boolean = false;
 
   async ngOnInit() {
-    this.activatedRoute.params.subscribe( ({cod_programa}) => this.cod_programa = parseInt(cod_programa))
-    await this.getPrograma();
+    this.activatedRoute.params.subscribe( ({cod_programa}) => this.programaMainService.cod_programa = parseInt(cod_programa))
+    this.programaMainService.mode = 'show';
   }
 
-  async getPrograma(){
-    try {
-      this.programa = await this.programasService.getPrograma({Cod_Programa: this.cod_programa});
-      
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener el programa. Intente nuevamente.',
-      });
-    }finally{
-      this.showForm = true ;
-    }
+  refreshPrograma(){
+    this.onClickRefreshPrograma = true
+    setTimeout(() => {
+      this.onClickRefreshPrograma = false
+    }, 500); 
   }
-
-
-  
 
 }

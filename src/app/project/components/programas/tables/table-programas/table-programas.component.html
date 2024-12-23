@@ -1,0 +1,234 @@
+<p-overlayPanel #op>
+    <ng-template pTemplate>
+        <p-multiSelect 
+            [options]="cols" 
+            [(ngModel)]="selectedColumns" 
+            optionLabel="header"
+            selectedItemsLabel="{0} columnas seleccionadas"
+            [displaySelectedLabel]="false"
+            [style]="{'min-width': '10rem', 'max-width': '14rem'}" 
+            placeholder="Filtrar columnas"
+            styleClass="ml-4 mr-4" 
+        />
+    </ng-template>
+</p-overlayPanel>
+<p-table 
+    #dt 
+    [rows]="10" 
+    [paginator]="true" 
+    [rowsPerPageOptions]="[10,25,50]" 
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="{first} hasta {last} de {totalRecords} programas." 
+    selectionMode="multiple"
+    [rowHover]="true" 
+    [value]="programaMainService.programas" 
+    [columns]="selectedColumns"
+    [globalFilterFields]="tableProgramasService.globalFiltros"
+    [(selection)]="tableProgramasService.selectedRows" 
+    [dataKey]="tableProgramasService.dataKeyTable" 
+    [scrollable]="true"
+    (selectionChange)="tableProgramasService.setSelectedRows()"
+    scrollDirection="horizontal"
+    autoLayout="true"
+    [customSort]="true"
+    (sortFunction)="customSortAccreditation($event)"
+    >
+
+    <ng-template pTemplate="caption">
+        <div class="flex flex-wrap flex-column md:flex-row justify-content-between align-items-center">
+            <div class="flex mb-2 md:mb-0">
+              <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)" />
+              </span>
+              <p-button 
+                styleClass="p-button-text ml-2" 
+                icon="pi pi-filter-slash" 
+                pTooltip="Limpiar filtros" 
+                (click)="clear(dt)">
+              </p-button>
+            </div>
+                              
+            <div class="flex">
+                <div class="flex align-items-center">
+                    <i class="fa fa-thumbtack" style="color:#6c757d"></i>
+                    <span class="mx-1 font-light">Permite fijar columna</span>
+                </div>
+                <div class="hidden lg:flex flex-row flex-wrap">
+                    <p-multiSelect 
+                        [options]="cols" 
+                        [(ngModel)]="selectedColumns" 
+                        optionLabel="header"
+                        selectedItemsLabel="{0} columnas seleccionadas"
+                        [displaySelectedLabel]="false"
+                        [style]="{'min-width': '10rem', 'max-width': '14rem'}" 
+                        placeholder="Filtrar columnas"
+                        styleClass="ml-4 mr-4" 
+                    />
+                </div>
+                <p-button 
+                    pTooltip="Muestra las configuraciones de la tabla" 
+                    icon="pi pi-cog"
+                    styleClass="p-button-warning mr-2 lg:hidden" 
+                    (click)="op.toggle($event)">
+                </p-button> 
+                <p-button 
+                        pRipple 
+                        label="Actualizar" 
+                        icon="pi pi-refresh" 
+                        styleClass="p-button-info" 
+                        (click)="refresh()">
+                </p-button>
+            </div>
+          </div>
+    </ng-template>
+
+    <ng-template pTemplate="header" let-columns let-data>
+        <tr>
+            <th style="width: auto;" pFrozenColumn>
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th 
+                [ngStyle]="{'width': selectedColumns.length === 0 ? '100%' : 'auto'}" 
+                pFrozenColumn 
+                [frozen]="programaFrozen"
+                pSortableColumn="Nombre_programa"
+            >
+                <div class="flex align-items-center">
+                    Programa 
+                    <p-sortIcon field="Nombre_programa" />
+                    <p-button
+                        *ngIf="programaFrozen"
+                        (click)="programaFrozen = !programaFrozen; $event.stopPropagation()" 
+                        [text]="true"
+                        [rounded]="true"
+                        pTooltip="Desfijar columna" 
+                        severity="secondary"
+                    >
+                        <i class="fa fa-thumbtack-slash" style="font-size: 1.2rem; margin-bottom: 0.3rem"></i>
+                    </p-button>
+                    <p-button
+                        *ngIf="!programaFrozen"
+                        (click)="programaFrozen = !programaFrozen; $event.stopPropagation()" 
+                        [text]="true"
+                        [rounded]="true"
+                        pTooltip="Fijar columna" 
+                        severity="secondary"
+                    >
+                        <i class="fa fa-thumbtack" style="font-size: 1.2rem; margin-bottom: 0.3rem"></i>
+                    </p-button>
+                </div>
+            </th>
+            <ng-container *ngFor="let col of columns">
+                <ng-container [ngSwitch]="col.field">
+                    <ng-container *ngSwitchCase="'Acreditacion'">
+                        <th pSortableColumn="{{col.field}}" [ngStyle]="getColStyle(col)"   >
+                            {{col.header}} 
+                            <p-sortIcon field="{{col.field}}"></p-sortIcon>
+                        </th>
+                    </ng-container>
+                    <ng-container *ngSwitchDefault>
+                        <th pSortableColumn="{{col.field}}" [ngStyle]="getColStyle(col)">
+                            {{col.header}} <p-sortIcon field="{{col.field}}"></p-sortIcon>
+                        </th>
+                    </ng-container>
+                </ng-container>
+            </ng-container>
+            <th alignFrozen="right" pFrozenColumn>
+                Acciones
+            </th>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-data let-columns="columns">
+        <tr>
+            <td pFrozenColumn>
+                <p-tableCheckbox [value]="data"></p-tableCheckbox>
+            </td>
+            <td style="min-width:500px" pFrozenColumn [frozen]="programaFrozen">
+                <span> {{data.Nombre_programa}} </span> <br>
+                <span style="font-size: 0.8rem;">
+                    <strong>CÓDIGO:</strong> {{data.Cod_Programa}} <br>
+                    <strong>FACULTADES:</strong> {{data.Facultad | slice:0:40}} {{ (data.Facultad.length > 40 ) ? '...' : '' }}<br>
+                    <strong>CAMPUS:</strong> {{data.Campus}} 
+                </span>
+            </td>
+            <ng-container *ngFor="let col of columns">
+                <ng-container [ngSwitch]="col.field">
+
+                    <ng-container *ngSwitchCase="'Tipo_programa'">
+                        <td [ngStyle]="getColStyle(col)">
+                            <span> {{data.Tipo_programa.Descripcion_tp}} </span> <br>
+                            <span style="font-size: 0.8rem;">
+                                <strong>CATEGORÍA:</strong> {{data.Tipo_programa.Categoria.Descripcion_categoria}}
+                            </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'Unidad_academica'">
+                        <td [ngStyle]="getColStyle(col)">
+                            <span> {{data.Unidad_academica | slice:0:70 }} {{ (data.Unidad_academica.length > 70 ) ? '...' : '' }} </span> <br>
+
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'Acreditacion'">
+                        <ng-container *ngIf="data.Acreditacion.Acreditado === 'SI';else notAcredited">
+                            <td [ngStyle]="getColStyle(col)">
+                                <span> Acreditado </span> <br>
+                                <span style="font-size: 0.8rem;">
+                                    <strong>AÑOS:</strong> {{data.Acreditacion.tiempo.Cantidad_anios}} años<br>
+                                    <strong>INICIO:</strong> {{data.Acreditacion.tiempo.Fecha_inicio}} <br>
+                                    <strong>TÉRMINO:</strong> {{data.Acreditacion.tiempo.Fecha_termino}} <br>
+                                </span>
+                            </td>
+                        </ng-container>
+                        <ng-template #notAcredited>
+                            <td [ngStyle]="getColStyle(col)">
+                                <span>No acreditado</span>
+                            </td>
+                        </ng-template>
+                    </ng-container>
+
+                    <ng-container *ngSwitchDefault>
+                        <td [ngStyle]="getColStyle(col)">
+                            {{data[col.field]}}
+                        </td>
+                    </ng-container>
+                </ng-container>
+
+
+            </ng-container>
+
+            <td alignFrozen="right" pFrozenColumn>
+                <div class="flex">
+                    <p-button 
+                        icon="pi pi-trash" 
+                        styleClass="p-button-sm p-button-danger mr-2"
+                        pTooltip="Eliminar registro" 
+                        (click)="delete(data)">
+                    </p-button>
+                    <p-button 
+                        icon="pi pi-pencil" 
+                        styleClass="p-button-sm p-button-warning mr-2"
+                        pTooltip="Editar registro" 
+                        (click)="edit(data)">
+                    </p-button>
+                    <p-button 
+                        icon="pi pi-eye" 
+                        styleClass="p-button-sm p-button-info mr-2" 
+                        pTooltip="Ver registro"
+                        (click)="show(data)" 
+                        tooltipPosition="left">
+                    </p-button>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td [attr.colspan]="cols.length + 1">Sin registros</td>
+        </tr>
+    </ng-template>
+</p-table>

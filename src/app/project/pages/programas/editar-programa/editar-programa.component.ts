@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
-import { Programa } from 'src/app/project/models/Programa';
-import { ProgramasService } from 'src/app/project/services/programas.service';
+import { FormProgramaService } from 'src/app/project/services/programas/programas/form.service';
+import { ProgramaMainService } from 'src/app/project/services/programas/programas/main.service';
 
 @Component({
   selector: 'app-editar-programa',
@@ -11,15 +10,23 @@ import { ProgramasService } from 'src/app/project/services/programas.service';
   ]
 })
 export class EditarProgramaComponent implements OnInit {
-  constructor(private activatedRoute: ActivatedRoute,
-    private programasService: ProgramasService
+  constructor(
+    private activatedRoute: ActivatedRoute,
+    private programaMainService: ProgramaMainService,
+    public form: FormProgramaService
   ){}
+  onClickRefreshPrograma: boolean = false;
 
-  programa: Programa = {};
+  async ngOnInit() {
+    this.activatedRoute.params.subscribe( ({cod_programa}) => this.programaMainService.cod_programa = parseInt(cod_programa))
+    this.programaMainService.mode = 'edit';
+  }
 
-  ngOnInit(): void {
-    this.activatedRoute.params.subscribe( ({cod_programa}) => console.log("cod_programa:",cod_programa))
-
+  refreshPrograma(){
+    this.onClickRefreshPrograma = true
+    setTimeout(() => {
+      this.onClickRefreshPrograma = false
+    }, 500); 
   }
 
 }

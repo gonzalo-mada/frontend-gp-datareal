@@ -1,13 +1,5 @@
-import {  effect, Injectable, signal } from '@angular/core';
-import { BehaviorSubject, Subject } from 'rxjs';
-
-export type Mantenedor = undefined | 'programa' | 'form-ea' | 'campus' | 'facultad' | 'unidadAcad' | 'form-susp' | 'categorias-tp' | 'tp' | 'suspension' | 'reglamento'
-export type Mode = undefined | 'dialog' | 'page' 
-
-interface Context {
-    mantenedor: Mantenedor,
-    mode: Mode
-}
+import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -15,46 +7,16 @@ interface Context {
 
 export class MenuButtonsTableService {
 
-    _context : Context = {
-        mantenedor: undefined,
-        mode: undefined
-    }
+    private actionClickButton = new Subject<'agregar' | 'eliminar'>();
+    actionClickButton$ = this.actionClickButton.asObservable();
 
-    context = signal<Context>(this._context);
-
-    private contextUpdate = new BehaviorSubject<Context>(this._context);
-    contextUpdate$ = this.contextUpdate.asObservable();
-
-    private onClickButtonAgregar = new Subject<void>();
-    onClickButtonAgregar$ = this.onClickButtonAgregar.asObservable();
-
-    private onClickDeleteSelected = new Subject<void>();
-    onClickDeleteSelected$ = this.onClickDeleteSelected.asObservable();
-
-    constructor(){
-        effect(()=>{
-            this.onContextUpdate();
-        })
-    }
-
-    onContextUpdate(){
-        this._context = { ...this.context() };
-        this.contextUpdate.next(this.context());
-    }
-
-    setContext(mantenedor: Mantenedor, mode: Mode){
-        this.context.update((context) => ({
-            ...context,
-            mantenedor: mantenedor,
-            mode: mode
-        }))
-    }
+    constructor(){}
 
     emitClickButtonAgregar(){
-        this.onClickButtonAgregar.next();
+        this.actionClickButton.next('agregar');
     }
 
     emitClickDeleteSelected(){
-        this.onClickDeleteSelected.next();
+        this.actionClickButton.next('eliminar');
     }
 }

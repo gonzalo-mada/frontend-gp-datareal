@@ -1,0 +1,27 @@
+.text-error {
+    color: red;
+  }
+  
+.text-valid {
+  color: green;
+}
+
+.state-badge {
+  border-radius: var(--border-radius);
+  padding: 0.25em 0.5rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+}
+
+.state-badge.state-valid {
+  background: #C8E6C9;
+  color: #256029;
+}
+
+.state-badge.state-invalid {
+  background: #FFCDD2;
+  color: #C63737;
+}
+  

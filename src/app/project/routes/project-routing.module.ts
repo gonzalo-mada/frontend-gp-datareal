@@ -14,8 +14,17 @@ const routes: Routes = [
   },
   {
     path: 'mantenedores',
-    loadChildren: () => import('../pages/mantenedores/mantenedores.module').then((m) => m.MantenedoresModule),
-    data: {title:'Mantenedores'} 
+    loadChildren: () => import('../pages/mantenedores-programas/mantenedores.module').then((m) => m.MantenedoresModule),
+    data: {title:'Mantenedores programa'} 
+  },
+  {
+    path: 'mantePE',
+    loadChildren: () => import('../pages/mantenedores-plan/mantenedores-plan.module').then((m) => m.MantenedoresPlanModule),
+    data: {title:'Mantenedores plan estudio'} 
+  },
+  {
+    path: 'planes',
+    loadChildren: () => import('../pages/planes-de-estudios/planes-de-estudios.module').then((m) => m.PlanesDeEstudiosModule),
   }
 ];
 

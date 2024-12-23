@@ -1,0 +1,93 @@
+<div class="grid">
+    <div class="col-12">
+        <app-card header="Mantenedor de campus" subheader="Permite ver, crear, actualizar y eliminar campus.">
+
+            <app-menu-buttons-table></app-menu-buttons-table>
+
+            <app-table-campus></app-table-campus>
+
+            <app-dialog [(visible)]="main.dialogForm">
+
+                <div header>
+                    <ng-container *ngIf="main.modeForm === 'create' || main.modeForm === 'insert' ">
+                        <span class="text-xl">Agregar {{ main.namesCrud.singular }}</span>
+                    </ng-container>
+                    <ng-container *ngIf="main.modeForm === 'edit' || main.modeForm === 'update' ">
+                        <span class="text-xl">Actualizar {{ main.namesCrud.singular }}</span>
+                    </ng-container>
+                    <ng-container *ngIf="main.modeForm === 'show'">
+                        <span class="text-xl">Ver {{ main.namesCrud.singular }}</span>
+                    </ng-container>
+                </div>
+
+                <div content>
+                    <p-messages *ngIf="main.modeForm === 'edit' || main.modeForm === 'update' " [(value)]="main.messages" [enableService]="false" />
+                    <div class="grid" *ngIf="main.modeForm != 'show'">
+                        <div class="col-12">
+                            <app-form-isvalid [valid]="form.fbForm.valid"></app-form-isvalid>
+                        </div>
+                    </div>
+                    <form [formGroup]="form.fbForm">
+                        <div class="grid">
+                            <div class="col-12 lg:col-8">
+                                <div class="field">
+                                    <label><strong>Nombre {{  main.modeForm! !== 'show' ? '*' : '' }}</strong></label>
+                                    <input type="text" pInputText formControlName="Descripcion_campus" maxlength="50"
+                                        class="w-full"  placeholder="Ingrese nombre de campus" autofocus />
+                                    <app-form-control [control]="form.fbForm.controls['Descripcion_campus']"
+                                        [validators]="['required' , 'num_y_letras']"></app-form-control>
+                                </div>
+                            </div>
+                            <div class="col-12 lg:col-4 ">
+                                <div class="flex flex-wrap justify-content-start lg:justify-content-center align-items-center">
+                                    <div class="field">
+                                        <label for="Estado"><strong>Estado</strong></label>
+                                        <br>
+                                        <div class="flex flex-row flex-wrap">
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>Inactivo</span>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                <p-inputSwitch formControlName="Estado_campus" styleClass="mt-1" (onChange)="form.changeState($event)" />
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>Activo</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="grid">
+                        <div class="col-12">
+                            <div class="mb-2">
+                                <label>
+                                    <strong>
+                                      {{ main.modeForm! !== 'show' ? 'Adjunte documento(s)' : 'Documento(s) adjunto(s)' }}
+                                      {{ main.modeForm! !== 'show' && form.showAsterisk ? '*' : '' }}
+                                    </strong>
+                                  </label>                                  
+                            </div>
+                            <app-uploader-files [mode]="main.modeForm!"></app-uploader-files>
+                        </div>
+                    </div>
+                </div>
+
+                <div footer>
+                    <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
+                        (click)="main.dialogForm = false" [text]="true">
+                    </p-button>
+                    <p-button 
+                        *ngIf="main.modeForm !== 'show' "
+                        [label]="main.modeForm === 'edit' ? 'Actualizar' : 'Agregar'" 
+                        icon="pi pi-check"
+                        styleClass="mr-2 p-button-success p-button-sm" 
+                        [disabled]="form.stateForm === 'INVALID'"
+                        (click)="submit()">
+                    </p-button>
+                </div>
+            </app-dialog>
+        </app-card>
+    </div>
+</div>

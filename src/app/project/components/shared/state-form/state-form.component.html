@@ -1,0 +1,94 @@
+ <p-accordion [activeIndex]="form.activeIndexStateForm">
+    <p-accordionTab *ngFor="let item of dataForm">
+
+        <ng-template pTemplate="header">
+            <div class="flex justify-content-between flex-wrap w-full">
+                <div>
+                    <span> {{ item.title }} </span>
+                </div>
+                <ng-container [ngSwitch]="item.step">
+                    <ng-container *ngSwitchCase="1">
+                      <div>
+                        <span [ngClass]="getStateClass(form.stateStepOne)">
+                          {{ getStateText(form.stateStepOne) }}
+                        </span>
+                      </div>
+                    </ng-container>
+                  
+                    <ng-container *ngSwitchCase="2">
+                      <div>
+                        <span [ngClass]="getStateClass(form.stateStepTwo)">
+                          {{ getStateText(form.stateStepTwo) }}
+                        </span>
+                      </div>
+                    </ng-container>
+                  
+                    <ng-container *ngSwitchCase="3">
+                      <div>
+                        <span [ngClass]="getStateClass(form.stateStepThree)">
+                          {{ getStateText(form.stateStepThree) }}
+                        </span>
+                      </div>
+                    </ng-container>
+                  
+                    <ng-container *ngSwitchCase="0">
+                      <div>
+                        <span [ngClass]="getStateClass(form.stateFileMaestro)">
+                          {{ getStateText(form.stateFileMaestro) }}
+                        </span>
+                      </div>
+                    </ng-container>
+                  </ng-container>
+                  
+            </div>
+        </ng-template>
+        
+        <ng-template pTemplate="body">
+            <ng-container *ngFor="let field of item.fields; let i = index">
+                <ng-container *ngIf="!field.conditional || form.fbForm.get(field.conditional.field)!.value === field.conditional.value">
+                    <ng-container *ngIf="field.titleAccordion">
+                        <hr *ngIf="i !== 0">
+                        <span>{{ field.titleAccordion }} </span>
+                        <br>
+                        <ng-container *ngFor="let form of field.forms">
+                            <div class="flex flex-row flex-wrap">
+                                <div class="flex align-items-center">
+                                    <i *ngIf="form.fbForm.get(form.control)!.invalid" class="pi pi-times" style="font-size: 0.75rem; color:red; margin-right: 0.25rem;"></i>
+                                    <i *ngIf="form.fbForm.get(form.control)!.valid" class="pi pi-check" style="font-size: 0.75rem; color:green; margin-right: 0.25rem;"></i>
+                                </div>
+                                <div class="flex align-items-center">
+                                    <span [ngClass]="{  
+                                        'text-error':  form.fbForm.get(form.control)!.invalid , 
+                                        'text-valid':  form.fbForm.get(form.control)!.valid }">
+                                        {{ form.label }}
+                                    </span>
+                                    <br>
+                                </div>
+                            </div>
+                        </ng-container>
+                    </ng-container>
+                    <ng-container *ngIf="!field.titleAccordion">
+                        <ng-container *ngIf="!field.conditional || form.fbForm.get(field.conditional.field)!.value === field.conditional.value">
+                            <div class="flex flex-row flex-wrap">
+                                <div class="flex align-items-center">
+                                    <i *ngIf="form.fbForm.get(field.control)!.invalid" class="pi pi-times" style="font-size: 0.75rem; color:red; margin-right: 0.25rem;"></i>
+                                    <i *ngIf="form.fbForm.get(field.control)!.valid" class="pi pi-check" style="font-size: 0.75rem; color:green; margin-right: 0.25rem;"></i>
+                                </div>
+                                <div class="flex align-items-center">
+                                    <span [ngClass]="{  
+                                        'text-error':  form.fbForm.get(field.control)!.invalid , 
+                                        'text-valid':  form.fbForm.get(field.control)!.valid }">
+                                        {{ field.label }}
+                                    </span>
+                                    <br>
+                                </div>
+                            </div>
+
+                        </ng-container>
+                    </ng-container>
+                </ng-container>
+            </ng-container>
+        </ng-template>
+    </p-accordionTab>
+    
+ </p-accordion>

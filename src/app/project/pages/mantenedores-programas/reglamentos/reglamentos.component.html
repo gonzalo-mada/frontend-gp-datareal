@@ -1,0 +1,13 @@
+<div class="grid">
+    <div class="col-12">
+        <app-card header="Mantenedor de {{ reglamentosMainService.namesCrud.plural }}"
+            subheader="Permite ver, crear, actualizar y eliminar {{ reglamentosMainService.namesCrud.plural }}.">
+            
+            <app-menu-buttons-table></app-menu-buttons-table>
+
+            <app-table-reglamentos from="mantenedor"></app-table-reglamentos>
+
+            <app-form-reglamentos></app-form-reglamentos>
+        </app-card>
+    </div>
+</div>

@@ -1,5 +1,34 @@
 <app-card header="Programas" subheader="Permite ver, crear, actualizar y eliminar programas.">
-    <p-toast [key]="programasService.keyPopups"></p-toast>
-    <app-menu-buttons-table></app-menu-buttons-table>
-    <app-table-programas [data]="programas"></app-table-programas>
+    <div class="flex flex-column sm:flex-row align-items-center justify-content-between gap-3 w-full sm:w-auto">
+        <div class="w-full">
+            <div class="mb-2">
+                <label><strong>Seleccione facultad para listar programas</strong></label>
+            </div>
+            <p-dropdown 
+                [options]="mainFacultad.facultades"
+                [(ngModel)]="programaMainService.cod_facultad_selected" 
+                optionLabel="Descripcion_facu"
+                optionValue="Cod_facultad" 
+                placeholder="Seleccione facultad"
+                appendTo="body" 
+                styleClass="w-full p-d-flex p-flex-column" 
+                (onChange)="changeFacultad($event)" 
+            ></p-dropdown>
+        </div>
+        <div class="w-full" *ngIf="!programaMainService.loadedProgramas">
+            <div class="flex align-items-center justify-content-center sm:justify-content-end sm:mt-5">
+                <p-button
+                    [routerLink]="'/programa/add'"
+                    label="Agregar"
+                    icon="pi pi-plus"
+                    styleClass="p-button-success"
+                ></p-button>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="programaMainService.loadedProgramas">
+        <app-menu-buttons-table></app-menu-buttons-table>
+        <app-table-programas></app-table-programas>
+    </div>
+
 </app-card>

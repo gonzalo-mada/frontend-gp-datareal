@@ -1,0 +1,105 @@
+<div class="grid">
+    <div class="col-12">
+        <app-card header="Mantenedor de tipos de programas"
+            subheader="Permite ver, crear, actualizar y eliminar tipos de programas.">
+            <app-menu-buttons-table></app-menu-buttons-table>
+
+            <app-table-tipos-programas></app-table-tipos-programas>
+
+            <app-dialog [(visible)]="main.dialogForm">
+                <div header>
+                    <ng-container *ngIf="main.modeForm === 'create' || main.modeForm === 'insert' ">
+                        <span class="text-xl">Agregar {{ main.namesCrud.singular }}</span>
+                    </ng-container>
+                    <ng-container *ngIf="main.modeForm === 'edit' || main.modeForm === 'update' ">
+                        <span class="text-xl">Actualizar {{ main.namesCrud.singular }}</span>
+                    </ng-container>
+                    <ng-container *ngIf="main.modeForm === 'show'">
+                        <span class="text-xl">Ver {{ main.namesCrud.singular }}</span>
+                    </ng-container>
+                </div>
+                <div content>
+                    <div class="grid" *ngIf="main.modeForm != 'show'">
+                        <div class="col-12">
+                            <app-form-isvalid [valid]="form.fbForm.valid"></app-form-isvalid>
+                        </div>
+                    </div>
+                    <form [formGroup]="form.fbForm">
+                        <div class="grid p-fluid">
+                            <div class="col-12 lg:col-6">
+                                <div class="field">
+                                    <label><strong>Nombre {{  main.modeForm! !== 'show' ? '*' : '' }}</strong></label>
+                                    <input type="text" pInputText formControlName="Descripcion_tp" class="w-full"
+                                        placeholder="Ingrese nombre de tipo de programa" maxlength="50" />
+
+                                    <app-form-control [control]="form.fbForm.controls['Descripcion_tp']"
+                                        [validators]="['required' , 'num_y_letras']"></app-form-control>
+                                </div>
+                            </div>
+                            <div class="col-12 lg:col-6">
+                                <div class="field">
+                                    <label>
+                                        <div class="flex flex-row flex-wrap">
+                                            <div class="flex align-items-center"><strong>Categoría {{  main.modeForm! !== 'show' ? '*' : '' }}</strong></div>
+                                            <div class="flex align-items-center ml-1">
+                                                <i *ngIf="main.modeForm != 'show'" class="pi pi-question-circle ml-1"
+                                                    [pTooltip]='tooltipContent' tooltipPosition="top"></i>
+                                                <ng-template #tooltipContent>
+                                                    <div class="flex align-items-center">
+                                                        <small>Un tipo de programa debe tener asociada una
+                                                            categoría.</small>
+                                                    </div>
+                                                </ng-template>
+                                            </div>
+                                        </div>
+                                    </label>
+                                    <div formGroupName="Categoria">
+                                        <div class="flex align-items-center">
+                                            <p-inputGroup>
+                                                <p-dropdown 
+                                                    [options]="mainCategoriasTp.categoriasTp"
+                                                    [style]="{ width: '100%', 'min-width': '100%' }" 
+                                                    optionLabel="Descripcion_categoria"
+                                                    optionValue="Cod_CategoriaTP" 
+                                                    placeholder="Seleccione categoría..."
+                                                    appendTo="body" class="flex-grow-1" 
+                                                    formControlName="Cod_CategoriaTP"
+                                                />
+                                                <button
+                                                *ngIf="main.modeForm !== 'show' "
+                                                (click)="mainCategoriasTp.setModeCrud('create')" 
+                                                type="button" pButton icon="pi pi-plus" iconPos="right" 
+                                                class="p-button-success" pTooltip="Agregar nueva categoría de tipo de programa" 
+                                                tooltipPosition="bottom"
+                                            >
+                                            </button>
+                                            </p-inputGroup>
+                                        </div>
+                                    </div>
+                                    <div class="flex align-items-center">
+                                        <app-form-control [control]="form.fbForm.get('Categoria.Cod_CategoriaTP')"
+                                            [validators]="['required' , 'notMinusOneCategory' ]"></app-form-control>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div footer>
+                    <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
+                        (click)="main.dialogForm = false" [text]="true"></p-button>
+
+                    <p-button *ngIf="main.modeForm == 'create' || main.modeForm == 'edit' "
+                        [label]="main.modeForm === 'edit' ? 'Actualizar' : 'Guardar'" icon="pi pi-check"
+                        styleClass="mr-2 p-button-success p-button-sm" [disabled]="!form.fbForm.valid"
+                        (click)="form.fbForm.valid && submit()">
+                    </p-button>
+                </div>
+            </app-dialog>
+
+        </app-card>
+    </div>
+</div>
+
+<app-form-categorias-tp></app-form-categorias-tp>

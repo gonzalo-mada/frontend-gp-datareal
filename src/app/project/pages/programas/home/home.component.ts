@@ -1,12 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
-import { Programa } from 'src/app/project/models/Programa';
-import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
+import { Programa } from 'src/app/project/models/programas/Programa';
 import { MenuButtonsTableService } from 'src/app/project/services/components/menu-buttons-table.service';
 import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
-import { ProgramasService } from 'src/app/project/services/programas.service';
+import { FacultadesMainService } from 'src/app/project/services/programas/facultad/main.service';
+import { ProgramaMainService } from 'src/app/project/services/programas/programas/main.service';
 
 @Component({
   selector: 'app-home',
@@ -16,44 +14,26 @@ import { ProgramasService } from 'src/app/project/services/programas.service';
 })
 export class HomeComponent implements OnInit, OnDestroy {
 
-  constructor(private errorTemplateHandler: ErrorTemplateHandler,
+  constructor(
+    public mainFacultad: FacultadesMainService,
     private menuButtonsTableService: MenuButtonsTableService,
-    private router: Router, 
-    public programasService: ProgramasService,
-    private tableCrudService: TableCrudService)
+    private tableCrudService: TableCrudService,
+    public programaMainService: ProgramaMainService
+  )
   {}
 
-  programas: any[] = [];
-  programa: Programa = {};
-  namesCrud!: NamesCrud;
   private subscription: Subscription = new Subscription();
 
   async ngOnInit() {
-    await this.getProgramas();
-    this.namesCrud = {
-      singular: 'programa',
-      plural: 'programas',
-      articulo_singular: 'el programa',
-      articulo_plural: 'los programas',
-      genero: 'masculino'
-    };
-    this.menuButtonsTableService.setContext('programa','page');
-    this.subscription.add(this.tableCrudService.onClickRefreshTable$.subscribe(() => this.getProgramas()));
-    this.subscription.add(
-      this.programasService.crudUpdate$.subscribe( crud => {
-        if (crud && crud.mode) {
-          if (crud.data) {
-            this.programa = {};
-            this.programa = crud.data
-          }
-          switch (crud.mode) {
-            case 'show': this.showForm(); break;
-            case 'edit': this.editForm(); break;
-            default: break;
-          }
-        }
-      })
-    );
+    await this.mainFacultad.getFacultades(false);
+    this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => { 
+      action==='agregar' 
+      ? this.programaMainService.setModeCrud('create') 
+      : this.programaMainService.setModeCrud('delete-selected')
+    }));
+    if (this.programaMainService.cod_facultad_selected !== 0) {
+      this.programaMainService.getProgramasPorFacultad();
+    }
   }
 
   ngOnDestroy(): void {
@@ -61,47 +41,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.tableCrudService.resetSelectedRows();
   }
 
-  async getProgramas(){
-    try {
-      this.programas = await this.programasService.getProgramas();
-      console.log("PROGRAMAS:",this.programas);
-      
-    } catch (error) {
-      this.errorTemplateHandler.processError(error, {
-        notifyMethod: 'alert',
-        message: 'Hubo un error al obtener programas. Intente nuevamente.',
-      });
-    }
+  changeFacultad(event: any){
+    this.programaMainService.cod_facultad_selected = event.value;
+    this.programaMainService.getProgramasPorFacultad();
   }
-
-  // async showForm(){
-  //   try {
-  //     const data = this.programa;
-  //     const result : any = await new Promise((resolve,reject) => {
-  //       this.programasService.setModeForm('show', data, resolve, reject);
-  //     })
-  //     this.router.navigate([`/programa/show`])
-  //     console.log("result",result);
-  //   } catch (e:any) {
-  //     this.errorTemplateHandler.processError(e, {
-  //       notifyMethod: 'alert',
-  //       summary: `Error al visualizar formulario de ${this.namesCrud.articulo_singular}`,
-  //       message: e.message,
-  //       }
-  //     );
-  //   }
-  // }
-
-  showForm(){
-    const cod_programa = this.programa.Cod_Programa;
-    this.router.navigate([`/programa/show/${cod_programa}`])
-  }
-
-  editForm(){
-    const cod_programa = this.programa.Cod_Programa;
-    this.router.navigate([`/programa/edit/${cod_programa}`])
-  }
-
-
 
 }
