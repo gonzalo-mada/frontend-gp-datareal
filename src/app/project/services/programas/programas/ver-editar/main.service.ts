@@ -8,10 +8,6 @@ import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.ut
 import { MessageServiceGP } from '../../../components/message-service.service';
 import { CollectionsMongo } from 'src/app/project/models/shared/Context';
 import { ProgramaMainService } from '../main.service';
-import { Campus } from 'src/app/project/models/programas/Campus';
-import { TipoGraduacion } from 'src/app/project/models/programas/TipoGraduacion';
-import { Router } from '@angular/router';
-
 
 @Injectable({
     providedIn: 'root'
@@ -30,7 +26,6 @@ export class VerEditarProgramaMainService {
         private form: FormProgramaService,
         private files: FilesVerEditarProgramaService,
         private messageService: MessageServiceGP,
-        private router: Router
     ){
         this.form.initForm();
         this.files.initFiles();
@@ -106,69 +101,6 @@ export class VerEditarProgramaMainService {
         this.files.resetLocalFiles();
         await this.setLoadDocsWithBinary(this.cod_programa, from!)
     }
-
-    async createFormUpdate(form: ModeDialog, collection: CollectionsMongo){
-
-        switch (form) {
-            case 'estado acreditación':
-                await this.commonFormUpdate(form, collection, false);
-                this.form.fbForm.get('Cod_acreditacion')!.valueChanges.subscribe( value => {
-                    this.form.fbFormUpdate.get('Cod_acreditacion')?.patchValue(value);
-                    this.form.fbFormUpdate.get('nombreEstadoAcreditacion')?.patchValue(this.form.estadoAcreditacionSiglaSelected);
-                });
-            break;
-
-            case 'reglamento':
-                await this.commonFormUpdate(form, collection, false);
-                this.form.fbForm.get('Cod_Reglamento')!.valueChanges.subscribe( value => {
-                    this.form.fbFormUpdate.get('Cod_Reglamento')?.patchValue(value);
-                    this.form.fbFormUpdate.get('nombreReglamento')?.patchValue(this.form.reglamentoSelected);
-                });
-            break;
-        
-            default:
-                await this.commonFormUpdate(form, collection, true);
-            break;
-        }
-
-    }
-
-    async commonFormUpdate(form: ModeDialog, collection: CollectionsMongo, needFiles: boolean){
-        await this.form.setFormUpdate(form, this.programa);
-        if (this.mode === 'show' && form !== 'unidades académicas') this.form.fbFormUpdate.disable();
-        this.dialogUpdate = true;
-        if (needFiles) {
-            await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', collection);
-            const response = await this.files.loadDocsWithBinary(this.cod_programa , collection!);
-            if (response) {
-                this.form.fbFormUpdate.get('files')?.updateValueAndValidity();
-            }
-        }
-        this.showButtonSubmitUpdate = true;
-    }
-
-    disabledButtonSeleccionar(){
-        this.files.disabledButtonSeleccionar();
-    }
-
-    enabledButtonSeleccionar(){
-        this.files.enabledButtonSeleccionar();
-    }
-
-    goToShowPrograma(){
-        const cod_programa = this.programa.Cod_Programa;
-        this.router.navigate([`/programa/show/${cod_programa}`])
-    }
-
-    goToEditPrograma(){
-        const cod_programa = this.programa.Cod_Programa;
-        this.router.navigate([`/programa/edit/${cod_programa}`])
-    }
-
-    updateFilesUploader(){
-        this.files.setFiles();
-    }
-
     
 
 }

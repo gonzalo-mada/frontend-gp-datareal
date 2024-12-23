@@ -13,11 +13,11 @@ export class EditarProgramaComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private programaMainService: ProgramaMainService
   ){}
+  mode: string = 'edit';
   onClickRefreshPrograma: boolean = false;
 
   async ngOnInit() {
     this.activatedRoute.params.subscribe( ({cod_programa}) => this.programaMainService.cod_programa = parseInt(cod_programa))
-    this.programaMainService.mode = 'edit';
   }
 
   refreshPrograma(){

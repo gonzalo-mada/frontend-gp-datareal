@@ -56,9 +56,12 @@ import { TableTiposGraduacionesComponent } from 'src/app/project/components/prog
 import { FormTiposGraduacionComponent } from 'src/app/project/components/programas/forms/form-tipos-graduacion/form-tipos-graduacion.component';
 import { TableCertificacionesIntermediasComponent } from 'src/app/project/components/programas/tables/table-certificaciones-intermedias/table-certificaciones-intermedias.component';
 import { FormCertificacionesIntermediasComponent } from 'src/app/project/components/programas/forms/form-certificaciones-intermedias/form-certificaciones-intermedias.component';
-import { FormArticulacionesComponent } from '../components/plan-de-estudio/forms/form-articulaciones/form-articulaciones.component';
-import { TableArticulacionesComponent } from '../components/plan-de-estudio/tables/table-articulaciones/table-articulaciones.component';
-
+import { FormRegimenesComponent } from '../components/plan-de-estudio/forms/form-regimenes/form-regimenes.component';
+import { TableRegimenesComponent } from '../components/plan-de-estudio/tables/table-regimenes/table-regimenes.component';
+import { TableMencionesComponent } from '../components/plan-de-estudio/tables/table-menciones/table-menciones.component';
+import { FormMencionesComponent } from '../components/plan-de-estudio/forms/form-menciones/form-menciones.component';
+import { FormRangosAgComponent } from '../components/plan-de-estudio/forms/form-rangos-ag/form-rangos-ag.component';
+import { TableRangosAgComponent } from '../components/plan-de-estudio/tables/table-rangos-ag/table-rangos-ag.component';
 
 const componentsGp = [
   BreadcrumbgpComponent,
@@ -66,7 +69,6 @@ const componentsGp = [
   ConfigModeComponent,
   DialogComponent,
   DialogVisorPdfComponent,
-  FormArticulacionesComponent,
   FormCategoriasTpComponent,
   FormCertificacionesIntermediasComponent,
   FormEstadosAcreditacionComponent,
@@ -86,7 +88,6 @@ const componentsGp = [
   MenuButtonsTableComponent,
   UploaderFilesComponent,
   StateFormComponent,
-  TableArticulacionesComponent,
   TableCampusComponent,
   TableCategoriasTpComponent,
   TableCertificacionesIntermediasComponent,

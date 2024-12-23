@@ -34,24 +34,6 @@ export class BackendCertifIntermediaService {
             );
         }
     }
-
-    async getCertificacionIntermediaPrograma(params: any, namesCrud: NamesCrud, loading = true) {
-        try {
-            return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('certificacionIntermedia/getCertificacionIntermedia_Prog', loading),
-                params
-            );
-        } catch (error: any) {
-            this.errorTemplateHandler.processError(
-                error, 
-                {
-                    notifyMethod: 'alert',
-                    summary: `Error al obtener ${namesCrud.articulo_singular}. Intente nuevamente`,
-                    message: error?.message || error.detail.error.message.message
-                }
-            );
-        }
-    }
     
     async insertCertificacionIntermedia(params: any, namesCrud: NamesCrud) {
         try {
