@@ -53,6 +53,14 @@ export class PlanDeEstudioMainService {
         value ? this.backend.countTableRegisters(value,this.namesCrud) : this.backend.countTableRegisters(this.planesDeEstudios.length, this.namesCrud);
     }
 
+    async getPlanesDeEstudios(showCountTableValues: boolean = true): Promise<PlanDeEstudio[]>{
+      this.planesDeEstudios = await this.backend.getPlanesDeEstudios(this.namesCrud)
+      console.log("this.planesDeEstudios",this.planesDeEstudios);
+      
+      if (showCountTableValues) this.countTableValues();
+      return this.planesDeEstudios
+    }
+
     reset(){
         this.planesDeEstudios = [];
     }
