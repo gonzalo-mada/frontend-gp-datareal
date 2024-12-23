@@ -29,7 +29,9 @@ export type NameComponent = undefined |
                 'modalidad' |
                 'programa' |
                 'tipo-graduacion' |
-                'certificacion-intermedia';
+                'certificacion-intermedia' |
+                'agregar-plandeestudio' |
+                'ver/editar-plandeestudio';
 export type CollectionsMongo = 
 undefined | 
 'REXE' | 

@@ -10,12 +10,12 @@
     </div>
 
     <div content>
-        <p-button 
+        <!-- <p-button 
             label="test" 
             icon="pi pi-times" 
             styleClass="p-button-sm p-button-secondary mr-2" 
             (click)="test()" [text]="true">
-        </p-button> 
+        </p-button>  -->
 
         <form *ngIf="main.dialogUpdate" [formGroup]="form.fbFormUpdate">
             <div class="formgrid grid">
@@ -208,7 +208,7 @@
         
                 <ng-container *ngIf="main.dialogUpdateMode === 'reglamento'">
                     <div class="col-12 mt-2">
-                        <app-table-reglamentos [programa]="programa" [mode]="mode!" ></app-table-reglamentos>
+                        <app-table-reglamentos [form]="'programa'" [programa]="programa" [mode]="mode!" ></app-table-reglamentos>
                     </div>
                 </ng-container>
         

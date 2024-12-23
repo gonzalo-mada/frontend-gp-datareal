@@ -84,6 +84,13 @@ export class CertifIntermediaMainService {
         return this.certificaciones;
     }
 
+    async getCertificacionIntermediaPrograma(codPrograma: number, showCountTableValues: boolean = true): Promise<CertificacionIntermedia[]>{
+        let params = { Cod_Programa: codPrograma}
+        this.certificaciones = await this.backend.getCertificacionIntermediaPrograma(params,this.namesCrud,false);
+        if (showCountTableValues) this.countTableValues();
+        return this.certificaciones;
+    }
+
     async createForm(){
         await this.files.setContextUploader('create','servicio','certificacion-intermedia')
         this.table.emitResetExpandedRows();

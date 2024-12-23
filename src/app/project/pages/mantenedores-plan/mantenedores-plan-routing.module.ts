@@ -17,6 +17,11 @@ const routes: Routes = [
     loadChildren: () => import('../mantenedores-plan/modalidades/modalidades.module').then((j) => j.ModalidadesModule),
     title: 'Modalidades'
   },
+  {
+    path: 'articulaciones',
+    loadChildren: () => import('../mantenedores-plan/articulaciones/articulaciones.module').then((j) => j.ArticulacionesModule),
+    title: 'Articulaciones'
+  },
 ];
 
 @NgModule({

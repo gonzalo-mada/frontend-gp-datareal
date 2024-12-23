@@ -373,7 +373,7 @@
                                                 </div>
                                             </ng-template>
                                             <ng-template pTemplate="body">
-                                                <app-table-reglamentos></app-table-reglamentos>
+                                                <app-table-reglamentos [form]="'programa'"></app-table-reglamentos>
                                             </ng-template>
                                         </p-accordionTab>
 
@@ -497,13 +497,13 @@
 
                         </div>
                     </ng-template>
-                    <app-state-form></app-state-form>
+                    <app-state-form formName="programa"></app-state-form>
                 </p-card>
             </div>
 
             <p-sidebar [(visible)]="sidebarVisible2" position="right">
                 <h3>Estado formulario</h3>
-                <app-state-form></app-state-form>
+                <app-state-form formName="programa"></app-state-form>
             </p-sidebar>
         </div>
 
