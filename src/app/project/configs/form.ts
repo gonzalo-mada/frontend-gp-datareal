@@ -10,5 +10,10 @@ export const project_form_validator = [
                                         'checkCorreoUV',
                                         'notSameAsDirector',
                                         'notSameDirectorInUpdate',
-                                        'notSameDirectorAlternoInUpdate'
+                                        'notSameDirectorAlternoInUpdate',
+                                        'minValueValidator',          
+                                        'maxValueValidator',          
+                                        'minMaxValidator',
+                                        'decimalValidator'            
+
                                     ];

@@ -17,16 +17,47 @@ export class FormRangosAGService {
       constructor(private fb: FormBuilder) {}
   
       async initForm(): Promise<boolean> {
-          this.fbForm = this.fb.group({
-            Descripcion_RangoAprobG: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
-            NotaMinima: ['', [Validators.required]],
-            NotaMaxima: ['', [Validators.required]],
-            RexeReglamentoEstudio: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
-            aux: ['']
-            //ingresar validador de notas mayores o menores
-          });
-          return true;
+        this.fbForm = this.fb.group(
+          {
+            Descripcion_RangoAprobG: [
+              '',
+              [Validators.required, GPValidator.regexPattern('num_y_letras')],
+            ],
+            NotaMinima: [
+              '4.0',
+              [
+                Validators.required,
+                GPValidator.decimalValidator(), // Validador para decimales
+                GPValidator.minValueValidator(4.0), // Validador para mínimo 4.0
+                GPValidator.decimalValidator()
+              ],
+            ],
+            NotaMaxima: [
+              '7.0',
+              [
+                Validators.required,
+                GPValidator.decimalValidator(), // Validador para decimales
+                GPValidator.maxValueValidator(7.0), // Validador para máximo 7.0
+                GPValidator.decimalValidator()
+              ],
+            ],
+            RexeReglamentoEstudio: [
+              '',
+              [Validators.required, GPValidator.regexPattern('num_y_letras')],
+            ],
+            aux: [''],
+          },
+          {
+            validators: GPValidator.minMaxValidator('NotaMinima', 'NotaMaxima'),
+          }
+        );
+      
+        return true;
       }
+      
+      
+      
+      
 
       resetForm(): void {
         this.fbForm.reset({

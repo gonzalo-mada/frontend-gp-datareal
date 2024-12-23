@@ -72,6 +72,7 @@ describe('FormControlComponent', () => {
         invalid: 'Formulario inválido',
         rut: 'Rut inválido',
         test_error: 'Test mensaje',
+        
       },
     } as any;
     spyOn(systemServiceMock, 'translate').and.callFake(() => {

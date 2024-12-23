@@ -178,4 +178,65 @@ export class GPValidator {
             return null;
         };
     }
+
+    static minMaxValidator(minControlName: string, maxControlName: string): ValidatorFn {
+        return (formGroup: AbstractControl): ValidationErrors | null => {
+            const form = formGroup as FormGroup;
+            const minControl = form.get(minControlName);
+            const maxControl = form.get(maxControlName);
+    
+            if (minControl && maxControl) {
+                const minValue = parseFloat(minControl.value);
+                const maxValue = parseFloat(maxControl.value);
+    
+                // Verificar si los valores son válidos y no nulos
+                if (!isNaN(minValue) && !isNaN(maxValue)) {
+                    // Validar que el mínimo no sea mayor que el máximo
+                    if (minValue > maxValue) {
+                        return { minGreaterThanMax: true };
+                    }
+    
+                    // Validar que el máximo no sea menor que el mínimo
+                    if (maxValue < minValue) {
+                        return { maxLessThanMin: true };
+                    }
+                }
+            }
+    
+            return null; // No hay errores
+        };
+    }
+    
+
+      static decimalValidator(): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+          const value = control.value;
+          const decimalPattern = /^\d+(\.\d{1,2})?$/; // Permite números enteros o decimales con 1 o 2 dígitos
+          if (value && !decimalPattern.test(value)) {
+            return { invalidDecimal: true };
+          }
+          return null;
+        };
+      }
+
+      static maxValueValidator(maxValue: number): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+          const value = parseFloat(control.value);
+          if (value > maxValue) {
+            return { maxExceeded: true };
+          }
+          return null;
+        };
+      }
+
+      static minValueValidator(minValue: number): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+          const value = parseFloat(control.value);
+          if (value < minValue) {
+            return { minExceeded: true };
+          }
+          return null;
+        };
+      }
+      
 }

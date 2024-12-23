@@ -43,6 +43,10 @@ export class FormControlComponent {
       max: t.form.max,
       empty: t.form.empty,
       rut: t.form.rut,
+      maxLessThanMin: t.form.maxLessThanMin,
+      minValueValidator: t.form.minValueValidator,
+      maxValueValidator: t.form.maxValueValidator,
+      decimalValidator: t.form.decimalValidator,
     };
 
     for (let i = 0; i < this.project_form_validator.length; i++) {
