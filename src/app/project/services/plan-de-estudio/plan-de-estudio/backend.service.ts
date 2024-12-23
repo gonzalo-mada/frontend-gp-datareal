@@ -88,14 +88,18 @@ export class BackendPlanesDeEstudiosService {
         }
     }
 
-    async getPlanesDeEstudios() {
+    async getPlanesDeEstudios(namesCrud: NamesCrud) {
         try {
             return await this.invoker.httpInvoke('planesDeEstudio/getPlanesDeEstudios');
         } catch (error: any) {
-            this.errorTemplateHandler.processError(error, {
-                notifyMethod: 'alert',
-                message: 'Hubo un error al obtener planes de estudios. Intente nuevamente.'
-            });
+            this.errorTemplateHandler.processError(
+                error, 
+                {
+                    notifyMethod: 'alert',
+                    summary: `Error al obtener ${namesCrud.articulo_singular}. Intente nuevamente`,
+                    message: error?.message || error.detail.error.message.message
+                }
+            );
         }
     }
 

@@ -58,6 +58,7 @@ import { TableCertificacionesIntermediasComponent } from 'src/app/project/compon
 import { FormCertificacionesIntermediasComponent } from 'src/app/project/components/programas/forms/form-certificaciones-intermedias/form-certificaciones-intermedias.component';
 import { FormArticulacionesComponent } from '../components/plan-de-estudio/forms/form-articulaciones/form-articulaciones.component';
 import { TableArticulacionesComponent } from '../components/plan-de-estudio/tables/table-articulaciones/table-articulaciones.component';
+import { TablePlanDeEstudioComponent } from '../components/plan-de-estudio/tables/table-plan-de-estudio/table-plan-de-estudio.component';
 
 
 const componentsGp = [
@@ -107,6 +108,7 @@ const componentsGp = [
   TableProgramasRexeComponent,
   TableProgramasTituloComponent,
   TableReglamentosComponent,
+  TablePlanDeEstudioComponent,
   TableSuspensionesComponent,
   TableUnidadesAcademicasComponent,
   TableJornadasComponent,
