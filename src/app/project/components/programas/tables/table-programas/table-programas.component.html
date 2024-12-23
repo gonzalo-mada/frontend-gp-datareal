@@ -161,13 +161,6 @@
                         </td>
                     </ng-container>
 
-                    <ng-container *ngSwitchCase="'Unidad_academica'">
-                        <td [ngStyle]="getColStyle(col)">
-                            <span> {{data.Unidad_academica | slice:0:70 }} {{ (data.Unidad_academica.length > 70 ) ? '...' : '' }} </span> <br>
-
-                        </td>
-                    </ng-container>
-
                     <ng-container *ngSwitchCase="'Acreditacion'">
                         <ng-container *ngIf="data.Acreditacion.Acreditado === 'SI';else notAcredited">
                             <td [ngStyle]="getColStyle(col)">

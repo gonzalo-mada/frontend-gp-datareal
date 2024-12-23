@@ -15,11 +15,11 @@ export class VerProgramaComponent implements OnInit {
     private programaMainService: ProgramaMainService
   ){}
 
+  mode: string = 'show';
   onClickRefreshPrograma: boolean = false;
 
   async ngOnInit() {
     this.activatedRoute.params.subscribe( ({cod_programa}) => this.programaMainService.cod_programa = parseInt(cod_programa))
-    this.programaMainService.mode = 'show';
   }
 
   refreshPrograma(){

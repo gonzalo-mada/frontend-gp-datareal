@@ -1,7 +1,6 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { Table } from 'primeng/table';
 import { HistorialActividad } from 'src/app/project/models/programas/HistorialActividad';
-import { ModeForm } from 'src/app/project/models/shared/ModeForm';
 import { MessageServiceGP } from 'src/app/project/services/components/message-service.service';
 
 
@@ -14,9 +13,8 @@ import { MessageServiceGP } from 'src/app/project/services/components/message-se
 export class TableProgramasHistorialActividadComponent implements OnInit {
 
   constructor(private messageService: MessageServiceGP){}
-  
   @Input() data: HistorialActividad[] = [];
-  @Input() mode: ModeForm;
+  @Input() mode: string = '';
 
   dataKeyTable: string = ''
   searchValue: string | undefined;

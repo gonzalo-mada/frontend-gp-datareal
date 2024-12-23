@@ -21,10 +21,6 @@ const routes: Routes = [
     path: 'mantePE',
     loadChildren: () => import('../pages/mantenedores-plan/mantenedores-plan.module').then((m) => m.MantenedoresPlanModule),
     data: {title:'Mantenedores plan estudio'} 
-  },
-  {
-    path: 'planes',
-    loadChildren: () => import('../pages/planes-de-estudios/planes-de-estudios.module').then((m) => m.PlanesDeEstudiosModule),
   }
 ];
 

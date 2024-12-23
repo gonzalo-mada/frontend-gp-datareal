@@ -1,5 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { FormPlanDeEstudioService } from 'src/app/project/services/plan-de-estudio/plan-de-estudio/form.service';
+import { Component } from '@angular/core';
 import { FormProgramaService } from 'src/app/project/services/programas/programas/form.service';
 
 @Component({
@@ -7,38 +6,11 @@ import { FormProgramaService } from 'src/app/project/services/programas/programa
   templateUrl: './state-form.component.html',
   styleUrls: ['./state-form.component.css']
 })
-export class StateFormComponent implements OnInit  {
-  @Input() formName: string = '';
-  form: any;
-  dataForm: any[] = [];
-
+export class StateFormComponent  {
   constructor(
-    public formPrograma: FormProgramaService,
-    public formPlanDeEstudio: FormPlanDeEstudioService
-  ){}
-
-  async ngOnInit() {
-    if (this.formName === 'programa'){
-      this.form = this.formPrograma;
-      await this.setPrograma();
-    } 
-    if (this.formName === 'planDeEstudio'){
-      this.form = this.formPlanDeEstudio;
-      await this.setPlanDeEstudio();
-    } 
-  }
-
-
-  getStateClass(state: boolean): string {
-    return state ? 'state-badge state-valid' : 'state-badge state-invalid';
-  }
-  
-  getStateText(state: boolean): string {
-    return state ? 'válido' : 'inválido';
-  }
-
-  async setPrograma(){
-    return this.dataForm = [
+    public form: FormProgramaService
+  ){
+    this.dataForm = [
       {
         step: 1,
         title: 'Paso 1',
@@ -103,57 +75,48 @@ export class StateFormComponent implements OnInit  {
           { label: 'Documento maestro', control: 'file_maestro' },
         ]
       }
+      // {
+      //   step: 3,
+      //   title: 'Paso 3',
+      //   state: 'stateStepThree',
+      //   fields: [
+      //     { 
+      //       titleAccordion: 'Reglamento:',
+      //       forms: [
+      //         { label: 'Reglamento seleccionado', control: 'Cod_Reglamento' }
+      //       ]
+      //     },
+      //     { 
+      //       titleAccordion: 'Director:',
+      //       forms: [
+      //         { label: 'Director seleccionado', control: 'Director_selected' },
+      //       ]
+      //     },
+      //     { 
+      //       titleAccordion: 'Director alterno:',
+      //       forms: [
+      //         { label: 'Director alterno seleccionado', control: 'DirectorAlterno_selected' },
+      //       ]
+      //     },
+      //     { 
+      //       titleAccordion: 'Estado acreditación:',
+      //       forms: [
+      //         { label: 'Estado acreditación seleccionado', control: 'Cod_acreditacion' }
+      //       ]
+      //     },
+      //   ]
+      // }
     ]
   }
 
-  async setPlanDeEstudio(){
-    return this.dataForm = [
-      {
-        step: 1,
-        title: 'Paso 1',
-        state: 'stateStepOne',
-        fields: [
-          { label: 'Programa', control: 'Cod_Programa' },
-          { label: 'Estado', control: 'Cod_Estado' },
-          { label: 'Modalidad', control: 'Cod_Modalidad' },
-          { label: 'Jornada', control: 'Cod_Jornada' },
-          { label: 'Régimen', control: 'Cod_Regimen' },
-          { label: 'Cupo mínimo', control: 'Cupo_Minimo' },
-          { label: 'REXE', control: 'REXE' },
-          { 
-            label: 'Certificaciones intermedias', 
-            control: 'Certificacion_intermedia', 
-            conditional: { field: 'Certificacion_Intermedia_Switch', value: true }
-          },
-          // { label: 'Plan común', control: 'Grupo_correo' },
-          // { label: 'Menciones', control: 'Titulo' },
-          // { label: 'Rangos de aprobación', control: 'Horas_totales' },
-          // { label: 'Reglamento', control: 'REXE' },
-        ]
-      },
-      {
-        step: 2,
-        title: 'Paso 2',
-        state: 'stateStepTwo',
-        fields: [
-          { label: 'Reglamento', control: 'Cod_Reglamento' },
-          { label: 'Rangos de aprobación', control: 'Cod_RangosAprobacion' },
-          { 
-            label: 'Menciones', 
-            control: 'Menciones', 
-            conditional: { field: 'Menciones_Switch', value: true }
-          }
-        ]
-      },
-      {
-        step: 0,
-        title: 'Documento adjunto',
-        state: 'stateFileMaestro',
-        fields: [
-          { label: 'Documento maestro', control: 'file_maestro' },
-        ]
-      }
-    ]
+  dataForm: any[] = [];
+
+  getStateClass(state: boolean): string {
+    return state ? 'state-badge state-valid' : 'state-badge state-invalid';
+  }
+  
+  getStateText(state: boolean): string {
+    return state ? 'válido' : 'inválido';
   }
   
 

@@ -29,10 +29,6 @@ export type NameComponent = undefined |
                 'modalidad' |
                 'programa' |
                 'tipo-graduacion' |
-                'certificacion-intermedia' |
-                'agregar-plandeestudio' |
-                'ver/editar-plandeestudio';
-
                 'certificacion-intermedia' | 
                 'menciones'
 

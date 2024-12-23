@@ -6,6 +6,7 @@ import { AgregarProgramaComponent } from './agregar-programa/agregar-programa.co
 import { VerProgramaComponent } from './ver-programa/ver-programa.component';
 import { EditarProgramaComponent } from './editar-programa/editar-programa.component';
 
+
 const routes: Routes = [
   {
     path: '',
@@ -23,15 +24,16 @@ const routes: Routes = [
       {
         path: 'show/:cod_programa',
         component: VerProgramaComponent,
-        data: {title:'Visualización de programa'}
+        data: {title:'Ver programa'}
       },
       {
         path: 'edit/:cod_programa',
         component: EditarProgramaComponent,
-        data: {title:'Edición de programa'}
+        data: {title:'Actualizar programa'}
       }
     ]
   },
+
 ];
 
 @NgModule({
