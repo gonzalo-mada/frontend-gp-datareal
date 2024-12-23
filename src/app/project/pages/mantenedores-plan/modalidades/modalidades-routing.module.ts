@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { ModalidadesComponent } from './modalidades.component';
+import { ModalidadComponent } from './modalidades.component';
 
 const routes: Routes = [
   {
     path:'',
-    component: ModalidadesComponent
+    component: ModalidadComponent
   }
 ];
 

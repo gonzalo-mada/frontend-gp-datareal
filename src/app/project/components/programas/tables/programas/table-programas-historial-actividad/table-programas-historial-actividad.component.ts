@@ -4,21 +4,6 @@ import { HistorialActividad } from 'src/app/project/models/programas/HistorialAc
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
 import { MessageServiceGP } from 'src/app/project/services/components/message-service.service';
 
-interface Actividad {
-  Cod_programa?: number,
-  correo_usuario?: string,
-  descripcion?: {
-    descripcion: string,
-    valor_antes: string,
-    valor_despues: string
-  },
-  fecha?: string,
-  fecha_hora?: string,
-  nombre_usuario?: string,
-  tipo_movimiento?: 'C' | 'U' | 'D',
-  usuario?: string,
-  arrayData?: any
-}
 
 @Component({
   selector: 'app-table-programas-historial-actividad',
@@ -46,16 +31,10 @@ export class TableProgramasHistorialActividadComponent implements OnInit {
   ];
   groupedData: any;
   selectedDate: string = '';
-  dialog: boolean = false;
-  actividad!: Actividad;
-  fromMultiSelect: boolean = false;
-  
 
   async ngOnInit() {
     this.dataKeyTable = 'Cod_Programa';
     this.groupedData = this.formatData(this.data);
-    console.log("data",this.data);
-    
   }
 
   onGlobalFilter(table: Table, event: Event) {
@@ -86,16 +65,6 @@ export class TableProgramasHistorialActividadComponent implements OnInit {
         value: 2,
         items: this.removeDuplicates(data
           .filter(item => item.tipo_movimiento === 'U')
-          .map(item => ({
-            label: item.descripcion.descripcion,
-            value: item.descripcion.descripcion
-          })))
-      },
-      {
-        label: 'ELIMINACIÓN',
-        value: 3,
-        items: this.removeDuplicates(data
-          .filter(item => item.tipo_movimiento === 'D')
           .map(item => ({
             label: item.descripcion.descripcion,
             value: item.descripcion.descripcion
@@ -138,8 +107,8 @@ export class TableProgramasHistorialActividadComponent implements OnInit {
     switch (event.field) {
       case 'fecha':
         event.data?.sort((data1:any , data2:any) => {
-          const value1 = data1.fecha_hora ? data1.fecha_hora : '';
-          const value2 = data2.fecha_hora ? data2.fecha_hora : '';
+          const value1 = data1.fecha ? data1.fecha : '';
+          const value2 = data2.fecha ? data2.fecha : '';
 
           let newValue1 = this.convertirStringAFecha(value1);
           let newValue2 = this.convertirStringAFecha(value2);
@@ -188,9 +157,9 @@ export class TableProgramasHistorialActividadComponent implements OnInit {
   convertirStringAFecha(fechaStr: string): Date {
     const [day, month, yearAndTime] = fechaStr.split("-");
     const [year, time] = yearAndTime.split(" ");
-    const [hour, minute, seconds] = time.split(":");
+    const [hour, minute] = time.split(":");
   
-    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute), parseInt(seconds));
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute));
   }
 
   filterData(valueSelected: string[], from: 'actividad' | 'tipo_mov' | 'usuario'){
@@ -220,106 +189,6 @@ export class TableProgramasHistorialActividadComponent implements OnInit {
        ? `${table._totalRecords} actividades listadas.`
        : `${table._totalRecords} actividad listada.`
     });
-  }
-
-  show(data: Actividad){
-    this.fromMultiSelect = false;
-    this.actividad = {...data}
-    if (this.actividad.descripcion?.descripcion.includes('DOCUMENTOS')) {
-      const data = this.actividad.descripcion?.valor_despues.split('|').map(name => name.trim())
-      this.actividad = { ...this.actividad,  arrayData: data}
-      console.log("this.actividad!!!",this.actividad);
-
-    }
-    if (this.actividad.descripcion?.descripcion.includes('ACTUALIZACIÓN DE UNIDADES ACADÉMICAS')) {
-      const data_antes = this.actividad.descripcion?.valor_antes.split('|').map(name => name.trim())
-      const data_despues = this.actividad.descripcion?.valor_despues.split('|').map(name => name.trim())
-      const dataArray = this.generateArray(data_antes,data_despues);
-      this.actividad = { ...this.actividad,  arrayData: dataArray}
-      this.fromMultiSelect = true;
-    }
-    if (this.actividad.descripcion?.descripcion.includes('ACTUALIZACIÓN DE GRADUACIÓN COLABORATIVA')) {
-      const data_antes = this.actividad.descripcion?.valor_antes.split('|').map(name => name.trim())
-      const data_despues = this.actividad.descripcion?.valor_despues.split('|').map(name => name.trim())
-      const dataArray = this.generateArray(data_antes,data_despues);
-      this.actividad = { ...this.actividad,  arrayData: dataArray}
-      this.fromMultiSelect = true;
-    }
-    if (this.actividad.descripcion?.descripcion.includes('ACTUALIZACIÓN DE CERTIFICACIÓN INTERMEDIA')) {
-      const data_antes = this.actividad.descripcion?.valor_antes.split('|').map(name => name.trim())
-      const data_despues = this.actividad.descripcion?.valor_despues.split('|').map(name => name.trim())
-      const dataArray = this.generateArray(data_antes,data_despues);
-      this.actividad = { ...this.actividad,  arrayData: dataArray}
-      this.fromMultiSelect = true;
-    }
-    if (this.actividad.descripcion?.descripcion.includes('ACTUALIZACIÓN DE INSTITUCIONES DE GRADUACIÓN COLABORATIVA')) {
-      const data_antes = this.actividad.descripcion?.valor_antes.split('|').map(name => name.trim())
-      const data_despues = this.actividad.descripcion?.valor_despues.split('|').map(name => name.trim())
-      const dataArray = this.generateArray(data_antes,data_despues);
-      this.actividad = { ...this.actividad,  arrayData: dataArray}
-      this.fromMultiSelect = true;
-    }
-    this.dialog = true;
-  }
-
-  generateArray(arrayAntes: any[] , arrayDespues: any[]){
-    const newArray = []
-    let i = 0, j = 0;
-    while (i < arrayAntes.length || j < arrayDespues.length) {
-      const antes = arrayAntes[i] || '';
-      const despues = arrayDespues[j] || '';
-      newArray.push({ antes, despues });
-      i++;
-      j++;
-    }
-    return newArray;
-  }
-
-  needValorAntes(actividad: Actividad): boolean {
-    const act = actividad.descripcion!.descripcion!
-    if (
-        actividad.descripcion?.valor_antes !== null && 
-        !act.includes('DOCUMENTOS') &&
-        !act.includes('ACTUALIZACIÓN DE UNIDADES ACADÉMICAS') &&
-        !act.includes('ACTUALIZACIÓN DE CERTIFICACIÓN INTERMEDIA') &&
-        !act.includes('ACTUALIZACIÓN DE INSTITUCIONES DE GRADUACIÓN COLABORATIVA') &&
-        !act.includes('ACTUALIZACIÓN DE GRADUACIÓN COLABORATIVA') 
-      ) {
-      return true
-    }else{
-      return false
-    } 
-  }
-
-  needValorDespues(actividad: Actividad): boolean {
-    const act = actividad.descripcion!.descripcion!
-    if (
-        actividad.descripcion?.valor_despues !== null && 
-        !act.includes('DOCUMENTOS') &&
-        !act.includes('ACTUALIZACIÓN DE UNIDADES ACADÉMICAS') &&
-        !act.includes('ACTUALIZACIÓN DE CERTIFICACIÓN INTERMEDIA') &&
-        !act.includes('ACTUALIZACIÓN DE INSTITUCIONES DE GRADUACIÓN COLABORATIVA') &&
-        !act.includes('ACTUALIZACIÓN DE GRADUACIÓN COLABORATIVA') 
-      ) {
-      return true
-    }else{
-      return false
-    } 
-  }
-
-  needTable(actividad: Actividad): boolean {
-    const act = actividad.descripcion!.descripcion!
-    if (
-      act.includes('DOCUMENTOS') || 
-      act.includes('ACTUALIZACIÓN DE UNIDADES ACADÉMICAS') ||
-      act.includes('ACTUALIZACIÓN DE CERTIFICACIÓN INTERMEDIA') ||
-      act.includes('ACTUALIZACIÓN DE INSTITUCIONES DE GRADUACIÓN COLABORATIVA') ||
-      act.includes('ACTUALIZACIÓN DE GRADUACIÓN COLABORATIVA') 
-    ) {
-      return true
-    }else{
-      return false
-    } 
   }
 
 

@@ -4,7 +4,7 @@ import { ActionUploader, UploaderFilesService } from '../../components/uploader-
 import { FormCampusService } from './form.service';
 import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 import { BackendCampusService } from './backend.service';
-import { CollectionsMongo, ModeUploader, Module, NameComponent } from 'src/app/project/models/shared/Context';
+import { CollectionsMongo, LabelComponent, ModeUploader, Module, NameComponent } from 'src/app/project/models/shared/Context';
 import { ActionUploadDoc } from 'src/app/project/models/shared/ActionUploadDoc';
 import { Campus } from 'src/app/project/models/programas/Campus';
 
@@ -33,22 +33,18 @@ export class FilesCampusService {
 
             }
         }));
-        this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( async (from) => {
+        this.subscription.add(this.uploaderFilesService.validatorFiles$.subscribe( async from => {
         if (from && from.context.component.name === 'campus'){
             // console.log("valitador files.service campus",from);
             await this.handleFileAction(from);
             await this.updateFiles();
         }
         }));
-        this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(async from => {
+        this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
             if (from) {
                 if (from.context.component.name === 'campus') {
-                    if (from.mode === 'd') {
-                        console.log("DESCARGA REALIZADA DESDE SERVICIO FILES campus");
-                        await this.downloadDoc(from.file)
-                    }else{
-                        await this.getDocWithBinary(from.file, from.mode, from.resolve! , from.reject!);
-                    }
+                    console.log("DESCARGA REALIZADA DESDE SERVICIO FILES campus");
+                    this.downloadDoc(from.file)
                 }
             }
         }));
@@ -66,7 +62,7 @@ export class FilesCampusService {
                 this.filesSelected = [...from.files.filesSelected]; 
             break;
             case 'cancel-delete':
-                this.filesToDelete = [...from.files.filesToDelete];
+                this.filesSelected = [...from.files.filesSelected];
                 this.filesUploaded = [...from.files.filesUploaded];
             break;
             case 'delete-uploaded':
@@ -111,29 +107,13 @@ export class FilesCampusService {
     }
 
     async downloadDoc(documento: any) {
-        let blob: Blob = await this.backend.getArchiveDoc(documento.id,false);
+        let blob: Blob = await this.backend.getArchiveDoc(documento.id);
         this.commonUtils.downloadBlob(blob, documento.nombre);      
-    }
-
-    async getDocWithBinary(documento: any, mode: 'g' | 'b', resolve: Function, reject: Function) {
-        try {
-            if (mode === 'g') {
-                //no se necesita binario en formato string
-                const response = await this.backend.getArchiveDoc(documento.id, false);
-                resolve(response)
-            }else{
-                //si se necesita binario en formato string
-                const response = await this.backend.getArchiveDoc(documento.id, true);
-                resolve(response)
-            }
-        } catch (error) {
-            reject(error)
-        }
     }
 
     async loadDocsWithBinary(campus: Campus){
         this.uploaderFilesService.setLoading(true,true);  
-        const files = await this.backend.getDocsMongo(campus.Cod_campus!);
+        const files = await this.backend.getDocumentosWithBinary(campus.Cod_campus!);
         await this.uploaderFilesService.updateFilesFromMongo(files);
         this.uploaderFilesService.setLoading(false);
         return files 

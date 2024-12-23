@@ -17,21 +17,18 @@
             <td>{{ data.Facultad }}</td>
             <td>
                 <p-button
-                    *ngIf="!data.isSelected" 
-                    icon="pi pi-check" 
-                    styleClass="p-button-sm p-button-info"
-                    pTooltip="Seleccionar"
+                    *ngIf="!data.isSelected"  
+                    styleClass="p-button-sm"
+                    label="Seleccionar"
                     (click)="changeSelectDirector('select',data)"
                     [disabled]="isAnySelected && !data.isSelected"
                 >
                 </p-button>
                 <p-button
                     *ngIf="data.isSelected"    
-                    icon="pi pi-minus"
                     styleClass="p-button-sm p-button-danger"
-                    pTooltip="Deseleccionar"
+                    label="Deseleccionar"
                     (click)="changeSelectDirector('unselect',data)"
-                    [disabled]="mode === 'show' "
                 >
                 </p-button>
             </td>

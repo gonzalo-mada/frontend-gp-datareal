@@ -12,33 +12,17 @@ import { Campus } from 'src/app/project/models/programas/Campus';
 import { TipoGraduacion } from 'src/app/project/models/programas/TipoGraduacion';
 import { Router } from '@angular/router';
 
+
 @Injectable({
     providedIn: 'root'
 })
 
 
 export class VerEditarProgramaMainService {
-    
+
     programa: Programa = {};
     dialogUpdate: boolean = false
     dialogUpdateMode!: ModeDialog;
-    showButtonSubmitUpdate: boolean = false;
-    dialogHistorialActividades: boolean = false;
-
-    //arrays para update
-    campus: Campus[] = [];
-    instituciones: any[] = [];
-    institucionesSelected: any[] = [];
-    tiposProgramas : any[] = [];
-    tiposProgramasGrouped : any[] = [];
-    estadosMaestros: any[] = [];
-    unidadesAcademicasPrograma: any[] = [];
-    unidadesAcademicas: any[] = [];
-    unidadesAcademicasGrouped: any[] = [];
-    tiposGraduaciones: any[] = [];
-    certificaciones: any[] = [];
-    certificacionesPrograma: any[] = [];
-    suspensiones: any[] = [];
 
     constructor(
         private backend: BackendProgramasService,
@@ -60,10 +44,6 @@ export class VerEditarProgramaMainService {
         return this.main.namesCrud
     }
 
-    get mode(){
-        return this.main.mode
-    }
-
     async setModeCrud(mode: ModeForm, data?: Programa | null, from?: CollectionsMongo | null ){
         this.form.modeForm = mode;
         if (data) this.programa = {...data};
@@ -73,26 +53,22 @@ export class VerEditarProgramaMainService {
         }
     }
 
-    reset(){
-        this.files.resetLocalFiles();
-    }
-
     async updateForm(): Promise<ModeDialog> {
         const params = await this.setForm();
-        if (params) {
-            const response = await this.backend.updateProgramaBackend(params, this.main.namesCrud);
-            if (response && response.dataWasUpdated) {
-                this.messageService.add({
-                    key: 'main',
-                    severity: 'success',
-                    detail:generateMessage(this.main.namesCrud,response.dataUpdated,'actualizado',true,false)
-                });
-                this.files.resetLocalFiles();
-            }
+        
+        const response = await this.backend.updateProgramaBackend(params, this.main.namesCrud);
+    
+        if (response && response.dataWasUpdated) {
+            this.messageService.add({
+                key: 'main',
+                severity: 'success',
+                detail:generateMessage(this.main.namesCrud,response.dataUpdated,'actualizado',true,false)
+            });
+            this.files.resetLocalFiles();
         }
+    
         this.dialogUpdate = false;
         return this.dialogUpdateMode;
-
     }
     
 
@@ -192,6 +168,7 @@ export class VerEditarProgramaMainService {
     updateFilesUploader(){
         this.files.setFiles();
     }
+
     
 
 }

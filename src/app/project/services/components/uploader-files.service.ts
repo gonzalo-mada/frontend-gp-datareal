@@ -1,7 +1,8 @@
 import {  effect, Injectable, signal } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { CollectionsMongo, Context, ModeUploader, Module, NameComponent } from '../../models/shared/Context';
+import { CollectionsMongo, Context, LabelComponent, ModeUploader, Module, NameComponent } from '../../models/shared/Context';
 import { LoadinggpService } from './loadinggp.service';
+import { ModeDialog } from '../../models/programas/Programa';
 
 export type ActionUploader = 'upload' | 'uploaded' | 'reset' | 'delete-uploaded' | 'delete-selected' | 'select' | 'cancel-delete'
 // acciones -> upload: usuario solicita subir | uploaded: docs descargados desde mongo | reset: resetea uploader | 
@@ -34,7 +35,7 @@ export class UploaderFilesService {
   private contextUpdate = new BehaviorSubject<Context>(this._context);
   contextUpdate$ = this.contextUpdate.asObservable();
 
-  private downloadDocSubject = new BehaviorSubject<{context: Context, file:any, mode: 'g' | 'd' | 'b', resolve?: Function, reject?: Function} | null>(null);
+  private downloadDocSubject = new BehaviorSubject<{context: Context, file:any} | null>(null);
   downloadDoc$ = this.downloadDocSubject.asObservable();
 
   private validatorFilesSubject = new BehaviorSubject<{action: ActionUploader, context: Context, files:any} | null>(null);
@@ -70,9 +71,8 @@ export class UploaderFilesService {
     this.disabledButtonSeleccionarArchivos = false;
   }
 
-  async triggerDownloadDoc(context: Context, file: any, mode: 'g' | 'd' | 'b', resolve?: Function, reject?: Function){
-    // g: para solo obtener archivo | d: para descargar
-    this.downloadDocSubject.next({ context, file, mode, resolve, reject });
+  triggerDownloadDoc(context: Context, file: any){
+    this.downloadDocSubject.next({context, file});
     this.downloadDocSubject.next(null);
   }
 
@@ -88,6 +88,21 @@ export class UploaderFilesService {
   setAction(action: ActionUploader, resolve?: Function, reject?: Function){
     this.actionSubject.next({action, resolve, reject});
     if (action === 'reset') this.actionSubject.next(null);
+  }
+
+  setFiles(newFiles: any[] | null) {
+    // console.log("newFiles",newFiles);
+    this.resetFilesUploaded();
+
+    if (newFiles === null) {
+      this.resetFilesUploaded();
+    }else{
+      newFiles.forEach( file => {
+        this.filesUploaded.push(file)
+      })
+    }
+    this.setConfigModeUploader();
+    
   }
 
   async updateFilesFromMongo(files: any): Promise<boolean>{
@@ -112,6 +127,18 @@ export class UploaderFilesService {
     this.filesSelected = [];
   }
 
+  setContext(modeUploader: ModeUploader, moduleName: Module, name: NameComponent, label?: LabelComponent){
+    this.context.update((context) => ({
+        ...context,
+        mode: modeUploader,
+        module: moduleName,
+        component: {
+          name: name,
+          label: label
+        }
+    }))
+  }
+
   newSetContext(modeUploader: ModeUploader, moduleName: Module, name: NameComponent, collection?: CollectionsMongo): Promise<boolean> {
     this.context.update((context) => ({
       ...context,
@@ -125,13 +152,12 @@ export class UploaderFilesService {
     return Promise.resolve(true);
   }
 
-  setLoading(loading: boolean, showMessage = false, showSkeleton = true, mode?: 'g' | 'd' | 'b'){
+  setLoading(loading: boolean, showMessage = false){
     switch (loading) {
       case true:
         if (showMessage) {
-          showSkeleton ? this.loading = true : this.loading = false;
-          // this.loadingGpService.loading(true,{msgs: 'Cargando documentos. Espere, por favor...'})
-          this.loadingGpService.loading(true,{msgs: `${ mode && mode === 'b' ? 'Adjutando documento(s). Espere, por favor...' : 'Cargando documento(s). Espere, por favor...'}`})
+          this.loading = true;
+          this.loadingGpService.loading(true,{msgs: 'Cargando documentos. Espere, por favor...'})
         }else{
           this.loading = true;
           this.loadingGpService.loading(true)

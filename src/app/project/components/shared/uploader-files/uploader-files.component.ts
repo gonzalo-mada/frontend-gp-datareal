@@ -5,12 +5,12 @@ import { Subscription } from 'rxjs';
 import { UploaderFilesService } from '../../../services/components/uploader-files.service';
 import { Context } from '../../../models/shared/Context';
 import { MessageServiceGP } from 'src/app/project/services/components/message-service.service';
-import { DocMongo } from 'src/app/project/models/shared/DocMongo';
 
 @Component({
   selector: 'app-uploader-files',
   templateUrl: './uploader-files.component.html',
-  styles: []
+  styles: [
+  ]
 })
 
 export class UploaderFilesComponent implements OnInit, OnDestroy {
@@ -24,9 +24,11 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
     { label: ' Archivo en línea' , icon:'pi-cloud' , color:'estado-cloud'},
     { label: ' Archivo por subir' , icon:'pi-cloud-upload' , color:'estado-upload'}
   ];
+  files: any[] = [];
 
   dialogVisorPDF: boolean = false;
-  doc: DocMongo = {};
+  doc: any ;
+  extrasDocs: any;
   context!: Context;
   totalFileSizeNumber: number = 0;
 
@@ -74,10 +76,26 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
 
   onSelect(event: any, uploader: FileUpload){
     //Valida si archivos seleccionados supera el limite
-    if (!this.validateTotalFileSize(uploader)) return;
-
+    if (!this.validateTotalFileSize(uploader)) {
+      // Si la validación falla, no continuar con la carga
+      return;
+    }
+    
     // Filtrar los archivos nuevos, verificando que no estén ya en la lista
-    const uniqueFiles = this.getUniqueFiles(uploader);
+    const uniqueFiles = uploader._files.filter((newFile: File) => {
+      const isDuplicate = this.uploaderFilesService.files.some(fileLoaded => {
+        if (this.fileUtils.areFilesEqual(fileLoaded , newFile)) {
+          this.messageService.add({
+            key: 'main',
+            severity: 'error',
+            detail: `El documento con nombre ${newFile.name} ya existe.`,
+          });
+          return true; // El archivo es duplicado
+        }
+        return false; // No es duplicado
+      });
+      return !isDuplicate; // Filtra solo los archivos únicos
+    });
 
     uniqueFiles.forEach((newFile: File) => {
       const fileToSelect = {
@@ -105,48 +123,46 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
       this.docsToUpload = [];
       if (this.uploaderFilesService.files.length != 0) {
         //subieron docs
+        
         for (let i = 0; i < this.uploaderFilesService.files.length; i++) {
           const doc = this.uploaderFilesService.files[i];        
           if (!doc.id) {
             //modo subir nuevo archivo
             
-            let file: any = await this.fileUtils.onSelectFile(doc.origFile);    
+            let file: any = await this.fileUtils.onSelectFile(doc.origFile);
+    
+            const extras = {
+              pesoDocumento: doc.extras.pesoDocumento,
+              comentarios: doc.extras.comentarios
+            };
+  
             let documento: any = {
               nombre: `${file.filename}.${file.format}`,
               archivo: file.binary,
               tipo: file.format,
-              extras: {
-                pesoDocumento: doc.extras.pesoDocumento,
-                comentarios: doc.extras.comentarios
-              },
+              extras: extras,
               from: doc.from
             };
             this.docsToUpload.push(documento)
             
           }else{
             //modo actualizar archivo
-            if (doc.isCommented && doc.isCommented === true) {
-              //el doc en línea recibió un comentario por lo que se necesita el dataBase64 para actualizar el doc
-              const response: string = await new Promise((res, rej) => {
-                this.uploaderFilesService.setLoading(true,true,false,'b');
-                this.uploaderFilesService.triggerDownloadDoc(this.context, doc,'b', res, rej);
-              });
-              if (response) {
-                let documento: any = {
-                  id: doc.id,
-                  nombre: `${doc.nombre}`,
-                  dataBase64: response,
-                  tipo: doc.tipo,
-                  extras: {
-                    pesoDocumento: doc.extras.pesoDocumento,
-                    comentarios: doc.extras.comentarios
-                  },
-                  from: doc.from
-                };
-                this.docsToUpload.push(documento)
-                this.uploaderFilesService.setLoading(false);
-              }
-            }            
+
+            const extras = {
+              pesoDocumento: doc.extras.pesoDocumento,
+              comentarios: doc.extras.comentarios
+            };
+            
+            let documento: any = {
+              id: doc.id,
+              nombre: `${doc.nombre}`,
+              dataBase64: doc.dataBase64,
+              tipo: doc.tipo,
+              extras: extras,
+              from: doc.from
+            };
+            
+            this.docsToUpload.push(documento)
           }
         }
         resolve({success: true, docsToUpload: this.docsToUpload, docsToDelete: this.uploaderFilesService.filesToDelete})
@@ -158,11 +174,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
     }
   }
 
-  onCommentChange(index: number, comment: string, file: any) {
-    if (file.id ) {
-      // es un archivo en línea
-      comment !== '' ? this.uploaderFilesService.files[index].isCommented = true : this.uploaderFilesService.files[index].isCommented = false
-    }
+  onCommentChange(index: number, comment: string) {
     this.uploaderFilesService.files[index].extras.comentarios = comment;
   }
 
@@ -179,34 +191,28 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
   }
 
   cancelDeleteFile(file: any, index: number){
-    if (this.uploaderFilesService.files.length !== 0) {
-      const fileExists = this.uploaderFilesService.files.some(existingFile => existingFile.nombre === file.nombre);
-      if (!fileExists) {
-        if (file.id) {
-          let totalRemoveTemplating = file.extras.pesoDocumento + this.uploaderFilesService.totalFileSize
-          if (totalRemoveTemplating > this.uploaderFilesService.limitValueUploader) {
-            this.messageService.add({
-              key: 'main',
-              severity: 'error',
-              detail: `El peso total de archivos adjuntados supera los 10MB.`,
-            });
-            return
-          }
-          this.uploaderFilesService.filesUploaded.push(file);
+    const fileExists = this.uploaderFilesService.files.some(existingFile => existingFile.nombre === file.nombre);
+    if (!fileExists) {
+      if (file.id) {
+        let totalRemoveTemplating = file.extras.pesoDocumento + this.uploaderFilesService.totalFileSize
+        if (totalRemoveTemplating > this.uploaderFilesService.limitValueUploader) {
+          this.messageService.add({
+            key: 'main',
+            severity: 'error',
+            detail: `El peso total de archivos adjuntados supera los 10MB.`,
+          });
+          return
         }
-        this.uploaderFilesService.filesToDelete.splice(index, 1);
-      } else {
-        this.messageService.add({
-          key: 'main',
-          severity: 'error',
-          detail: `El documento con nombre ${file.nombre} no es posible cancelar su eliminación ya que está como documento adjunto.`,
-        });
+        this.uploaderFilesService.filesUploaded.push(file);
       }
-    }else{
-      this.uploaderFilesService.filesUploaded.push(file);
       this.uploaderFilesService.filesToDelete.splice(index, 1);
+    } else {
+      this.messageService.add({
+        key: 'main',
+        severity: 'error',
+        detail: `El documento con nombre ${file.nombre} no es posible cancelar su eliminación ya que está como documento adjunto.`,
+      });
     }
-
     this.uploaderFilesService.updateValidatorFiles('cancel-delete',this.context, {filesToDelete:this.uploaderFilesService.filesToDelete , filesUploaded:this.uploaderFilesService.filesUploaded});
   }
 
@@ -214,44 +220,23 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
     console.log("me llamaron reset queue uploader desde:", context);
     this.docsToUpload = [];  
     this.uploader?.clear();
+    // this.uploaderFilesService.resetValidatorFiles();
     this.uploaderFilesService.resetUploader();
   }
 
-  async showVisorPDF(event: any){
-    try {
-      if (event.id){
-        //archivo ya subido en mongo
-        const response = await new Promise((res, rej) => {
-          this.uploaderFilesService.setLoading(true,true,false,'g');
-          this.uploaderFilesService.triggerDownloadDoc(this.context, event,'g', res, rej);
-        });
-        if (response) {
-          this.doc = {file: response, data: event};
-          this.dialogVisorPDF = true;
-          this.uploaderFilesService.setLoading(false);
-        }
-      }else{
-        //archivo en cola
-        this.doc = {file: event.origFile, data: {nombre: event.origFile.name}};
-        this.dialogVisorPDF = true;
-      }
-
-    } catch (error) {
-      console.error("Error al abrir visor-pdf", error);
-    }
+  showVisorPDF(event: any){   
+    this.dialogVisorPDF = true;
+    this.doc = event;
   }
 
   downloadDoc(event: any){
-    return new Promise((res, rej) => {
-      this.uploaderFilesService.triggerDownloadDoc(this.context, event,'d',res, rej);
-    })
+    this.uploaderFilesService.triggerDownloadDoc(this.context, event);
   }
 
   test(){
     console.log("FILES:",this.uploaderFilesService.files);
-    console.log("FILES UPLOADED:",this.uploaderFilesService.filesUploaded);
-    console.log("FILES SELECTED:",this.uploaderFilesService.filesSelected);
     console.log("FILES TO DELETE:",this.uploaderFilesService.filesToDelete);
+    console.log("FILES UPLOADED:",this.uploaderFilesService.filesUploaded);
     // console.log("FILES SELECT:",this.uploaderFilesService.filesFromModeSelect);
     // console.log("FILES CREATE OR EDIT:",this.uploaderFilesService.filesFromModeCreateOrEdit);
 
@@ -304,22 +289,5 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
     }
   
     return true;
-  }
-
-  getUniqueFiles(uploader: FileUpload): any[]{
-    return uploader._files.filter((newFile: File) => {
-      const isDuplicate = this.uploaderFilesService.files.some(fileLoaded => {
-        if (this.fileUtils.areFilesEqual(fileLoaded, newFile)) {
-          this.messageService.add({
-            key: 'main',
-            severity: 'error',
-            detail: `El documento con nombre ${newFile.name} ya existe.`,
-          });
-          return true; // El archivo es duplicado
-        }
-        return false; // No es duplicado
-      });
-      return !isDuplicate;
-    });
   }
 }

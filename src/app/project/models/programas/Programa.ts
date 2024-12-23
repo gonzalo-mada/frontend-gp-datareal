@@ -1,32 +1,8 @@
-import { CollectionsMongo } from "../shared/Context";
 import { EstadoMaestro } from "./EstadoMaestro";
 import { EstadosAcreditacion } from "./EstadosAcreditacion";
 import { Reglamento } from "./Reglamento";
 import { Suspension } from "./Suspension";
-export type ModeDialog = 
-undefined | 
-'título' | 
-'grado académico' | 
-'REXE' | 
-'estado maestro' | 
-'director' | 
-'director alterno' | 
-'programa' | 
-'reglamento' | 
-'estado acreditación' | 
-'maestro' | 
-'nombre' | 
-'grupo_correo' | 
-'créditos totales' | 
-'horas totales' | 
-'centro costo' | 
-'código SIES' | 
-'unidades académicas' | 
-'tipo de programa' | 
-'campus' | 
-'graduación colaborativa' |
-'certificación intermedia' ;
-
+export type ModeDialog = undefined | 'título' | 'grado académico' | 'REXE' | 'estado maestro' | 'director' | 'director alterno' | 'programa' | 'reglamento' | 'estado acreditación' | 'maestro' | 'nombre' | 'grupo_correo' | 'créditos totales' | 'horas totales'
 export interface Programa {
     Cod_Programa?: number,
     Centro_costo?: string,
@@ -58,13 +34,8 @@ export interface Programa {
     Descripcion_Reglamento?: string,
     Descripcion_TipoSuspension?: string,
     Descripcion_acreditacion?: string,
-    Descripcion_EstadoMaestro?: string,
     nombre_Director?: string,
-    nombreDirector_alterno?: string,
+    nombre_DirectorAlterno?: string,
     Certificacion_intermedia?: number
-}
-export interface UpdatePrograma {
-    modeDialog: ModeDialog,
-    collection: CollectionsMongo
 }
 

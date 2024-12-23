@@ -203,7 +203,6 @@ export class ReglamentosMainService {
             
         }finally{
             this.getReglamentos(false);
-            this.table.emitRefreshTablesReglamentos();
             this.reset();
         }
     }
