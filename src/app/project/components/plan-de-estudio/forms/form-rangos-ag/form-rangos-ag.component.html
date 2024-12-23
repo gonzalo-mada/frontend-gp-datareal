@@ -29,19 +29,36 @@
                 </div>
                 
                 <div class="field col-12">
+                    <p-inputNumber 
+                        formControlName="NotaMinima" 
+                        [min]="0" 
+                        [max]="10" 
+                        [showButtons]="true" 
+                        [useGrouping]="false"
+                        [mode]="'decimal'" 
+                        class="w-full"
+                        placeholder="Ingrese la nota mínima">
+                    </p-inputNumber>
                     <label><strong>Nota mínima {{ main.modeForm === 'show' ? '' : '*' }}</strong></label>
-                    <input type="text" pInputText formControlName="NotaMinima" maxlength="5"
-                        class="w-full" placeholder="Ingrese la nota mínima" />
                     <app-form-control [control]="form.fbForm.controls['NotaMinima']"
                         [validators]="['required', 'num_y_letras']">
                     </app-form-control>
-                </div>
+                </div>                
+                
                 <div class="field col-12">
-                    <label><strong>Nota máxima {{ main.modeForm === 'show' ? '' : '*' }}</strong></label>
-                    <input type="text" pInputText formControlName="NotaMaxima" maxlength="5"
-                        class="w-full" placeholder="Ingrese la nota máxima" />
+                    <p-inputNumber 
+                        formControlName="NotaMaxima" 
+                        [min]="0" 
+                        [max]="10" 
+                        [showButtons]="true" 
+                        [useGrouping]="false"
+                        [mode]="'decimal'" 
+                        class="w-full"
+                        placeholder="Ingrese la nota máxima">
+                    </p-inputNumber>
+                    <label><strong>Nota mínima {{ main.modeForm === 'show' ? '' : '*' }}</strong></label>
                     <app-form-control [control]="form.fbForm.controls['NotaMaxima']"
-                        [validators]="['required', 'num_y_letras']">
+                        [validators]="['required']">
                     </app-form-control>
                 </div>
 
@@ -51,7 +68,7 @@
                         class="w-full" placeholder="Ingrese el número de REXE del plan de estudio" />
 
                     <app-form-control [control]="form.fbForm.controls['RexeReglamentoEstudio']"
-                        [validators]="['required', 'num_y_letras']"></app-form-control>
+                        [validators]="['required']"></app-form-control>
                 </div>
             </div>
         </form>

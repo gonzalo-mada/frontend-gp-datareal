@@ -19,8 +19,8 @@ export class FormRangosAGService {
       async initForm(): Promise<boolean> {
           this.fbForm = this.fb.group({
             Descripcion_RangoAprobG: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
-            NotaMinima: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
-            NotaMaxima: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
+            NotaMinima: ['', [Validators.required]],
+            NotaMaxima: ['', [Validators.required]],
             RexeReglamentoEstudio: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
             aux: ['']
             //ingresar validador de notas mayores o menores
