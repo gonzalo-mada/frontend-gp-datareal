@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { ModeDialog, Programa } from 'src/app/project/models/programas/Programa';
@@ -33,7 +33,8 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
     public main: VerEditarProgramaMainService
   ){}
 
-  @Input() modeDialogInput: ModeDialog;
+  @Input() mode: ModeForm;
+  @Input() modeDialogInput: UpdatePrograma | undefined;
   @Input() programa!: Programa;
   @Output() formUpdated = new EventEmitter<string>();
   @Output() resetDialog = new EventEmitter();
@@ -164,6 +165,7 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
         message: 'Hubo un error al crear el formulario de créditos totales de programa. Intente nuevamente.',
       });
     }
+
   }
 
   async createFormHorasTotales(){
@@ -330,19 +332,34 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
       await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', 'directorAlterno');
       await this.form.setFormUpdate('director alterno', this.programa);
 
-      this.form.fbFormUpdate.get('DirectorAlterno_selected')?.value !== '' ? this.selectedDirectorAlterno = true : this.selectedDirectorAlterno = false
-      this.checkDirectorSelected('alterno');
+      if (this.mode === 'show') this.form.fbFormUpdate.disable();
+      
+      if (this.form.fbFormUpdate.get('Director_alterno')?.value !== '0') {
+        // si tiene director alterno
+        this.selectedDirectorAlterno = true;
+        const rut_director = this.programa.Director_alterno!.split('-');
+        this.directoresAlternos = await this.backend.getDirector({rut: parseInt(rut_director[0])},false,'alterno');
+        this.directoresAlternos.map( director => {
+          if (director.rutcompleto === this.programa.Director_alterno) {
+            director.isSelected = true;
+            this.form.stateFormUpdate = 'VALID';
+          }else{
+            director.isSelected = false;
+          }
+        })
+        this.form.fbFormUpdate.get('Director_alterno')?.disable()
+      }else{
+        //no tiene director alterno
+        this.form.unsetSelectDirectorFormUpdate('alterno');
+        this.form.fbFormUpdate.get('Director_alterno')?.reset();
+        this.form.fbFormUpdate.get('DirectorAlterno_selected')?.clearValidators();
+        this.form.fbFormUpdate.get('Director_alterno')?.disable()
+        this.main.disabledButtonSeleccionar();
+        this.selectedDirectorAlterno = false;
+        this.showAsterisk = false;
+        this.disabledSearchButton = true;
+      }
 
-      const rut_director = this.programa.Director_alterno!.split('-');
-      this.directoresAlternos = await this.backend.getDirector({rut: parseInt(rut_director[0])},false,'alterno');
-      this.directoresAlternos.map( director => {
-        if (director.rutcompleto === this.programa.Director_alterno) {
-          director.isSelected = true;
-          this.form.stateFormUpdate = 'VALID';
-        }else{
-          director.isSelected = false;
-        }
-      })
 
       this.form.fbForm.get('DirectorAlterno_selected')!.valueChanges.subscribe( value => {
         if (value === '' || value === null) {
@@ -373,10 +390,22 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
   checkDirectorSelected(mode: 'director' | 'alterno'){
     switch (mode) {
       case 'director':
-        this.selectedDirector ? this.form.fbFormUpdate.get('Director')?.disable() : this.form.fbFormUpdate.get('Director')?.enable()
+        if (this.selectedDirector) {
+          this.form.fbFormUpdate.get('Director')?.disable()
+          this.disabledSearchButton = true
+        }else{
+          this.form.fbFormUpdate.get('Director')?.enable()
+          this.disabledSearchButton = false
+        }
       break;
       case 'alterno':
-        this.selectedDirectorAlterno ? this.form.fbFormUpdate.get('Director_alterno')?.disable() : this.form.fbFormUpdate.get('Director_alterno')?.enable()
+        if (this.selectedDirectorAlterno) {
+          this.form.fbFormUpdate.get('Director_alterno')?.disable()
+          this.disabledSearchButton = true
+        }else{
+          this.form.fbFormUpdate.get('Director_alterno')?.enable()
+          this.disabledSearchButton = false
+        }
       break;
     }
   }
@@ -415,6 +444,69 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
         this.directoresAlternos = resultAlt;
       }
     }    
+  }
+
+  async createFormCertificacionIntermedia(){
+    try {
+      await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', 'certificacion_intermedia');
+      await this.form.setFormUpdate('certificación intermedia', this.programa);
+      if (this.mode === 'show'){
+        this.form.fbFormUpdate.get('Certificacion_intermedia_Switch')!.disable();
+        this.form.fbFormUpdate.get('Certificacion_intermedia_old')!.enable();
+      } 
+      const cert_int_switch = this.form.fbFormUpdate.get('Certificacion_intermedia_Switch')!;
+      if (!cert_int_switch.value) {
+        this.form.fbFormUpdate.get('Certificacion_intermedia')?.disable()
+        this.main.disabledButtonSeleccionar();
+        this.showAsterisk = false; 
+      }
+      this.main.dialogUpdate = true;
+
+      const response = await this.main.setLoadDocsWithBinary(this.programa.Cod_Programa!,'certificacion_intermedia');
+      if (response) {
+        this.form.fbFormUpdate.get('files')?.setValidators([GPValidator.filesValidatorWithStatus('files', 'Certificacion_intermedia_Switch',() => this.mode as ModeForm)]);
+        this.form.fbFormUpdate.get('files')?.updateValueAndValidity();
+        this.main.showButtonSubmitUpdate = true;
+      } 
+    } catch (error) {
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al crear el formulario de Graduación colaborativa. Intente nuevamente.',
+      });
+    }
+  }
+
+  async createFormGraduacionColaborativa(){
+    try {
+      await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', 'graduacion_colaborativa');
+      await this.form.setFormUpdate('graduación colaborativa', this.programa);
+      if (this.mode === 'show'){
+        this.form.fbFormUpdate.get('Graduacion_Conjunta_Switch')!.disable();
+        this.form.fbFormUpdate.get('Cod_TipoGraduacion')!.disable();
+        this.form.fbFormUpdate.get('Instituciones_old')!.enable();
+      } 
+      const grad_conj_switch = this.form.fbFormUpdate.get('Graduacion_Conjunta_Switch')!;
+      if (!grad_conj_switch.value) {
+        this.form.fbFormUpdate.get('Certificacion_intermedia')?.disable()
+        this.form.fbFormUpdate.get('Cod_TipoGraduacion')?.disable()
+        this.form.fbFormUpdate.get('Instituciones')?.disable()
+        this.main.disabledButtonSeleccionar();
+        this.showAsterisk = false; 
+      }
+      this.main.dialogUpdate = true;
+
+      const response = await this.main.setLoadDocsWithBinary(this.programa.Cod_Programa!,'graduacion_colaborativa');
+      if (response) {
+        this.form.fbFormUpdate.get('files')?.setValidators([GPValidator.filesValidatorWithStatus('files', 'Graduacion_Conjunta_Switch',() => this.mode as ModeForm)]);
+        this.form.fbFormUpdate.get('files')?.updateValueAndValidity();
+        this.main.showButtonSubmitUpdate = true;
+      } 
+    } catch (error) {
+      this.errorTemplateHandler.processError(error, {
+        notifyMethod: 'alert',
+        message: 'Hubo un error al crear el formulario de Graduación colaborativa. Intente nuevamente.',
+      });
+    }
   }
 
   async createFormEstadoMaestro(){

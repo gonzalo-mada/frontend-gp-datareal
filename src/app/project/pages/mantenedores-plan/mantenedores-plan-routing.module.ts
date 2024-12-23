@@ -18,6 +18,10 @@ const routes: Routes = [
     title: 'Modalidades'
   },
   {
+    path: 'articulaciones',
+    loadChildren: () => import('../mantenedores-plan/articulaciones/articulaciones.module').then((j) => j.ArticulacionesModule),
+    title: 'Articulaciones'
+  },
     path: 'regimenes',
     loadChildren: () => import('../mantenedores-plan/regimen/regimen.module').then((r) => r.RegimenModule),
     title: 'Regímenes'

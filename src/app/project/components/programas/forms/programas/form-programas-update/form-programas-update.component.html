@@ -153,11 +153,8 @@
         
                 <ng-container *ngIf="main.dialogUpdateMode === 'reglamento'">
                     <div class="col-12 mt-2">
-                        <app-table-programas-reglamentos
-                            [programa]="programa" 
-                            [isAnySelected]="true"
-                            mode="update"
-                        ></app-table-programas-reglamentos>
+                        <app-table-reglamentos [form]="'programa'" [programa]="programa" [mode]="mode!" ></app-table-reglamentos>
+
                     </div>
                 </ng-container>
         
@@ -173,8 +170,25 @@
                     </div>
                     <div class="col-12 my-2">
                         <div class="field">
-                            <label><strong>Director(a) encontrado(a) *</strong></label>
-                            <app-table-programas-directores mode="director" [data]="directores" [isAnySelected]="selectedDirector"></app-table-programas-directores>
+                            <label><strong>Director(a) encontrado(a)</strong></label>
+                            <app-table-programas-directores [mode]="mode!" type="director" [data]="directores" [isAnySelected]="selectedDirector"></app-table-programas-directores>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngIf="main.dialogUpdateMode === 'unidades académicas' ">
+                    <div class="field col-12">
+                        <div class="flex flex-row flex-wrap mb-2">
+                            <div class="align-items-center">
+                                <label><strong>Unidades académicas {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                            </div>
+                            <div class="align-items-center ml-1" [style]="{'margin-top': '0.1rem !important'}">
+                                <i class="pi pi-question-circle" [pTooltip]='tooltipUa' tooltipPosition="top"></i>
+                                <ng-template #tooltipUa>
+                                    <small>Las unidades académicas están organizadas por la facultad a la cual pertenecen</small>
+                                </ng-template>
+                            </div>
+
                         </div>
                     </div>
                 </ng-container>
@@ -191,8 +205,9 @@
                     </div>
                     <div class="col-12 my-2">
                         <div class="field">
-                            <label><strong>Director(a) alterno(a) encontrado(a) *</strong></label>
-                            <app-table-programas-directores mode="alterno" [data]="directoresAlternos" [isAnySelected]="selectedDirectorAlterno"></app-table-programas-directores>
+                            <label><strong>Director(a) alterno(a) encontrado(a)</strong></label>
+                            <app-table-programas-directores [mode]="mode!" type="alterno" [data]="directoresAlternos" [isAnySelected]="selectedDirectorAlterno"></app-table-programas-directores>
+
                         </div>
                     </div>
                 </ng-container>
@@ -224,6 +239,64 @@
                                 formControlName="TipoSuspension"
                                 placeholder="Seleccione tipo de suspensión"
                                 optionLabel="Descripcion_TipoSuspension"
+                            />
+                            <p-button 
+                                (click)="mainTipoSuspension.setModeCrud('create')" 
+                                type="button" icon="pi pi-plus" iconPos="right" 
+                                styleClass="p-button-success" pTooltip="Agregar nuevo tipo de suspensión" 
+                                tooltipPosition="bottom"
+                                [disabled]="form.fbFormUpdate.controls['TipoSuspension'].disabled"
+                            />
+                        </p-inputGroup>
+                        <ng-template #blockSelectSuspension>
+                            <div class="flex flex-column align-items-center justify-content-center">
+                                <i class="pi pi-ban" style="color: white"></i>
+                                <span>Seleccione estado maestro Suspensión</span>
+                            </div>
+                        </ng-template>
+                        <app-form-control [control]="form.fbFormUpdate.controls['TipoSuspension']" [validators]="['required', 'notMinusOneCategory']"></app-form-control>
+                    </div>
+        
+                </ng-container>
+        
+                <ng-container *ngIf="main.dialogUpdateMode === 'estado acreditación'">
+                    <div class="col-12 mt-2">
+                        <app-table-estados-acreditacion [programa]="programa" [mode]="mode!"></app-table-estados-acreditacion>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngIf="main.dialogUpdateMode === 'graduación colaborativa'">
+                    <div class="field col-12 lg:col-6 mt-2">
+                        <label><strong>¿Tiene graduación colaborativa?</strong></label>
+                        <div class="flex flex-row justify-content-start flex-wrap">
+                            <div class="flex align-items-center justify-content-center">
+                                <span>No</span>
+                            </div>
+                            <div class="flex align-items-center justify-content-center mx-2">
+                                <p-inputSwitch formControlName="Graduacion_Conjunta_Switch" styleClass="mt-1 mx-1" (onChange)="changeSwitchGradConjunta($event)"/>
+                            </div>
+                            <div class="flex align-items-center justify-content-center">
+                                <span>Si</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field col-12 lg:col-6 mt-2">
+                        <label>
+                            <strong>
+                                Tipo de graduación colaborativa 
+                                {{ mode === 'edit' && showAsterisk ? '*' : ''}}
+                            </strong>
+                        </label>
+                        <p-inputGroup>
+                            <p-dropdown
+                                [options]="main.tiposGraduaciones"
+                                [style]="{ width: '100%', 'min-width': '100%' }"
+                                formControlName="Cod_TipoGraduacion"
+                                placeholder="Seleccione tipo de graduación"
+                                optionLabel="Descripcion_tipoColaborativa"
+                                optionValue="Cod_TipoColaborativa"
+                                (onChange)="changeTipoGraduacion($event)"
+
                             >
                             </p-dropdown>
                             <button 
@@ -238,19 +311,90 @@
                     </div>
         
                 </ng-container>
-        
-                <ng-container *ngIf="main.dialogUpdateMode === 'estado acreditación'">
-                    <app-table-programas-estados-acreditacion 
-                        [programa]="programa" 
-                        [isAnySelected]="true"
-                        mode="update"
-                    >
-                    </app-table-programas-estados-acreditacion>
+
+                <ng-container *ngIf="main.dialogUpdateMode === 'certificación intermedia'">
+                    <div class="field col-12 lg:col-6 mt-2">
+                        <label><strong>¿Tiene certificación intermedia?</strong></label>
+                        <div class="flex flex-row justify-content-start flex-wrap">
+                            <div class="flex align-items-center justify-content-center">
+                                <span>No</span>
+                            </div>
+                            <div class="flex align-items-center justify-content-center mx-2">
+                                <p-inputSwitch formControlName="Certificacion_intermedia_Switch" styleClass="mt-1 mx-1" (onChange)="changeSwitchCI($event)"/>
+                            </div>
+                            <div class="flex align-items-center justify-content-center">
+                                <span>Si</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field col-12 lg:col-6 mt-2">
+                        <label><strong>Certificaciones intermedias {{ mode === 'edit' && showAsterisk ? '*' : ''}}</strong></label>
+                        <ng-container *ngIf="mode === 'show' else modeNotShowCI ">
+                            <p-inputGroup>
+                                <p-multiSelect
+                                    [options]="main.certificacionesPrograma"
+                                    [showHeader]="false"
+                                    [maxSelectedLabels]="1"
+                                    [virtualScroll]="true"
+                                    [virtualScrollItemSize]="43"
+                                    formControlName="Certificacion_intermedia_old"
+                                    optionDisabled="checkDisabled"
+                                    placeholder="Seleccione certificaciones"
+                                    selectedItemsLabel="{0} certificaciones asociadas"
+                                    optionLabel="Descripcion_certif_inter"
+                                    styleClass="w-full"
+                                    appendTo="body"
+                                >
+                                </p-multiSelect>
+                                <button 
+                                    (click)="mainCertifIntermedia.setModeCrud('create')" 
+                                    type="button" pButton icon="pi pi-plus" iconPos="right" 
+                                    class="p-button-success" pTooltip="Agregar nueva certificación intermedia" 
+                                    tooltipPosition="bottom"
+                                    [disabled]="form.fbFormUpdate.controls['Certificacion_intermedia_Switch'].disabled || !form.fbFormUpdate.get('Certificacion_intermedia_Switch')?.value"
+                                >
+                                </button>
+                            </p-inputGroup>
+                        </ng-container>
+                        <ng-template #modeNotShowCI>
+                            <p-inputGroup>
+                                <p-multiSelect
+                                    [options]="main.certificaciones"
+                                    [virtualScroll]="true"
+                                    [virtualScrollItemSize]="43"
+                                    [style]="{ width: '100%', 'min-width': '100%' }"
+                                    formControlName="Certificacion_intermedia"
+                                    placeholder="Seleccione certificaciones"
+                                    optionLabel="Descripcion_certif_inter"
+                                    selectedItemsLabel="{0} certificaciones intermedias seleccionadas"
+                                    appendTo="body"
+                                    (onChange)="changeCertifIntermedias($event)"
+                                >
+                                </p-multiSelect>
+                                <button 
+                                    (click)="mainCertifIntermedia.setModeCrud('create')" 
+                                    type="button" pButton icon="pi pi-plus" iconPos="right" 
+                                    class="p-button-success" pTooltip="Agregar nueva certificación intermedia" 
+                                    tooltipPosition="bottom"
+                                    [disabled]="form.fbFormUpdate.controls['Certificacion_intermedia_Switch'].disabled || !form.fbFormUpdate.get('Certificacion_intermedia_Switch')?.value"
+                                >
+                                </button>
+                            </p-inputGroup>
+                        </ng-template>
+                        <app-form-control [control]="form.fbFormUpdate.controls['Certificacion_intermedia']" [validators]="['required']"></app-form-control>
+                    </div>
+
                 </ng-container>
         
                 <div class="field col-12" *ngIf=" main.dialogUpdateMode !== 'reglamento' &&  main.dialogUpdateMode !== 'estado acreditación' " >
-                    <label><strong>Adjunte documento(s) *</strong></label>
-                    <app-uploader-files mode="create"></app-uploader-files>
+                    <label>
+                        <strong> 
+                            {{ mode === 'show' ? 'Documentos adjuntos' : 'Adjunte documentos'}} 
+                            {{ showAsterisk ? '*' : ''}} 
+                        </strong>
+                    </label>
+                    <app-uploader-files [mode]="mode!"></app-uploader-files>
+
                 </div>
         
             </div>

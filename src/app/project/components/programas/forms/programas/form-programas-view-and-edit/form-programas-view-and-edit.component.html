@@ -68,68 +68,19 @@ styleClass="p-button-sm p-button-secondary mr-2"
                     </ng-template>
                 </div>
             </div>
-            <p-dropdown
-                *ngIf="!loading"
-                [options]="tiposProgramas"
-                [group]="true"
-                formControlName="Tipo_programa"
-                placeholder="Seleccione tipo de programa"
-                [style]="{ width: '100%', 'min-width': '100%' }"
-            >
-                <ng-template let-selectedItem pTemplate="selectedItem">
-                    <div class="flex align-items-center">
-                        <span>{{ selectedItem.label }} ({{ selectedItem.parentLabel }})</span>
-                    </div>
-                </ng-template>
-            </p-dropdown>
-            <p-skeleton *ngIf="loading" height="2.5rem" />
-        </div>
+    
+            <div class="flex flex-column sm:flex-row align-items-center gap-3 w-full sm:w-auto ">
+                <div class="w-full sm:w-auto">
+                    <p-button
+                        *ngIf="mode === 'show'" 
+                        pRipple 
+                        label="Editar programa" 
+                        icon="pi pi-pencil" 
+                        styleClass="p-button-warning w-full mr-2 mt-1 sm:mt-0 sm:w-auto"
+                         
+                        (click)="main.goToEditPrograma()">
+                    </p-button>
 
-        <div class="field col-12 lg:col-4">
-            <label><strong>Campus</strong></label>
-            <br>
-            <p-dropdown
-                *ngIf="!loading"
-                [options]="campus"
-                [style]="{ width: '100%', 'min-width': '100%' }"
-                formControlName="Campus"
-                placeholder="Seleccione campus"
-                optionLabel="Descripcion_campus"
-                optionValue="Cod_campus"
-            >
-            </p-dropdown>
-            <p-skeleton *ngIf="loading" height="2.5rem" />
-        </div>
-
-        <div class="field col-12 lg:col-4">
-            <div class="flex flex-row flex-wrap mb-2">
-                <div class="align-items-center">
-                    <label><strong>Unidades académicas (Facultad)</strong></label>
-                </div>
-                <div class="align-items-center ml-1" [style]="{'margin-top': '0.1rem !important'}">
-                    <i class="pi pi-question-circle" [pTooltip]='tooltipUa' tooltipPosition="top"></i>
-                    <ng-template #tooltipUa>
-                        <small>Entre parentesís se muestra la facultad a la cual pertenece la unidad académica</small>
-                    </ng-template>
-                </div>
-            </div>
-            <p-inputGroup *ngIf="!loading">
-                <p-multiSelect
-                    [options]="unidadesAcademicasPrograma"
-                    [style]="{ 'width': '100%', 'min-width': '100%' }"
-                    [showHeader]="false"
-                    optionDisabled="disabled"
-                    formControlName="Unidades_academicas_Selected"
-                    placeholder="Seleccione unidades académicas"
-                    selectedItemsLabel="{0} unidades academicas seleccionadas"
-                    optionLabel="Descripcion_ua"
-                >
-                    <ng-template let-value pTemplate="selectedItems">
-                        <div class="inline-flex align-items-center px-1" *ngFor="let option of value">
-                            <!-- <div>{{ option.Descripcion_ua }} ({{option.Descripcion_facu}})</div> -->
-                            <p-tag severity="secondary" value="{{ option.Descripcion_ua }} ({{option.Descripcion_facu}})" [rounded]="true" [style]="{padding: '0.05rem 0.4rem'}"/>
-                        </div>
-                    </ng-template>
 
                     <ng-template let-item pTemplate="item">
                         <div class="inline-flex align-items-center px-1" >
@@ -461,4 +412,7 @@ styleClass="p-button-sm p-button-secondary mr-2"
 <app-form-suspension></app-form-suspension>
 <app-form-reglamentos></app-form-reglamentos>
 <app-form-estados-acreditacion></app-form-estados-acreditacion>
+<app-form-certificaciones-intermedias (formWasClosed)="updateFilesUploader()"></app-form-certificaciones-intermedias>
+<app-form-tipos-graduacion></app-form-tipos-graduacion>
+
 

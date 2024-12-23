@@ -22,8 +22,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   )
   {}
 
-  programas: any[] = [];
-  programa: Programa = {};
   private subscription: Subscription = new Subscription();
 
   async ngOnInit() {

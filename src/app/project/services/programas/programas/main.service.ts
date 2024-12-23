@@ -23,6 +23,8 @@ export class ProgramaMainService {
         articulo_plural: 'los programas',
         genero: 'masculino'
     };
+    mode: ModeForm = undefined;
+
     programas: Programa[] = [];
     programa: Programa = {};
     cod_programa: number = 0;

@@ -8,8 +8,11 @@ import { TableCrudService } from 'src/app/project/services/components/table-crud
 import { UploaderFilesService } from 'src/app/project/services/components/uploader-files.service';
 import { BackendProgramasService } from 'src/app/project/services/programas/programas/backend.service';
 import { FormProgramaService } from 'src/app/project/services/programas/programas/form.service';
+import { ProgramaMainService } from 'src/app/project/services/programas/programas/main.service';
 import { VerEditarProgramaMainService } from 'src/app/project/services/programas/programas/ver-editar/main.service';
-import { groupDataTipoPrograma, groupDataUnidadesAcademicas } from 'src/app/project/tools/utils/dropwdown.utils';
+import { TiposGraduacionesMainService } from 'src/app/project/services/programas/tipos-graduaciones/main.service';
+import { TiposSuspensionesMainService } from 'src/app/project/services/programas/tipos-suspensiones/main.service';
+import { groupDataTipoPrograma, groupDataUnidadesAcademicas, groupDataUnidadesAcademicasWithDisabled } from 'src/app/project/tools/utils/dropwdown.utils';
 
 
 @Component({
@@ -26,12 +29,14 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
     private systemService: LoadinggpService,
     public tableCrudService: TableCrudService,
     private uploaderFilesService: UploaderFilesService,
-    public verEditarProgramaMainService: VerEditarProgramaMainService
+    public main: VerEditarProgramaMainService,
+    private mainProgramas: ProgramaMainService,
+    public mainTipoSuspension: TiposSuspensionesMainService,
+    public mainTipoGraduacion: TiposGraduacionesMainService,
+    public mainCertifIntermedia: CertifIntermediaMainService
   ){}
 
 
-  @Input() mode: string = '';
-  @Input() onClickRefreshPrograma: boolean = false;
   @Output() modeDialogEmitter = new EventEmitter();
 
   programa: Programa = {};
@@ -60,6 +65,9 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
   certifIntermedias: any[] = [];
   
   async ngOnInit() {
+    this.subscription.add(this.mainCertifIntermedia.onInsertedData$.subscribe(() => this.getCertificacionIntermediaPrograma()));
+    this.subscription.add(this.mainTipoSuspension.onInsertedData$.subscribe(() => this.getTiposSuspensiones()));
+    this.subscription.add(this.mainTipoGraduacion.onInsertedData$.subscribe(() => this.getTiposGraduaciones()));
     await this.getPrograma();
     await this.getData();
   }
@@ -74,12 +82,18 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
     }
   }
 
-  ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
-    this.uploaderFilesService.resetValidatorFiles();
-    this.uploaderFilesService.setFiles(null);
+  get mode(){
+    return this.mainProgramas.mode;
+  }
+  
+  async refreshPrograma(){
+    await this.getPrograma();
+    await this.getData();
+    this.onClickRefreshPrograma = true;
+    setTimeout(() => {
+      this.onClickRefreshPrograma = false
+    }, 500); 
+
   }
 
   async getPrograma(){
@@ -112,11 +126,7 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
         this.getUnidadesAcademicasPrograma(),
         this.getCertificacionIntermediaPrograma()
       ]);
-      // Llamadas sincrónicas o que no necesitan espera
-      this.getTitulo();
-      this.getGradoAcademico();
-      this.getRexe();
-      this.getDocMaestro();
+
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',
@@ -307,5 +317,9 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnChanges, OnD
     });
   }
 
+
+  updateFilesUploader(){
+    this.main.updateFilesUploader();
+  }
 
 }

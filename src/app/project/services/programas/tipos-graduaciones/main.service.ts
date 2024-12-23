@@ -4,11 +4,11 @@ import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { MessageServiceGP } from '../../components/message-service.service';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
 import { ConfirmationService } from 'primeng/api';
-import { CertificacionIntermedia } from 'src/app/project/models/programas/CertificacionIntermedia';
 import { BackendTiposGraduacionesService } from './backend.service';
 import { FormTiposGraduacionesService } from './form.service';
 import { TableTiposGraduacionesService } from './table.service';
 import { TipoGraduacion } from 'src/app/project/models/programas/TipoGraduacion';
+import { Subject } from 'rxjs';
 @Injectable({
     providedIn: 'root'
 })
@@ -28,6 +28,9 @@ export class TiposGraduacionesMainService {
 
     //MODAL
     dialogForm: boolean = false
+
+    private onInsertedData = new Subject<void>();
+    onInsertedData$ = this.onInsertedData.asObservable();
 
     constructor(
         private backend: BackendTiposGraduacionesService,
@@ -104,6 +107,7 @@ export class TiposGraduacionesMainService {
                     severity: 'success',
                     detail: generateMessage(this.namesCrud,response.dataInserted,'creado',true,false)
                 });
+                this.emitInsertedData();
             }
         }catch (error) {
             console.log(error);
@@ -210,6 +214,10 @@ export class TiposGraduacionesMainService {
                 await this.deleteRegisters(data);
             }
         }) 
+    }
+
+    emitInsertedData(){
+        this.onInsertedData.next();
     }
 
 
