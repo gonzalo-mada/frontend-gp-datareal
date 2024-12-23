@@ -1,8 +1,8 @@
 export interface RangosAG {
     Cod_RangoAprobG?: number;
     Descripcion_RangoAprobG?: string;
-    NotaMinima?: string;
-    NotaMaxima?: string;
+    NotaMinima?: number;
+    NotaMaxima?: number;
     RexeReglamentoEstudio?: string;
     BadgeClass?: string,
     isSelected?: boolean

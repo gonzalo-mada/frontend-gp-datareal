@@ -91,6 +91,7 @@ export class RangosAGMainService {
   async insertForm() {
     try {
         let params = { ...this.form.fbForm.value };
+        console.log(params)
         const response = await this.backend.insertRangoAprobacion(params, this.namesCrud);
         if (response && response.dataWasInserted) {
             this.messageService.add({
@@ -113,8 +114,12 @@ export class RangosAGMainService {
         let params = {
             ...this.form.fbForm.value,
             Cod_RangoAprobG: this.rangoAG.Cod_RangoAprobG
-        };
+        };        
+        delete params.aux;
+        console.log(params);
+
         const response = await this.backend.updateRangoAprobacion(params, this.namesCrud);
+        
         if (response && response.dataWasUpdated) {
             this.messageService.add({
                 key: 'main',
@@ -124,6 +129,7 @@ export class RangosAGMainService {
         }
     } catch (error) {
         console.log(error);
+        console.error('Error recibido:', error);
     } finally {
         this.dialogForm = false;
         this.getRangosAprobacion(false);

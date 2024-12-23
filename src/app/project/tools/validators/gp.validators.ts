@@ -205,38 +205,17 @@ export class GPValidator {
     
             return null; // No hay errores
         };
-    }
-    
+    }    
 
-      static decimalValidator(): ValidatorFn {
-        return (control: AbstractControl): ValidationErrors | null => {
-          const value = control.value;
-          const decimalPattern = /^\d+(\.\d{1,2})?$/; // Permite números enteros o decimales con 1 o 2 dígitos
-          if (value && !decimalPattern.test(value)) {
-            return { invalidDecimal: true };
-          }
-          return null;
-        };
-      }
-
-      static maxValueValidator(maxValue: number): ValidatorFn {
-        return (control: AbstractControl): ValidationErrors | null => {
-          const value = parseFloat(control.value);
-          if (value > maxValue) {
-            return { maxExceeded: true };
-          }
-          return null;
-        };
-      }
-
-      static minValueValidator(minValue: number): ValidatorFn {
-        return (control: AbstractControl): ValidationErrors | null => {
-          const value = parseFloat(control.value);
-          if (value < minValue) {
-            return { minExceeded: true };
-          }
-          return null;
-        };
-      }
+    static decimalValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+        const value = control.value;
+        const decimalPattern = /^\d+(\.\d{1,2})?$/; // Permite números enteros o decimales con 1 o 2 dígitos
+        if (value && !decimalPattern.test(value)) {
+        return { invalidDecimal: true };
+        }
+        return null;
+    };
+}     
       
 }
