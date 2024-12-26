@@ -1,82 +1,58 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Table } from 'primeng/table';
-import { Subscription } from 'rxjs';
 import { Jornada } from 'src/app/project/models/plan-de-estudio/Jornada';
-import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
-import { JornadaService } from 'src/app/project/services/plan-de-estudio/jornada.service';
+import { JornadaMainService } from 'src/app/project/services/plan-de-estudio/jornadas/main.service';
+import { TableJornadaService } from 'src/app/project/services/plan-de-estudio/jornadas/table.service';
 
 @Component({
   selector: 'app-table-jornadas',
   templateUrl: './table-jornadas.component.html',
-  styles: [
-  ]
+  styles: []
 })
 export class TableJornadasComponent implements OnInit, OnDestroy {
-  constructor( private jornadasService: JornadaService,
-    private tableCrudService: TableCrudService)
-  {}
-  @Input() data: any[] = [];
 
-  selectedRow: Jornada[] = [] ;
   searchValue: string | undefined;
-  cols: any[] = []
-  globalFiltros: any[] = []
-  dataKeyTable: string = '';
+  originalData: any[] = [];
 
-  private subscription: Subscription = new Subscription();
+  constructor( 
+    public main: JornadaMainService,
+    public table: TableJornadaService
+  ){}
 
   ngOnInit(): void {
-    this.subscription = this.tableCrudService.resetSelectedRowsSubject$.subscribe( () => this.selectedRow = []);
-
-    this.cols = [
-      { field: 'Descripcion_jornada', header: 'Nombre' },
-      { field: 'accion', header: 'Acciones' }
-    ];
-
-    this.globalFiltros = [ 'Descripcion_jornada' ];
-    this.dataKeyTable = 'Cod_jornada';
+    this.getData(true);
   }
 
   ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
+    this.table.resetSelectedRows();
   }
 
-  clear(table: Table){
-    this.resetSelectedRows();
-    this.searchValue = ''
-    table.reset();
-  }
-  resetSelectedRows(){    
-    this.selectedRow = [];
-    this.tableCrudService.setSelectedRows(this.selectedRow)
+  async getData(showCountTableValues: boolean) {
+    await this.main.getJornadas(showCountTableValues);
+    this.originalData = [...this.main.jornadas];
   }
 
-  selectionChange(){   
-    this.tableCrudService.setSelectedRows(this.selectedRow)
-  }
-
-  
   onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
-    this.resetSelectedRows();
+    this.table.resetSelectedRows();
   }
 
-  refresh(){
-    this.tableCrudService.emitClickRefreshTable();
-  }
-  
-  edit(data: Jornada){
-    this.jornadasService.setModeCrud('edit',data)
+  edit(data: Jornada) {
+    this.main.setModeCrud('edit', data);
   }
 
-  show(data: Jornada){
-    this.jornadasService.setModeCrud('show',data)
+  show(data: Jornada) {
+    this.main.setModeCrud('show', data);
   }
 
-  delete(data: Jornada){
-    this.jornadasService.setModeCrud('delete',data)
+  delete(data: Jornada) {
+    this.main.setModeCrud('delete', data);
   }
 
+  clear(table: Table) {
+    this.table.resetSelectedRows();
+    this.searchValue = '';
+    this.main.jornadas = [...this.originalData];
+    table.reset();
+  }
 }

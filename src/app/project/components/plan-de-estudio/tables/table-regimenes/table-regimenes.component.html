@@ -4,10 +4,10 @@
     [paginator]="true" 
     [rowsPerPageOptions]="[10, 25, 50]" 
     [showCurrentPageReport]="true"
-    currentPageReportTemplate="{first} hasta {last} de {totalRecords} modalidades." 
+    currentPageReportTemplate="{first} hasta {last} de {totalRecords} regimenes." 
     selectionMode="multiple"
     [rowHover]="true" 
-    [value]="main.modalidades" 
+    [value]="main.regimenes" 
     [columns]="table.cols" 
     [globalFilterFields]="table.globalFiltros"
     [(selection)]="table.selectedRows" 
@@ -66,7 +66,7 @@
             </td>
             <td style="width: 100%;">
                 <span class="p-column-title">Nombre</span>
-                {{ data.Descripcion_modalidad }}
+                {{ data.Descripcion_regimen }}
             </td>
             <td>
                 <div class="flex">

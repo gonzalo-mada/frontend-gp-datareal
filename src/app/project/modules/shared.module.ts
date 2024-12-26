@@ -54,6 +54,10 @@ import { FormAsignaturasPlancomunComponent } from '../components/plan-de-estudio
 import { TableAsignaturasPlancomunComponent } from '../components/plan-de-estudio/tables/table-asignaturas-plancomun/table-asignaturas-plancomun.component';
 import { FormPeViewAndEditComponent } from '../components/plan-de-estudio/forms/plan-de-estudio/form-pe-view-and-edit/form-pe-view-and-edit.component';
 import { FormPeUpdateComponent } from '../components/plan-de-estudio/forms/plan-de-estudio/form-pe-update/form-pe-update.component';
+import { FormRegimenesComponent } from '../components/plan-de-estudio/forms/form-regimenes/form-regimenes.component';
+import { TableRegimenesComponent } from '../components/plan-de-estudio/tables/table-regimenes/table-regimenes.component';
+import { FormRangosAgComponent } from '../components/plan-de-estudio/forms/form-rangos-ag/form-rangos-ag.component';
+import { TableRangosAgComponent } from '../components/plan-de-estudio/tables/table-rangos-ag/table-rangos-ag.component';
 
 const componentsGp = [
   BreadcrumbgpComponent,
@@ -76,6 +80,8 @@ const componentsGp = [
   FormPeUpdateComponent,
   FormModalidadesComponent,
   FormTiposGraduacionComponent,
+  FormRegimenesComponent,
+  FormRangosAgComponent,
   LoadinggpComponent,
   MenuButtonsTableComponent,
   UploaderFilesComponent,
@@ -99,6 +105,8 @@ const componentsGp = [
   TableModalidadesComponent,
   TableCertificacionesIntermediasPeComponent,
   TableAsignaturasPlancomunComponent,
+  TableRegimenesComponent,
+  TableRangosAgComponent
 ]
 
 @NgModule({

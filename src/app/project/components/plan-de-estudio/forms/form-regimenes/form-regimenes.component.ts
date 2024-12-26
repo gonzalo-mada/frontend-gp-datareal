@@ -1,21 +1,21 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
-import { FormModalidadService } from 'src/app/project/services/plan-de-estudio/modalidades/form.service';
-import { ModalidadMainService } from 'src/app/project/services/plan-de-estudio/modalidades/main.service';
+import { FormRegimenService } from 'src/app/project/services/plan-de-estudio/regimen/form.service';
+import { RegimenMainService } from 'src/app/project/services/plan-de-estudio/regimen/main.service';
 
 @Component({
-  selector: 'app-form-modalidades',
-  templateUrl: './form-modalidades.component.html',
+  selector: 'app-form-regimenes',
+  templateUrl: './form-regimenes.component.html',
   styles: []
 })
-export class FormModalidadesComponent implements OnInit, OnDestroy {
+export class FormRegimenesComponent implements OnInit, OnDestroy {
 
   private subscription: Subscription = new Subscription();
 
   constructor(
-    public form: FormModalidadService,
-    public main: ModalidadMainService
+    public form: FormRegimenService,
+    public main: RegimenMainService
   ) {}
 
   async ngOnInit() {

@@ -1,20 +1,20 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { MenuButtonsTableService } from 'src/app/project/services/components/menu-buttons-table.service';
-import { ModalidadMainService } from 'src/app/project/services/plan-de-estudio/modalidades/main.service';
+import { RegimenMainService } from 'src/app/project/services/plan-de-estudio/regimen/main.service';
 
 @Component({
-  selector: 'app-modalidad',
-  templateUrl: './modalidades.component.html',
+  selector: 'app-regimen',
+  templateUrl: './regimen.component.html',
   styles: []
 })
-export class ModalidadComponent implements OnInit, OnDestroy {
+export class RegimenComponent implements OnInit, OnDestroy {
 
   private subscription: Subscription = new Subscription();
 
   constructor(
     private menuButtonsTableService: MenuButtonsTableService,
-    public main: ModalidadMainService
+    public main: RegimenMainService
   ) {}
 
   ngOnInit(): void {
