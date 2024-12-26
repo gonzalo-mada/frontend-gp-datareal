@@ -210,7 +210,7 @@ export class GPValidator {
     static decimalValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
         const value = control.value;
-        const decimalPattern = /^\d+(\.\d{1,2})?$/; // Permite números enteros o decimales con 1 o 2 dígitos
+        const decimalPattern = /^\d+(\.\d{2,5})?$/; // Permite números enteros o decimales con 1 o 2 dígitos
         if (value && !decimalPattern.test(value)) {
         return { invalidDecimal: true };
         }

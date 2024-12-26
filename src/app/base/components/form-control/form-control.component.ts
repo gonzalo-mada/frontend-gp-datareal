@@ -42,7 +42,8 @@ export class FormControlComponent {
       min: t.form.min,
       max: t.form.max,
       empty: t.form.empty,
-      rut: t.form.rut
+      rut: t.form.rut,
+      invalidRange: 'La nota mínima debe ser menor que la nota máxima.'
     };
 
     for (let i = 0; i < this.project_form_validator.length; i++) {
