@@ -1,0 +1,151 @@
+<p-card>
+    <ng-template pTemplate="header">
+        <div class="flex justify-content-between flex-wrap w-auto" [style]="{ 'padding-left': '1.5rem', 'padding-top': '1.5rem', 'padding-right': '1.5rem' }">
+            <div class="flex flex-column w-full sm:w-auto">
+                <div class="p-card-title">
+                    {{ mode === 'show' ? 'Visualización del' : 'Edición del'}} {{ mainPE.namesCrud.articulo_singular }}
+                </div>
+                <div class="p-card-subtitle">
+                    <span>A continuación, se despliegan la totalidad de campos que contiene un {{ mainPE.namesCrud.articulo_singular }}.</span> <br/>
+                    <span *ngIf="mode === 'show'">
+                        Para ver más detalles del campo, como por ejemplo: sus documentos adjuntos, presione el botón 
+                        (<i class="pi pi-eye" style="font-size: 0.8rem; font-weight: 1000;"></i>).
+                    </span>
+                    <span *ngIf="mode === 'edit'">
+                        Para editar un campo presione el botón  
+                        ( <i class="pi pi-pencil" style="font-size: 0.8rem; font-weight: 1000;"></i> ).
+                    </span>
+                </div>
+            </div>
+    
+            <div class="flex flex-column sm:flex-row align-items-center gap-3 w-full sm:w-auto ">
+                <div class="w-full sm:w-auto">
+                    <p-button 
+                        label="test" 
+                        icon="pi pi-times" 
+                        styleClass="p-button-sm p-button-secondary mr-2" 
+                        (click)="test()" [text]="true"
+                    ></p-button>
+                    <p-button
+                        *ngIf="mode === 'show'" 
+                        pRipple 
+                        label="Editar plan de estudio" 
+                        icon="pi pi-pencil" 
+                        styleClass="p-button-warning w-full mr-2 mt-1 sm:mt-0 sm:w-auto"
+                         
+                        (click)="mainPE.editForm()">
+                    </p-button>
+
+                    <p-button
+                        *ngIf="mode === 'edit'" 
+                        pRipple 
+                        label="Visualizar plan de estudio" 
+                        icon="pi pi-eye" 
+                        styleClass="p-button-info w-full mr-2 mt-1 sm:mt-0 sm:w-auto" 
+                        (click)="mainPE.showForm()">
+                    </p-button>
+
+                    <p-button 
+                        pRipple 
+                        label="Actualizar" 
+                        icon="pi pi-refresh" 
+                        styleClass="p-button-info w-full mr-2 mt-1 sm:mt-0 sm:w-auto" 
+                        (click)="refreshPlanDeEstudio()">
+                    </p-button>
+
+                    <p-button 
+                        pRipple 
+                        label="Ver historial de actividad" 
+                        icon="pi pi-eye" 
+                        styleClass="p-button w-full mt-1 sm:mt-0 sm:w-auto" 
+                        (click)="main.dialogHistorialActividades = true">
+                    </p-button>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+        <div class="surface-card shadow-2 p-3 border-round">
+
+            <div class="flex flex-column sm:flex-row align-items-center justify-content-between border-round gap-3 mb-4 h-5rem">
+                <div class="w-full sm:w-auto">
+                    <span class="p-input-icon-left p-input-icon-right w-full sm:w-auto">
+                        <i class="pi pi-search"></i>
+                        <input 
+                            type="text" 
+                            pInputText 
+                            placeholder="Buscar por campos..." 
+                            [(ngModel)]="form.searchValue" 
+                            (input)="form.filterInputs()"
+                            class="w-full " 
+                        />
+                        <i 
+                            (click)="form.resetFilter()" 
+                            class="pi pi-filter-slash cursor-pointer">
+                        </i>
+                    </span>
+                </div>
+                <div class="w-full sm:w-auto">
+                    <p-button 
+                        pRipple 
+                        [label]=" mode === 'show' ?  'Ver documentos maestros' : 'Editar documentos maestros' " 
+                        [icon]=" mode === 'show' ? 'pi pi-eye' : 'pi pi-pencil' " 
+                        [styleClass]=" mode === 'show' ? 'p-button w-full sm:w-auto' : 'p-button-warning w-full sm:w-auto' " 
+                        (click)="openDialog('maestro', 'maestro')">
+                    </p-button>
+                </div>
+            </div>
+
+            <form [formGroup]="form.fbForm">
+                <div class="grid">
+                    <ng-container *ngFor="let input of form.filteredInputs">
+                        <div class="field col-12 md:col-{{input.col_md}} lg:col-{{input.col_lg}}">
+                            <div *ngIf="!loading" class="surface-card shadow-2 p-3 border-round">
+                                <div class="flex overflow-auto justify-content-between {{ input.haveSecondaryValue  ? 'mb-2' : 'mb-4' }}">
+                                    <div class="flex flex-1 flex-column w-full md:flex-row gap-2">
+                                        <ng-container *ngFor="let item of input.items">
+                                            <div class="flex flex-column w-full">
+                                                <div class="flex flex-row flex-wrap mb-2">
+                                                    <div class="align-items-center">
+                                                        <label><strong> {{ item.title }} </strong></label>
+                                                    </div>
+                                                    <div *ngIf="item.iconHelp" class="align-items-center ml-1" [style]="{'margin-top': '0.1rem !important'}">
+                                                        <i class="pi pi-question-circle" [pTooltip]='tooltipTp' tooltipPosition="top"></i>
+                                                        <ng-template #tooltipTp>
+                                                            <small>{{ item.labelHelp }}</small>
+                                                        </ng-template>
+                                                    </div>
+                                                </div>
+                                                <ng-container *ngIf="item.control !== ''  " [ngSwitch]="item.control">
+                                                    <div *ngSwitchDefault [class]=" form.fbForm.get(item.control)!.value.length > 20 ? 'text-700 font-medium text-sm sm:text-base' : 'text-700 font-medium text-base' ">
+                                                        {{ form.fbForm.get(item.control)!.value }} 
+                                                    </div>
+                                                </ng-container>
+                                                <div *ngIf="item.control === '' && !item.secondaryValue" class="text-700 text-base font-medium" [innerHTML]="getDynamicPrincipalValue(item)"> {{ getDynamicPrincipalValue(item) | json }} </div>
+                                                <div *ngIf="item.control === '' && item.secondaryValue && getDynamicSecondaryValue(item) === '' " class="text-700 text-base font-medium"> {{ getDynamicPrincipalValue(item) }} <br/> &nbsp; </div>
+                                                <div *ngIf="item.control === '' && item.secondaryValue && getDynamicSecondaryValue(item) !== '' " class="text-700 text-base font-medium"> {{ getDynamicPrincipalValue(item) }} <br/> <i>{{ item.secondaryName }}:</i>  {{ getDynamicSecondaryValue(item) }} </div>
+                                            </div>
+                                        </ng-container>
+                                    </div>
+                                    <div class="flex flex-none align-items-center justify-content-center border-round" [pTooltip]="getToolTip(input.isEditable)" tooltipPosition="bottom" >
+                                        <p-button 
+                                            pButton  
+                                            [disabled]="!input.isEditable" 
+                                            (click)="openDialog(input.modeDialog , input.collection)" 
+                                            [plain]="true" [text]="true" type="button"  
+                                            [icon]="mode === 'edit' ? 'pi pi-pencil' : 'pi pi-eye'" 
+                                            iconPos="right" class="p-button-secondary w-full" 
+                                            >
+                                        </p-button>
+                                    </div>
+                                </div>
+                            </div>
+                            <p-skeleton *ngIf="loading" height="4.5rem" />
+                        </div>
+                    </ng-container>
+                </div>
+            </form>
+        </div>
+    </ng-template>
+</p-card>

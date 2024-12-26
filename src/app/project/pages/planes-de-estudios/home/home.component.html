@@ -1,4 +1,51 @@
-<app-card header="Planes de estudios" subheader="Permite ver, crear, actualizar y eliminar planes de estudios.">
-    <app-menu-buttons-table></app-menu-buttons-table>
-    <app-table-plan-de-estudio></app-table-plan-de-estudio>
+<app-card header="Planes de estudios" subheader="Permite visualizar, agregar, actualizar y eliminar planes de estudios.">
+    <div class="surface-card shadow-2 p-3 border-round">
+        <div class="flex flex-column md:flex-row align-items-center justify-content-between gap-3">
+            <div class="w-full">
+                <div class="mb-2">
+                    <label><strong>Seleccione facultad para cargar programas</strong></label>
+                </div>
+                <p-dropdown
+                    [options]="mainFacultad.facultades"
+                    [(ngModel)]="main.cod_facultad_selected"
+                    optionLabel="Descripcion_facu"
+                    optionValue="Cod_facultad" 
+                    placeholder="Seleccione facultad"
+                    appendTo="body" 
+                    styleClass="w-full p-d-flex p-flex-column"
+                    (onChange)="changeFacultad($event)" 
+                ></p-dropdown>
+            </div>
+            <div class="w-full">
+                <div class="mb-2">
+                    <label><strong>Seleccione programa para listar planes de estudios</strong></label>
+                </div>
+                <p-dropdown 
+                    [options]="main.programas_postgrado"
+                    [(ngModel)]="main.cod_programa_postgrado_selected"
+                    [disabled]="main.disabledDropdownPrograma" 
+                    optionLabel="Nombre_programa_completo"
+                    optionValue="Cod_Programa" 
+                    placeholder="Seleccione programa de postgrado"
+                    appendTo="body" 
+                    styleClass="w-full p-d-flex p-flex-column" 
+                    (onChange)="changeProgramaPostgrado($event)" 
+                />
+            </div>
+            <div *ngIf="!main.showTable">
+                <div class="flex align-items-center justify-content-center sm:justify-content-end sm:mt-5">
+                    <p-button
+                        (onClick)="main.setModeCrud('create')"
+                        label="Agregar"
+                        icon="pi pi-plus"
+                        styleClass="p-button-success"
+                    ></p-button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="main.showTable">
+        <app-menu-buttons-table></app-menu-buttons-table>
+        <app-table-plan-de-estudio></app-table-plan-de-estudio>
+    </div>
 </app-card>

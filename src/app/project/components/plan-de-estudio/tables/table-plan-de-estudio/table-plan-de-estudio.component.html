@@ -51,10 +51,10 @@
             </div>
                               
             <div class="flex">
-                <!-- <div class="flex align-items-center">
+                <div class="flex align-items-center">
                     <i class="fa fa-thumbtack" style="color:#6c757d"></i>
                     <span class="mx-1 font-light">Permite fijar columna</span>
-                </div> -->
+                </div>
                 <div class="hidden lg:flex flex-row flex-wrap">
                     <p-multiSelect 
                         [options]="table.cols" 
@@ -78,7 +78,7 @@
                         label="Actualizar" 
                         icon="pi pi-refresh" 
                         styleClass="p-button-info" 
-                        (click)="main.getPlanesDeEstudios()">
+                        (click)="main.getPlanesDeEstudiosMergedPorPrograma()">
                 </p-button>
             </div>
           </div>
@@ -86,19 +86,152 @@
 
     <ng-template pTemplate="header">
         <tr>
-            <th style="width: 2rem">
+            <th style="width: 2rem" pFrozenColumn>
                 <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
             </th>
+            <th 
+                [ngStyle]="{'width': table.selectedColumns.length === 0 ? '100%' : 'auto'}" 
+                pFrozenColumn 
+                [frozen]="colFrozen"
+                pSortableColumn="cod_plan_estudio"
+            >
+                <div class="flex align-items-center">
+                    Plan de estudio 
+                    <p-sortIcon field="cod_plan_estudio" />
+                    <p-button
+                        *ngIf="colFrozen"
+                        (click)="colFrozen = !colFrozen; $event.stopPropagation()" 
+                        [text]="true"
+                        [rounded]="true"
+                        pTooltip="Desfijar columna" 
+                        severity="secondary"
+                    >
+                        <i class="fa fa-thumbtack-slash" style="font-size: 1.2rem; margin-bottom: 0.3rem"></i>
+                    </p-button>
+                    <p-button
+                        *ngIf="!colFrozen"
+                        (click)="colFrozen = !colFrozen; $event.stopPropagation()" 
+                        [text]="true"
+                        [rounded]="true"
+                        pTooltip="Fijar columna" 
+                        severity="secondary"
+                    >
+                        <i class="fa fa-thumbtack" style="font-size: 1.2rem; margin-bottom: 0.3rem"></i>
+                    </p-button>
+                </div>
+            </th>
             <ng-container *ngFor="let col of table.cols">
-                <ng-container *ngIf="col.field !== 'accion'; else actionsColumn">
-                    <th pSortableColumn="{{col.field}}">
-                        {{col.header}} <p-sortIcon field="{{col.field}}"></p-sortIcon>
-                    </th>
+                <ng-container [ngSwitch]="col.field">
+                    <ng-container *ngSwitchCase="'cod_programa'">
+                        <th pSortableColumn="{{col.field}}" >
+                            {{col.header}} 
+                        </th>
+                    </ng-container>
+
+                    <ng-container *ngSwitchDefault>
+                        <th pSortableColumn="{{col.field}}">
+                            {{col.header}} <p-sortIcon field="{{col.field}}"></p-sortIcon>
+                        </th>
+                    </ng-container>
                 </ng-container>
-                <ng-template #actionsColumn>
-                    <th style="min-width: 10rem; ">{{ col.header }}</th>
-                </ng-template>
             </ng-container>
+            <th alignFrozen="right" pFrozenColumn>
+                Acciones
+            </th>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-data let-columns="columns">
+        <tr>
+            <td pFrozenColumn>
+                <p-tableCheckbox [value]="data"></p-tableCheckbox>
+            </td>
+            <td style="min-width:400px" pFrozenColumn [frozen]="colFrozen">
+                <span> {{data.nombre_plan_estudio_completo}} </span> <br>
+                <span style="font-size: 0.8rem;">
+                    <strong>CÓDIGO:</strong> {{data.cod_plan_estudio}} <br/>
+                    <strong>REXE:</strong> {{data.rexe}}
+                </span>
+            </td>
+            <ng-container *ngFor="let col of columns">
+                <ng-container [ngSwitch]="col.field">
+
+                    <ng-container *ngSwitchCase="'cod_programa'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span> {{data.nombre_programa_completo}} </span> <br>
+                            <span style="font-size: 0.8rem;">
+                                <strong>CÓDIGO:</strong> {{data.cod_programa}} <br/>
+                                <strong>REXE:</strong> {{data.rexe_programa}}
+                            </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'case_menciones'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span *ngIf="data.tiene_mencion === 0"> Sin menciones </span>
+                            <span *ngIf="data.tiene_mencion !== 0"> {{ data.num_menciones }} {{ data.num_menciones > 1 ? 'menciones' : 'mención' }} </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'case_articulaciones'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span *ngIf="data.tiene_articulacion === 0"> Sin articulaciones </span>
+                            <span *ngIf="data.tiene_articulacion !== 0"> {{ data.num_articulaciones }} {{ data.num_articulaciones > 1 ? 'articulaciones' : 'articulación' }} </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'case_plancomun'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span *ngIf="data.tiene_plan_comun === 0"> Sin plan común </span>
+                            <span *ngIf="data.tiene_plan_comun !== 0"> {{ data.tiene_plan_comun }} {{ data.tiene_plan_comun > 1 ? 'asignaturas' : 'asignatura' }} </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'case_rangos'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span *ngIf="data.tiene_rango_aprob_g === 0"> Sin rangos </span>
+                            <span *ngIf="data.tiene_rango_aprob_g !== 0"> Con rangos </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'case_certificacion'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span *ngIf="data.tiene_certificacion === 0"> Sin certificación </span>
+                            <span *ngIf="data.tiene_certificacion !== 0"> Con certificación </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchDefault>
+                        <td [ngStyle]="table.getColStyle(col)">
+                            {{ col.getValue(data) }}
+                        </td>
+                    </ng-container>
+                </ng-container>
+
+            </ng-container>
+            <td alignFrozen="right" pFrozenColumn>
+                <div class="flex">
+                    <p-button 
+                        icon="pi pi-trash" 
+                        styleClass="p-button-sm p-button-danger mr-2"
+                        pTooltip="Eliminar registro" 
+                        (click)="delete(data)">
+                    </p-button>
+                    <p-button 
+                        icon="pi pi-pencil" 
+                        styleClass="p-button-sm p-button-warning mr-2"
+                        pTooltip="Editar registro" 
+                        (click)="edit(data)">
+                    </p-button>
+                    <p-button 
+                        icon="pi pi-eye" 
+                        styleClass="p-button-sm p-button-info mr-2" 
+                        pTooltip="Ver registro"
+                        (click)="show(data)" 
+                        tooltipPosition="left">
+                    </p-button>
+                </div>
+            </td>
         </tr>
     </ng-template>
 

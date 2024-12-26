@@ -113,18 +113,14 @@ export class StateFormComponent implements OnInit  {
         title: 'Paso 1',
         state: 'stateStepOne',
         fields: [
-          { label: 'Programa', control: 'Cod_Programa' },
-          { label: 'Estado', control: 'Cod_Estado' },
-          { label: 'Modalidad', control: 'Cod_Modalidad' },
-          { label: 'Jornada', control: 'Cod_Jornada' },
-          { label: 'Régimen', control: 'Cod_Regimen' },
-          { label: 'Cupo mínimo', control: 'Cupo_Minimo' },
-          { label: 'REXE', control: 'REXE' },
-          { 
-            label: 'Certificaciones intermedias', 
-            control: 'Certificacion_intermedia', 
-            conditional: { field: 'Certificacion_Intermedia_Switch', value: true }
-          },
+          { label: 'Programa', control: 'cod_programa' },
+          { label: 'Estado', control: 'cod_estado' },
+          { label: 'Modalidad', control: 'cod_modalidad' },
+          { label: 'Jornada', control: 'cod_jornada' },
+          { label: 'Régimen', control: 'cod_regimen' },
+          { label: 'Cupo mínimo', control: 'cupo_minimo' },
+          { label: 'REXE', control: 'rexe' },
+
           // { label: 'Plan común', control: 'Grupo_correo' },
           // { label: 'Menciones', control: 'Titulo' },
           // { label: 'Rangos de aprobación', control: 'Horas_totales' },
@@ -136,12 +132,22 @@ export class StateFormComponent implements OnInit  {
         title: 'Paso 2',
         state: 'stateStepTwo',
         fields: [
-          { label: 'Reglamento', control: 'Cod_Reglamento' },
+          { label: 'Certificaciones intermedias', control: 'tiene_certificacion' },
+          { label: 'Articulaciones', control: 'tiene_articulacion' },
+          { label: 'Plan común', control: 'tiene_plan_comun' }
+        ]
+      },
+      {
+        step: 3,
+        title: 'Paso 3',
+        state: 'stateStepThree',
+        fields: [
+          { label: 'Reglamento', control: 'cod_reglamento' },
           { label: 'Rangos de aprobación', control: 'Cod_RangosAprobacion' },
           { 
             label: 'Menciones', 
-            control: 'Menciones', 
-            conditional: { field: 'Menciones_Switch', value: true }
+            control: 'menciones', 
+            conditional: { field: 'tiene_mencion', value: true }
           }
         ]
       },
