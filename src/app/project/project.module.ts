@@ -7,7 +7,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { HomeMenuButtonsComponent } from './components/shared/home-menu-buttons/home-menu-buttons.component';
 
 @NgModule({
-  declarations: [HomeComponent, HomeMenuButtonsComponent],
+  declarations: [HomeComponent, HomeMenuButtonsComponent ],
   imports: [CommonModule, ProjectRoutingModule, SharedModule, PrimengModule],
   exports: [ProjectRoutingModule],
 })

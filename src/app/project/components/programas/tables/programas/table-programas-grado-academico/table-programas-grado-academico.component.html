@@ -1,0 +1,46 @@
+<p-table
+    [value]="data" 
+    [dataKey]="dataKeyTable"
+    autoLayout="true"
+    [expandedRowKeys]="expandedRows"
+    (onRowExpand)="onRowExpand()"
+    (onRowCollapse)="onRowCollapse()"
+    rowExpandMode="single"
+>
+
+    <ng-template pTemplate="header">
+        <tr>
+            <th style="width: 5rem"></th>
+            <th style="width:100%;"> Nombre </th>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-data let-expanded="expanded">
+        <tr>
+            <td>
+                <p-button type="button" pRipple [pRowToggler]="data" [text]="true" [rounded]="true" [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
+            </td>
+            <td>
+                <span class="p-column-title">Nombre</span>
+                {{data.Grado_academico}}
+            </td>
+
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="rowexpansion" let-data>
+        <tr>
+            <td colspan="2">
+                <h4>Documentos adjuntos.</h4>
+                <app-uploader-files mode="show"></app-uploader-files>
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td [attr.colspan]="2">Sin registros</td>
+        </tr>
+    </ng-template>
+
+</p-table>

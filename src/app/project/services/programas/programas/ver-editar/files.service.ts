@@ -38,16 +38,22 @@ export class FilesVerEditarProgramaService {
                 await this.updateFiles(from);
             }
         }));
-        this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe( async from => {
+        this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
             if (from) {
-                if (from.mode === 'd') {
-                    if (from.context.component.collection) {
-                        console.log("DESCARGA REALIZADA DESDE SERVICIO FILES VER/EDITAR PROGRAMA");
-                        this.downloadDoc(from.file , from.context.component.collection)
+                if (from.context.component.collection) {
+                    console.log("DESCARGA REALIZADA DESDE SERVICIO FILES VER/EDITAR PROGRAMA");
+                    switch (from.context.component.collection) {
+                      case 'maestro': this.downloadDoc(from.file,'maestro'); break;
+                      case 'director': this.downloadDoc(from.file,'director'); break;
+                      case 'directorAlterno': this.downloadDoc(from.file,'directorAlterno'); break;
+                      case 'estado_maestro': this.downloadDoc(from.file,'estado_maestro'); break;
+                      case 'grado_academico': this.downloadDoc(from.file,'grado_academico'); break;
+                      case 'REXE': this.downloadDoc(from.file,'REXE'); break;
+                      case 'titulo': this.downloadDoc(from.file,'titulo'); break;
                     }
                 }else{
-                    if (from.context.component.collection) {
-                        await this.getDocWithBinary(from.file, from.context.component.collection, from.mode, from.resolve! , from.reject!);
+                    switch (from.context.component.name) {
+                      case 'estado-acreditacion': this.downloadDoc(from.file,'estados_acreditacion'); break;
                     }
                 }
             }
@@ -66,7 +72,7 @@ export class FilesVerEditarProgramaService {
                 this.filesSelected = [...from.files.filesSelected]; 
             break;
             case 'cancel-delete':
-                this.filesToDelete = [...from.files.filesToDelete];
+                this.filesSelected = [...from.files.filesSelected];
                 this.filesUploaded = [...from.files.filesUploaded];
             break;
             case 'delete-uploaded':
@@ -109,39 +115,15 @@ export class FilesVerEditarProgramaService {
     }
 
     async downloadDoc(documento: any, from: string) {
-        let blob: Blob = await this.backend.getArchiveDoc(documento.id, from, false);
+        let blob: Blob = await this.backend.getArchiveDoc(documento.id, from);
         this.commonUtils.downloadBlob(blob, documento.nombre);      
-    }
-
-    async getDocWithBinary(documento: any, from: string, mode: 'g' | 'b', resolve?: Function, reject?: Function) {
-        try {
-            if (mode === 'g') {
-                //no se necesita binario en formato string
-                const response = await this.backend.getArchiveDoc(documento.id, from, false);
-                if (resolve) resolve(response)
-            }else{
-                //si se necesita binario en formato string
-                const response = await this.backend.getArchiveDoc(documento.id, from, true);
-                if (resolve) resolve(response)
-            }
-        } catch (error) {
-            if (reject) reject(error)
-        }
     }
 
     async loadDocsWithBinary(codPrograma: number, from: string){
         this.uploaderFilesService.setLoading(true,true);  
-        const files = await this.backend.getDocsMongo(codPrograma, from);
+        const files = await this.backend.getDocumentosWithBinary(codPrograma, from);
         await this.uploaderFilesService.updateFilesFromMongo(files);
         this.uploaderFilesService.setLoading(false);
         return files 
-    }
-
-    disabledButtonSeleccionar(){
-        this.uploaderFilesService.disabledButtonSeleccionar();
-    }
-
-    enabledButtonSeleccionar(){
-        this.uploaderFilesService.enabledButtonSeleccionar();
     }
 }

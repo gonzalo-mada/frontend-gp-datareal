@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CertificacionIntermedia } from 'src/app/project/models/programas/CertificacionIntermedia';
 import { EstadosAcreditacion } from 'src/app/project/models/programas/EstadosAcreditacion';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
@@ -118,7 +119,6 @@ export class FormEstadosAcreditacionService {
         this.showAsterisk = true;
         this.fbForm.get('tiempo.Fecha_inicio')?.enable();
         this.fbForm.get('tiempo.Fecha_termino')?.enable();
-        this.fbForm.get('tiempo.Cantidad_anios')?.enable();
     }
     
     disableForm(){
@@ -127,7 +127,6 @@ export class FormEstadosAcreditacionService {
         this.showAsterisk = false;
         this.fbForm.get('tiempo.Fecha_inicio')?.disable();
         this.fbForm.get('tiempo.Fecha_termino')?.disable();
-        this.fbForm.get('tiempo.Cantidad_anios')?.disable();
     }
 
 

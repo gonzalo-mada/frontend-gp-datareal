@@ -39,15 +39,11 @@ export class FilesFacultadesService {
             await this.updateFiles();
         }
         }));
-        this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(async from => {
+        this.subscription.add(this.uploaderFilesService.downloadDoc$.subscribe(from => {
             if (from) {
                 if (from.context.component.name === 'facultad') {
-                    if (from.mode === 'd') {
-                        console.log("DESCARGA REALIZADA DESDE SERVICIO FILES facultad");
-                        await this.downloadDoc(from.file)
-                    }else{
-                        await this.getDocWithBinary(from.file, from.mode, from.resolve! , from.reject!);
-                    }
+                    console.log("DESCARGA REALIZADA DESDE SERVICIO FILES facultad");
+                    this.downloadDoc(from.file)
                 }
             }
         }));
@@ -65,7 +61,7 @@ export class FilesFacultadesService {
                 this.filesSelected = [...from.files.filesSelected]; 
             break;
             case 'cancel-delete':
-                this.filesToDelete = [...from.files.filesToDelete];
+                this.filesSelected = [...from.files.filesSelected];
                 this.filesUploaded = [...from.files.filesUploaded];
             break;
             case 'delete-uploaded':
@@ -110,29 +106,13 @@ export class FilesFacultadesService {
     }
 
     async downloadDoc(documento: any) {
-        let blob: Blob = await this.backend.getArchiveDoc(documento.id,false);
+        let blob: Blob = await this.backend.getArchiveDoc(documento.id);
         this.commonUtils.downloadBlob(blob, documento.nombre);      
-    }
-
-    async getDocWithBinary(documento: any, mode: 'g' | 'b', resolve: Function, reject: Function) {
-        try {
-            if (mode === 'g') {
-                //no se necesita binario en formato string
-                const response = await this.backend.getArchiveDoc(documento.id, false);
-                resolve(response)
-            }else{
-                //si se necesita binario en formato string
-                const response = await this.backend.getArchiveDoc(documento.id, true);
-                resolve(response)
-            }
-        } catch (error) {
-            reject(error)
-        }
     }
 
     async loadDocsWithBinary(facultad: Facultad){
         this.uploaderFilesService.setLoading(true,true);  
-        const files = await this.backend.getDocsMongo(facultad.Cod_facultad!);
+        const files = await this.backend.getDocumentosWithBinary(facultad.Cod_facultad!);
         await this.uploaderFilesService.updateFilesFromMongo(files);
         this.uploaderFilesService.setLoading(false);
         return files 

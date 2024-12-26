@@ -32,6 +32,21 @@ const routes: Routes = [
     loadChildren: () => import('../mantenedores-plan/asignaturas-plancomun/asignaturas-plancomun.module').then((j) => j.AsignaturasPlancomunModule),
     title: 'Asignaturas plan común'
   },
+  {
+    path: 'regimenes',
+    loadChildren: () => import('../mantenedores-plan/regimen/regimen.module').then((r) => r.RegimenModule),
+    title: 'Regímenes'
+  },
+  {
+    path: 'menciones',
+    loadChildren: () => import('../mantenedores-plan/menciones/menciones.module').then((m) => m.MencionesModule),
+    title: 'Menciones'
+  },
+  {
+    path: 'rangoAprobacion',
+    loadChildren: () => import('../mantenedores-plan/rangos-ag/rangos-ag.module').then((m) => m.RangosAGModule),
+    title: 'Rangos de aprobación de grados'
+  }
 ];
 
 @NgModule({

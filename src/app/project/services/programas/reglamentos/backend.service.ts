@@ -83,10 +83,10 @@ export class BackendReglamentosService {
     }
     
     // Servicios relacionados con documentos en MongoDB
-    async getDocsMongo(Cod_reglamento: number) {
+    async getDocumentosWithBinary(Cod_reglamento: number) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('reglamentos/getDocsMongo', false),
+                this.serviceUtils.generateServiceMongo('reglamentos/getDocumentosWithBinary', false),
                 { Cod_reglamento }
             );
         } catch (error: any) {
@@ -97,30 +97,20 @@ export class BackendReglamentosService {
             });
         }
     }
-
-    async getArchiveDoc(id: any, needBinaryString: boolean) {
+    
+    async getArchiveDoc(idDocumento: any) {
         try {
-            if (needBinaryString) {
-                return await this.invoker.httpInvoke(
-                    this.serviceUtils.generateServiceMongo('reglamentos/getArchiveDoc',false),
-                    { id , needBinaryString }
-                )
-            }else{
-                return await this.invoker.httpInvokeReport(
-                    this.serviceUtils.generateServiceMongo('reglamentos/getArchiveDoc',false), 
-                    'pdf', 
-                    { id , needBinaryString }
-                )
-            }
-        } catch (error: any) {
-            this.errorTemplateHandler.processError(
-                error, 
-                {
-                    notifyMethod: 'alert',
-                    summary: `Error al descargar documento.`,
-                    message: error?.message || error.detail.error.message.message
-                }
+            return await this.invoker.httpInvokeReport(
+                'reglamentos/getArchiveDoc',
+                'pdf',
+                { id: idDocumento }
             );
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(error, {
+                notifyMethod: 'alert',
+                summary: 'Error al descargar documento',
+                message: error?.message || error.detail.error.message.message
+            });
         }
     }
     

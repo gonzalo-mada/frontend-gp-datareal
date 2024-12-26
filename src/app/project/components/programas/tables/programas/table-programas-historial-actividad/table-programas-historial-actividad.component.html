@@ -9,31 +9,46 @@
     [globalFilterFields]="globalFiltros"
     [customSort]="true"
     (sortFunction)="customSort($event)"
-    sortField="fecha" [sortOrder]="-1"
     currentPageReportTemplate="{first} hasta {last} de {totalRecords} actividades."
     autoLayout="true"
 >
     <ng-template pTemplate="caption">
         <div class="flex align-items-center justify-content-between">
-            <div class="flex mb-2 md:mb-0">
-                <span class="p-input-icon-left">
-                    <i class="pi pi-search"></i>
-                    <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)" />
-                    </span>
-                <!-- <p-button
-                    (onClick)="showFilters = !showFilters"
-                    [label]="showFilters ? 'Ocultar filtros' : 'Ver más filtros' " 
-                    [icon]="showFilters ? 'pi pi-eye-slash' : 'pi pi-eye' " 
-                    styleClass="ml-2" 
-                    iconPos="right" 
-                /> -->
-                <p-button 
-                    styleClass="p-button-text ml-2" 
-                    icon="pi pi-filter-slash" 
-                    pTooltip="Limpiar filtros"
-                    tooltipPosition="bottom" 
-                    (click)="clear(dt)">
-                </p-button>
+            <div>
+                <div class="flex flex-row flex-wrap">
+                    <div class="align-items-center">
+                        <div class="p-card-title">Historial de actividad</div>
+                    </div>
+                    <div class="align-items-center ml-1" [style]="{'margin-top': '0.1rem !important'}">
+                        <i class="pi pi-question-circle" [pTooltip]='tooltipContent' tooltipPosition="top"></i>
+                        <ng-template #tooltipContent>
+                            <small>Muestra un historial de las actividades realizadas en el programa, incluyendo creación, actualización y eliminación, la información anterior y actual, la fecha de cada actividad y quien la realizó.</small>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+            <div>
+                
+                <div class="flex mb-2 md:mb-0">
+                    <span class="p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)" />
+                      </span>
+                    <!-- <p-button
+                        (onClick)="showFilters = !showFilters"
+                        [label]="showFilters ? 'Ocultar filtros' : 'Ver más filtros' " 
+                        [icon]="showFilters ? 'pi pi-eye-slash' : 'pi pi-eye' " 
+                        styleClass="ml-2" 
+                        iconPos="right" 
+                    /> -->
+                    <p-button 
+                      styleClass="p-button-text ml-2" 
+                      icon="pi pi-filter-slash" 
+                      pTooltip="Limpiar filtros"
+                      tooltipPosition="bottom" 
+                      (click)="clear(dt)">
+                    </p-button>
+                </div>
             </div>
         </div>
     </ng-template>
@@ -143,7 +158,7 @@
                 </div>
 
             </th>
-            <th pSortableColumn="nombre_usuario" style="width:25%;">
+            <th pSortableColumn="nombre_usuario" style="width:30%;">
                 <div class="flex justify-content-start align-items-center">
                     Realizada por 
                     <p-sortIcon field="nombre_usuario" /> 
@@ -172,25 +187,15 @@
                     </p-columnFilter>
                 </div>
             </th>
-            <th style="width:5%;">Acción</th>
         </tr>
     </ng-template>
 
     <ng-template pTemplate="body" let-data>
         <tr>
             <td>
-                <ng-container *ngIf="data.descripcion.descripcion.includes('DOCUMENTOS'); else notDocuments">
-                    <span> {{data.descripcion.descripcion}} <br> </span>
-                    <span *ngIf="data.descripcion.valor_despues !== null " style="font-size: 0.8rem;"> 
-                        <strong>DOCUMENTOS:</strong> {{data.descripcion.valor_despues | slice:0:100}} {{ (data.descripcion.valor_despues.length > 50 ) ? '...' : '' }}
-                    </span>
-                </ng-container>
-                <ng-template #notDocuments>
-                    <span> {{data.descripcion.descripcion}} <br> </span>
-                    <span *ngIf="data.descripcion.valor_antes !== null " style="font-size: 0.8rem;"> <strong>ANTES:</strong> {{data.descripcion.valor_antes | slice:0:45}} {{ (data.descripcion.valor_antes.length > 45 ) ? '...' : '' }}<br></span>
-                    <span *ngIf="data.descripcion.valor_despues !== null " style="font-size: 0.8rem;"> <strong>AHORA:</strong> {{data.descripcion.valor_despues | slice:0:45}} {{ (data.descripcion.valor_despues.length > 45 ) ? '...' : '' }}</span>
-                </ng-template>
-
+                <span> {{data.descripcion.descripcion}} <br> </span>
+                <span *ngIf="data.descripcion.valor_antes !== null " style="font-size: 0.8rem;"> <strong>ANTES:</strong> {{data.descripcion.valor_antes}}<br></span>
+                <span *ngIf="data.descripcion.valor_despues !== null " style="font-size: 0.8rem;"> <strong>AHORA:</strong> {{data.descripcion.valor_despues}} </span>
             </td>
             <td>
                 <ng-container [ngSwitch]="data.tipo_movimiento">
@@ -216,18 +221,6 @@
                     <strong>Correo:</strong> {{data.correo_usuario}}<br>
                 </span>
             </td>
-            <td>
-                <div class="flex align-items-center justify-content-center">
-                    <p-button 
-                        icon="pi pi-eye" 
-                        styleClass="p-button-sm p-button-info mr-2" 
-                        pTooltip="Ver registro"
-                        (click)="show(data)" 
-                        tooltipPosition="left"
-                    >
-                    </p-button>
-                </div>
-            </td>
         </tr>
     </ng-template>
 
@@ -238,84 +231,3 @@
     </ng-template>
 
 </p-table>
-
-<app-dialog *ngIf="dialog" [(visible)]="dialog">
-    <div header>
-        <span class="text-xl">Ver actividad</span>
-    </div>
-    <div content>
-        <div class="formgrid grid">
-            <div class="col-12 sm:col-4 mb-3">
-                <div class="flex flex-column">
-                    <span class="text-900"> <strong>Tipo de actividad</strong> </span>
-                    <span *ngIf="actividad.tipo_movimiento === 'C' " class="text-700"> Creación de programa </span>
-                    <span *ngIf="actividad.tipo_movimiento === 'U' " class="text-700"> Actualización en el programa </span>
-                    <span *ngIf="actividad.tipo_movimiento === 'D' " class="text-700"> Eliminación en el programa </span>
-                </div>
-            </div>
-
-            <div class="col-12 sm:col-4 mb-3">
-                <div class="flex flex-column">
-                    <span class="text-900"> <strong>Realizada por</strong> </span>
-                    <span class="text-700"> {{actividad.nombre_usuario}}  <br> </span>
-                    <span class="text-700" style="font-size: 0.8rem;">
-                        <strong>RUT:</strong> {{actividad.usuario}}<br>
-                        <strong>Correo:</strong> {{actividad.correo_usuario}}<br>
-                    </span>
-                </div>
-            </div>
-
-            <div class="col-12 sm:col-4 mb-3">
-                <div class="flex flex-column">
-                    <span class="text-900"> <strong>Fecha</strong> </span>
-                    <span class="text-700"> {{actividad.fecha_hora}} </span>
-                </div>
-            </div>
-
-            <div class="col-12 sm:col-4 mb-3">
-                <div class="flex flex-column">
-                    <span class="text-900"> <strong>Actividad</strong> </span>
-                    <span class="text-700"> {{actividad.descripcion?.descripcion}} </span>
-                </div>
-            </div>
-
-            <div class="col-12 sm:col-4 mb-3">
-                <div *ngIf="needValorAntes(actividad)" class="flex flex-column">
-                    <span class="text-900"> <strong>Antes</strong> </span>
-                    <span class="text-700"> {{actividad.descripcion?.valor_antes }} </span>
-                </div>
-            </div>
-
-            <div class="col-12 sm:col-4 mb-3">
-                <div *ngIf="needValorDespues(actividad)" class="flex flex-column">
-                    <span class="text-900"> <strong>Ahora</strong> </span>
-                    <span class="text-700"> {{actividad.descripcion?.valor_despues }} </span>
-                </div>
-            </div>
-        </div>
-        <div class="grid" *ngIf="needTable(actividad)">
-            <div class="col-12">
-                <p-table [value]="actividad.arrayData" [tableStyle]="{ 'min-width': '50rem' }" styleClass="p-datatable-sm w-full">
-                    <ng-template pTemplate="header">
-                        <tr>
-                            <th> {{ fromMultiSelect ? 'Antes' : 'Documentos' }} </th>
-                            <th *ngIf="fromMultiSelect"> Ahora </th>
-                        </tr>
-                    </ng-template>
-                    <ng-template pTemplate="body" let-data>
-                        <tr>
-                            <td *ngIf="!fromMultiSelect">{{ data }}</td>
-                            <td *ngIf="fromMultiSelect">{{ data.antes }}</td>
-                            <td *ngIf="fromMultiSelect">{{ data.despues }}</td>
-                        </tr>
-                    </ng-template>
-                </p-table>
-            </div>
-        </div>
-    </div>
-    <div footer>
-        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
-        (click)="dialog = false" [text]="true">
-    </p-button>
-    </div>
-</app-dialog>
