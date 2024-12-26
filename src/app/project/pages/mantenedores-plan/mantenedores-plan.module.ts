@@ -9,6 +9,7 @@ import { MantenedoresPlanComponent } from './mantenedores-plan.component';
 @NgModule({
   declarations: [
     MantenedoresPlanComponent,
+    
   ],
   imports: [
     CommonModule,

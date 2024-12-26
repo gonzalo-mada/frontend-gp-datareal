@@ -31,7 +31,8 @@ export type NameComponent = undefined |
                 'tipo-graduacion' |
                 'certificacion-intermedia' |
                 'agregar-plandeestudio' |
-                'ver/editar-plandeestudio';
+                'ver/editar-plandeestudio' |
+                'menciones';
 export type CollectionsMongo = 
 undefined | 
 'REXE' | 
@@ -54,7 +55,8 @@ undefined |
 'centro_costo' |
 'codigo_sies' |
 'tipo_programa' |
-'graduacion_colaborativa' ; 
+'graduacion_colaborativa'
+'menciones' ; 
 
 
 export interface Context {

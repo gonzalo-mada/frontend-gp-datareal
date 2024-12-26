@@ -58,6 +58,8 @@ import { FormRegimenesComponent } from '../components/plan-de-estudio/forms/form
 import { TableRegimenesComponent } from '../components/plan-de-estudio/tables/table-regimenes/table-regimenes.component';
 import { FormRangosAgComponent } from '../components/plan-de-estudio/forms/form-rangos-ag/form-rangos-ag.component';
 import { TableRangosAgComponent } from '../components/plan-de-estudio/tables/table-rangos-ag/table-rangos-ag.component';
+import { TableMencionesComponent } from '../components/plan-de-estudio/tables/table-menciones/table-menciones.component';
+import { FormMencionesComponent } from '../components/plan-de-estudio/forms/form-menciones/form-menciones.component';
 
 const componentsGp = [
   BreadcrumbgpComponent,
@@ -82,6 +84,7 @@ const componentsGp = [
   FormTiposGraduacionComponent,
   FormRegimenesComponent,
   FormRangosAgComponent,
+  FormMencionesComponent,
   LoadinggpComponent,
   MenuButtonsTableComponent,
   UploaderFilesComponent,
@@ -106,7 +109,8 @@ const componentsGp = [
   TableCertificacionesIntermediasPeComponent,
   TableAsignaturasPlancomunComponent,
   TableRegimenesComponent,
-  TableRangosAgComponent
+  TableRangosAgComponent,
+  TableMencionesComponent
 ]
 
 @NgModule({
