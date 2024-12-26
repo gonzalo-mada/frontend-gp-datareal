@@ -28,7 +28,7 @@ export class TableArticulacionesComponent implements OnInit, OnDestroy  {
   }
 
   async getData(showCountTableValues: boolean){
-    await this.main.getArticulacionesPorPlanDeEstudio(showCountTableValues);
+    await this.main.getArticulaciones(showCountTableValues);
   }
 
   onGlobalFilter(table: Table, event: Event) {

@@ -22,17 +22,6 @@ const routes: Routes = [
     loadChildren: () => import('../mantenedores-plan/articulaciones/articulaciones.module').then((j) => j.ArticulacionesModule),
     title: 'Articulaciones'
   },
-  {
-    path: 'certificacionIntermedia',
-    loadChildren: () => import('../mantenedores-plan/certificaciones-intermedias/certificaciones-intermedias.module').then((j) => j.CertificacionesIntermediasModule),
-    title: 'Certificaciones intermedias'
-  },
-  {
-    path: 'asigPlanComun',
-    loadChildren: () => import('../mantenedores-plan/asignaturas-plancomun/asignaturas-plancomun.module').then((j) => j.AsignaturasPlancomunModule),
-    title: 'Asignaturas plan común'
-  },
-  {
     path: 'regimenes',
     loadChildren: () => import('../mantenedores-plan/regimen/regimen.module').then((r) => r.RegimenModule),
     title: 'Regímenes'

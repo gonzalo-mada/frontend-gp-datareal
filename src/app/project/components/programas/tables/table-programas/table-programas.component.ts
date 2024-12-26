@@ -89,7 +89,7 @@ export class TableProgramasComponent implements OnInit, OnDestroy {
   }
 
   refresh(){
-    this.programaMainService.getProgramasPorFacultadMerged();
+    this.programaMainService.getProgramasPorFacultad();
   }
 
   edit(data: Programa){

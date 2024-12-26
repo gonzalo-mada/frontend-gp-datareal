@@ -31,9 +31,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       ? this.programaMainService.setModeCrud('create') 
       : this.programaMainService.setModeCrud('delete-selected')
     }));
-    if (this.programaMainService.cod_facultad_selected !== 0) {
-      this.programaMainService.getProgramasPorFacultadMerged();
-    }
+
   }
 
   ngOnDestroy(): void {
@@ -43,7 +41,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   changeFacultad(event: any){
     this.programaMainService.cod_facultad_selected = event.value;
-    this.programaMainService.getProgramasPorFacultadMerged();
+    this.programaMainService.getProgramasPorFacultad();
   }
 
 }

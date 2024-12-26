@@ -278,17 +278,6 @@ export class BackendProgramasService {
         }
     }
     
-    async getProgramasPorFacultadMerged(params: any) {
-        try {
-            return await this.invoker.httpInvoke('programas/getProgramasPorFacultadMerged', params);
-        } catch (error: any) {
-            this.errorTemplateHandler.processError(error, {
-                notifyMethod: 'alert',
-                message: 'Hubo un error al obtener programas por facultad seleccionada. Intente nuevamente.'
-            });
-        }
-    }
-    
     async insertProgramaBackend(params: any, namesCrud: NamesCrud) {
         try {
             return this.serviceUtils.checkResponse(

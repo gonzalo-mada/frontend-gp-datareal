@@ -74,34 +74,6 @@ export class BackendPlanesDeEstudiosService {
         }
     }
 
-    async getReglamentos(loading = true) {
-        try {
-            return await this.invoker.httpInvoke({ service: 'reglamentos/getReglamentos', loading: loading });
-        } catch (error: any) {
-            this.errorTemplateHandler.processError(error, {
-                notifyMethod: 'alert',
-                message: 'Hubo un error al obtener reglamentos. Intente nuevamente.',
-            });
-        }
-    }
-
-    async getArticulacionesPorPlanDeEstudio(params: any,  loading = true) {
-        try {
-            return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('articulaciones/getArticulacionesPorPlanDeEstudio', loading),
-                params
-            );
-        } catch (error: any) {
-            this.errorTemplateHandler.processError(
-                error, 
-                {
-                    notifyMethod: 'alert',
-                   message: 'Hubo un error al obtener articulaciones. Intente nuevamente.'
-                }
-            );
-        }
-    }
-
     async getProgramaPostgrado(params: any, loading = true) {
         try {
             return await this.invoker.httpInvoke(
@@ -116,87 +88,18 @@ export class BackendPlanesDeEstudiosService {
         }
     }
 
-    async getProgramasPostgrado(loading = true) {
+    async getPlanesDeEstudios(namesCrud: NamesCrud) {
         try {
-            return await this.invoker.httpInvoke({service: 'planesDeEstudio/getProgramasPostgrado', loading: loading});
+            return await this.invoker.httpInvoke('planesDeEstudio/getPlanesDeEstudios');
         } catch (error: any) {
             this.errorTemplateHandler.processError(
                 error, 
                 {
                     notifyMethod: 'alert',
-                    message: `Hubo un error al obtener programas. Intente nuevamente.`,
-                }
-            );
-        }
-    }
-
-    async getPlanesDeEstudiosMergedPorPrograma(params: any, loading = true) {
-        try {
-            return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('planesDeEstudio/getPlanesDeEstudiosMergedPorPrograma', loading),
-                params
-            );
-        } catch (error: any) {
-            this.errorTemplateHandler.processError(error, {
-                notifyMethod: 'alert',
-                message: 'Hubo un error al obtener planes de estudios por programa seleccionado. Intente nuevamente.',
-            });
-        }
-    }
-
-    async getArchiveDoc(id: any, from: string, needBinaryString: boolean) {
-        try {
-            if (needBinaryString) {
-                return await this.invoker.httpInvoke(
-                    this.serviceUtils.generateServiceMongo('planesDeEstudio/getArchiveDoc',false),
-                    { id , needBinaryString, from }
-                )
-            }else{
-                return await this.invoker.httpInvokeReport(
-                    this.serviceUtils.generateServiceMongo('planesDeEstudio/getArchiveDoc',false), 
-                    'pdf', 
-                    { id , needBinaryString, from }
-                )
-            }
-        } catch (error: any) {
-            this.errorTemplateHandler.processError(
-                error, 
-                {
-                    notifyMethod: 'alert',
-                    summary: `Error al descargar documento.`,
+                    summary: `Error al obtener ${namesCrud.articulo_singular}. Intente nuevamente`,
                     message: error?.message || error.detail.error.message.message
                 }
             );
-        }
-    }
-
-    async getDocsMongo(cod_plan_estudio: number, from: string, loading = true) {
-        try {
-            return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('planesDeEstudio/getDocsMongo', false),
-                { Cod_Programa: cod_plan_estudio, from: from }
-            );
-        } catch (error: any) {
-            this.errorTemplateHandler.processError(error, {
-                notifyMethod: 'alert',
-                summary: 'Error al obtener documentos',
-                message: error.detail.error.message.message
-            });
-        }
-    }
-
-    async getPlanDeEstudio(params: any, loading = true, namesCrud: NamesCrud) {
-        try {
-            return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('planesDeEstudio/getPlanDeEstudio', loading),
-                params
-            );
-        } catch (error: any) {
-            this.errorTemplateHandler.processError(error, {
-                notifyMethod: 'alert',
-                summary: `Error al obtener ${namesCrud.articulo_singular}.`,
-                message: error?.message || error.detail.error.message.message
-            });
         }
     }
 

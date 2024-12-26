@@ -1,4 +1,4 @@
-<app-dialog [dialogWidth]="'90vw'" [(visible)]="main.dialogForm">
+<app-dialog [dialogWidth]="'80vw'" [(visible)]="main.dialogForm">
     <div header>
         <ng-container *ngIf="main.modeForm === 'create' || main.modeForm === 'insert' ">
             <span class="text-xl">Agregar {{ main.namesCrud.singular }}</span>
@@ -7,7 +7,7 @@
             <span class="text-xl">Actualizar {{ main.namesCrud.singular }}</span>
         </ng-container>
         <ng-container *ngIf="main.modeForm === 'show'">
-            <span class="text-xl">Visualizar {{ main.namesCrud.singular }}</span>
+            <span class="text-xl">Ver {{ main.namesCrud.singular }}</span>
         </ng-container>
     </div>
     
@@ -25,44 +25,13 @@
         </div>
         <form [formGroup]="form.fbForm">
             <div class="formgrid grid">
-
-                <div class="field col-12 md:col-4">
-                    <label><strong>Facultad {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
-                    
-                    <p-dropdown 
-                        [options]="mainFacultad.facultades"
-                        formControlName="Cod_Facultad_Postgrado_Selected"
-                        optionLabel="Descripcion_facu"
-                        optionValue="Cod_facultad" 
-                        placeholder="Seleccione facultad"
-                        appendTo="body" 
-                        styleClass="w-full p-d-flex p-flex-column" 
-                        (onChange)="changeFacultadPostgrado($event)" 
-                    />
-                </div>
-
-                <div *ngIf="main.showDropdownSelectProgramaPostgrado" class="field col-12 md:col-4">
-                    <label><strong>Programas postgrado {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
-                    
-                    <p-dropdown 
-                        [options]="main.programas_postgrado"
-                        formControlName="Cod_Programa_Postgrado_Selected"
-                        optionLabel="Nombre_programa_completo"
-                        optionValue="Cod_Programa" 
-                        placeholder="Seleccione programa de postgrado"
-                        appendTo="body" 
-                        styleClass="w-full p-d-flex p-flex-column" 
-                        (onChange)="changeProgramaPostgrado($event)" 
-                    />
-                </div>
-
-                <div *ngIf="main.showDropdownSelectPlanEstudio" class="field col-12 md:col-4">
+                <div class="field col-12 md:col-6">
                     <label><strong>Plan de estudio {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
                     <p-dropdown 
                         [options]="main.planes"
                         formControlName="Cod_plan_estudio"
-                        optionLabel="nombre_plan_estudio_completo"
-                        optionValue="cod_plan_estudio" 
+                        optionLabel="Cod_plan_estudio"
+                        optionValue="Cod_plan_estudio" 
                         placeholder="Seleccione plan de estudio"
                         appendTo="body" 
                         styleClass="w-full p-d-flex p-flex-column" 
@@ -70,12 +39,8 @@
                     />
                 </div>
 
-
-            </div>
-
-            <div class="formgrid grid">
-                <div *ngIf="main.showDropdownSelectFacultad" class="field col-12">
-                    <label><strong>{{ main.modeForm === 'show' ? 'Facultad seleccionada' : 'Seleccione facultad para cargar programas de pregrado *'}}</strong></label>
+                <div *ngIf="main.showDropdownSelectFacultad" class="field col-12 md:col-6">
+                    <label><strong>{{ main.modeForm === 'show' ? 'Facultad seleccionada' : 'Seleccione facultad para cargar programas *'}}</strong></label>
                     <p-dropdown 
                         [options]="mainFacultad.facultades"
                         formControlName="Cod_Facultad_Selected"

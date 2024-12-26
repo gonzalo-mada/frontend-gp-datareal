@@ -11,12 +11,20 @@ import { ProgramaMainService } from 'src/app/project/services/programas/programa
 export class EditarProgramaComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
-    private programaMainService: ProgramaMainService,
+    private programaMainService: ProgramaMainService
   ){}
+  onClickRefreshPrograma: boolean = false;
 
   async ngOnInit() {
     this.activatedRoute.params.subscribe( ({cod_programa}) => this.programaMainService.cod_programa = parseInt(cod_programa))
     this.programaMainService.mode = 'edit';
+  }
+
+  refreshPrograma(){
+    this.onClickRefreshPrograma = true
+    setTimeout(() => {
+      this.onClickRefreshPrograma = false
+    }, 500); 
   }
 
 }

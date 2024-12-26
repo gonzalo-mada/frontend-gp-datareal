@@ -1,20 +1,71 @@
-<p-card>
-    <ng-template pTemplate="header">
-        <div class="flex justify-content-between flex-wrap w-auto" [style]="{ 'padding-left': '1.5rem', 'padding-top': '1.5rem', 'padding-right': '1.5rem' }">
-            <div class="flex flex-column w-full sm:w-auto">
-                <div class="p-card-title">
-                    {{ mode === 'show' ? 'Visualización del' : 'Edición del'}} programa
+<!-- <p-button 
+label="test" 
+icon="pi pi-times" 
+styleClass="p-button-sm p-button-secondary mr-2" 
+(click)="test()" [text]="true">
+</p-button>  -->
+<form [formGroup]="form.fbForm">
+    <div class="formgrid grid">
+        <div class="field col-12 lg:col-4">
+            <label><strong>Centro costo</strong></label>
+            <input *ngIf="!loading" type="number" pInputText formControlName="Centro_costo" maxlength="80" class="w-full" placeholder="Ingrese centro costo de programa"/>
+            <p-skeleton *ngIf="loading" height="2.5rem" />
+        </div>
+        <div class="field col-12 lg:col-4">
+            <label><strong>Nombre</strong></label>
+            <p-inputGroup *ngIf="!loading"> 
+                <input type="text" pInputText formControlName="Nombre_programa" maxlength="80" class="w-full" placeholder="Ingrese nombre de programa"/>
+                <button *ngIf="mode === 'edit' " (click)="openDialog('nombre')" type="button" pButton icon="pi pi-pencil" iconPos="right" class="p-button-warning" pTooltip="Editar registro" tooltipPosition="bottom"></button>
+            </p-inputGroup>
+            <p-skeleton *ngIf="loading" height="2.5rem" />
+        </div>
+        <div class="field col-12 lg:col-4">
+            <label><strong>Grupo de correo en LDAP</strong></label>
+            <p-inputGroup *ngIf="!loading">
+                <input type="text" pInputText formControlName="Grupo_correo" maxlength="80" class="w-full" placeholder="Ingrese correo LDAP"/>
+                <button *ngIf="mode === 'edit' " (click)="openDialog('grupo_correo')" type="button" pButton icon="pi pi-pencil" iconPos="right" class="p-button-warning" pTooltip="Editar registro" tooltipPosition="bottom"></button>
+            </p-inputGroup>
+            <p-skeleton *ngIf="loading" height="2.5rem" />
+        </div>
+    
+
+        <div class="field col-12 lg:col-4">
+            <label><strong>Código de programa</strong></label>
+            <input *ngIf="!loading" type="number" pInputText formControlName="Cod_Programa" min="0" maxlength="50" class="w-full" placeholder="Ingrese código de programa"/>
+            <p-skeleton *ngIf="loading" height="2.5rem" />
+        </div>
+        <div class="field col-12 lg:col-4">
+            <label><strong>Código SIES</strong></label>
+            <input *ngIf="!loading" type="text" pInputText formControlName="Codigo_SIES" maxlength="50" class="w-full" placeholder="Ingrese código SIES"/>
+            <p-skeleton *ngIf="loading" height="2.5rem" />
+        </div>
+        <div class="field col-12 lg:col-2">
+            <label><strong>Créditos totales</strong></label>
+            <p-inputGroup *ngIf="!loading">
+                <input type="number" pInputText formControlName="Creditos_totales" min="0" maxlength="50" class="w-full" placeholder="Ingrese créditos totales"/>
+                <button *ngIf="mode === 'edit' " (click)="openDialog('créditos totales')" type="button" pButton icon="pi pi-pencil" iconPos="right" class="p-button-warning" pTooltip="Editar registro" tooltipPosition="bottom"></button>
+            </p-inputGroup>
+            <p-skeleton *ngIf="loading" height="2.5rem" />
+        </div>
+        <div class="field col-12 lg:col-2">
+            <label><strong>Horas totales</strong></label>
+            <p-inputGroup *ngIf="!loading">
+                <input type="number" pInputText formControlName="Horas_totales" maxlength="50" class="w-full" placeholder="Ingrese horas totales"/>
+                <button *ngIf="mode === 'edit' " (click)="openDialog('horas totales')" type="button" pButton icon="pi pi-pencil" iconPos="right" class="p-button-warning" pTooltip="Editar registro" tooltipPosition="bottom"></button>
+            </p-inputGroup>
+            <p-skeleton *ngIf="loading" height="2.5rem" />
+        </div>
+
+        <div class="field col-12 lg:col-4">
+            <div class="flex flex-row flex-wrap mb-2">
+                <div class="align-items-center">
+                    <label><strong>Tipo de programa (Categoría)</strong></label>
                 </div>
-                <div class="p-card-subtitle">
-                    <span>A continuación, se despliegan la totalidad de campos que contiene un programa.</span> <br/>
-                    <span *ngIf="mode === 'show'">
-                        Para ver más detalles del campo, como por ejemplo: sus documentos adjuntos, presione el botón 
-                        (<i class="pi pi-eye" style="font-size: 0.8rem; font-weight: 1000;"></i>).
-                    </span>
-                    <span *ngIf="mode === 'edit'">
-                        Para editar un campo presione el botón  
-                        ( <i class="pi pi-pencil" style="font-size: 0.8rem; font-weight: 1000;"></i> ).
-                    </span>
+                <div class="align-items-center ml-1" [style]="{'margin-top': '0.1rem !important'}">
+                    <i class="pi pi-question-circle" [pTooltip]='tooltipTp' tooltipPosition="top"></i>
+                    <ng-template #tooltipTp>
+                        <small>Entre parentesís se muestra la categoría a la cual pertenece el tipo de programa</small>
+                    </ng-template>
                 </div>
             </div>
     
@@ -30,267 +81,329 @@
                         (click)="main.goToEditPrograma()">
                     </p-button>
 
-                    <p-button
-                        *ngIf="mode === 'edit'" 
-                        pRipple 
-                        label="Visualizar programa" 
-                        icon="pi pi-eye" 
-                        styleClass="p-button-info w-full mr-2 mt-1 sm:mt-0 sm:w-auto" 
-                        (click)="main.goToShowPrograma()">
-                    </p-button>
 
-                    <p-button 
-                        pRipple 
-                        label="Actualizar" 
-                        icon="pi pi-refresh" 
-                        styleClass="p-button-info w-full mr-2 mt-1 sm:mt-0 sm:w-auto" 
-                        (click)="refreshPrograma()">
-                    </p-button>
-
-                    <p-button 
-                        pRipple 
-                        label="Ver historial de actividad" 
-                        icon="pi pi-eye" 
-                        styleClass="p-button w-full mt-1 sm:mt-0 sm:w-auto" 
-                        (click)="main.dialogHistorialActividades = true">
-                    </p-button>
-                </div>
-            </div>
-        </div>
-    </ng-template>
-    
-
-    <ng-template pTemplate="content">
-        <div class="surface-card shadow-2 p-3 border-round">
-            <div class="flex flex-column sm:flex-row align-items-center justify-content-between border-round gap-3 mb-4 h-5rem">
-                <div class="w-full sm:w-auto">
-                    <span class="p-input-icon-left p-input-icon-right w-full sm:w-auto">
-                        <i class="pi pi-search"></i>
-                        <input 
-                            type="text" 
-                            pInputText 
-                            placeholder="Buscar por campos..." 
-                            [(ngModel)]="form.searchValue" 
-                            (input)="form.filterInputs()"
-                            class="w-full " 
-                        />
-                        <i 
-                            (click)="form.resetFilter()" 
-                            class="pi pi-filter-slash cursor-pointer">
-                        </i>
-                    </span>
-                </div>
-                <div class="w-full sm:w-auto">
-                    <p-button 
-                        pRipple 
-                        [label]=" mode === 'show' ?  'Ver documentos maestros' : 'Editar documentos maestros' " 
-                        [icon]=" mode === 'show' ? 'pi pi-eye' : 'pi pi-pencil' " 
-                        [styleClass]=" mode === 'show' ? 'p-button w-full sm:w-auto' : 'p-button-warning w-full sm:w-auto' " 
-                        (click)="openDialog('maestro', 'maestro')">
-                    </p-button>
-                </div>
-            </div>
-            <form [formGroup]="form.fbForm">
-                <div class="grid">
-                    <ng-container *ngFor="let input of form.filteredInputs">
-                        <div class="field col-12 md:col-{{input.col_md}} lg:col-{{input.col_lg}}">
-                            <div *ngIf="!loading" class="surface-card shadow-2 p-3 border-round">
-                                <div class="flex overflow-auto justify-content-between {{ input.haveSecondaryValue  ? 'mb-2' : 'mb-4' }}">
-                                    <div class="flex flex-1 flex-column w-full md:flex-row gap-2">
-                                        <ng-container *ngFor="let item of input.items">
-                                            <div class="flex flex-column w-full">
-                                                <div class="flex flex-row flex-wrap mb-2">
-                                                    <div class="align-items-center">
-                                                        <label><strong> {{ item.title }} </strong></label>
-                                                    </div>
-                                                    <div *ngIf="item.iconHelp" class="align-items-center ml-1" [style]="{'margin-top': '0.1rem !important'}">
-                                                        <i class="pi pi-question-circle" [pTooltip]='tooltipTp' tooltipPosition="top"></i>
-                                                        <ng-template #tooltipTp>
-                                                            <small>{{ item.labelHelp }}</small>
-                                                        </ng-template>
-                                                    </div>
-                                                </div>
-                                                <ng-container *ngIf="item.control !== ''  " [ngSwitch]="item.control">
-                                                    <div *ngSwitchCase="'Unidades_academicas_Selected'" >
-                                                        <p-multiSelect
-                                                            [options]="main.unidadesAcademicasPrograma"
-                                                            [group]="true"
-                                                            [showHeader]="false"
-                                                            [maxSelectedLabels]="1"
-                                                            formControlName="Unidades_academicas_Selected"
-                                                            optionDisabled="checkDisabled"
-                                                            placeholder="Seleccione unidades académicas"
-                                                            selectedItemsLabel="{0} unid. acad. asociadas"
-                                                            styleClass="hidden sm:flex w-full"
-                                                            appendTo="body"
-                                                        >
-                                                            <ng-template let-group pTemplate="group">
-                                                                <div class="flex align-items-center">
-                                                                    <span>{{ group.label }}</span>
-                                                                </div>
-                                                            </ng-template>
-                                                        </p-multiSelect>
-                                                        <p-multiSelect
-                                                            [options]="main.unidadesAcademicasPrograma"
-                                                            [group]="true"
-                                                            [showHeader]="false"
-                                                            [maxSelectedLabels]="0"
-                                                            formControlName="Unidades_academicas_Selected"
-                                                            optionDisabled="checkDisabled"
-                                                            placeholder="Seleccione unidades académicas"
-                                                            selectedItemsLabel="{0} U.A. asociadas"
-                                                            styleClass="flex sm:hidden w-full"
-                                                            appendTo="body"
-                                                        >
-                                                            <ng-template let-group pTemplate="group">
-                                                                <div class="flex align-items-center">
-                                                                    <span>{{ group.label }}</span>
-                                                                </div>
-                                                            </ng-template>
-                                                        </p-multiSelect>
-                                                    </div>
-                                                    <div *ngSwitchCase="'haveDirectorAlterno'" >
-                                                        <div class="flex flex-row justify-content-start flex-wrap">
-                                                            <div class="flex align-items-center justify-content-center">
-                                                                <span>No</span>
-                                                            </div>
-                                                            <div class="flex align-items-center justify-content-center mx-2">
-                                                                <p-inputSwitch formControlName="haveDirectorAlterno"  styleClass="mt-1 mx-1"/>
-                                                            </div>
-                                                            <div class="flex align-items-center justify-content-center">
-                                                                <span>Si</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div *ngSwitchCase="'Graduacion_Conjunta_Switch'" >
-                                                        <div class="flex flex-row justify-content-start flex-wrap">
-                                                            <div class="flex align-items-center justify-content-center">
-                                                                <span>No</span>
-                                                            </div>
-                                                            <div class="flex align-items-center justify-content-center mx-2">
-                                                                <p-inputSwitch formControlName="Graduacion_Conjunta_Switch"  styleClass="mt-1 mx-1"/>
-                                                            </div>
-                                                            <div class="flex align-items-center justify-content-center">
-                                                                <span>Si</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div *ngSwitchCase="'Instituciones_Selected'" >
-                                                        <ng-container *ngIf="form.fbForm.get('Graduacion_Conjunta_Switch')!.value; else sinInstituciones">
-                                                            <p-multiSelect
-                                                                [options]="main.institucionesSelected"
-                                                                [showHeader]="false"
-                                                                [maxSelectedLabels]="1"
-                                                                formControlName="Instituciones_Selected"
-                                                                optionDisabled="checkDisabled"
-                                                                placeholder="Seleccione instituciones"
-                                                                selectedItemsLabel="{0} instituciones asociadas"
-                                                                optionLabel="Descripcion_institucion"
-                                                                styleClass="hidden sm:flex w-full"
-                                                                appendTo="body"
-                                                            />
-                                                            <p-multiSelect
-                                                                [options]="main.institucionesSelected"
-                                                                [showHeader]="false"
-                                                                [maxSelectedLabels]="0"
-                                                                formControlName="Instituciones_Selected"
-                                                                optionDisabled="checkDisabled"
-                                                                placeholder="Seleccione instituciones"
-                                                                selectedItemsLabel="{0} inst. asociadas"
-                                                                optionLabel="Descripcion_institucion"
-                                                                styleClass="flex sm:hidden w-full"
-                                                                appendTo="body"
-
-                                                            />
-                                                        </ng-container>
-                                                        <ng-template #sinInstituciones>
-                                                            <div class="text-700 font-medium"> NO APLICA </div>
-                                                        </ng-template>
-                                                    </div>
-                                                    <div *ngSwitchCase="'Certificacion_intermedia_Switch'" >
-                                                        <div class="flex flex-row justify-content-start flex-wrap">
-                                                            <div class="flex align-items-center justify-content-center">
-                                                                <span>No</span>
-                                                            </div>
-                                                            <div class="flex align-items-center justify-content-center mx-2">
-                                                                <p-inputSwitch formControlName="Certificacion_intermedia_Switch"  styleClass="mt-1 mx-1"/>
-                                                            </div>
-                                                            <div class="flex align-items-center justify-content-center">
-                                                                <span>Si</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div *ngSwitchCase="'Certificacion_intermedia_Selected'" >
-                                                        <ng-container *ngIf="form.fbForm.get('Certificacion_intermedia_Switch')!.value; else sinCertificacion">
-                                                            <p-multiSelect
-                                                                [options]="main.certificacionesPrograma"
-                                                                [showHeader]="false"
-                                                                [maxSelectedLabels]="1"
-                                                                formControlName="Certificacion_intermedia_Selected"
-                                                                optionDisabled="checkDisabled"
-                                                                placeholder="Seleccione certificaciones"
-                                                                selectedItemsLabel="{0} certificaciones asociadas"
-                                                                optionLabel="Descripcion_certif_inter"
-                                                                styleClass="hidden sm:flex w-full"
-                                                                appendTo="body"
-                                                            >
-                                                            </p-multiSelect>
-                                                            <p-multiSelect
-                                                                [options]="main.certificacionesPrograma"
-                                                                [showHeader]="false"
-                                                                [maxSelectedLabels]="0"
-                                                                formControlName="Certificacion_intermedia_Selected"
-                                                                optionDisabled="checkDisabled"
-                                                                placeholder="Seleccione certificaciones"
-                                                                selectedItemsLabel="{0} cert. asociadas"
-                                                                optionLabel="Descripcion_certif_inter"
-                                                                styleClass="flex sm:hidden w-full"
-                                                                appendTo="body"
-                                                            >
-                                                            </p-multiSelect>
-                                                        </ng-container>
-                                                        <ng-template #sinCertificacion>
-                                                            <div class="text-700 font-medium"> NO APLICA </div>
-                                                        </ng-template>
-                                                    </div>
-                                                    <div *ngSwitchDefault [class]=" form.fbForm.get(item.control)!.value.length > 20 ? 'text-700 font-medium text-sm sm:text-base' : 'text-700 font-medium text-base' ">
-                                                        {{ form.fbForm.get(item.control)!.value }} 
-                                                    </div>
-                                                </ng-container> 
-                                                <div *ngIf="item.control === '' && !item.secondaryValue" class="text-700 text-base font-medium" [innerHTML]="getDynamicPrincipalValue(item)">  </div>
-                                                <div *ngIf="item.control === '' && item.secondaryValue && getDynamicSecondaryValue(item) === '' " class="text-700 text-base font-medium"> {{ getDynamicPrincipalValue(item) }} <br/> &nbsp; </div>
-                                                <div *ngIf="item.control === '' && item.secondaryValue && getDynamicSecondaryValue(item) !== '' " class="text-700 text-base font-medium"> {{ getDynamicPrincipalValue(item) }} <br/> <i>{{ item.secondaryName }}:</i>  {{ getDynamicSecondaryValue(item) }} </div>
-                                            </div>
-                                        </ng-container>
-                                    </div>
-                                    <div class="flex flex-none align-items-center justify-content-center border-round" [pTooltip]="getToolTip(input.isEditable)" tooltipPosition="bottom" >
-                                        <p-button 
-                                            pButton  
-                                            [disabled]="!input.isEditable" 
-                                            (click)="openDialog(input.modeDialog , input.collection)" 
-                                            [plain]="true" [text]="true" type="button"  
-                                            [icon]="mode === 'edit' ? 'pi pi-pencil' : 'pi pi-eye'" 
-                                            iconPos="right" class="p-button-secondary w-full" 
-                                            >
-                                        </p-button>
-                                    </div>
-                                </div>
-                            </div>
-                            <p-skeleton *ngIf="loading" height="4.5rem" />
+                    <ng-template let-item pTemplate="item">
+                        <div class="inline-flex align-items-center px-1" >
+                            <div>{{ item.Descripcion_ua }} ({{item.Descripcion_facu}})</div>
                         </div>
-                    </ng-container>
-                </div> 
-            </form>
+                    </ng-template>
+                </p-multiSelect>
+            </p-inputGroup>
+
+            <!-- <div *ngIf="!loading" class="flex flex-row justify-content-start flex-wrap">
+                <ng-container *ngFor="let item of unidadesAcademicasPrograma">
+                    <p-tag severity="secondary" value="{{item.Descripcion_ua}} ({{item.Descripcion_facu}})" styleClass="m-1"/>
+                </ng-container>
+            </div> -->
+            <p-skeleton *ngIf="loading" height="2.5rem" />
         </div>
-    </ng-template>
-</p-card>
+
+        <div class="field col-12 lg:col-4">
+            <label><strong>¿Tiene graduación colaborativa?</strong></label>
+            <div *ngIf="!loading" class="flex flex-row justify-content-start flex-wrap">
+                <div class="flex align-items-center justify-content-center">
+                    <span>No</span>
+                </div>
+                <div class="flex align-items-center justify-content-center mx-2">
+                    <p-inputSwitch formControlName="Graduacion_Conjunta_Switch"  (onChange)="changeSwitch($event)" styleClass="mt-1 mx-1"/>
+                </div>
+                <div class="flex align-items-center justify-content-center">
+                    <span>Si</span>
+                </div>
+            </div>
+            <p-skeleton *ngIf="loading" height="2.5rem" />
+        </div>
+        
+        <div class="field col-12 lg:col-4" >
+            <label><strong>Tipo de graduación colaborativa</strong></label>
+            <br>
+            <ng-container *ngIf="form.fbForm.get('Graduacion_Conjunta_Switch')!.value; else sinGraduacion">
+                <p-dropdown
+                    *ngIf="!loading"
+                    [options]="tiposGraduaciones"
+                    [style]="{ width: '100%', 'min-width': '100%' }"
+                    formControlName="Cod_TipoGraduacion"
+                    placeholder="Seleccione tipo de graduación"
+                    optionLabel="Descripcion_tipoColaborativa"
+                    optionValue="Cod_TipoColaborativa"
+                >
+                </p-dropdown>
+            </ng-container>
+            <ng-template #sinGraduacion>
+                <input *ngIf="!loading" type="text" pInputText value="NO APLICA" [disabled]="true" class="w-full" />
+            </ng-template>
+            <p-skeleton *ngIf="loading" height="2.5rem" />
+        </div>
+
+        <div class="field col-12 lg:col-4" >
+            <label><strong>Instituciones asociadas</strong></label>
+            <ng-container *ngIf="form.fbForm.get('Graduacion_Conjunta_Switch')!.value else sinInstituciones">
+                <p-inputGroup *ngIf="!loading">
+                    <p-multiSelect
+                        [options]="institucionesSelected"
+                        [style]="{ 'width': '100%', 'min-width': '100%' }"
+                        [showHeader]="false"
+                        formControlName="Instituciones_Selected"
+                        optionDisabled="disabled"
+                        placeholder="Seleccione instituciones"
+                        selectedItemsLabel="{0} instituciones seleccionadas"
+                        optionLabel="Descripcion_institucion"
+                    >
+                        <ng-template let-value pTemplate="selectedItems">
+                            <div class="inline-flex align-items-center px-1" *ngFor="let option of value">
+                                <!-- <div>{{ option.Descripcion_ua }} ({{option.Descripcion_facu}})</div> -->
+                                <p-tag severity="secondary" value="{{ option.Descripcion_institucion }}" [rounded]="true" [style]="{padding: '0.05rem 0.4rem'}"/>
+                            </div>
+                        </ng-template>
+                    </p-multiSelect>
+                </p-inputGroup>
+            </ng-container>
+            <ng-template #sinInstituciones>
+                <input *ngIf="!loading" type="text" pInputText value="NO APLICA" [disabled]="true" class="w-full" />
+            </ng-template>
+            <p-skeleton *ngIf="loading" height="2.5rem" />
+        </div>
+
+        <div class="field col-12 lg:col-4">
+            <label><strong>¿Tiene certificación intermedia?</strong></label>
+            <div *ngIf="!loading" class="flex flex-row justify-content-start flex-wrap">
+                <div class="flex align-items-center justify-content-center">
+                    <span>No</span>
+                </div>
+                <div class="flex align-items-center justify-content-center mx-2">
+                    <p-inputSwitch formControlName="Certificacion_intermedia_Switch"  (onChange)="changeSwitch($event)" styleClass="mt-1 mx-1"/>
+                </div>
+                <div class="flex align-items-center justify-content-center">
+                    <span>Si</span>
+                </div>
+            </div>
+            <p-skeleton *ngIf="loading" height="2.5rem" />
+        </div>
+
+        <div class="field col-12 lg:col-4" >
+            <label><strong>Certificaciones intermedias</strong></label>
+            <ng-container *ngIf="form.fbForm.get('Certificacion_intermedia_Switch')!.value; else sinCertificacion">
+                <p-inputGroup *ngIf="!loading">
+                    <p-multiSelect
+                        [options]="certifIntermedias"
+                        [style]="{ 'width': '100%', 'min-width': '100%' }"
+                        [showHeader]="false"
+                        formControlName="Certificacion_intermedia_Selected"
+                        optionDisabled="disabled"
+                        placeholder="Seleccione certificaciones"
+                        selectedItemsLabel="{0} certificaciones seleccionadas"
+                        optionLabel="Descripcion_certif_inter"
+                    >
+                        <ng-template let-value pTemplate="selectedItems">
+                            <div class="inline-flex align-items-center px-1" *ngFor="let option of value">
+                                <!-- <div>{{ option.Descripcion_ua }} ({{option.Descripcion_facu}})</div> -->
+                                <p-tag severity="secondary" value="{{ option.Descripcion_certif_inter }}" [rounded]="true" [style]="{padding: '0.05rem 0.4rem'}"/>
+                            </div>
+                        </ng-template>
+                    </p-multiSelect>
+                </p-inputGroup>
+                
+            </ng-container>
+            <ng-template #sinCertificacion>
+                <input *ngIf="!loading" type="text" pInputText value="NO APLICA" [disabled]="true" class="w-full"/>
+            </ng-template>
+            <p-skeleton *ngIf="loading" height="2.5rem" />
+        </div>
 
 
-<app-form-programas-update
-    [mode]="mode"
+    </div> 
+       
+    <!-- <div *ngIf="loading">
+        <p-skeleton height="5rem" />
+    </div> -->
+
+    <div>
+        <p-tabView styleClass="mt-7" (onChange)="changeTab()" >
+
+            <p-tabPanel header="Historial de actividad">
+                <p-skeleton *ngIf="loading" height="5rem" />
+                <app-table-programas-historial-actividad *ngIf="!loading" [data]="logsPrograma" [mode]="mode"></app-table-programas-historial-actividad>
+            </p-tabPanel>
+
+            <p-tabPanel header="Documento maestro de creación">
+                <p-skeleton *ngIf="loading" height="5rem" />
+                <div *ngIf="!loading">
+                    <div class="table-header-gp">
+                        <div class="flex align-items-center justify-content-between">
+                            <span class="font-light">Documentos maestros adjuntos </span>
+                            <div class="flex align-items-center">
+                                <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
+                                <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
+                            </div>
+                            <ng-container *ngIf="mode === 'edit' ">
+                                <p-button (onClick)="openDialog('maestro')" styleClass="p-button-warning"  icon="pi pi-pencil" iconPos="right" />
+                            </ng-container>
+                        </div>
+                    </div>
+                    <app-table-programas-docs-maestro [data]="docMaestro" [mode]="mode"></app-table-programas-docs-maestro>
+                </div>
+            </p-tabPanel>
+    
+            <p-tabPanel header="Título">
+                <p-skeleton *ngIf="loading" height="5rem" />
+                <div *ngIf="!loading">
+                    <div class="table-header-gp">
+                        <div class="flex align-items-center justify-content-between">
+                            <span class="font-light">Información y documentos adjuntos de: <strong>Título</strong> </span>
+                            <div class="flex align-items-center">
+                                <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
+                                <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
+                            </div>
+                            <ng-container *ngIf="mode === 'edit' ">
+                                <p-button (onClick)="openDialog('título')" styleClass="p-button-warning"  icon="pi pi-pencil" iconPos="right" />
+                            </ng-container>
+                        </div>
+                    </div>
+                    <app-table-programas-titulo [data]="titulo" [mode]="mode"></app-table-programas-titulo>
+                </div>
+            </p-tabPanel>
+    
+            <p-tabPanel header="Grado académico">
+                <p-skeleton *ngIf="loading" height="5rem" />
+                <div *ngIf="!loading">
+                    <div class="table-header-gp">
+                        <div class="flex align-items-center justify-content-between">
+                            <span class="font-light">Información y documentos adjuntos de: <strong>Grado académico</strong> </span>
+                            <div class="flex align-items-center">
+                                <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
+                                <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
+                            </div>
+                            <ng-container *ngIf="mode === 'edit' ">
+                                <p-button (onClick)="openDialog('grado académico')" styleClass="p-button-warning"  icon="pi pi-pencil" iconPos="right" />
+                            </ng-container>
+                        </div>
+                    </div>
+                    <app-table-programas-grado-academico [data]="grado_academico" [mode]="mode" ></app-table-programas-grado-academico>
+                </div>
+            </p-tabPanel>
+    
+            <p-tabPanel header="REXE">
+                <p-skeleton *ngIf="loading" height="5rem" />
+                <div *ngIf="!loading">
+                    <div class="table-header-gp">
+                        <div class="flex align-items-center justify-content-between">
+                            <span class="font-light">Información y documentos adjuntos de: <strong>REXE</strong> </span>
+                            <div class="flex align-items-center">
+                                <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
+                                <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
+                            </div>
+                            <ng-container *ngIf="mode === 'edit' ">
+                                <p-button (onClick)="openDialog('REXE')" styleClass="p-button-warning"  icon="pi pi-pencil" iconPos="right" />
+                            </ng-container>
+                        </div>
+                    </div>
+                    <app-table-programas-rexe [data]="rexe" [mode]="mode" ></app-table-programas-rexe>
+                </div>
+            </p-tabPanel>
+    
+            <p-tabPanel header="Reglamento">
+                <p-skeleton *ngIf="loading" height="5rem" />
+                <div *ngIf="!loading">
+                    <div class="table-header-gp">
+                        <div class="flex align-items-center justify-content-between">
+                            <span class="font-light">Información y documentos adjuntos de: <strong>Reglamento</strong> </span>
+                            <div class="flex align-items-center">
+                                <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
+                                <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
+                            </div>
+                            <ng-container *ngIf="mode === 'edit' ">
+                                <p-button (onClick)="openDialog('reglamento')" styleClass="p-button-warning"  icon="pi pi-pencil" iconPos="right" />
+                            </ng-container>
+                        </div>
+                    </div>
+                    <app-table-programas-reglamentos [programa]="programa" mode="show"></app-table-programas-reglamentos>
+                </div>
+            </p-tabPanel>
+    
+            <p-tabPanel header="Director(a)">
+                <p-skeleton *ngIf="loading" height="5rem" />
+                <div *ngIf="!loading">
+                    <div class="table-header-gp">
+                        <div class="flex align-items-center justify-content-between">
+                            <span class="font-light">Información y documentos adjuntos de: <strong>Director(a)</strong> </span>
+                            <div class="flex align-items-center">
+                                <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
+                                <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
+                            </div>
+                            <ng-container *ngIf="mode === 'edit' ">
+                                <p-button (onClick)="openDialog('director')" styleClass="p-button-warning"  icon="pi pi-pencil" iconPos="right" />
+                            </ng-container>
+                        </div>
+                    </div>
+                    <app-table-programas-director [data]="director" [mode]="mode" ></app-table-programas-director>
+                </div>
+            </p-tabPanel>
+    
+            <p-tabPanel header="Director(a) alterno(a)">
+                <p-skeleton *ngIf="loading" height="5rem" />
+                <div *ngIf="!loading">
+                    <div class="table-header-gp">
+                        <div class="flex align-items-center justify-content-between">
+                            <span class="font-light">Información y documentos adjuntos de: <strong>Director(a) alterno(a)</strong> </span>
+                            <div class="flex align-items-center">
+                                <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
+                                <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
+                            </div>
+                            <ng-container *ngIf="mode === 'edit' ">
+                                <p-button (onClick)="openDialog('director alterno')" styleClass="p-button-warning"  icon="pi pi-pencil" iconPos="right" />
+                            </ng-container>
+                        </div>
+                    </div>
+                    <app-table-programas-director-alterno [data]="directorAlterno" [mode]="mode" ></app-table-programas-director-alterno>
+                </div>
+            </p-tabPanel>
+    
+            <p-tabPanel header="Estado maestro">
+                <p-skeleton *ngIf="loading" height="5rem" />
+                <div *ngIf="!loading">
+                    <div class="table-header-gp">
+                        <div class="flex align-items-center justify-content-between">
+                            <span class="font-light">Información y documentos adjuntos de: <strong>Estado maestro</strong> </span>
+                            <div class="flex align-items-center">
+                                <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
+                                <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
+                            </div>
+                            <ng-container *ngIf="mode === 'edit' ">
+                                <p-button (onClick)="openDialog('estado maestro')" styleClass="p-button-warning"  icon="pi pi-pencil" iconPos="right" />
+                            </ng-container>
+                        </div>
+                    </div>
+                    <app-table-programas-estado-maestro [data]="estadosMaestros" [mode]="mode"></app-table-programas-estado-maestro>
+                </div>
+            </p-tabPanel>
+    
+            <p-tabPanel header="Estado acreditación">
+                <p-skeleton *ngIf="loading" height="5rem" />
+                <div *ngIf="!loading">
+                    <div class="table-header-gp">
+                        <div class="flex align-items-center justify-content-between">
+                            <span class="font-light">Información y documentos adjuntos de: <strong>Estado acreditación</strong> </span>
+                            <div class="flex align-items-center">
+                                <button pButton [plain]="true" [rounded]="true" [text]="true" type="button" icon="pi pi-chevron-right" ></button>
+                                <span class="mx-1 font-light" pTooltip="Leyenda del ícono" tooltipPosition="bottom">Permite ver documentos adjuntos</span>
+                            </div>
+                            <ng-container *ngIf="mode === 'edit' ">
+                                <p-button (onClick)="openDialog('estado acreditación')" styleClass="p-button-warning"  icon="pi pi-pencil" iconPos="right" />
+                            </ng-container>
+                        </div>
+                    </div>
+                    <app-table-programas-estados-acreditacion [programa]="programa" mode="show"></app-table-programas-estados-acreditacion>
+                </div>
+            </p-tabPanel>
+    
+            
+        </p-tabView>
+    </div>
+</form>
+
+<app-form-programas-update 
     [programa]="programa" 
-    [modeDialogInput]="updatePrograma"
-    [refreshPrograma]="onClickRefreshPrograma" 
+    [modeDialogInput]="modeDialog" 
     (formUpdated)="formUpdated($event)"
     (resetDialog)="resetDialog()"
 >
@@ -303,22 +416,3 @@
 <app-form-tipos-graduacion></app-form-tipos-graduacion>
 
 
-<app-dialog [dialogWidth]="'80vw'" [(visible)]="main.dialogHistorialActividades">
-    <div header>
-        <span class="text-xl">Historial de actividades</span>
-    </div>
-    <div content>
-        <p-messages severity="info">
-            <ng-template pTemplate>
-                <i class="pi pi-info-circle mr-3"></i>
-                <span>
-                    Muestra un historial de las actividades realizadas en el programa, incluyendo creación, actualización y eliminación, la información anterior y actual, la fecha de cada actividad y quien la realizó.
-                </span>
-            </ng-template>
-        </p-messages>
-        <app-table-programas-historial-actividad *ngIf="main.dialogHistorialActividades" [data]="logsPrograma" [mode]="mode"></app-table-programas-historial-actividad>
-    </div>
-    <div footer>
-        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" (click)="main.dialogHistorialActividades = false" [text]="true"></p-button>
-    </div>
-</app-dialog>

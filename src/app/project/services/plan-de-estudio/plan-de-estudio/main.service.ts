@@ -9,13 +9,13 @@ import { TablePlanesDeEstudiosService } from './table.service';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
 import { PlanDeEstudio } from 'src/app/project/models/plan-de-estudio/PlanDeEstudio';
 import { FormPlanDeEstudioService } from './form.service';
-import { Programa } from 'src/app/project/models/programas/Programa';
 
 @Injectable({
     providedIn: 'root'
 })
 
 export class PlanDeEstudioMainService {
+
     namesCrud: NamesCrud = {
         singular: 'plan de estudio',
         plural: 'planes de estudios',
@@ -25,15 +25,8 @@ export class PlanDeEstudioMainService {
     };
     mode: ModeForm;
     planesDeEstudios: PlanDeEstudio[] = [];
-    programas_postgrado: Programa[] = [];
     planDeEstudio: PlanDeEstudio = {};
-    cod_plan_estudio: number = 0;
-    cod_facultad_selected: number = 0;
-    cod_programa_postgrado_selected: number = 0;
-
-    showTable: boolean = false
-    disabledDropdownPrograma: boolean = true
-
+    cod_planDeEstudio: number = 0;
 
     constructor(
         private backend: BackendPlanesDeEstudiosService,
@@ -56,74 +49,20 @@ export class PlanDeEstudioMainService {
         }
     }
 
-
     countTableValues(value?: number){
         value ? this.backend.countTableRegisters(value,this.namesCrud) : this.backend.countTableRegisters(this.planesDeEstudios.length, this.namesCrud);
     }
 
-    async getPlanesDeEstudiosMergedPorPrograma(showCountTableValues: boolean = true){
-      let params = { Cod_Programa: this.cod_programa_postgrado_selected }
-      const response = await this.backend.getPlanesDeEstudiosMergedPorPrograma(params);
-      if (response) {
-        this.planesDeEstudios = [...response];
-        if (this.planesDeEstudios.length === 0 ) {
-            this.showTable = false
-            this.messageService.add({
-              key: 'main',
-              severity: 'warn',
-              detail: `No se encontraron planes de estudios para el programa seleccionado.`
-            });
-        }else{
-          if (showCountTableValues){
-              this.messageService.add({
-                key: 'main',
-                severity: 'info',
-                detail: this.planesDeEstudios.length > 1
-                  ? `${this.planesDeEstudios.length} planes de estudios cargados.`
-                  : `${this.planesDeEstudios.length} plan de estudio cargado.`
-              });
-            this.showTable = true
-
-          }
-        }
-      }
-      // console.log("this.planes",this.planesDeEstudios);
+    async getPlanesDeEstudios(showCountTableValues: boolean = true): Promise<PlanDeEstudio[]>{
+      this.planesDeEstudios = await this.backend.getPlanesDeEstudios(this.namesCrud)
+      console.log("this.planesDeEstudios",this.planesDeEstudios);
       
-  	}
-
-	async getProgramasPorFacultad(){
-		let params = { Cod_facultad: this.cod_facultad_selected }
-		const response = await this.backend.getProgramasPorFacultad(params);
-		if (response) {
-		  this.programas_postgrado = [...response];
-		  if (this.programas_postgrado.length === 0 ) {
-			  this.disabledDropdownPrograma = true;
-			  this.showTable = false
-			  this.messageService.add({
-				key: 'main',
-				severity: 'warn',
-				detail: `No se encontraron programas para la facultad seleccionada.`
-			  });
-		  }else{
-			  this.messageService.add({
-				key: 'main',
-				severity: 'info',
-				detail: this.programas_postgrado.length > 1
-				  ? `${this.programas_postgrado.length} programas cargados.`
-				  : `${this.programas_postgrado.length} programa cargado.`
-			  });
-			  this.disabledDropdownPrograma = false;
-		  }
-		}
-	}
-
+      if (showCountTableValues) this.countTableValues();
+      return this.planesDeEstudios
+    }
 
     reset(){
         this.planesDeEstudios = [];
-        this.showTable = false;
-        this.cod_programa_postgrado_selected = 0;
-        this.cod_facultad_selected = 0;
-        
     }
 
     createForm(){
@@ -131,12 +70,12 @@ export class PlanDeEstudioMainService {
     }
 
     showForm(){
-        const cod_planDeEstudio = this.planDeEstudio.cod_plan_estudio;
+        const cod_planDeEstudio = this.planDeEstudio.Cod_plan_estudio;
         this.router.navigate([`/planes/show/${cod_planDeEstudio}`])
     }
 
     editForm(){
-        const cod_planDeEstudio = this.planDeEstudio.cod_plan_estudio;
+        const cod_planDeEstudio = this.planDeEstudio.Cod_plan_estudio;
         this.router.navigate([`/planes/edit/${cod_planDeEstudio}`])
     }
 
@@ -183,7 +122,7 @@ export class PlanDeEstudioMainService {
     async openConfirmationDelete(){
         this.confirmationService.confirm({
           header: 'Confirmar',
-          message: `Es necesario confirmar la acción para <b>eliminar</b> ${this.namesCrud.articulo_singular}: <b>${this.planDeEstudio.nombre_plan_de_estudio_completo}</b>. ¿Desea confirmar?`,
+          message: `Es necesario confirmar la acción para <b>eliminar</b> ${this.namesCrud.articulo_singular}: <b>${this.planDeEstudio.Cod_plan_estudio}</b>. ¿Desea confirmar?`,
           acceptLabel: 'Si',
           rejectLabel: 'No',
           icon: 'pi pi-exclamation-triangle',
@@ -200,7 +139,7 @@ export class PlanDeEstudioMainService {
 
     async openConfirmationDeleteSelected(){
         const data = this.table.selectedRows;
-        const message = mergeNames(this.namesCrud,data,true,'nombre_plan_de_estudio_completo'); 
+        const message = mergeNames(this.namesCrud,data,true,'Cod_plan_estudio'); 
         this.confirmationService.confirm({
           header: "Confirmar",
           message: `Es necesario confirmar la acción para eliminar ${message}. ¿Desea confirmar?`,
