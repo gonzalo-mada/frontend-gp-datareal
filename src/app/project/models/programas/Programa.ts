@@ -61,7 +61,8 @@ export interface Programa {
     Descripcion_EstadoMaestro?: string,
     nombre_Director?: string,
     nombreDirector_alterno?: string,
-    Certificacion_intermedia?: number
+    Certificacion_intermedia?: number,
+    Nombre_programa_completo?: string
 }
 export interface UpdatePrograma {
     modeDialog: ModeDialog,

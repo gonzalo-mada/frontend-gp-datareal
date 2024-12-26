@@ -74,9 +74,9 @@ export class ProgramaMainService {
         this.router.navigate([`/programa/edit/${cod_programa}`])
     }
 
-    async getProgramasPorFacultad(){
+    async getProgramasPorFacultadMerged(){
       let params = { Cod_facultad: this.cod_facultad_selected }
-      const response = await this.backend.getProgramasPorFacultad(params);
+      const response = await this.backend.getProgramasPorFacultadMerged(params);
       if (response) {
         this.programas = [...response];
         if (this.programas.length === 0 ) {
@@ -134,7 +134,7 @@ export class ProgramaMainService {
       } catch (error) {
         console.log(error);
       }finally{
-        this.getProgramasPorFacultad();
+        this.getProgramasPorFacultadMerged();
         this.table.resetSelectedRows();
       }
     }

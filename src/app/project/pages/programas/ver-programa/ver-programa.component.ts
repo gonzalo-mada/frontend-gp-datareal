@@ -14,21 +14,11 @@ export class VerProgramaComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private programaMainService: ProgramaMainService,
-    public form: FormProgramaService
   ){}
-
-  onClickRefreshPrograma: boolean = false;
 
   async ngOnInit() {
     this.activatedRoute.params.subscribe( ({cod_programa}) => this.programaMainService.cod_programa = parseInt(cod_programa))
     this.programaMainService.mode = 'show';
-  }
-
-  refreshPrograma(){
-    this.onClickRefreshPrograma = true
-    setTimeout(() => {
-      this.onClickRefreshPrograma = false
-    }, 500); 
   }
 
 }

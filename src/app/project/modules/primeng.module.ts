@@ -27,6 +27,7 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { RadioButtonModule } from 'primeng/radiobutton';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { SidebarModule } from 'primeng/sidebar';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -58,6 +59,7 @@ const primeGp = [
   InputSwitchModule,
   MultiSelectModule,
   OverlayPanelModule,
+  RadioButtonModule,
   SelectButtonModule,
   SidebarModule,
   SkeletonModule,

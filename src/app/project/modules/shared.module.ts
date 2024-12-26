@@ -48,6 +48,12 @@ import { FormCertificacionesIntermediasComponent } from 'src/app/project/compone
 import { FormArticulacionesComponent } from '../components/plan-de-estudio/forms/form-articulaciones/form-articulaciones.component';
 import { TableArticulacionesComponent } from '../components/plan-de-estudio/tables/table-articulaciones/table-articulaciones.component';
 import { TablePlanDeEstudioComponent } from '../components/plan-de-estudio/tables/table-plan-de-estudio/table-plan-de-estudio.component';
+import { FormCertificacionesIntermediasPeComponent } from '../components/plan-de-estudio/forms/form-certificaciones-intermedias-pe/form-certificaciones-intermedias-pe.component';
+import { TableCertificacionesIntermediasPeComponent } from '../components/plan-de-estudio/tables/table-certificaciones-intermedias-pe/table-certificaciones-intermedias-pe.component';
+import { FormAsignaturasPlancomunComponent } from '../components/plan-de-estudio/forms/form-asignaturas-plancomun/form-asignaturas-plancomun.component';
+import { TableAsignaturasPlancomunComponent } from '../components/plan-de-estudio/tables/table-asignaturas-plancomun/table-asignaturas-plancomun.component';
+import { FormPeViewAndEditComponent } from '../components/plan-de-estudio/forms/plan-de-estudio/form-pe-view-and-edit/form-pe-view-and-edit.component';
+import { FormPeUpdateComponent } from '../components/plan-de-estudio/forms/plan-de-estudio/form-pe-update/form-pe-update.component';
 
 const componentsGp = [
   BreadcrumbgpComponent,
@@ -64,6 +70,10 @@ const componentsGp = [
   FormReglamentosComponent,
   FormSuspensionComponent,
   FormJornadasComponent,
+  FormCertificacionesIntermediasPeComponent,
+  FormAsignaturasPlancomunComponent,
+  FormPeViewAndEditComponent,
+  FormPeUpdateComponent,
   FormModalidadesComponent,
   FormTiposGraduacionComponent,
   LoadinggpComponent,
@@ -86,7 +96,9 @@ const componentsGp = [
   TableSuspensionesComponent,
   TableUnidadesAcademicasComponent,
   TableJornadasComponent,
-  TableModalidadesComponent
+  TableModalidadesComponent,
+  TableCertificacionesIntermediasPeComponent,
+  TableAsignaturasPlancomunComponent,
 ]
 
 @NgModule({

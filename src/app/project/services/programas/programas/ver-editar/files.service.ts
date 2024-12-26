@@ -5,7 +5,6 @@ import { CollectionsMongo, ModeUploader, Module, NameComponent } from 'src/app/p
 import { ActionUploadDoc } from 'src/app/project/models/shared/ActionUploadDoc';
 import { BackendProgramasService } from '../backend.service';
 import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
-import { ModeDialog } from 'src/app/project/models/programas/Programa';
 import { FormProgramaService } from '../form.service';
 
 @Injectable({

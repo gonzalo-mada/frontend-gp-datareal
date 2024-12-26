@@ -14,13 +14,14 @@ export class FormArticulacionesService{
     modeForm: ModeForm = undefined;
     stateForm: StateValidatorForm = undefined;
 
-    cod_planDeEstudio_selected: number = 0;
 
 
     constructor(private fb: FormBuilder){}
 
     async initForm(): Promise<boolean>{
         this.fbForm = this.fb.group({
+            Cod_Facultad_Postgrado_Selected: ['', [Validators.required]],
+            Cod_Programa_Postgrado_Selected: ['', [Validators.required]],
             Cod_Facultad_Selected: ['', [Validators.required]],
             Cod_plan_estudio: ['', [Validators.required]],
             Cod_programa_pregrado: ['', [Validators.required]],
@@ -33,7 +34,9 @@ export class FormArticulacionesService{
 
     resetForm(): void {
         this.fbForm.reset({
+            Cod_Facultad_Postgrado_Selected: '',
             Cod_Facultad_Selected: '',
+            Cod_Programa_Postgrado_Selected: '',
             Cod_plan_estudio: '',
             Cod_programa_pregrado: '',
             Descripcion_programa_pregrado: '',
@@ -41,10 +44,9 @@ export class FormArticulacionesService{
             aux: ''
         });
         this.fbForm.enable();
-        this.cod_planDeEstudio_selected = 0;
     }
 
-    setForm(mode:'show' | 'edit' ,data: Articulacion): void{
+    setForm(mode:'show' | 'edit' ,data: Articulacion): void {
         this.fbForm.patchValue({...data});
         if (mode === 'show') {
             this.fbForm.disable();

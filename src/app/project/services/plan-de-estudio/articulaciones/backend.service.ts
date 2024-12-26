@@ -20,9 +20,67 @@ export class BackendArticulacionesService {
         this.serviceUtils.countTableValues(value,namesCrud);
     }
 
-    async getProgramasPregradoPorFacultad(params: any) {
+    async getProgramasPorFacultad(params: any, loading = true) {
         try {
-            return await this.invoker.httpInvoke('articulaciones/getProgramasPregradoPorFacultad', params );
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('programas/getProgramasPorFacultad', loading),
+                params
+            );
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(error, {
+                notifyMethod: 'alert',
+                message: 'Hubo un error al obtener programas por facultad seleccionada. Intente nuevamente.'
+            });
+        }
+    }
+
+    async getProgramasPostgrado(loading = true) {
+        try {
+            return await this.invoker.httpInvoke({service: 'planesDeEstudio/getProgramasPostgrado', loading: loading});
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(
+                error, 
+                {
+                    notifyMethod: 'alert',
+                    message: `Hubo un error al obtener programas. Intente nuevamente.`,
+                }
+            );
+        }
+    }
+
+    async getPlanesDeEstudiosPorPrograma(params: any, loading = true) {
+        try {
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('planesDeEstudio/getPlanesDeEstudiosPorPrograma', loading),
+                params
+            );
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(error, {
+                notifyMethod: 'alert',
+                message: 'Hubo un error al obtener planes de estudios por programa seleccionado. Intente nuevamente.',
+            });
+        }
+    }
+    async getPlanesDeEstudiosMergedPorPrograma(params: any, loading = true) {
+        try {
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('planesDeEstudio/getPlanesDeEstudiosMergedPorPrograma', loading),
+                params
+            );
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(error, {
+                notifyMethod: 'alert',
+                message: 'Hubo un error al obtener planes de estudios por programa seleccionado. Intente nuevamente.',
+            });
+        }
+    }
+
+    async getProgramasPregradoPorFacultad(params: any, loading = true) {
+        try {
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('articulaciones/getProgramasPregradoPorFacultad', loading),
+                params
+            );
         } catch (error: any) {
             this.errorTemplateHandler.processError(
                 error, 
@@ -34,9 +92,12 @@ export class BackendArticulacionesService {
         }
     }
 
-    async getAsignaturasPorProgramaPregrado(params: any) {
+    async getAsignaturasPorProgramaPregrado(params: any, loading = true) {
         try {
-            return await this.invoker.httpInvoke('articulaciones/getAsignaturasPorProgramaPregrado', params );
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('articulaciones/getAsignaturasPorProgramaPregrado', loading),
+                params
+            );
         } catch (error: any) {
             this.errorTemplateHandler.processError(
                 error, 
@@ -48,9 +109,12 @@ export class BackendArticulacionesService {
         }
     }
 
-    async getArticulaciones(namesCrud: NamesCrud) {
+    async getArticulacionesPorPlanDeEstudio(params: any, namesCrud: NamesCrud, loading = true) {
         try {
-            return await this.invoker.httpInvoke('articulaciones/getArticulaciones_Asign_All')
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('articulaciones/getArticulacionesPorPlanDeEstudio', loading),
+                params
+            );
         } catch (error: any) {
             this.errorTemplateHandler.processError(
                 error, 

@@ -8,6 +8,7 @@ interface Column {
     header: string;
     width: string;
     useMinWidth: boolean;
+    getValue?: (data: any) => any;
 }
 
 @Injectable({
@@ -17,23 +18,25 @@ interface Column {
 export class TablePlanesDeEstudiosService {
 
     selectedRows: PlanDeEstudio[] = [];
-    globalFiltros : any[] = [ 'Cod_Programa' , 'Nombre_programa' ];
-    dataKeyTable : string = 'Cod_plan_estudio';
+    globalFiltros : any[] = [ 'cod_plan_estudio' , 'cod_programa' , 'nombre_plan_estudio_completo', 'nombre_programa_completo',   ];
+    dataKeyTable : string = 'cod_plan_estudio';
     _selectedColumns!: Column[];
     cols: Column[] = [
-        { field: 'Acreditacion', header: 'Acreditacion', width: '200px', useMinWidth: true },
-        { field: 'Tipo_programa', header: 'Tipo de programa', width: '200px', useMinWidth: true },
-        { field: 'Centro_costo', header: 'Centro costo', width: '155px', useMinWidth: true },
-        { field: 'Titulo', header: 'Título', width: '150px', useMinWidth: true },
-        { field: 'Rexe', header: 'REXE', width: '130px', useMinWidth: true },
-        { field: 'Codigo_SIES', header: 'Código SIES', width: '155px', useMinWidth: true },
-        { field: 'Creditos_totales', header: 'Créditos totales', width: '180px', useMinWidth: true },
-        { field: 'Horas_totales', header: 'Horas totales', width: '170px', useMinWidth: true },
-        { field: 'Grupo_correo', header: 'Grupo correo', width: '160px', useMinWidth: true },
-        { field: 'Grado_academico', header: 'Grado académico', width: '190px', useMinWidth: true },
-        { field: 'Estado_maestro', header: 'Estado maestro', width: '180px', useMinWidth: true },
-        { field: 'Reglamento', header: 'Reglamento', width: '170px', useMinWidth: true },
-        { field: 'Unidad_academica', header: 'Unidades académicas', width: '300px', useMinWidth: true }
+        { field: 'cod_programa', header: 'Programa', width: '400px', useMinWidth: true},
+        { field: 'case_menciones', header: 'Menciones', width: '200px', useMinWidth: true},
+        { field: 'cupo_minimo', header: 'Cupo mínimo', width: '200px', useMinWidth: true, getValue: (data: any) => data?.cupo_minimo || ''  },
+        { field: 'jornada.descripcion_jornada', header: 'Jornada', width: '200px', useMinWidth: true, getValue: (data: any) => data?.jornada?.descripcion_jornada || '' },
+        { field: 'modalidad.descripcion_modalidad', header: 'Modalidad', width: '200px', useMinWidth: true, getValue: (data: any) => data?.modalidad?.descripcion_modalidad || '' },
+        { field: 'estado.descripcion_estado', header: 'Estado', width: '200px', useMinWidth: true, getValue: (data: any) => data?.estado?.descripcion_estado || '' },
+        { field: 'rexe', header: 'REXE', width: '200px', useMinWidth: true, getValue: (data: any) => data?.rexe || '' },
+        // { field: 'Certificacion', header: 'Certificación', width: '200px', useMinWidth: true, getValue: (data: any) => data?.Certificacion || '' },
+        { field: 'case_articulaciones', header: 'Articulaciones', width: '200px', useMinWidth: true },
+        { field: 'reglamento.descripcion_reglamento', header: 'Reglamento', width: '200px', useMinWidth: true, getValue: (data: any) => data?.reglamento?.descripcion_reglamento || '' },
+        { field: 'case_plancomun', header: 'Plan_comun (pendiente)', width: '200px', useMinWidth: true },
+        { field: 'case_rangos', header: 'Rangos de aprobación (pendiente)', width: '200px', useMinWidth: true},
+        { field: 'case_certificacion', header: 'Certificación intermedia', width: '200px', useMinWidth: true},
+        { field: 'regimen.descripcion_regimen', header: 'Régimen', width: '200px', useMinWidth: true, getValue: (data: any) => data?.regimen?.descripcion_regimen || '' },
+
     ];
     constructor(
         private tableCrudService: TableCrudService,

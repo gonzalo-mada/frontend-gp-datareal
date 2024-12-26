@@ -3,7 +3,6 @@ import { Programa } from 'src/app/project/models/programas/Programa';
 import { AgregarPlanDeEstudioMainService } from 'src/app/project/services/plan-de-estudio/plan-de-estudio/agregar-plan-de-estudio/main.service';
 import { BackendPlanesDeEstudiosService } from 'src/app/project/services/plan-de-estudio/plan-de-estudio/backend.service';
 import { FormPlanDeEstudioService } from 'src/app/project/services/plan-de-estudio/plan-de-estudio/form.service';
-import { CertifIntermediaMainService } from 'src/app/project/services/programas/certificaciones-intermedias/main.service';
 import { FacultadesMainService } from 'src/app/project/services/programas/facultad/main.service';
 
 @Component({
@@ -28,7 +27,6 @@ export class AgregarPlanDeEstudioComponent implements OnInit, OnDestroy {
     public main: AgregarPlanDeEstudioMainService,
     public form: FormPlanDeEstudioService,
     public mainFacultad: FacultadesMainService,
-    public mainCertifIntermedia: CertifIntermediaMainService
   ){}
 
 
@@ -91,7 +89,6 @@ export class AgregarPlanDeEstudioComponent implements OnInit, OnDestroy {
     this.form.setSelectRegimen(event);
   }
 
-
   changeDisposition(){
     this.main.disposition = !this.main.disposition;
   }
@@ -118,17 +115,14 @@ export class AgregarPlanDeEstudioComponent implements OnInit, OnDestroy {
   async changePrograma(event: any){
     let params = { Cod_Programa: event.value }
     this.programa_postgrado = await this.backend.getProgramaPostgrado(params, false);
-    this.mainCertifIntermedia.getCertificacionIntermediaPrograma(event.value,false);
     console.log("this.programa_postgrado",this.programa_postgrado);
     this.form.resetForm(false);
     this.form.cod_programa_selected = event.value;
-    this.form.fbForm.patchValue({ Cod_Programa: event.value });
+    this.form.fbForm.patchValue({ cod_programa: event.value });
+    this.form.checkCertifIntermedia(this.programa_postgrado);
     this.showForm = true;
   }
 
-  changeCertifIntermedias(event:any){
-    this.form.fbForm.get('Certificaciones_Intermedias')?.patchValue(event.value);
-  }
 
   test(){
     Object.keys(this.form.fbForm.controls).forEach(key => {
@@ -142,35 +136,24 @@ export class AgregarPlanDeEstudioComponent implements OnInit, OnDestroy {
     // this.form.getValuesIndex();
   }
 
-  changeSwitchCI(event: any){
-    const Certificacion_intermedia = this.form.fbForm.get('Certificaciones_Intermedias')!;
-
-    switch (event.checked) {
-      case true:
-        this.programa_postgrado.Certificacion_intermedia === 0 ? this.form.showMessageCI = true :  this.form.showMessageCI = false
-        Certificacion_intermedia?.enable(); 
-        this.showAsteriskCI = true; 
-      break;
-      case false : 
-        Certificacion_intermedia?.disable(); 
-        Certificacion_intermedia?.reset(); 
-        this.showAsteriskCI = false; 
-        this.form.showMessageCI = false;
-      break;
+  changeRadioButtonCI(event: any){
+    switch (event.value) {
+      case 1: this.form.showMessageCI = true; break;
+      case 0 : this.form.showMessageCI = false; break;
     }
   }
 
-  changeSwitchArticulaciones(event: any){
-    switch (event.checked) {
-      case true: this.form.showMessageArticulacion = true; break;
-      case false : this.form.showMessageArticulacion = false; break;
+  changeRadioButtonArticulaciones(event: any){
+    switch (event.value) {
+      case 1: this.form.showMessageArticulacion = true; break;
+      case 0 : this.form.showMessageArticulacion = false; break;
     }
   }
 
-  changeSwitchPlanComun(event: any){
-    switch (event.checked) {
-      case true: this.form.showMessagePlanComun = true; break;
-      case false : this.form.showMessagePlanComun = false; break;
+  changeRadioButtonPlanComun(event: any){
+    switch (event.value) {
+      case 1: this.form.showMessagePlanComun = true; break;
+      case 0 : this.form.showMessagePlanComun = false; break;
     }
   }
 

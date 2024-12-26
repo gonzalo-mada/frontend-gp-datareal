@@ -7,10 +7,11 @@ import { ConfirmationService } from 'primeng/api';
 import { BackendArticulacionesService } from './backend.service';
 import { FormArticulacionesService } from './form.service';
 import { TableArticulacionesService } from './table.service';
-import { TipoGraduacion } from 'src/app/project/models/programas/TipoGraduacion';
 import { Subject } from 'rxjs';
 import { PlanDeEstudio } from 'src/app/project/models/plan-de-estudio/PlanDeEstudio';
 import { Articulacion } from 'src/app/project/models/plan-de-estudio/Articulacion';
+import { LoadinggpService } from '../../components/loadinggp.service';
+
 @Injectable({
     providedIn: 'root'
 })
@@ -20,20 +21,37 @@ export class ArticulacionesMainService {
     namesCrud: NamesCrud = {
         singular: 'articulación',
         plural: 'articulaciones',
-        articulo_singular: 'la articulación',
-        articulo_plural: 'las articulaciones',
+        articulo_singular: 'la articulación con el programa',
+        articulo_plural: 'las articulaciones con los programas',
         genero: 'femenino'
     }
 
     articulaciones: Articulacion[] = [];
     articulacion: Articulacion = {};
-    planes: PlanDeEstudio[] = []
+    planes: PlanDeEstudio[] = [];
 
-    cod_facultad_selected: number = 0;
+    cod_facultad_selected_notform: number = 0;
+    cod_programa_postgrado_selected_notform: number = 0;
+    cod_plan_estudio_selected_notform: number = 0;
+    
+    cod_plan_estudio_selected: number = 0;
+    cod_facultad_selected_postgrado: number = 0;
+    cod_facultad_selected_pregrado: number = 0;
+    cod_programa_postgrado_selected: number = 0;
     cod_programa_selected: number = 0;
-    showTables: boolean = false; 
+    showTable: boolean = false
+    showTables: boolean = false;
+    disabledDropdownPrograma: boolean = true
+    disabledDropdownPlanEstudio: boolean = true
     showDropdownSelectFacultad: boolean = false;
+    showDropdownSelectPlanEstudio: boolean = false;
+    showDropdownSelectProgramaPostgrado: boolean = false;
+    wasFilteredTable: boolean = false;
 
+    programas_postgrado_notform: any[] = [];
+    planes_notform: any[] = [];
+
+    programas_postgrado: any[] = [];
     programas: any[] = [];
     asignaturas: any[] = [];
 
@@ -48,7 +66,8 @@ export class ArticulacionesMainService {
         private confirmationService: ConfirmationService,
         private form: FormArticulacionesService,
         private messageService: MessageServiceGP,
-        private table: TableArticulacionesService
+        private table: TableArticulacionesService,
+        private systemService: LoadinggpService,
     ){
         this.form.initForm();
     }
@@ -60,7 +79,6 @@ export class ArticulacionesMainService {
     async setModeCrud(mode: ModeForm, data?: Articulacion | null){
         this.form.modeForm = mode;
         if (data) this.articulacion = {...data};
-        // console.log("this.articulacion",this.articulacion);
         
         switch (mode) {
             case 'create': this.createForm(); break;
@@ -74,18 +92,37 @@ export class ArticulacionesMainService {
     }
 
     async reset(){
+        this.wasFilteredTable = false;
         this.form.resetForm();
         this.table.emitResetExpandedRows();
         this.table.resetSelectedRows();
-        this.resetValuesSelected();
         this.hideElements();
     }
 
-    resetValuesSelected(){
-        this.cod_facultad_selected = 0;
-        this.cod_programa_selected = 0;
-        this.programas = [];
-        this.asignaturas = [];
+    resetDropdownsFilterTable(){
+        this.disabledDropdownPrograma = true
+        this.disabledDropdownPlanEstudio = true
+        this.cod_programa_postgrado_selected_notform = 0;
+        this.cod_plan_estudio_selected_notform = 0;
+        this.cod_facultad_selected_notform = 0;
+        this.programas_postgrado_notform = [];
+        this.planes_notform = [];
+        this.showTable = false
+    }
+
+
+    resetWhenChangedDropdownFacultadNotForm(){
+        this.showTable = false
+        this.disabledDropdownPlanEstudio = true;
+        this.disabledDropdownPrograma = true;
+        this.cod_programa_postgrado_selected_notform = 0;
+        this.cod_plan_estudio_selected_notform = 0;
+    }
+
+    resetWhenChangedDropdownProgramaNotForm(){
+        this.showTable = false
+        this.disabledDropdownPlanEstudio = true;
+        this.cod_plan_estudio_selected_notform = 0;
     }
     
     emitResetExpandedRows(){
@@ -96,23 +133,130 @@ export class ArticulacionesMainService {
         value ? this.backend.countTableRegisters(value,this.namesCrud) : this.backend.countTableRegisters(this.articulaciones.length, this.namesCrud);
     }
 
-    async getPlanesDeEstudios(showCountTableValues: boolean = true): Promise<PlanDeEstudio[]>{
-        // this.tipos = await this.backend.getPlanesDeEstudios(this.namesCrud);
-        this.planes.push({Cod_plan_estudio: 1})
-        this.planes.push({Cod_plan_estudio: 2})
-        if (showCountTableValues) this.countTableValues();
-        return this.planes;
+    async getProgramasPorFacultadNotForm(showCountTableValues: boolean = true, needShowLoading = true){
+		let params = { Cod_facultad: this.cod_facultad_selected_notform }
+		const response = await this.backend.getProgramasPorFacultad(params,needShowLoading);
+		if (response) {
+		  this.programas_postgrado_notform = [...response];
+		  if (this.programas_postgrado_notform.length === 0 ) {
+			  this.disabledDropdownPrograma = true;
+			  this.disabledDropdownPlanEstudio = true;
+			  this.showTable = false
+			  this.messageService.add({
+				key: 'main',
+				severity: 'warn',
+				detail: `No se encontraron programas para la facultad seleccionada.`
+			  });
+		  }else{
+            if (showCountTableValues){
+                this.messageService.add({
+                  key: 'main',
+                  severity: 'info',
+                  detail: this.programas_postgrado_notform.length > 1
+                    ? `${this.programas_postgrado_notform.length} programas cargados.`
+                    : `${this.programas_postgrado_notform.length} programa cargado.`
+                });
+            }
+            this.disabledDropdownPrograma = false;
+		  }
+		}
+	}
+
+    async getProgramasPorFacultad(showCountTableValues: boolean = true, needShowLoading = true){
+		let params = { Cod_facultad: this.cod_facultad_selected_postgrado }
+		const response = await this.backend.getProgramasPorFacultad(params,needShowLoading);
+		if (response) {
+		  this.programas_postgrado = [...response];
+		  if (this.programas_postgrado.length === 0 ) {
+            this.showDropdownSelectProgramaPostgrado = false;
+			  this.messageService.add({
+				key: 'main',
+				severity: 'warn',
+				detail: `No se encontraron programas para la facultad seleccionada.`
+			  });
+		  }else{
+            if (showCountTableValues) {
+                this.messageService.add({
+                  key: 'main',
+                  severity: 'info',
+                  detail: this.programas_postgrado.length > 1
+                    ? `${this.programas_postgrado.length} programas cargados.`
+                    : `${this.programas_postgrado.length} programa cargado.`
+                });
+            }
+            this.showDropdownSelectProgramaPostgrado = true
+		  }
+		}
+	}
+
+    async getPlanesDeEstudiosPorProgramaNotForm(showCountTableValues: boolean = true, needShowLoading = true){
+        let params = { Cod_Programa: this.cod_programa_postgrado_selected_notform }
+        const response = await this.backend.getPlanesDeEstudiosPorPrograma(params,needShowLoading);
+        if (response) {
+          this.planes_notform = [...response];
+          if (this.planes_notform.length === 0 ) {
+            this.disabledDropdownPlanEstudio = true;
+              this.messageService.add({
+                key: 'main',
+                severity: 'warn',
+                detail: `No se encontraron planes de estudios para el programa seleccionado.`
+              });
+          }else{
+            if (showCountTableValues){
+                this.messageService.add({
+                  key: 'main',
+                  severity: 'info',
+                  detail: this.planes_notform.length > 1
+                    ? `${this.planes_notform.length} planes de estudios cargados.`
+                    : `${this.planes_notform.length} plan de estudio cargado.`
+                });
+            }
+            this.disabledDropdownPlanEstudio = false;
+          }
+        }
     }
 
-    async getArticulaciones(showCountTableValues: boolean = true): Promise<Articulacion[]>{
-        this.articulaciones = await this.backend.getArticulaciones(this.namesCrud);
+    async getPlanesDeEstudiosPorPrograma(showCountTableValues: boolean = true, needShowLoading = true){
+        let params = { Cod_Programa: this.cod_programa_postgrado_selected }
+        const response = await this.backend.getPlanesDeEstudiosPorPrograma(params,needShowLoading);
+        if (response) {
+          this.planes = [...response];
+          if (this.planes.length === 0 ) {
+            this.showDropdownSelectPlanEstudio = false;
+              this.messageService.add({
+                key: 'main',
+                severity: 'warn',
+                detail: `No se encontraron planes de estudios para el programa seleccionado.`
+              });
+          }else{
+            if (showCountTableValues){
+                this.messageService.add({
+                  key: 'main',
+                  severity: 'info',
+                  detail: this.planes.length > 1
+                    ? `${this.planes.length} planes de estudios cargados.`
+                    : `${this.planes.length} plan de estudio cargado.`
+                });
+            }
+            this.showDropdownSelectPlanEstudio = true;
+          }
+        }
+        
+    }
+
+    async getArticulacionesPorPlanDeEstudio(showCountTableValues: boolean = true, needShowLoading = true): Promise<Articulacion[]>{
+        console.log("cod_plan_estudio_selected_notform",this.cod_plan_estudio_selected_notform);
+        
+        let params = { cod_plan_estudio: this.cod_plan_estudio_selected_notform }
+        this.articulaciones = await this.backend.getArticulacionesPorPlanDeEstudio(params,this.namesCrud);
+        this.articulaciones.length !== 0 ? this.showTable = true : this.showTable = false
         if (showCountTableValues) this.countTableValues();
         return this.articulaciones;
     }
 
-    async getProgramasPregradoPorFacultad(showCountTableValues: boolean = true){
-        let params = { codFacultad: this.cod_facultad_selected }
-        const response = await this.backend.getProgramasPregradoPorFacultad(params);
+    async getProgramasPregradoPorFacultad(showCountTableValues: boolean = true, needShowLoading = true){
+        let params = { codFacultad: this.cod_facultad_selected_pregrado }
+        const response = await this.backend.getProgramasPregradoPorFacultad(params,needShowLoading);
         if (response) {
           this.programas = [...response];
           if (this.programas.length === 0 ) {
@@ -137,9 +281,9 @@ export class ArticulacionesMainService {
         
     }
 
-    async getAsignaturasPorProgramaPregrado(showCountTableValues: boolean = true){
+    async getAsignaturasPorProgramaPregrado(showCountTableValues: boolean = true, needShowLoading = true){
         let params = { codPrograma: this.cod_programa_selected }
-        const response = await this.backend.getAsignaturasPorProgramaPregrado(params);
+        const response = await this.backend.getAsignaturasPorProgramaPregrado(params,needShowLoading);
         if (response) {
           this.asignaturas = [...response];
           if (this.asignaturas.length === 0 ) {
@@ -170,6 +314,7 @@ export class ArticulacionesMainService {
 
     async showForm(){
         await this.reset();
+        this.form.fbForm.patchValue({Cod_Facultad_Postgrado_Selected: this.cod_facultad_selected_notform});
         this.form.setForm('show',this.articulacion);
         await this.setTables();
         this.showElements();
@@ -178,6 +323,7 @@ export class ArticulacionesMainService {
 
     async editForm(){
         await this.reset();
+        this.form.fbForm.patchValue({Cod_Facultad_Postgrado_Selected: this.cod_facultad_selected_notform});
         this.form.setForm('edit',this.articulacion);
         await this.setTables();
         this.showElements();
@@ -200,7 +346,8 @@ export class ArticulacionesMainService {
             console.log(error);
         }finally{
             this.dialogForm = false;
-            this.getArticulaciones(false);
+            if ( !this.wasFilteredTable) await this.setDropdownsFilterTable();
+            this.getArticulacionesPorPlanDeEstudio(false);
             this.reset()
         }
     }
@@ -211,11 +358,7 @@ export class ArticulacionesMainService {
                 ...this.form.fbForm.value,
                 Cod_Articulacion: this.articulacion.Cod_Articulacion
             }
-            console.log("params",params);
-
             const response = await this.backend.updateArticulacion(params,this.namesCrud);
-            console.log("response",response);
-            
             if ( response && response.dataWasUpdated ) {
                 this.messageService.add({
                     key: 'main',
@@ -227,7 +370,8 @@ export class ArticulacionesMainService {
             console.log(error);
         }finally{
             this.dialogForm = false;
-            this.getArticulaciones(false);
+            if ( !this.wasFilteredTable) await this.setDropdownsFilterTable();
+            this.getArticulacionesPorPlanDeEstudio(false);
             this.reset();
         }
     }
@@ -266,7 +410,8 @@ export class ArticulacionesMainService {
         } catch (error) {
             console.log(error);
         }finally{
-            this.getArticulaciones(false);
+            // if ( !this.wasFilteredTable) await this.setDropdownsFilterTable();
+            this.getArticulacionesPorPlanDeEstudio(false);
             this.reset();
         }
     }
@@ -274,7 +419,7 @@ export class ArticulacionesMainService {
     async openConfirmationDelete(){
         this.confirmationService.confirm({
             header: 'Confirmar',
-            message: `Es necesario confirmar la acción para eliminar ${this.namesCrud.articulo_singular} <b>${this.articulacion.Cod_Articulacion}</b>. ¿Desea confirmar?`,
+            message: `Es necesario confirmar la acción para eliminar ${this.namesCrud.articulo_singular} <b>${this.articulacion.Descripcion_programa_pregrado}</b>. ¿Desea confirmar?`,
             acceptLabel: 'Si',
             rejectLabel: 'No',
             icon: 'pi pi-exclamation-triangle',
@@ -291,7 +436,7 @@ export class ArticulacionesMainService {
 
     async openConfirmationDeleteSelected(){
         const data = this.table.selectedRows;
-        const message = mergeNames(this.namesCrud,data,true,'Cod_Articulacion');
+        const message = mergeNames(this.namesCrud,data,true,'Descripcion_programa_pregrado');
         this.confirmationService.confirm({
             header: "Confirmar",
             message: `Es necesario confirmar la acción para eliminar ${message}. ¿Desea confirmar?`,
@@ -312,14 +457,22 @@ export class ArticulacionesMainService {
     }
 
     async setTables(){
-        this.cod_facultad_selected = this.articulacion.Cod_Facultad_Selected!;
+        this.systemService.loading(true);
+        this.cod_facultad_selected_postgrado = this.cod_facultad_selected_notform;
+        this.cod_programa_postgrado_selected = this.articulacion.Cod_Programa_Postgrado_Selected!;
+        this.cod_facultad_selected_pregrado = this.articulacion.Cod_Facultad_Selected!;
         this.cod_programa_selected = this.articulacion.Cod_programa_pregrado!;
+        this.cod_plan_estudio_selected = this.articulacion.Cod_plan_estudio!;
         this.table.selectedAsignaturaRows = [...this.articulacion.Asignaturas!]
         await Promise.all([
-            this.getProgramasPregradoPorFacultad(false),
-            this.getAsignaturasPorProgramaPregrado(false)
+            this.getProgramasPregradoPorFacultad(false,false),
+            this.getAsignaturasPorProgramaPregrado(false,false),
+            this.getPlanesDeEstudiosPorPrograma(false,false),
+            this.getProgramasPorFacultad(false,false),
+            
         ]);
         this.setTablePrograma();
+        this.systemService.loading(false);
     }
 
     setTablePrograma(){
@@ -342,13 +495,28 @@ export class ArticulacionesMainService {
 
     showElements(){
         this.showDropdownSelectFacultad = true;
+        this.showDropdownSelectPlanEstudio = true;
+        this.showDropdownSelectProgramaPostgrado = true;
         this.showTables = true;
     }
 
     hideElements(){
         this.showDropdownSelectFacultad = false;
+        this.showDropdownSelectPlanEstudio = false;
+        this.showDropdownSelectProgramaPostgrado = false;
         this.showTables = false;
     }
 
+    async setDropdownsFilterTable(){
+        console.log("me llamaron setDropdownsFilterTable");
+        
+        this.disabledDropdownPrograma = false;
+        this.disabledDropdownPlanEstudio = false;
+        this.cod_facultad_selected_notform = this.cod_facultad_selected_postgrado;
+        this.cod_programa_postgrado_selected_notform = this.cod_programa_postgrado_selected;
+        this.cod_plan_estudio_selected_notform = this.cod_plan_estudio_selected;
+        await this.getProgramasPorFacultadNotForm(false);
+        await this.getPlanesDeEstudiosPorProgramaNotForm(false);
+    }
 
 }

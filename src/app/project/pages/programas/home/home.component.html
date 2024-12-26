@@ -18,7 +18,7 @@
         <div class="w-full" *ngIf="!programaMainService.loadedProgramas">
             <div class="flex align-items-center justify-content-center sm:justify-content-end sm:mt-5">
                 <p-button
-                    [routerLink]="'/programa/add'"
+                    (onClick)="programaMainService.setModeCrud('create')"
                     label="Agregar"
                     icon="pi pi-plus"
                     styleClass="p-button-success"
