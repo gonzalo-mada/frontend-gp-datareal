@@ -18,24 +18,45 @@ export class FormAsignaturasPlancomunService {
 
     async initForm(): Promise<boolean>{
         this.fbForm = this.fb.group({
-            Cod_Facultad_Postgrado_Selected: ['', [Validators.required]],
-            Cod_Programa_Postgrado_Selected: ['', [Validators.required]],
-            Cod_plan_estudio: ['', [Validators.required]],
+            Cod_Facultad_Postgrado_Selected_Origen: ['', [Validators.required]],
+            Cod_Programa_Postgrado_Selected_Origen: ['', [Validators.required]],
+            Cod_plan_estudio_Origen: ['', [Validators.required]],
+
+            Cod_Facultad_Postgrado_Selected_Destino: ['', [Validators.required]],
+            Cod_Programa_Postgrado_Selected_Destino: ['', [Validators.required]],
+            Cod_plan_estudio_Destino: ['', [Validators.required]],
+
             Asignaturas: ['', [Validators.required]],
             aux: ['']
         });
+        console.log("inicie form");
+        
         return true;
     }
 
     resetForm(): void {
         this.fbForm.reset({
-            Cod_Facultad_Postgrado_Selected: '',
-            Cod_Programa_Postgrado_Selected: '',
-            Cod_plan_estudio: '',
+            Cod_Facultad_Postgrado_Selected_Origen: '',
+            Cod_Programa_Postgrado_Selected_Origen: '',
+            Cod_plan_estudio_Origen: '',
+
+            Cod_Facultad_Postgrado_Selected_Destino: '',
+            Cod_Programa_Postgrado_Selected_Destino: '',
+            Cod_plan_estudio_Destino: '',
+
             Asignaturas: '',
             aux: ''
         });
         this.fbForm.enable();
+
+        this.fbForm.get('Cod_Programa_Postgrado_Selected_Origen')?.disable();
+		this.fbForm.get('Cod_plan_estudio_Origen')?.disable();
+
+        this.fbForm.get('Cod_Facultad_Postgrado_Selected_Destino')?.disable();
+        this.fbForm.get('Cod_Programa_Postgrado_Selected_Destino')?.disable();
+        this.fbForm.get('Cod_plan_estudio_Destino')?.disable();
+        console.log("reset form");
+
     }
 
     setForm(mode:'show' | 'edit' ,data: CertificacionIntermediaPE): void{
@@ -48,21 +69,77 @@ export class FormAsignaturasPlancomunService {
         }
     }
 
-    resetFormWhenChangedDropdownFacultad(){
-		this.fbForm.get('Cod_Programa_Postgrado_Selected')?.reset();
-		this.fbForm.get('Cod_plan_estudio')?.reset();
-		this.fbForm.patchValue({ Cod_Programa_Postgrado_Selected: '' });
-		this.fbForm.patchValue({ Cod_plan_estudio: '' });
+    resetControlsWhenChangedDropdownFacultadOrigen(){
+		this.fbForm.get('Cod_Programa_Postgrado_Selected_Origen')?.reset();
+		this.fbForm.get('Cod_plan_estudio_Origen')?.reset();
+		this.fbForm.get('Asignaturas')?.reset();
+	}
+
+    resetControlsWhenChangedDropdownFacultadDestino(){
+        this.fbForm.get('Cod_Programa_Postgrado_Selected_Destino')?.reset();
+        this.fbForm.get('Cod_plan_estudio_Destino')?.reset();
+	}
+
+    disabledControlsWhenChangedDropdownFacultadOrigen(){
+        this.fbForm.get('Cod_Programa_Postgrado_Selected_Origen')?.disable();
+		this.fbForm.get('Cod_plan_estudio_Origen')?.disable();
+    }
+
+    disabledControlsWhenChangedDropdownFacultadDestino(){
+        this.fbForm.get('Cod_Programa_Postgrado_Selected_Destino')?.disable();
+        this.fbForm.get('Cod_plan_estudio_Destino')?.disable();
+    }
+
+    resetControlWhenChangedDropdownProgramaOrigen(){
+		this.fbForm.get('Cod_plan_estudio_Origen')?.reset();
+	}
+
+    disabledControlWhenChangedDropdownProgramaOrigen(){
+		this.fbForm.get('Cod_plan_estudio_Origen')?.disable();
+	}
+
+    resetControlWhenChangedDropdownProgramaDestino(){
+		this.fbForm.get('Cod_plan_estudio_Destino')?.reset();
+	}
+
+    disabledControlWhenChangedDropdownProgramaDestino(){
+		this.fbForm.get('Cod_plan_estudio_Destino')?.disable();
+	}
+
+
+
+    resetFormWhenChangedDropdownPEOrigen(){
 		this.fbForm.patchValue({ Asignaturas: '' });
 	}
 
-    resetFormWhenChangedDropdownPrograma(){
-		this.fbForm.get('Cod_plan_estudio')?.reset();
-		this.fbForm.patchValue({ Cod_plan_estudio: '' });
-		this.fbForm.patchValue({ Asignaturas: '' });
-	}
+    setStatusControlFacultadOrigen(status: boolean){
+        const control = this.fbForm.get('Cod_Facultad_Postgrado_Selected_Origen');
+        status ? control?.enable() : control?.disable()
+    }
 
-    resetFormWhenChangedDropdownPE(){
-		this.fbForm.patchValue({ Asignaturas: '' });
-	}
+    setStatusControlProgramaOrigen(status: boolean){
+        const control = this.fbForm.get('Cod_Programa_Postgrado_Selected_Origen');
+        status ? control?.enable() : control?.disable()
+    }
+
+    setStatusControlPlanEstudioOrigen(status: boolean){
+        const control = this.fbForm.get('Cod_plan_estudio_Origen');
+        status ? control?.enable() : control?.disable()
+    }
+
+    setStatusControlFacultadDestino(status: boolean){
+        const control = this.fbForm.get('Cod_Facultad_Postgrado_Selected_Destino');
+        status ? control?.enable() : control?.disable()
+    }
+
+    setStatusControlProgramaDestino(status: boolean){
+        const control = this.fbForm.get('Cod_Programa_Postgrado_Selected_Destino');
+        status ? control?.enable() : control?.disable()
+    }
+
+    setStatusControlPlanEstudioDestino(status: boolean){
+        const control = this.fbForm.get('Cod_plan_estudio_Destino');
+        status ? control?.enable() : control?.disable()
+    }
+
 }

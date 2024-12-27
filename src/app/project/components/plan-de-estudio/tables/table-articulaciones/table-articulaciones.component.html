@@ -156,8 +156,8 @@
                             <tr>
                                 <td>{{ asign.Cod_Asignatura }}</td>
                                 <td>{{ asign.Descripcion_asignatura }}</td>
-                                <td>{{ asign.Cod_Tema }}</td>
-                                <td>{{ asign.Descripcion_tema !== '' ? asign.Descripcion_tem : 'SIN TEMA' }}</td>
+                                <td>{{ asign.Descripcion_tema !== '' ? asign.Cod_Tema : 'SIN TEMA' }}</td>
+                                <td>{{ asign.Descripcion_tema !== '' ? asign.Descripcion_tema : 'SIN TEMA' }}</td>
                             </tr>
                         </ng-template>
                         <ng-template pTemplate="emptymessage">

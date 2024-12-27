@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
 import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { BackendPlanesDeEstudiosService } from './backend.service';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, Message } from 'primeng/api';
 import { MessageServiceGP } from '../../components/message-service.service';
 import { Router } from '@angular/router';
 import { TablePlanesDeEstudiosService } from './table.service';
@@ -23,6 +23,14 @@ export class PlanDeEstudioMainService {
         articulo_plural: 'los planes de estudios',
         genero: 'masculino',
     };
+
+	message: any = {
+        'facultad': 'No se encontraron programas para la facultad seleccionada.',
+        'programa': 'No se encontraron planes de estudios para el programa seleccionado.',
+    }
+    messagesMantenedor: Message[] = [];
+    messagesFormulario: Message[] = [];
+
     mode: ModeForm;
     planesDeEstudios: PlanDeEstudio[] = [];
     programas_postgrado: Programa[] = [];
@@ -68,23 +76,19 @@ export class PlanDeEstudioMainService {
         this.planesDeEstudios = [...response];
         if (this.planesDeEstudios.length === 0 ) {
             this.showTable = false
-            this.messageService.add({
-              key: 'main',
-              severity: 'warn',
-              detail: `No se encontraron planes de estudios para el programa seleccionado.`
-            });
+			this.showMessageSinResultadosPlanes('m');
         }else{
           if (showCountTableValues){
-              this.messageService.add({
-                key: 'main',
-                severity: 'info',
-                detail: this.planesDeEstudios.length > 1
-                  ? `${this.planesDeEstudios.length} planes de estudios cargados.`
-                  : `${this.planesDeEstudios.length} plan de estudio cargado.`
-              });
-            this.showTable = true
-
+			this.messageService.add({
+				key: 'main',
+				severity: 'info',
+				detail: this.planesDeEstudios.length > 1
+					? `${this.planesDeEstudios.length} planes de estudios cargados.`
+					: `${this.planesDeEstudios.length} plan de estudio cargado.`
+			});
           }
+		  this.clearMessagesSinResultados('m');
+		  this.showTable = true
         }
       }
       // console.log("this.planes",this.planesDeEstudios);
@@ -99,11 +103,7 @@ export class PlanDeEstudioMainService {
 		  if (this.programas_postgrado.length === 0 ) {
 			  this.disabledDropdownPrograma = true;
 			  this.showTable = false
-			  this.messageService.add({
-				key: 'main',
-				severity: 'warn',
-				detail: `No se encontraron programas para la facultad seleccionada.`
-			  });
+			  this.showMessageSinResultadosPrograma('m');
 		  }else{
 			  this.messageService.add({
 				key: 'main',
@@ -112,6 +112,7 @@ export class PlanDeEstudioMainService {
 				  ? `${this.programas_postgrado.length} programas cargados.`
 				  : `${this.programas_postgrado.length} programa cargado.`
 			  });
+			  this.clearMessagesSinResultados('m');
 			  this.disabledDropdownPrograma = false;
 		  }
 		}
@@ -123,7 +124,7 @@ export class PlanDeEstudioMainService {
         this.showTable = false;
         this.cod_programa_postgrado_selected = 0;
         this.cod_facultad_selected = 0;
-        
+        this.clearAllMessages();
     }
 
     createForm(){
@@ -214,6 +215,33 @@ export class PlanDeEstudioMainService {
             await this.deletePrograma(data);
           }
         })
+    }
+
+	clearAllMessages(){
+        this.messagesMantenedor = [];
+        this.messagesFormulario = [];
+    }
+
+	clearMessagesSinResultados(key: 'm' | 'f'){
+        key === 'm' ? this.messagesMantenedor = [] : this.messagesFormulario = [];
+    }
+
+    showMessagesSinResultados(key: 'm' | 'f', messageType: 'facultad' | 'programa') {
+        const message = { severity: 'warn', detail: this.message[messageType] };
+        key === 'm' ? this.messagesMantenedor = [message] : this.messagesFormulario = [message];
+        this.messageService.add({
+            key: 'main',
+            severity: 'warn',
+            detail: this.message[messageType]
+        });
+    }
+
+    showMessageSinResultadosPrograma(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'facultad')
+    }
+
+    showMessageSinResultadosPlanes(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'programa')
     }
 
 }

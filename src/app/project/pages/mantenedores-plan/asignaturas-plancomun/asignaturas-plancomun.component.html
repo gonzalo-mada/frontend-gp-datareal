@@ -3,7 +3,7 @@
         <app-card header="Mantenedor de {{ main.namesCrud.plural }} de planes de estudios"
         subheader="Permite visualizar, agregar, actualizar y eliminar {{ main.namesCrud.plural }} de planes de estudios.">
 
-        <div class="surface-card shadow-2 p-3 border-round">
+        <div class="surface-card shadow-2 p-3 border-round mb-4">
             <div class="flex flex-column lg:flex-row align-items-center justify-content-between gap-3 w-full lg:w-auto">
                 <div class="w-full">
                     <div class="mb-2">
@@ -68,9 +68,8 @@
             <app-menu-buttons-table></app-menu-buttons-table>
             <app-table-asignaturas-plancomun></app-table-asignaturas-plancomun>
         </div>
-
-        <app-form-asignaturas-plancomun></app-form-asignaturas-plancomun>
-
+        <p-messages [(value)]="main.messagesMantenedor" [enableService]="false" />
     </app-card>
-    </div>
 </div>
+</div>
+<app-form-asignaturas-plancomun></app-form-asignaturas-plancomun>
