@@ -58,9 +58,6 @@ export class TablePlanDeEstudioComponent implements OnInit, OnDestroy {
 
   customSortAccreditation(event:any) {
 
-    console.log("event",event);
-    
-
     switch (event.field) {
 
       case 'case_rangos':

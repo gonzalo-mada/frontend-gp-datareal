@@ -1,5 +1,5 @@
 <app-card header="Planes de estudios" subheader="Permite visualizar, agregar, actualizar y eliminar planes de estudios.">
-    <div class="surface-card shadow-2 p-3 border-round">
+    <div class="surface-card shadow-2 p-3 border-round mb-4">
         <div class="flex flex-column md:flex-row align-items-center justify-content-between gap-3">
             <div class="w-full">
                 <div class="mb-2">
@@ -32,20 +32,12 @@
                     (onChange)="changeProgramaPostgrado($event)" 
                 />
             </div>
-            <div *ngIf="!main.showTable">
-                <div class="flex align-items-center justify-content-center sm:justify-content-end sm:mt-5">
-                    <p-button
-                        (onClick)="main.setModeCrud('create')"
-                        label="Agregar"
-                        icon="pi pi-plus"
-                        styleClass="p-button-success"
-                    ></p-button>
-                </div>
-            </div>
         </div>
     </div>
     <div *ngIf="main.showTable">
         <app-menu-buttons-table></app-menu-buttons-table>
         <app-table-plan-de-estudio></app-table-plan-de-estudio>
     </div>
+    <p-messages [(value)]="main.messagesMantenedor" [enableService]="false" />
+
 </app-card>

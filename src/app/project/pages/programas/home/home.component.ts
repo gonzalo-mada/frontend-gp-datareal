@@ -18,7 +18,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     public mainFacultad: FacultadesMainService,
     private menuButtonsTableService: MenuButtonsTableService,
     private tableCrudService: TableCrudService,
-    public programaMainService: ProgramaMainService
+    public main: ProgramaMainService
   )
   {}
 
@@ -28,22 +28,23 @@ export class HomeComponent implements OnInit, OnDestroy {
     await this.mainFacultad.getFacultades(false);
     this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => { 
       action==='agregar' 
-      ? this.programaMainService.setModeCrud('create') 
-      : this.programaMainService.setModeCrud('delete-selected')
+      ? this.main.setModeCrud('create') 
+      : this.main.setModeCrud('delete-selected')
     }));
-    if (this.programaMainService.cod_facultad_selected !== 0) {
-      this.programaMainService.getProgramasPorFacultadMerged();
+    if (this.main.cod_facultad_selected !== 0) {
+      this.main.getProgramasPorFacultadMerged();
     }
   }
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
     this.tableCrudService.resetSelectedRows();
+    this.main.reset();
   }
 
   changeFacultad(event: any){
-    this.programaMainService.cod_facultad_selected = event.value;
-    this.programaMainService.getProgramasPorFacultadMerged();
+    this.main.cod_facultad_selected = event.value;
+    this.main.getProgramasPorFacultadMerged();
   }
 
 }
