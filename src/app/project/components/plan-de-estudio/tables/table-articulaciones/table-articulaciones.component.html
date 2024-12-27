@@ -33,17 +33,26 @@
     >
     <ng-template pTemplate="caption">
         <div class="flex flex-wrap flex-column md:flex-row justify-content-between align-items-center">
-            <div class="flex mb-2 md:mb-0">
-              <span class="p-input-icon-left">
-                <i class="pi pi-search"></i>
-                <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)" />
-              </span>
-              <p-button 
-                styleClass="p-button-text p-button-sm ml-2" 
-                icon="pi pi-filter-slash" 
-                pTooltip="Limpiar filtros" 
-                (click)="clear(dt)">
-              </p-button>
+            <div class="flex flex-row">
+                <p-button
+                    icon="pi pi-trash"
+                    styleClass="p-button-danger p-button-outlined mr-2"
+                    pTooltip="Eliminar seleccionados"
+                    [disabled]="table.selectedRows.length === 0"
+                    (click)="main.setModeCrud('delete-selected')"
+                ></p-button>
+                <div class="flex mb-2 md:mb-0">
+                  <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)" />
+                  </span>
+                  <p-button 
+                    styleClass="p-button-text p-button-sm ml-2" 
+                    icon="pi pi-filter-slash" 
+                    pTooltip="Limpiar filtros" 
+                    (click)="clear(dt)">
+                  </p-button>
+                </div>
             </div>
 
             <div class="hidden md:flex align-items-center">
@@ -74,10 +83,10 @@
 
     <ng-template pTemplate="header">
         <tr>
-            <th style="width: 1rem">
-                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            <th style="min-width: 1rem">
+                <p-tableHeaderCheckbox class="ml-2"></p-tableHeaderCheckbox>
             </th>
-            <th style="width: 1rem"></th>
+            <th style="min-width: 1rem"></th>
             <ng-container *ngFor="let col of table.cols">
                 <ng-container *ngIf="col.field !== 'accion'; else actionsColumn">
                     <th pSortableColumn="{{col.field}}">
@@ -94,7 +103,7 @@
     <ng-template pTemplate="body" let-data let-expanded="expanded">
         <tr>
             <td>
-                <p-tableCheckbox [value]="data"></p-tableCheckbox>
+                <p-tableCheckbox class="ml-2" [value]="data"></p-tableCheckbox>
             </td>
             <td> <p-button type="button" pRipple [pRowToggler]="data" [text]="true" [rounded]="true" [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" /> </td>
             <td style="width:30%;">
