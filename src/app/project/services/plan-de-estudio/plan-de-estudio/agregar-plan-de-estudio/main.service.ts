@@ -5,6 +5,7 @@ import { Programa } from 'src/app/project/models/programas/Programa';
 import { MessageServiceGP } from '../../../components/message-service.service';
 import { FormPlanDeEstudioService } from '../form.service';
 import { FilesAgregarPlanesDeEstudiosService } from './files.service';
+import { Message } from 'primeng/api';
 
 @Injectable({
     providedIn: 'root'
@@ -19,6 +20,13 @@ export class AgregarPlanDeEstudioMainService {
         articulo_plural: 'los planes de estudios',
         genero: 'masculino',
     };
+
+    message: any = {
+        'facultad': 'No se encontraron programas para la facultad seleccionada.',
+        'programa': 'No se encontraron planes de estudios para el programa seleccionado.',
+    }
+    messagesMantenedor: Message[] = [];
+    messagesFormulario: Message[] = [];
 
     disposition: boolean = true;
     dialogChooseDocsMaestro: boolean = false;
@@ -44,11 +52,7 @@ export class AgregarPlanDeEstudioMainService {
           this.programas = [...response];
           if (this.programas.length === 0 ) {
               this.loadedProgramas = false;
-              this.messageService.add({
-                key: 'main',
-                severity: 'warn',
-                detail: `No se encontraron programas para la facultad seleccionada.`
-              });
+              this.showMessageSinResultadosPrograma('f');
           }else{
               this.messageService.add({
                 key: 'main',
@@ -58,6 +62,7 @@ export class AgregarPlanDeEstudioMainService {
                   : `${this.programas.length} programa cargado.`
               });
               this.loadedProgramas = true;
+              this.clearMessagesSinResultados('f');
           }
         }
     }
@@ -71,6 +76,33 @@ export class AgregarPlanDeEstudioMainService {
     async openDialogChooseDocsMaestro(){
         await this.files.setContextUploader('create','servicio','agregar-plandeestudio');
         this.dialogChooseDocsMaestro = true;
+    }
+
+    clearAllMessages(){
+        this.messagesMantenedor = [];
+        this.messagesFormulario = [];
+    }
+
+	clearMessagesSinResultados(key: 'm' | 'f'){
+        key === 'm' ? this.messagesMantenedor = [] : this.messagesFormulario = [];
+    }
+
+    showMessagesSinResultados(key: 'm' | 'f', messageType: 'facultad' | 'programa') {
+        const message = { severity: 'warn', detail: this.message[messageType] };
+        key === 'm' ? this.messagesMantenedor = [message] : this.messagesFormulario = [message];
+        this.messageService.add({
+            key: 'main',
+            severity: 'warn',
+            detail: this.message[messageType]
+        });
+    }
+
+    showMessageSinResultadosPrograma(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'facultad')
+    }
+
+    showMessageSinResultadosPlanes(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'programa')
     }
 
 

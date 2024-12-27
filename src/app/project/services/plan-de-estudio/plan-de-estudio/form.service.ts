@@ -48,6 +48,7 @@ export class FormPlanDeEstudioService {
     showMessageCI: boolean = false;
     showMessageArticulacion: boolean = false;
     showMessagePlanComun: boolean = false;
+    showMessageRangos: boolean = false;
 
     //VALUES SELECTED
     cod_programa_selected: number = 0;
@@ -155,7 +156,8 @@ export class FormPlanDeEstudioService {
         if (
                 this.fbForm.get('tiene_certificacion')!.invalid || 
                 this.fbForm.get('tiene_articulacion')!.invalid || 
-                this.fbForm.get('tiene_plan_comun')!.invalid 
+                this.fbForm.get('tiene_plan_comun')!.invalid || 
+                this.fbForm.get('tiene_rangos')!.invalid 
             ) {
             return false;
         } else {
@@ -166,7 +168,6 @@ export class FormPlanDeEstudioService {
     get stateStepThree() {
         if (
                 this.fbForm.get('cod_reglamento')!.invalid || 
-                this.fbForm.get('Cod_RangosAprobacion')!.invalid || 
                 this.fbForm.get('menciones')!.invalid 
             ) {
             return false;
@@ -205,6 +206,7 @@ export class FormPlanDeEstudioService {
                 tiene_certificacion: [null, [Validators.required]],
                 tiene_articulacion: [null, [Validators.required]],
                 tiene_plan_comun: [null, [Validators.required]],
+                tiene_rangos: [null, [Validators.required]],
 
                 //paso 3
                 cod_reglamento: ['', [Validators.required]],
@@ -237,6 +239,7 @@ export class FormPlanDeEstudioService {
             tiene_certificacion: null,
             tiene_articulacion: null,
             tiene_plan_comun: null,
+            tiene_rangos: null,
             
             //paso 3
             cod_reglamento: '',
@@ -273,6 +276,7 @@ export class FormPlanDeEstudioService {
         this.showMessageCI = false;
         this.showMessageArticulacion = false;
         this.showMessagePlanComun = false;
+        this.showMessageRangos = false;
         this.showMessageDontHaveCI = false;
     }
 

@@ -134,7 +134,8 @@ export class StateFormComponent implements OnInit  {
         fields: [
           { label: 'Certificaciones intermedias', control: 'tiene_certificacion' },
           { label: 'Articulaciones', control: 'tiene_articulacion' },
-          { label: 'Plan común', control: 'tiene_plan_comun' }
+          { label: 'Plan común', control: 'tiene_plan_comun' },
+          { label: 'Rangos de aprobación', control: 'tiene_rangos' }
         ]
       },
       {
@@ -143,7 +144,6 @@ export class StateFormComponent implements OnInit  {
         state: 'stateStepThree',
         fields: [
           { label: 'Reglamento', control: 'cod_reglamento' },
-          { label: 'Rangos de aprobación', control: 'Cod_RangosAprobacion' },
           { 
             label: 'Menciones', 
             control: 'menciones', 

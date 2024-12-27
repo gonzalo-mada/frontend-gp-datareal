@@ -174,7 +174,7 @@
                             <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback" let-index="index">
                                 
                                 <div class="formgrid grid">
-                                    <div class="field col-12 md:col-4">
+                                    <div class="field col-12 md:col-6">
                                         <div class="surface-card shadow-2 p-3 border-round">
                                             <div class="flex flex-column align-items-center justify-content-center">
                                                 <label><strong>¿Tiene certificación intermedia?</strong></label>
@@ -193,27 +193,33 @@
                                             <div *ngIf="form.showMessageDontHaveCI">
                                                 <p-messages styleClass="mt-2" severity="warn">
                                                     <ng-template pTemplate>
-                                                        <i class="pi pi-info-circle mr-3"></i>
-                                                        <span>
-                                                            <strong>Atención:</strong> No es posible activar ya que el programa seleccionado <strong> {{ form.name_programa_selected }} </strong>  no cuenta con certificación intermedia.
-                                                        </span>
+                                                        <div class="flex flex-column justify-content-center align-items-center">
+                                                            <span><i class="pi pi-exclamation-triangle"></i><strong> Atención:</strong></span>
+                                                            <span>No es posible activar ya que el programa seleccionado <strong> {{ form.name_programa_selected }} </strong>  no cuenta con certificación intermedia.</span>
+                                                        </div>
                                                     </ng-template>
                                                 </p-messages>
                                             </div>
                                             <div *ngIf="form.showMessageCI">
                                                 <p-messages styleClass="mt-2" severity="info">
                                                     <ng-template pTemplate>
-                                                        <i class="pi pi-info-circle mr-3"></i>
-                                                        <span>
-                                                            <strong>Atención:</strong> Una vez agregado el plan de estudio, diríjase al Mantenedor de certificaciones intermedias ubicado en el menú Mantenedores plan de estudio para asociar asignaturas.
-                                                        </span>
+                                                        <div class="flex flex-column justify-content-center align-items-center">
+                                                            <span><i class="pi pi-info-circle"></i><strong> Atención:</strong></span>
+                                                            <span>
+                                                                Una vez agregado el plan de estudio, puede asociar asignaturas a la certificación intermedia de las siguientes maneras:
+                                                                <ul>
+                                                                    <li>Presionando el botón <strong>Continuar con certificaciones intermedias</strong> desplegado al agregar el plan de estudio.</li>
+                                                                    <li>Desde el mantenedor de Certificaciones intermedias ubicado en el menú Mantenedores plan de estudio. </li>
+                                                                </ul>
+                                                            </span>
+                                                        </div>
                                                     </ng-template>
                                                 </p-messages>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="field col-12 md:col-4">
+                                    <div class="field col-12 md:col-6">
                                         <div class="surface-card shadow-2 p-3 border-round">
                                             <div class="flex flex-column align-items-center justify-content-center">
                                                 <label><strong>¿Tiene articulación con programas de Pregrado?</strong></label>
@@ -232,17 +238,23 @@
                                             <div *ngIf="form.showMessageArticulacion">
                                                 <p-messages styleClass="mt-2" severity="info">
                                                     <ng-template pTemplate>
-                                                        <i class="pi pi-info-circle mr-3"></i>
-                                                        <span>
-                                                            <strong>Atención:</strong> Una vez agregado el plan de estudio, diríjase al Mantenedor de articulaciones ubicado en el menú Mantenedores plan de estudio para articular.
-                                                        </span>
+                                                        <div class="flex flex-column justify-content-center align-items-center">
+                                                            <span><i class="pi pi-info-circle"></i><strong> Atención:</strong></span>
+                                                            <span>
+                                                                Una vez agregado el plan de estudio, puede agregar articulaciones de las siguientes maneras:
+                                                                <ul>
+                                                                    <li>Presionando el botón <strong>Continuar con articulaciones</strong> desplegado al agregar el plan de estudio.</li>
+                                                                    <li>Desde el mantenedor de Articulaciones ubicado en el menú Mantenedores plan de estudio. </li>
+                                                                </ul>
+                                                            </span>
+                                                        </div>
                                                     </ng-template>
                                                 </p-messages>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="field col-12 md:col-4">
+                                    <div class="field col-12 md:col-6">
                                         <div class="surface-card shadow-2 p-3 border-round">
                                             <div class="flex flex-column align-items-center justify-content-center ">
                                                 <label><strong>¿Tiene plan común?</strong></label>
@@ -261,10 +273,51 @@
                                             <div *ngIf="form.showMessagePlanComun">
                                                 <p-messages styleClass="mt-2" severity="info">
                                                     <ng-template pTemplate>
-                                                        <i class="pi pi-info-circle mr-3"></i>
-                                                        <span>
-                                                            <strong>Atención:</strong> Una vez agregado el plan de estudio, diríjase al Mantenedor de asignaturas plan común ubicado en el menú Mantenedores plan de estudio para asociar asignaturas.
-                                                        </span>
+                                                        <div class="flex flex-column justify-content-center align-items-center">
+                                                            <span><i class="pi pi-info-circle"></i><strong> Atención:</strong></span>
+                                                            <span>
+                                                                Una vez agregado el plan de estudio, puede asociar asignaturas al plan de común de las siguientes maneras:
+                                                                <ul>
+                                                                    <li>Presionando el botón <strong>Continuar con asignaturas plan común</strong> desplegado al agregar el plan de estudio.</li>
+                                                                    <li>Desde el mantenedor de Asignaturas plan común ubicado en el menú Mantenedores plan de estudio. </li>
+                                                                </ul>
+                                                            </span>
+                                                        </div>
+                                                    </ng-template>
+                                                </p-messages>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="field col-12 md:col-6">
+                                        <div class="surface-card shadow-2 p-3 border-round">
+                                            <div class="flex flex-column align-items-center justify-content-center ">
+                                                <label><strong>¿Tiene rangos de aprobación?</strong></label>
+                                                <div class="flex flex-row justify-content-around  flex-wrap gap-3 mt-2">
+                                                    <div class="flex flex-column align-items-center justify-content-center">
+                                                        <p-radioButton [value]="0" formControlName="tiene_rangos" inputId="ingredient1" (onClick)="changeRadioButtonRangos($event)" />
+                                                        <label for="ingredient1" class="ml-2"> No </label>
+                                                    </div>
+        
+                                                    <div class="flex flex-column align-items-center justify-content-center">
+                                                        <p-radioButton [value]="1" formControlName="tiene_rangos" inputId="ingredient2" (onClick)="changeRadioButtonRangos($event)" />
+                                                        <label for="ingredient2" class="ml-2"> Si </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div *ngIf="form.showMessageRangos">
+                                                <p-messages styleClass="mt-2" severity="info">
+                                                    <ng-template pTemplate>
+                                                        <div class="flex flex-column justify-content-center align-items-center">
+                                                            <span><i class="pi pi-info-circle"></i><strong> Atención:</strong></span>
+                                                            <span>
+                                                                Una vez agregado el plan de estudio, puede asociar rangos de aprobación de las siguientes maneras:
+                                                                <ul>
+                                                                    <li>Presionando el botón <strong>Continuar con rangos de aprobación</strong> desplegado al agregar el plan de estudio.</li>
+                                                                    <li>Desde el mantenedor de Rangos de aprobación ubicado en el menú Mantenedores plan de estudio. </li>
+                                                                </ul>
+                                                            </span>
+                                                        </div>
                                                     </ng-template>
                                                 </p-messages>
                                             </div>
@@ -299,26 +352,6 @@
                                             </ng-template>
                                             <ng-template pTemplate="body">
                                                 <app-table-reglamentos [form]="'planDeEstudio'"></app-table-reglamentos>
-                                            </ng-template>
-                                        </p-accordionTab>
-
-                                        <p-accordionTab id="rangosdeaprobacion">
-                                            <ng-template pTemplate="header">
-                                                <div class="flex justify-content-between flex-wrap w-full">
-                                                    <div>
-                                                        <span><strong>Rangos de aprobación de grados</strong></span>
-                                                    </div>
-                                                    <div *ngIf="form.selectedReglamento !== '' ">
-                                                        <span style="font-weight: 100;"><i>{{ form.selectedReglamento }}</i></span>
-                                                    </div>
-                                                </div>
-                                            </ng-template>
-                                            <ng-template pTemplate="body">
-                                                <div class="formgrid grid">
-                                                    <div class="col-12">
-                                                        <span>AQUI TABLA DE MENCIONES</span>
-                                                    </div>
-                                                </div>
                                             </ng-template>
                                         </p-accordionTab>
 
@@ -371,6 +404,7 @@
 
                     </p-stepper>
                 </form>
+                <p-messages [(value)]="main.messagesFormulario" [enableService]="false" />
             </div>
             <div class="hidden lg:block" *ngIf="main.disposition" [ngClass]="sidebarClass" >
                 <p-card styleClass="border-1 surface-border border-round rounded-lg">

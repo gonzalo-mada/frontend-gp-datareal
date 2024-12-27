@@ -157,6 +157,13 @@ export class AgregarPlanDeEstudioComponent implements OnInit, OnDestroy {
     }
   }
 
+  changeRadioButtonRangos(event: any){
+    switch (event.value) {
+      case 1: this.form.showMessageRangos = true; break;
+      case 0 : this.form.showMessageRangos = false; break;
+    }
+  }
+
   changeSwitchMenciones(event: any){
     switch (event.checked) {
       case true: this.showTableMenciones = true; break;
