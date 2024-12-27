@@ -17,7 +17,7 @@ export class ArticulacionesComponent implements OnInit, OnDestroy  {
   constructor(
     public mainFacultad: FacultadesMainService, 
     private menuButtonsTableService: MenuButtonsTableService,
-    public main: ArticulacionesMainService
+    public main: ArticulacionesMainService,
   ){}
 
   async ngOnInit() {

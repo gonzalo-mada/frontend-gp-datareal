@@ -146,8 +146,8 @@
             <td pFrozenColumn>
                 <p-tableCheckbox [value]="data"></p-tableCheckbox>
             </td>
-            <td style="min-width:400px" pFrozenColumn [frozen]="colFrozen">
-                <span> {{data.nombre_plan_estudio_completo}} </span> <br>
+            <td style="min-width:300px" pFrozenColumn [frozen]="colFrozen">
+                <span> {{data.nombre_programa}} </span> <br>
                 <span style="font-size: 0.8rem;">
                     <strong>CÓDIGO:</strong> {{data.cod_plan_estudio}} <br/>
                     <strong>REXE:</strong> {{data.rexe}}
@@ -158,7 +158,7 @@
 
                     <ng-container *ngSwitchCase="'cod_programa'">
                         <td [ngStyle]="table.getColStyle(col)">
-                            <span> {{data.nombre_programa_completo}} </span> <br>
+                            <span> {{data.nombre_programa}} </span> <br>
                             <span style="font-size: 0.8rem;">
                                 <strong>CÓDIGO:</strong> {{data.cod_programa}} <br/>
                                 <strong>REXE:</strong> {{data.rexe_programa}}

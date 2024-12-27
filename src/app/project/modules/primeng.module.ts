@@ -25,6 +25,7 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { InputSwitchModule } from 'primeng/inputswitch';
+import { MessagesModule } from 'primeng/messages';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { RadioButtonModule } from 'primeng/radiobutton';
@@ -57,6 +58,7 @@ const primeGp = [
   InputNumberModule,
   InputTextareaModule,
   InputSwitchModule,
+  MessagesModule,
   MultiSelectModule,
   OverlayPanelModule,
   RadioButtonModule,

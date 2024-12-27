@@ -22,7 +22,7 @@ export class TablePlanesDeEstudiosService {
     dataKeyTable : string = 'cod_plan_estudio';
     _selectedColumns!: Column[];
     cols: Column[] = [
-        { field: 'cod_programa', header: 'Programa', width: '400px', useMinWidth: true},
+        { field: 'cod_programa', header: 'Programa', width: '300px', useMinWidth: true},
         { field: 'case_menciones', header: 'Menciones', width: '200px', useMinWidth: true},
         { field: 'cupo_minimo', header: 'Cupo mínimo', width: '200px', useMinWidth: true, getValue: (data: any) => data?.cupo_minimo || ''  },
         { field: 'jornada.descripcion_jornada', header: 'Jornada', width: '200px', useMinWidth: true, getValue: (data: any) => data?.jornada?.descripcion_jornada || '' },

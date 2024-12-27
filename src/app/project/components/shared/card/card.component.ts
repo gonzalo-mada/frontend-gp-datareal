@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { MenuButtonsTableService } from 'src/app/project/services/components/menu-buttons-table.service';
 
 @Component({
   selector: 'app-card',
@@ -9,4 +10,6 @@ import { Component, Input } from '@angular/core';
 export class CardComponent {
   @Input() header: string = '';
   @Input() subheader: string = '';
+
+  constructor(public menuButtonsTableService: MenuButtonsTableService){}
 }

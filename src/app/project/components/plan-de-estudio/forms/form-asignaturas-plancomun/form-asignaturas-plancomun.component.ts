@@ -50,34 +50,52 @@ export class FormAsignaturasPlancomunComponent implements OnInit, OnDestroy {
 		// this.form.getValuesIndex();
 	}
 
-	async changeFacultadPostgrado(event:any){
+	async changeFacultadOrigen(event:any){
 		this.table.resetSelectedRowsTableAsignaturas();
-		this.main.resetArraysWhenChangedDropdownFacultad();
-		this.form.resetFormWhenChangedDropdownFacultad();
-		this.main.cod_facultad_selected_postgrado = event.value;
-		if (this.main.showDropdownSelectProgramaPostgrado) this.main.showDropdownSelectProgramaPostgrado = false
-		if (this.main.showDropdownSelectPlanEstudio) this.main.showDropdownSelectPlanEstudio = false
+		this.main.resetArraysWhenChangedDropdownFacultadOrigen();
+		this.form.resetControlsWhenChangedDropdownFacultadOrigen();
+		this.form.disabledControlsWhenChangedDropdownFacultadOrigen();
+		this.main.cod_facultad_selected_origen = event.value;
 		if (this.main.showTables) this.main.showTables = false
-		await this.main.getProgramasPorFacultad();
+		await this.main.getProgramasPorFacultadOrigen();
 	}
 
-	async changeProgramaPostgrado(event: any){
-		this.table.resetSelectedRowsTableAsignaturas();
-		this.main.resetArraysWhenChangedDropdownPrograma();
-		this.form.resetFormWhenChangedDropdownPrograma();
-		this.main.cod_programa_postgrado_selected = event.value;
-		if (this.main.showDropdownSelectPlanEstudio) this.main.showDropdownSelectPlanEstudio = false
-		if (this.main.showTables) this.main.showTables = false
-		await this.main.getPlanesDeEstudiosPorPrograma();
+	async changeFacultadDestino(event:any){
+		this.main.resetArraysWhenChangedDropdownFacultadDestino();
+		this.form.resetControlsWhenChangedDropdownFacultadDestino();
+		this.form.disabledControlsWhenChangedDropdownFacultadDestino();
+		this.main.cod_facultad_selected_destino = event.value;
+		await this.main.getProgramasPorFacultadDestino();
 	}
 
-	async changePlanDeEstudio(event:any){
+	async changeProgramaOrigen(event: any){
+		this.table.resetSelectedRowsTableAsignaturas();
+		this.main.resetArraysWhenChangedDropdownProgramaOrigen();
+		this.form.resetControlWhenChangedDropdownProgramaOrigen();
+		this.form.disabledControlWhenChangedDropdownProgramaOrigen();
+		this.main.cod_programa_origen = event.value;
+		if (this.main.showTables) this.main.showTables = false
+		await this.main.getPlanesDeEstudiosPorProgramaOrigen();
+	}
+
+	async changeProgramaDestino(event: any){
+		this.main.resetArraysWhenChangedDropdownProgramaDestino();
+		this.form.resetControlWhenChangedDropdownProgramaDestino();
+		this.form.disabledControlWhenChangedDropdownProgramaDestino();
+		this.main.cod_programa_destno = event.value;
+		await this.main.getPlanesDeEstudiosPorProgramaDestino();
+	}
+
+	async changePlanDeEstudioOrigen(event:any){
 		this.table.resetSelectedRowsTableAsignaturas();
 		this.main.resetArraysWhenChangedDropdownPE();
-		this.form.resetFormWhenChangedDropdownPE();
+		this.form.resetFormWhenChangedDropdownPEOrigen();
 		this.main.cod_planestudio_selected = event.value;
-		this.form.fbForm.patchValue({ Cod_plan_estudio: event.value });
-		await this.main.getAsignaturasPorPlanDeEstudio();
+		await this.main.getAsignaturasPorPlanDeEstudioOrigen();
+	}
+
+	async changePlanDeEstudioDestino(event:any){
+		this.main.showTables = true;
 	}
 
 	selectAsignatura(event: any){

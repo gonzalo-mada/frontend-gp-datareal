@@ -3,7 +3,7 @@ import { ModeForm } from 'src/app/project/models/shared/ModeForm';
 import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { MessageServiceGP } from '../../components/message-service.service';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, Message } from 'primeng/api';
 import { BackendArticulacionesService } from './backend.service';
 import { FormArticulacionesService } from './form.service';
 import { TableArticulacionesService } from './table.service';
@@ -25,6 +25,14 @@ export class ArticulacionesMainService {
         articulo_plural: 'las articulaciones con los programas',
         genero: 'femenino'
     }
+
+    message: any = {
+        'facultad': 'No se encontraron programas para la facultad seleccionada.',
+        'programa': 'No se encontraron planes de estudios para el programa seleccionado.',
+        'plan': 'No se encontraron articulaciones para el plan de estudio seleccionado.',
+    }
+    messagesMantenedor: Message[] = [];
+    messagesFormulario: Message[] = [];
 
     articulaciones: Articulacion[] = [];
     articulacion: Articulacion = {};
@@ -97,6 +105,7 @@ export class ArticulacionesMainService {
         this.table.emitResetExpandedRows();
         this.table.resetSelectedRows();
         this.hideElements();
+        this.clearAllMessages();
     }
 
     resetDropdownsFilterTable(){
@@ -142,11 +151,7 @@ export class ArticulacionesMainService {
 			  this.disabledDropdownPrograma = true;
 			  this.disabledDropdownPlanEstudio = true;
 			  this.showTable = false
-			  this.messageService.add({
-				key: 'main',
-				severity: 'warn',
-				detail: `No se encontraron programas para la facultad seleccionada.`
-			  });
+              this.showMessageSinResultadosPrograma('m');
 		  }else{
             if (showCountTableValues){
                 this.messageService.add({
@@ -157,6 +162,7 @@ export class ArticulacionesMainService {
                     : `${this.programas_postgrado_notform.length} programa cargado.`
                 });
             }
+            this.clearMessagesSinResultados('m');
             this.disabledDropdownPrograma = false;
 		  }
 		}
@@ -169,11 +175,7 @@ export class ArticulacionesMainService {
 		  this.programas_postgrado = [...response];
 		  if (this.programas_postgrado.length === 0 ) {
             this.showDropdownSelectProgramaPostgrado = false;
-			  this.messageService.add({
-				key: 'main',
-				severity: 'warn',
-				detail: `No se encontraron programas para la facultad seleccionada.`
-			  });
+            this.showMessageSinResultadosPrograma('f');
 		  }else{
             if (showCountTableValues) {
                 this.messageService.add({
@@ -185,6 +187,7 @@ export class ArticulacionesMainService {
                 });
             }
             this.showDropdownSelectProgramaPostgrado = true
+            this.clearMessagesSinResultados('f');
 		  }
 		}
 	}
@@ -196,11 +199,7 @@ export class ArticulacionesMainService {
           this.planes_notform = [...response];
           if (this.planes_notform.length === 0 ) {
             this.disabledDropdownPlanEstudio = true;
-              this.messageService.add({
-                key: 'main',
-                severity: 'warn',
-                detail: `No se encontraron planes de estudios para el programa seleccionado.`
-              });
+            this.showMessageSinResultadosPlanes('m');
           }else{
             if (showCountTableValues){
                 this.messageService.add({
@@ -211,6 +210,7 @@ export class ArticulacionesMainService {
                     : `${this.planes_notform.length} plan de estudio cargado.`
                 });
             }
+            this.clearMessagesSinResultados('m');
             this.disabledDropdownPlanEstudio = false;
           }
         }
@@ -223,11 +223,7 @@ export class ArticulacionesMainService {
           this.planes = [...response];
           if (this.planes.length === 0 ) {
             this.showDropdownSelectPlanEstudio = false;
-              this.messageService.add({
-                key: 'main',
-                severity: 'warn',
-                detail: `No se encontraron planes de estudios para el programa seleccionado.`
-              });
+            this.showMessageSinResultadosPlanes('f');
           }else{
             if (showCountTableValues){
                 this.messageService.add({
@@ -238,6 +234,7 @@ export class ArticulacionesMainService {
                     : `${this.planes.length} plan de estudio cargado.`
                 });
             }
+            this.clearMessagesSinResultados('f');
             this.showDropdownSelectPlanEstudio = true;
           }
         }
@@ -245,11 +242,9 @@ export class ArticulacionesMainService {
     }
 
     async getArticulacionesPorPlanDeEstudio(showCountTableValues: boolean = true, needShowLoading = true): Promise<Articulacion[]>{
-        console.log("cod_plan_estudio_selected_notform",this.cod_plan_estudio_selected_notform);
-        
         let params = { cod_plan_estudio: this.cod_plan_estudio_selected_notform }
         this.articulaciones = await this.backend.getArticulacionesPorPlanDeEstudio(params,this.namesCrud);
-        this.articulaciones.length !== 0 ? this.showTable = true : this.showTable = false
+        this.articulaciones.length !== 0 ? (this.showTable = true , this.clearMessagesSinResultados('m')) : (this.showTable = false , this.showMessageSinResultados('m'))
         if (showCountTableValues) this.countTableValues();
         return this.articulaciones;
     }
@@ -517,6 +512,37 @@ export class ArticulacionesMainService {
         this.cod_plan_estudio_selected_notform = this.cod_plan_estudio_selected;
         await this.getProgramasPorFacultadNotForm(false);
         await this.getPlanesDeEstudiosPorProgramaNotForm(false);
+    }
+
+    clearAllMessages(){
+        this.messagesMantenedor = [];
+        this.messagesFormulario = [];
+    }
+
+    clearMessagesSinResultados(key: 'm' | 'f'){
+        key === 'm' ? this.messagesMantenedor = [] : this.messagesFormulario = [];
+    }
+
+    showMessagesSinResultados(key: 'm' | 'f', messageType: 'facultad' | 'programa' | 'plan') {
+        const message = { severity: 'warn', detail: this.message[messageType] };
+        key === 'm' ? this.messagesMantenedor = [message] : this.messagesFormulario = [message];
+        this.messageService.add({
+            key: 'main',
+            severity: 'warn',
+            detail: this.message[messageType]
+        });
+    }
+
+    showMessageSinResultadosPrograma(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'facultad')
+    }
+
+    showMessageSinResultadosPlanes(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'programa')
+    }
+
+    showMessageSinResultados(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'plan')
     }
 
 }

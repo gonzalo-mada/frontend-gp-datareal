@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BackendProgramasService } from './backend.service';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, Message } from 'primeng/api';
 import { Programa } from 'src/app/project/models/programas/Programa';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
 import { CollectionsMongo } from 'src/app/project/models/shared/Context';
@@ -23,6 +23,12 @@ export class ProgramaMainService {
         articulo_plural: 'los programas',
         genero: 'masculino'
     };
+
+	message: any = {
+        'facultad': 'No se encontraron programas para la facultad seleccionada.',
+    }
+    messagesMantenedor: Message[] = [];
+    messagesFormulario: Message[] = [];
     mode: ModeForm = undefined;
     programas: Programa[] = [];
     programa: Programa = {};
@@ -58,6 +64,7 @@ export class ProgramaMainService {
       this.programas = [];
       this.cod_facultad_selected = 0;
       this.loadedProgramas = false;
+	  this.clearAllMessages();
     }
 
     createForm(){
@@ -81,11 +88,7 @@ export class ProgramaMainService {
         this.programas = [...response];
         if (this.programas.length === 0 ) {
             this.loadedProgramas = false;
-            this.messageService.add({
-              key: 'main',
-              severity: 'warn',
-              detail: `No se encontraron programas para la facultad seleccionada.`
-            });
+			this.showMessageSinResultadosPrograma('m');
         }else{
             this.messageService.add({
               key: 'main',
@@ -94,6 +97,7 @@ export class ProgramaMainService {
                 ? `${this.programas.length} programas listados.`
                 : `${this.programas.length} programa listado.`
             });
+			this.clearMessagesSinResultados('m');
             this.loadedProgramas = true;
         }
       }
@@ -173,6 +177,29 @@ export class ProgramaMainService {
           await this.deletePrograma(data);
         }
       })
+    }
+
+	clearAllMessages(){
+        this.messagesMantenedor = [];
+        this.messagesFormulario = [];
+    }
+
+	clearMessagesSinResultados(key: 'm' | 'f'){
+        key === 'm' ? this.messagesMantenedor = [] : this.messagesFormulario = [];
+    }
+
+    showMessagesSinResultados(key: 'm' | 'f', messageType: 'facultad' ) {
+        const message = { severity: 'warn', detail: this.message[messageType] };
+        key === 'm' ? this.messagesMantenedor = [message] : this.messagesFormulario = [message];
+        this.messageService.add({
+            key: 'main',
+            severity: 'warn',
+            detail: this.message[messageType]
+        });
+    }
+
+    showMessageSinResultadosPrograma(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'facultad')
     }
 
 

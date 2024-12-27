@@ -4,7 +4,7 @@ import { AsignaturasPlancomun } from 'src/app/project/models/plan-de-estudio/Asi
 import { PlanDeEstudio } from 'src/app/project/models/plan-de-estudio/PlanDeEstudio';
 import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { BackendAsignaturasPlancomunService } from './backend.service';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, Message } from 'primeng/api';
 import { FormAsignaturasPlancomunService } from './form.service';
 import { MessageServiceGP } from '../../components/message-service.service';
 import { TableAsignaturasPlancomunService } from './table.service';
@@ -18,12 +18,20 @@ import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.ut
 export class AsignaturasPlancomunMainService {
 
     namesCrud: NamesCrud = {
-        singular: 'asignatura para plan común',
-        plural: 'asignaturas para plan común',
-        articulo_singular: 'la asignatura para plan común',
-        articulo_plural: 'las asignaturas para plan común',
+        singular: 'asignatura de plan común',
+        plural: 'asignaturas de plan común',
+        articulo_singular: 'la asignatura de plan común',
+        articulo_plural: 'las asignaturas de plan común',
         genero: 'femenino'
     }
+
+    message: any = {
+        'facultad'  : 'No se encontraron programas para la facultad seleccionada.',
+        'programa'  : 'No se encontraron planes de estudios para el programa seleccionado.',
+        'plan'      : 'No se encontraron asignaturas para el plan de estudio seleccionado.',
+    }
+    messagesMantenedor: Message[] = [];
+    messagesFormulario: Message[] = [];
 
     //VARS PARA FILTROS DE TABLA
     cod_facultad_selected_notform: number = 0;
@@ -38,14 +46,20 @@ export class AsignaturasPlancomunMainService {
 
     asignaturas_plancomun: AsignaturasPlancomun[] = [];
     asignatura_plancomun: AsignaturasPlancomun = {};
-    planes: PlanDeEstudio[] = [];
-    programas_postgrado: any[] = [];
+    
+    //vars origen
+    programas_origen: any[] = [];
+    cod_facultad_selected_origen: number = 0;
+    planes_origen: PlanDeEstudio[] = [];
+    cod_programa_origen: number = 0;
+
+    //vars origen
+    programas_destino: any[] = [];
+    cod_facultad_selected_destino: number = 0;
+    planes_destino: PlanDeEstudio[] = [];
+    cod_programa_destno: number = 0;
 
     showTables: boolean = false; 
-    showDropdownSelectProgramaPostgrado: boolean = false;
-    showDropdownSelectPlanEstudio: boolean = false;
-    cod_facultad_selected_postgrado: number = 0;
-    cod_programa_postgrado_selected: number = 0;
     cod_planestudio_selected: number = 0;
 
     //MODAL
@@ -89,10 +103,11 @@ export class AsignaturasPlancomunMainService {
         this.table.resetSelectedRows();
         this.resetValuesSelected();
         this.hideElements();
+        this.clearAllMessages();
     }
 
     resetValuesSelected(){
-        this.cod_programa_postgrado_selected = 0;
+        this.cod_programa_origen = 0;
         this.cod_planestudio_selected = 0;
         this.asignaturas_plancomun = [];
     }
@@ -116,72 +131,110 @@ export class AsignaturasPlancomunMainService {
         value ? this.backend.countTableRegisters(value,this.namesCrud) : this.backend.countTableRegisters(this.asignaturas_plancomun.length, this.namesCrud);
     }
 
-    async getProgramasPorFacultad(showCountTableValues: boolean = true, needShowLoading = true){
-		let params = { Cod_facultad: this.cod_facultad_selected_postgrado }
+    async getProgramasPorFacultadOrigen(showCountTableValues: boolean = true, needShowLoading = true){
+		let params = { Cod_facultad: this.cod_facultad_selected_origen }
 		const response = await this.backend.getProgramasPorFacultad(params,needShowLoading);
 		if (response) {
-		  this.programas_postgrado = [...response];
-		  if (this.programas_postgrado.length === 0 ) {
-            this.showDropdownSelectProgramaPostgrado = false;
-			  this.messageService.add({
-				key: 'main',
-				severity: 'warn',
-				detail: `No se encontraron programas para la facultad seleccionada.`
-			  });
+		  this.programas_origen = [...response];
+		  if (this.programas_origen.length === 0 ) {
+            this.form.setStatusControlProgramaOrigen(false)
+            this.showMessageSinResultadosPrograma('f');
 		  }else{
             if (showCountTableValues) {
                 this.messageService.add({
                   key: 'main',
                   severity: 'info',
-                  detail: this.programas_postgrado.length > 1
-                    ? `${this.programas_postgrado.length} programas cargados.`
-                    : `${this.programas_postgrado.length} programa cargado.`
+                  detail: this.programas_origen.length > 1
+                    ? `${this.programas_origen.length} programas cargados.`
+                    : `${this.programas_origen.length} programa cargado.`
                 });
             }
-            this.showDropdownSelectProgramaPostgrado = true
+            this.form.setStatusControlProgramaOrigen(true)
+            this.clearMessagesSinResultados('f');
 		  }
 		}
 	}
 
-    async getPlanesDeEstudiosPorPrograma(showCountTableValues: boolean = true){
-        let params = { Cod_Programa: this.cod_programa_postgrado_selected }
+    async getProgramasPorFacultadDestino(showCountTableValues: boolean = true, needShowLoading = true){
+		let params = { Cod_facultad: this.cod_facultad_selected_destino }
+		const response = await this.backend.getProgramasPorFacultad(params,needShowLoading);
+		if (response) {
+		  this.programas_destino = [...response];
+		  if (this.programas_destino.length === 0 ) {
+            this.form.setStatusControlProgramaDestino(false)
+            this.showMessageSinResultadosPrograma('f');
+		  }else{
+            if (showCountTableValues) {
+                this.messageService.add({
+                  key: 'main',
+                  severity: 'info',
+                  detail: this.programas_destino.length > 1
+                    ? `${this.programas_destino.length} programas cargados.`
+                    : `${this.programas_destino.length} programa cargado.`
+                });
+            }
+            this.form.setStatusControlProgramaDestino(true)
+            this.clearMessagesSinResultados('f');
+		  }
+		}
+	}
+
+    async getPlanesDeEstudiosPorProgramaOrigen(showCountTableValues: boolean = true){
+        let params = { Cod_Programa: this.cod_programa_origen }
         const response = await this.backend.getPlanesDeEstudiosPorPrograma(params);
         if (response) {
-          this.planes = [...response];
-          if (this.planes.length === 0 ) {
-            this.showDropdownSelectPlanEstudio = false;
-              this.messageService.add({
-                key: 'main',
-                severity: 'warn',
-                detail: `No se encontraron planes de estudios para el programa seleccionado.`
-              });
+          this.planes_origen = [...response];
+          if (this.planes_origen.length === 0 ) {
+            this.form.setStatusControlPlanEstudioOrigen(false);
+            this.showMessageSinResultadosPlanes('f');
           }else{
             if (showCountTableValues){
                 this.messageService.add({
                   key: 'main',
                   severity: 'info',
-                  detail: this.planes.length > 1
-                    ? `${this.planes.length} planes de estudios cargados.`
-                    : `${this.planes.length} plan de estudio cargado.`
+                  detail: this.planes_origen.length > 1
+                    ? `${this.planes_origen.length} planes de estudios cargados.`
+                    : `${this.planes_origen.length} plan de estudio cargado.`
                 });
             }
-            this.showDropdownSelectPlanEstudio = true;
+            this.form.setStatusControlPlanEstudioOrigen(true);
+            this.clearMessagesSinResultados('f');
           }
         }
     }
 
-    async getAsignaturasPorPlanDeEstudio(showCountTableValues: boolean = true){
+    async getPlanesDeEstudiosPorProgramaDestino(showCountTableValues: boolean = true){
+        let params = { Cod_Programa: this.cod_programa_destno }
+        const response = await this.backend.getPlanesDeEstudiosPorPrograma(params);
+        if (response) {
+          this.planes_destino = [...response];
+          if (this.planes_destino.length === 0 ) {
+            this.form.setStatusControlPlanEstudioDestino(false);
+            this.showMessageSinResultadosPlanes('f');
+          }else{
+            if (showCountTableValues){
+                this.messageService.add({
+                  key: 'main',
+                  severity: 'info',
+                  detail: this.planes_destino.length > 1
+                    ? `${this.planes_destino.length} planes de estudios cargados.`
+                    : `${this.planes_destino.length} plan de estudio cargado.`
+                });
+            }
+            this.form.setStatusControlPlanEstudioDestino(true);
+            this.clearMessagesSinResultados('f');
+          }
+        }
+    }
+
+    async getAsignaturasPorPlanDeEstudioOrigen(showCountTableValues: boolean = true){
         let params = { Cod_plan_estudio: this.cod_planestudio_selected }
         const response = await this.backend.getAsignaturasPorPlanDeEstudio(params);
         if (response) {
             this.asignaturas_plancomun = [...response];
             if (this.asignaturas_plancomun.length === 0 ) {
-                this.showTables = false;
-                this.messageService.add({
-                    key: 'main',
-                    severity: 'warn',
-                    detail: `No se encontraron asignaturas para el plan de estudio seleccionado.`
-                });
+                this.form.setStatusControlFacultadDestino(false);
+                this.showMessageSinResultados('f');
             }else{
                 if (showCountTableValues){
                     this.messageService.add({
@@ -192,7 +245,8 @@ export class AsignaturasPlancomunMainService {
                         : `${this.asignaturas_plancomun.length} asignatura cargada.`
                     });
                 }
-                this.showTables = true;
+                this.form.setStatusControlFacultadDestino(true);
+                this.clearMessagesSinResultados('f')
             }
         }
     }
@@ -206,11 +260,7 @@ export class AsignaturasPlancomunMainService {
 			  this.disabledDropdownPrograma = true;
 			  this.disabledDropdownPlanEstudio = true;
 			  this.showTable = false
-			  this.messageService.add({
-				key: 'main',
-				severity: 'warn',
-				detail: `No se encontraron programas para la facultad seleccionada.`
-			  });
+              this.showMessageSinResultadosPrograma('m');
 		  }else{
             if (showCountTableValues){
                 this.messageService.add({
@@ -221,6 +271,7 @@ export class AsignaturasPlancomunMainService {
                     : `${this.programas_postgrado_notform.length} programa cargado.`
                 });
             }
+            this.clearMessagesSinResultados('m');
             this.disabledDropdownPrograma = false;
 		  }
 		}
@@ -233,11 +284,7 @@ export class AsignaturasPlancomunMainService {
           this.planes_notform = [...response];
           if (this.planes_notform.length === 0 ) {
             this.disabledDropdownPlanEstudio = true;
-              this.messageService.add({
-                key: 'main',
-                severity: 'warn',
-                detail: `No se encontraron planes de estudios para el programa seleccionado.`
-              });
+            this.showMessageSinResultadosPlanes('m');
           }else{
             if (showCountTableValues){
                 this.messageService.add({
@@ -248,6 +295,7 @@ export class AsignaturasPlancomunMainService {
                     : `${this.planes_notform.length} plan de estudio cargado.`
                 });
             }
+            this.clearMessagesSinResultados('m');
             this.disabledDropdownPlanEstudio = false;
           }
         }
@@ -407,14 +455,10 @@ export class AsignaturasPlancomunMainService {
     }
 
     showElements(){
-        this.showDropdownSelectProgramaPostgrado = true;
-        this.showDropdownSelectPlanEstudio = true;
         this.showTables = true;
     }
 
     hideElements(){
-        this.showDropdownSelectProgramaPostgrado = false;
-        this.showDropdownSelectPlanEstudio = false;
         this.showTables = false;
     }
 
@@ -422,15 +466,24 @@ export class AsignaturasPlancomunMainService {
 
     }
 
-    resetArraysWhenChangedDropdownFacultad(){
-        this.programas_postgrado = [];
-        this.planes = [];
+    resetArraysWhenChangedDropdownFacultadOrigen(){
+        this.programas_origen = [];
+        this.planes_origen = [];
         this.asignaturas_plancomun = [];
     }
 
-    resetArraysWhenChangedDropdownPrograma(){
-        this.planes = [];
+    resetArraysWhenChangedDropdownProgramaOrigen(){
+        this.planes_origen = [];
         this.asignaturas_plancomun = [];
+    }
+
+    resetArraysWhenChangedDropdownFacultadDestino(){
+        this.programas_destino = [];
+        this.planes_destino = [];
+    }
+
+    resetArraysWhenChangedDropdownProgramaDestino(){
+        this.planes_destino = [];
     }
 
     resetArraysWhenChangedDropdownPE(){
@@ -454,11 +507,42 @@ export class AsignaturasPlancomunMainService {
     async setDropdownsFilterTable(){
         this.disabledDropdownPrograma = false;
         this.disabledDropdownPlanEstudio = false;
-        this.cod_facultad_selected_notform = this.cod_facultad_selected_postgrado;
-        this.cod_programa_postgrado_selected_notform = this.cod_programa_postgrado_selected;
+        this.cod_facultad_selected_notform = this.cod_facultad_selected_origen;
+        this.cod_programa_postgrado_selected_notform = this.cod_programa_origen;
         this.cod_plan_estudio_selected_notform = this.cod_planestudio_selected;
         await this.getProgramasPorFacultadNotForm(false);
         await this.getPlanesDeEstudiosPorProgramaNotForm(false);
+    }
+
+    clearAllMessages(){
+        this.messagesMantenedor = [];
+        this.messagesFormulario = [];
+    }
+
+    clearMessagesSinResultados(key: 'm' | 'f'){
+        key === 'm' ? this.messagesMantenedor = [] : this.messagesFormulario = [];
+    }
+
+    showMessagesSinResultados(key: 'm' | 'f', messageType: 'facultad' | 'programa' | 'plan') {
+        const message = { severity: 'warn', detail: this.message[messageType] };
+        key === 'm' ? this.messagesMantenedor = [message] : this.messagesFormulario = [message];
+        this.messageService.add({
+            key: 'main',
+            severity: 'warn',
+            detail: this.message[messageType]
+        });
+    }
+
+    showMessageSinResultadosPrograma(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'facultad')
+    }
+
+    showMessageSinResultadosPlanes(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'programa')
+    }
+
+    showMessageSinResultados(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'plan')
     }
 
     

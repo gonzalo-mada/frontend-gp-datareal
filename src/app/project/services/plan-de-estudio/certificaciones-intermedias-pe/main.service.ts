@@ -3,7 +3,7 @@ import { ModeForm } from 'src/app/project/models/shared/ModeForm';
 import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { MessageServiceGP } from '../../components/message-service.service';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, Message } from 'primeng/api';
 import { Subject } from 'rxjs';
 import { PlanDeEstudio } from 'src/app/project/models/plan-de-estudio/PlanDeEstudio';
 import { Articulacion } from 'src/app/project/models/plan-de-estudio/Articulacion';
@@ -28,6 +28,15 @@ export class CertifIntermediasPEMainService {
     articulaciones: Articulacion[] = [];
     articulacion: Articulacion = {};
     planes: PlanDeEstudio[] = [];
+
+    message: any = {
+        'facultad'  : 'No se encontraron programas para la facultad seleccionada.',
+        'programa'  : 'No se encontraron planes de estudios para el programa seleccionado.',
+        'plan'      : 'No se encontraron asignaturas para el plan de estudio seleccionado.',
+        'certif'    : 'No se encontraron certificaciones intermedias para el programa seleccionado.',
+    }
+    messagesMantenedor: Message[] = [];
+    messagesFormulario: Message[] = [];
 
     //VARS PARA FILTROS DE TABLA
     cod_facultad_selected_notform: number = 0;
@@ -96,6 +105,7 @@ export class CertifIntermediasPEMainService {
         this.table.resetSelectedRows();
         this.resetValuesSelected();
         this.hideElements();
+        this.clearAllMessages();
     }
 
     resetValuesSelected(){
@@ -121,11 +131,7 @@ export class CertifIntermediasPEMainService {
             this.programas_postgrado = [...response];
             if (this.programas_postgrado.length === 0 ) {
                 this.showDropdownSelectProgramaPostgrado = false;
-                this.messageService.add({
-                  key: 'main',
-                  severity: 'warn',
-                  detail: `No se encontraron programas para la facultad seleccionada.`
-                });
+                this.showMessageSinResultadosPrograma('f');
             }else{
               if (showCountTableValues){
                   this.messageService.add({
@@ -137,6 +143,7 @@ export class CertifIntermediasPEMainService {
                   });
               }
               this.showDropdownSelectProgramaPostgrado = true
+              this.clearMessagesSinResultados('f');
             }
         }
     }
@@ -147,11 +154,7 @@ export class CertifIntermediasPEMainService {
         if (response) {
           this.planes = [...response];
           if (this.planes.length === 0 ) {
-              this.messageService.add({
-                key: 'main',
-                severity: 'warn',
-                detail: `No se encontraron planes de estudios para el programa seleccionado.`
-              });
+            this.showMessageSinResultadosPlanes('f');
           }else{
             if (showCountTableValues){
                 this.messageService.add({
@@ -162,6 +165,7 @@ export class CertifIntermediasPEMainService {
                     : `${this.planes.length} plan de estudio cargado.`
                 });
             }
+            this.clearMessagesSinResultados('f');
           }
         }
     }
@@ -173,11 +177,7 @@ export class CertifIntermediasPEMainService {
             this.asignaturas = [...response];
             if (this.asignaturas.length === 0 ) {
                 this.showTables = false;
-                this.messageService.add({
-                    key: 'main',
-                    severity: 'warn',
-                    detail: `No se encontraron asignaturas para el plan de estudio seleccionado.`
-                });
+                this.showMessageSinResultados('f')
             }else{
                 if (showCountTableValues){
                     this.messageService.add({
@@ -189,6 +189,7 @@ export class CertifIntermediasPEMainService {
                     });
                 }
                 this.showTables = true;
+                this.clearMessagesSinResultados('f')
             }
         }
     }
@@ -199,11 +200,7 @@ export class CertifIntermediasPEMainService {
         if (response) {
           this.certificaciones = [...response];
           if (this.certificaciones.length === 0 ) {
-              this.messageService.add({
-                key: 'main',
-                severity: 'warn',
-                detail: `No se encontraron certificaciones intermedias para el programa seleccionado.`
-              });
+            this.showMessageSinResultadosCertif('f')
           }else{
             if (showCountTableValues){
                 this.messageService.add({
@@ -214,6 +211,7 @@ export class CertifIntermediasPEMainService {
                     : `${this.certificaciones.length} certificación intermedia cargada.`
                 });
             }
+            this.clearMessagesSinResultados('f')
           }
         }
         
@@ -228,11 +226,7 @@ export class CertifIntermediasPEMainService {
 			  this.disabledDropdownPrograma = true;
 			  this.disabledDropdownPlanEstudio = true;
 			  this.showTable = false
-			  this.messageService.add({
-				key: 'main',
-				severity: 'warn',
-				detail: `No se encontraron programas para la facultad seleccionada.`
-			  });
+              this.showMessageSinResultadosPrograma('m');
 		  }else{
             if (showCountTableValues){
                 this.messageService.add({
@@ -243,6 +237,7 @@ export class CertifIntermediasPEMainService {
                     : `${this.programas_postgrado_notform.length} programa cargado.`
                 });
             }
+            this.clearMessagesSinResultados('m');
             this.disabledDropdownPrograma = false;
 		  }
 		}
@@ -255,11 +250,7 @@ export class CertifIntermediasPEMainService {
           this.planes_notform = [...response];
           if (this.planes_notform.length === 0 ) {
             this.disabledDropdownPlanEstudio = true;
-              this.messageService.add({
-                key: 'main',
-                severity: 'warn',
-                detail: `No se encontraron planes de estudios para el programa seleccionado.`
-              });
+            this.showMessageSinResultadosPrograma('m');
           }else{
             if (showCountTableValues){
                 this.messageService.add({
@@ -271,6 +262,7 @@ export class CertifIntermediasPEMainService {
                 });
             }
             this.disabledDropdownPlanEstudio = false;
+            this.clearMessagesSinResultados('m');
           }
         }
     }
@@ -517,6 +509,41 @@ export class CertifIntermediasPEMainService {
         this.cod_plan_estudio_selected_notform = this.cod_planestudio_selected;
         await this.getProgramasPorFacultadNotForm(false);
         await this.getPlanesDeEstudiosPorProgramaNotForm(false);
+    }
+
+    clearAllMessages(){
+        this.messagesMantenedor = [];
+        this.messagesFormulario = [];
+    }
+
+    clearMessagesSinResultados(key: 'm' | 'f'){
+        key === 'm' ? this.messagesMantenedor = [] : this.messagesFormulario = [];
+    }
+
+    showMessagesSinResultados(key: 'm' | 'f', messageType: 'facultad' | 'programa' | 'plan' | 'certif') {
+        const message = { severity: 'warn', detail: this.message[messageType] };
+        key === 'm' ? this.messagesMantenedor = [message] : this.messagesFormulario = [message];
+        this.messageService.add({
+            key: 'main',
+            severity: 'warn',
+            detail: this.message[messageType]
+        });
+    }
+
+    showMessageSinResultadosPrograma(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'facultad')
+    }
+
+    showMessageSinResultadosPlanes(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'programa')
+    }
+
+    showMessageSinResultados(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'plan')
+    }
+
+    showMessageSinResultadosCertif(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'certif')
     }
 
 

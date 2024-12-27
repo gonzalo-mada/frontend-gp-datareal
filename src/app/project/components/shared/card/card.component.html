@@ -1,5 +1,30 @@
 <app-breadcrumbgp></app-breadcrumbgp>
-<p-card [header]="header" [subheader]="subheader">
-    <ng-content></ng-content>
+<p-card>
+    <ng-template pTemplate="header">
+        <div class="flex align-items-center justify-content-between"  [style]="{ 'padding-left': '1.5rem' , 'padding-top': '1.5rem' , 'padding-right': '1.5rem'}">
+            <div>
+                <div class="p-card-title"> {{ header }} </div>
+                <div class="p-card-subtitle"> {{ subheader }} </div>
+            </div>
+            <div>
+                <div class="flex justify-content-center align-items-center">
+                    <p-button
+                    label="Agregar"
+                    icon="pi pi-plus"
+                    styleClass="p-button-success hidden sm:flex"
+                    (click)="menuButtonsTableService.emitClickButtonAgregar()"
+                    ></p-button>
+                    <p-button
+                    icon="pi pi-plus"
+                    styleClass="p-button-success flex sm:hidden"
+                    (click)="menuButtonsTableService.emitClickButtonAgregar()"
+                    ></p-button>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="body">
+        <ng-content></ng-content>
+    </ng-template>
 </p-card>
 <!-- <app-config-mode></app-config-mode> -->
