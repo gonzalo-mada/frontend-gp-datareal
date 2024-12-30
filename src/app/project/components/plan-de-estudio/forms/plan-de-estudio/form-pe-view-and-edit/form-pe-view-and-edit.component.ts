@@ -19,6 +19,7 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 	loading: boolean = true
 	planDeEstudio: PlanDeEstudio = {};
 	updatePE!: UpdatePlanEstudio | undefined; 
+	onClickRefreshPE: boolean = false;
 
 	constructor(
 		private backend: BackendPlanesDeEstudiosService,
@@ -33,8 +34,9 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 		await this.getPlanDeEstudio();
 		await this.getData();
 	}
+	
 	ngOnDestroy(): void {
-		// throw new Error('Method not implemented.');
+		this.form.resetForm();
 	}
 
 	get mode(){
@@ -44,6 +46,10 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 	async refreshPlanDeEstudio(){
 		await this.getPlanDeEstudio();
 		await this.getData();
+		this.onClickRefreshPE = true;
+		setTimeout(() => {
+		  this.onClickRefreshPE = false
+		}, 500); 
 	}
 
 	async getPlanDeEstudio(){
@@ -65,7 +71,12 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 				this.getJornadas(),
 				this.getRegimenes(),
 				this.getReglamentos(),
-				this.getArticulacionesPorPlanDeEstudio()
+				this.getArticulacionesPorPlanDeEstudio(),
+				this.getCertifIntermediaPorPlanDeEstudio(),
+				this.getAsignaturasPorPlanDeEstudio(),
+				this.getMencionesPorPlanDeEstudio(),
+				this.getRangosPorPlanDeEstudio(),
+				this.getLogPE(),
 			]);
 		} catch (error) {
 			this.errorTemplateHandler.processError(error, {
@@ -112,7 +123,39 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
         let params = { cod_plan_estudio: this.mainPE.planDeEstudio.cod_plan_estudio }
 		this.main.articulaciones = await this.backend.getArticulacionesPorPlanDeEstudio(params,false);
 		console.log("articulaciones",this.main.articulaciones);
-		this.form.setSelectArticulacion(this.main.articulaciones.length)
+		this.form.setSelectArticulacion(this.mainPE.planDeEstudio.tiene_articulacion,this.main.articulaciones.length)
+	}
+
+	async getCertifIntermediaPorPlanDeEstudio(){
+		//todo: PENDIENTE POR FALTA DE TABLA ASIGNATURA
+		let params = { cod_plan_estudio: this.mainPE.planDeEstudio.cod_plan_estudio };
+		this.main.certificaciones = await this.backend.getCertifIntermediasPorPlanDeEstudio(params,false);
+		this.form.setSelectCertifIntermedia(this.mainPE.planDeEstudio.tiene_certificacion,this.main.certificaciones.length)
+	}
+
+	async getAsignaturasPorPlanDeEstudio(){
+		//todo: PENDIENTE POR FALTA DE TABLA ASIGNATURA
+		let params = { cod_plan_estudio: this.mainPE.planDeEstudio.cod_plan_estudio };
+		this.main.asignaturas = await this.backend.getAsignaturasPorPlanDeEstudio(params,false);
+		this.form.setSelectAsignaturas(this.main.asignaturas.length)
+	}
+
+	async getMencionesPorPlanDeEstudio(){
+		//todo: PENDIENTE POR FALTA DE TABLA ASIGNATURA Y MOVER SERVICIOS
+		let params = { cod_plan_estudio: this.mainPE.planDeEstudio.cod_plan_estudio };
+		this.main.menciones = await this.backend.getMencionesPorPlanDeEstudio(params,false);
+		this.form.setSelectMenciones(this.mainPE.planDeEstudio.tiene_mencion,this.main.menciones.length)
+	}
+
+	async getRangosPorPlanDeEstudio(){
+		//todo: PENDIENTE MOVER SERVICIOS
+		let params = { cod_plan_estudio: this.mainPE.planDeEstudio.cod_plan_estudio };
+		this.main.rangos = await this.backend.getRangosPorPlanDeEstudio(params,false);
+		this.form.setSelectRangos(this.mainPE.planDeEstudio.tiene_rango_aprob_g,this.main.rangos.length)
+	}
+
+	async getLogPE(){
+		//todo:
 	}
 
 	async setNames(){
@@ -182,5 +225,25 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 	  
 	private resolveValue(value: string): any {
 		return value.split('.').reduce((acc: any, key: any) => acc?.[key], this); // Resolver valor dinámico como 'form.inputEstadoAcreditacion'
+	}
+
+	async formUpdated(){
+		try {
+			await this.getPlanDeEstudio();
+			this.loading = true;
+			await this.getData();
+		} catch (error) {
+			this.errorTemplateHandler.processError(error, {
+				notifyMethod: 'alert',
+				message: 'Hubo un error al obtener registros tras actualización. Intente nuevamente.',
+			});
+		}finally{
+			this.systemService.loading(false);
+			this.loading = false;
+		}
+	}
+
+	resetDialog(){
+		this.updatePE = undefined;
 	}
 }

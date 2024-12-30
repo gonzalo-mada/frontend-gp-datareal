@@ -50,10 +50,7 @@ export class CertifIntermediasPEMainService {
     wasFilteredTable: boolean = false;
     certificaciones_pe: any[] = [];
 
-    cod_planestudio_selected: number = 0;
-    cod_programa_postgrado_selected: number = 0;
     cod_programa_selected: number = 0;
-    cod_facultad_selected_postgrado: number = 0;
 
     showTables: boolean = false; 
     showDropdownSelectProgramaPostgrado: boolean = false;
@@ -103,17 +100,12 @@ export class CertifIntermediasPEMainService {
         this.form.resetForm();
         this.table.emitResetExpandedRows();
         this.table.resetSelectedRows();
-        this.resetValuesSelected();
-        this.hideElements();
+        this.form.resetValuesVarsSelected();
+        this.hideDropdowns();
         this.clearAllMessages();
-    }
-
-    resetValuesSelected(){
-        this.cod_planestudio_selected = 0;
-        this.cod_programa_postgrado_selected = 0;
-        this.cod_programa_selected = 0;
         this.certificaciones = [];
         this.asignaturas = [];
+        this.showTables = false;
     }
     
     emitResetExpandedRows(){
@@ -125,7 +117,7 @@ export class CertifIntermediasPEMainService {
     }
 
     async getProgramasPostgradoConCertifIntermediaPorFacultad(showCountTableValues: boolean = true){
-        let params = { Cod_facultad: this.cod_facultad_selected_postgrado }
+        let params = { Cod_facultad: this.form.cod_facultad_selected_postgrado }
         const response = await this.backend.getProgramasPostgradoConCertifIntermediaPorFacultad(params);
         if (response) {
             this.programas_postgrado = [...response];
@@ -149,7 +141,7 @@ export class CertifIntermediasPEMainService {
     }
 
     async getPlanesDeEstudiosPorPrograma(showCountTableValues: boolean = true){
-        let params = { Cod_Programa: this.cod_programa_postgrado_selected }
+        let params = { Cod_Programa: this.form.cod_programa_postgrado_selected }
         const response = await this.backend.getPlanesDeEstudiosPorPrograma(params);
         if (response) {
           this.planes = [...response];
@@ -171,7 +163,7 @@ export class CertifIntermediasPEMainService {
     }
 
     async getAsignaturasPorPlanDeEstudio(showCountTableValues: boolean = true){
-        let params = { Cod_plan_estudio: this.cod_planestudio_selected }
+        let params = { Cod_plan_estudio: this.form.cod_planestudio_selected }
         const response = await this.backend.getAsignaturasPorPlanDeEstudio(params);
         if (response) {
             this.asignaturas = [...response];
@@ -195,7 +187,7 @@ export class CertifIntermediasPEMainService {
     }
 
     async getCertificacionIntermedia_Prog(showCountTableValues: boolean = true){
-        let params = { Cod_Programa: this.cod_programa_postgrado_selected }
+        let params = { Cod_Programa: this.form.cod_programa_postgrado_selected }
         const response = await this.backend.getCertificacionIntermedia_Prog(params);
         if (response) {
           this.certificaciones = [...response];
@@ -281,15 +273,16 @@ export class CertifIntermediasPEMainService {
         await this.reset();
         this.form.setForm('show',this.articulacion);
         await this.setTables();
-        this.showElements();
+        this.showDropdowns();
         this.dialogForm = true;
+        this.showTables = true;
     }
 
     async editForm(){
         await this.reset();
         this.form.setForm('edit',this.articulacion);
         await this.setTables();
-        this.showElements();
+        this.showDropdowns();
         this.dialogForm = true;
     }
 
@@ -429,7 +422,7 @@ export class CertifIntermediasPEMainService {
     }
 
     async setTables(){
-        this.cod_programa_postgrado_selected = this.articulacion.Cod_Programa_Postgrado_Selected!;
+        this.form.cod_programa_postgrado_selected = this.articulacion.Cod_Programa_Postgrado_Selected!;
         // this.cod_planestudio_selected = this.articulacion.Cod_Facultad_Selected!;
         this.cod_programa_selected = this.articulacion.Cod_programa_pregrado!;
         this.table.selectedAsignaturaRows = [...this.articulacion.Asignaturas!]
@@ -459,16 +452,15 @@ export class CertifIntermediasPEMainService {
         // }
     }
 
-    showElements(){
+    showDropdowns(){
         this.showDropdownSelectProgramaPostgrado = true;
         this.showDropdownSelectPlanEstudio = true;
         this.showTables = true;
     }
 
-    hideElements(){
+    hideDropdowns(){
         this.showDropdownSelectProgramaPostgrado = false;
         this.showDropdownSelectPlanEstudio = false;
-        this.showTables = false;
     }
 
     resetArraysWhenChangedDropdownPrograma(){
@@ -504,9 +496,9 @@ export class CertifIntermediasPEMainService {
     async setDropdownsFilterTable(){
         this.disabledDropdownPrograma = false;
         this.disabledDropdownPlanEstudio = false;
-        this.cod_facultad_selected_notform = this.cod_facultad_selected_postgrado;
-        this.cod_programa_postgrado_selected_notform = this.cod_programa_postgrado_selected;
-        this.cod_plan_estudio_selected_notform = this.cod_planestudio_selected;
+        this.cod_facultad_selected_notform = this.form.cod_facultad_selected_postgrado;
+        this.cod_programa_postgrado_selected_notform = this.form.cod_programa_postgrado_selected;
+        this.cod_plan_estudio_selected_notform = this.form.cod_planestudio_selected;
         await this.getProgramasPorFacultadNotForm(false);
         await this.getPlanesDeEstudiosPorProgramaNotForm(false);
     }

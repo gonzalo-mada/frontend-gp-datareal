@@ -3,10 +3,10 @@
         <div class="flex justify-content-between flex-wrap w-auto" [style]="{ 'padding-left': '1.5rem', 'padding-top': '1.5rem', 'padding-right': '1.5rem' }">
             <div class="flex flex-column w-full sm:w-auto">
                 <div class="p-card-title">
-                    {{ mode === 'show' ? 'Visualización del' : 'Edición del'}} {{ mainPE.namesCrud.articulo_singular }}
+                    {{ mode === 'show' ? 'Visualización del' : 'Edición del'}} {{ mainPE.namesCrud.singular }}
                 </div>
                 <div class="p-card-subtitle">
-                    <span>A continuación, se despliegan la totalidad de campos que contiene un {{ mainPE.namesCrud.articulo_singular }}.</span> <br/>
+                    <span>A continuación, se despliegan la totalidad de campos que contiene un {{ mainPE.namesCrud.singular }}.</span> <br/>
                     <span *ngIf="mode === 'show'">
                         Para ver más detalles del campo, como por ejemplo: sus documentos adjuntos, presione el botón 
                         (<i class="pi pi-eye" style="font-size: 0.8rem; font-weight: 1000;"></i>).
@@ -108,7 +108,7 @@
                                             <div class="flex flex-column w-full">
                                                 <div class="flex flex-row flex-wrap mb-2">
                                                     <div class="align-items-center">
-                                                        <label><strong> {{ item.title }} </strong></label>
+                                                        <label [class]=" item.title.length > 40 ? 'font-bold text-900 text-sm' : 'font-bold text-base text-900' " class="">{{ item.title }}</label>
                                                     </div>
                                                     <div *ngIf="item.iconHelp" class="align-items-center ml-1" [style]="{'margin-top': '0.1rem !important'}">
                                                         <i class="pi pi-question-circle" [pTooltip]='tooltipTp' tooltipPosition="top"></i>
@@ -118,6 +118,63 @@
                                                     </div>
                                                 </div>
                                                 <ng-container *ngIf="item.control !== ''  " [ngSwitch]="item.control">
+                                                    <div *ngSwitchCase="'tiene_articulacion'" >
+                                                        <div class="flex flex-row justify-content-start flex-wrap">
+                                                            <div class="flex align-items-center justify-content-center">
+                                                                <span>No</span>
+                                                            </div>
+                                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_articulacion"  styleClass="mt-1 mx-1"/>
+                                                            </div>
+                                                            <div class="flex align-items-center justify-content-center">
+                                                                <span>Si</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div *ngSwitchCase="'tiene_certificacion'" >
+                                                        <div class="flex flex-row justify-content-start flex-wrap">
+                                                            <div class="flex align-items-center justify-content-center">
+                                                                <span>No</span>
+                                                            </div>
+                                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_certificacion"  styleClass="mt-1 mx-1"/>
+                                                            </div>
+                                                            <div class="flex align-items-center justify-content-center">
+                                                                <span>Si</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div *ngSwitchCase="'tiene_rango_aprob_g'" >
+                                                        <div class="flex flex-row justify-content-start flex-wrap">
+                                                            <div class="flex align-items-center justify-content-center">
+                                                                <span>No</span>
+                                                            </div>
+                                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_rango_aprob_g"  styleClass="mt-1 mx-1"/>
+                                                            </div>
+                                                            <div class="flex align-items-center justify-content-center">
+                                                                <span>Si</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div *ngSwitchCase="'tiene_mencion'" >
+                                                        <div class="flex flex-row justify-content-start flex-wrap">
+                                                            <div class="flex align-items-center justify-content-center">
+                                                                <span>No</span>
+                                                            </div>
+                                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_mencion"  styleClass="mt-1 mx-1"/>
+                                                            </div>
+                                                            <div class="flex align-items-center justify-content-center">
+                                                                <span>Si</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div *ngSwitchCase="'cupo_minimo'" >
+                                                        <div [class]=" form.fbForm.get(item.control)!.value.length > 20 ? 'text-700 font-medium text-sm sm:text-base' : 'text-700 font-medium text-base' ">
+                                                            {{ form.fbForm.get(item.control)!.value }} {{ form.fbForm.get(item.control)!.value > 1 ? 'estudiantes' : 'estudiante' }} 
+                                                        </div>
+                                                    </div>
                                                     <div *ngSwitchDefault [class]=" form.fbForm.get(item.control)!.value.length > 20 ? 'text-700 font-medium text-sm sm:text-base' : 'text-700 font-medium text-base' ">
                                                         {{ form.fbForm.get(item.control)!.value }} 
                                                     </div>
@@ -149,3 +206,14 @@
         </div>
     </ng-template>
 </p-card>
+
+<app-form-pe-update
+    [mode]="mode"
+    [planDeEstudio]="planDeEstudio"
+    [modeDialogInput]="updatePE"
+    [refreshPE]="onClickRefreshPE"
+    (formUpdated)="formUpdated()"
+    (resetDialog)="resetDialog()"
+></app-form-pe-update>
+
+<app-form-articulaciones [dataFromAgregarPE]="form.dataToPendingForm"></app-form-articulaciones>

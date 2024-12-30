@@ -54,7 +54,9 @@ undefined |
 'centro_costo' |
 'codigo_sies' |
 'tipo_programa' |
-'graduacion_colaborativa' ; 
+'graduacion_colaborativa' |
+'plan_estudio'
+; 
 
 
 export interface Context {

@@ -1,1 +1,84 @@
-<p>form-pe-update works!</p>
+<app-dialog [dialogWidth]="'65vw'" [(visible)]="main.dialogUpdate" (visibleChange)="closeDialog()">
+    <div header>
+        <ng-container [ngSwitch]="main.dialogUpdateMode">
+            <span *ngSwitchDefault class="text-xl" >{{mode === 'show' ? 'Ver' : 'Actualizar'}} {{ main.dialogUpdateMode }}</span>
+        </ng-container>
+    </div>
+
+    <div content>
+        <!-- <p-button 
+            label="test" 
+            icon="pi pi-times" 
+            styleClass="p-button-sm p-button-secondary mr-2" 
+            (click)="test()" [text]="true">
+        </p-button>  -->
+        <form *ngIf="main.dialogUpdate" [formGroup]="form.fbFormUpdate">
+            <div class="formgrid grid">
+                <div class="col-12" *ngIf="mode !== 'show' ">
+                    <app-form-isvalid [valid]="form.fbFormUpdate.valid"></app-form-isvalid>
+                </div>
+
+                <ng-container *ngIf="main.dialogUpdateMode === 'estado' ">
+                    <div class="field col-12">
+                        <label><strong>Estado {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                        <p-dropdown
+                            [options]="main.estados"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
+                            formControlName="cod_estado"
+                            placeholder="Seleccione estado"
+                            optionLabel="descripcion_estado"
+                            optionValue="cod_estado"
+                            (onChange)="changeEstadoPlanEstudio($event)"
+                        />
+                        <app-form-control [control]="form.fbFormUpdate.controls['cod_estado']" [validators]="['required']"></app-form-control>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngIf="main.dialogUpdateMode === 'modalidad' ">
+                    <div class="field col-12">
+                        <label><strong>Modalidad {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                        <p-dropdown
+                            [options]="main.modalidades"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
+                            formControlName="cod_modalidad"
+                            placeholder="Seleccione modalidad"
+                            optionLabel="Descripcion_modalidad"
+                            optionValue="Cod_modalidad"
+                            (onChange)="changeEstadoPlanEstudio($event)"
+                        />
+                        <app-form-control [control]="form.fbFormUpdate.controls['cod_modalidad']" [validators]="['required']"></app-form-control>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngIf="main.dialogUpdateMode === 'articulacion' ">
+                    <div class="col-12 mt-2">
+                        <app-table-articulaciones [mode]="mode" [dataFromAgregarPE]="form.dataToPendingForm" *ngIf="form.showTableArticulaciones"></app-table-articulaciones>
+                    </div>
+                </ng-container>
+
+                <div class="field col-12"  *ngIf=" main.dialogUpdateMode !== 'articulacion'">
+                    <label>
+                        <strong> 
+                            {{ mode === 'show' ? 'Documentos adjuntos' : 'Adjunte documentos *'}} 
+                        </strong>
+                    </label>
+                    <app-uploader-files [mode]="mode!"></app-uploader-files>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div footer>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
+            (click)="main.dialogUpdate = false" [text]="true">
+        </p-button>
+        <p-button 
+            *ngIf="form.showButtonSubmitUpdate && mode === 'edit' "
+            label="Actualizar" 
+            icon="pi pi-check"
+            styleClass="mr-2 p-button-success p-button-sm" 
+            [disabled]="form.stateFormUpdate === 'INVALID' || form.stateFormUpdate === undefined "
+            (click)="submit()">
+        </p-button>
+    </div>
+</app-dialog>

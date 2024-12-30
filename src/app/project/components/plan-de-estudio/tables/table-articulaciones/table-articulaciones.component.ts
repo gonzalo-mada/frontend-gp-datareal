@@ -1,6 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Table } from 'primeng/table';
 import { Articulacion } from 'src/app/project/models/plan-de-estudio/Articulacion';
+import { ModeForm } from 'src/app/project/models/shared/ModeForm';
 import { ArticulacionesMainService } from 'src/app/project/services/plan-de-estudio/articulaciones/main.service';
 import { TableArticulacionesService } from 'src/app/project/services/plan-de-estudio/articulaciones/table.service';
 
@@ -12,8 +13,13 @@ import { TableArticulacionesService } from 'src/app/project/services/plan-de-est
 })
 export class TableArticulacionesComponent implements OnInit, OnDestroy  {
 
+  @Input() mode: ModeForm;
+  @Input() dataFromAgregarPE: any = { data: false }
+  @Input() from: string = '';
+  
   searchValue: string | undefined;
   expandedRows = {};
+  hideElements: boolean = false;
 
   constructor( 
     public main: ArticulacionesMainService,
@@ -21,10 +27,15 @@ export class TableArticulacionesComponent implements OnInit, OnDestroy  {
   ){}
 
   ngOnInit(): void {
-    this.getData(true);
+    this.dataFromAgregarPE.data ? (this.setTable() , this.hideElements = true) : ( this.getData(true) , this.hideElements = false);
   }
   ngOnDestroy(): void {
     this.table.resetSelectedRows();
+  }
+
+  async setTable(){
+    this.main.cod_plan_estudio_selected_notform = this.dataFromAgregarPE.cod_plan_estudio;
+    await this.getData(true);
   }
 
   async getData(showCountTableValues: boolean){

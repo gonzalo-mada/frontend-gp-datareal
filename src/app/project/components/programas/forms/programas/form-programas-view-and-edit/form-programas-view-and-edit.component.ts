@@ -210,7 +210,6 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
       //   case 'certificación intermedia': await this.getCertificacionIntermediaPrograma(); break;
       // }
       await this.getData();
-      await this.getLogPrograma();
     } catch (error) {
       this.errorTemplateHandler.processError(error, {
         notifyMethod: 'alert',

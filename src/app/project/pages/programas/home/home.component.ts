@@ -39,7 +39,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
     this.tableCrudService.resetSelectedRows();
-    this.main.reset();
+    // this.main.reset();
   }
 
   changeFacultad(event: any){

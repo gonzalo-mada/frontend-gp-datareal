@@ -1,6 +1,5 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { RutValidator } from 'src/app/base/tools/validators/rut.validator';
 import { Campus } from 'src/app/project/models/programas/Campus';
@@ -25,7 +24,7 @@ import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
   styles: [
   ]
 })
-export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestroy {
+export class FormProgramasUpdateComponent implements OnChanges {
 
   constructor(
     private backend: BackendProgramasService,
@@ -53,10 +52,6 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
   directoresAlternos: any[] = [];
   estadosAcreditacion: any[] = [];
   showAsterisk: boolean = true;
-  private subscription: Subscription = new Subscription();
-
-  async ngOnInit(){
-  }
 
   async ngOnChanges(changes: SimpleChanges) {
     if ( changes['modeDialogInput'] && changes['modeDialogInput'].currentValue) {
@@ -65,10 +60,6 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
       let modeDialogFromInput : UpdatePrograma = changes['modeDialogInput'].currentValue
       this.setForm(modeDialogFromInput.modeDialog , modeDialogFromInput.collection);
     }
-  }
-
-  ngOnDestroy(): void {
-    if (this.subscription) this.subscription.unsubscribe();
   }
 
   async setForm(modeDialog: ModeDialog, collection: CollectionsMongo){
@@ -112,7 +103,7 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
   }
 
   changeUnidadAcad(event: any){
-    this.form.fbForm.get('Unidades_academicas_Selected')?.patchValue(event.value);
+    this.form.fbFormUpdate.get('Unidades_academicas_Selected')?.patchValue(event.value);
   }
 
   async createFormDirector(){
@@ -323,6 +314,7 @@ export class FormProgramasUpdateComponent implements OnInit, OnChanges, OnDestro
         this.form.fbFormUpdate.get('Certificacion_intermedia')?.disable()
         this.form.fbFormUpdate.get('Cod_TipoGraduacion')?.disable()
         this.form.fbFormUpdate.get('Instituciones')?.disable()
+        this.form.fbFormUpdate.get('Instituciones_old')?.disable()
         this.main.disabledButtonSeleccionar();
         this.showAsterisk = false; 
       }

@@ -49,18 +49,13 @@ export class AsignaturasPlancomunMainService {
     
     //vars origen
     programas_origen: any[] = [];
-    cod_facultad_selected_origen: number = 0;
     planes_origen: PlanDeEstudio[] = [];
-    cod_programa_origen: number = 0;
 
-    //vars origen
+    //vars destino
     programas_destino: any[] = [];
-    cod_facultad_selected_destino: number = 0;
     planes_destino: PlanDeEstudio[] = [];
-    cod_programa_destno: number = 0;
 
     showTables: boolean = false; 
-    cod_planestudio_selected: number = 0;
 
     //MODAL
     dialogForm: boolean = false
@@ -101,14 +96,9 @@ export class AsignaturasPlancomunMainService {
         this.form.resetForm();
         this.table.emitResetExpandedRows();
         this.table.resetSelectedRows();
-        this.resetValuesSelected();
+        this.form.resetValuesVarsSelected();
         this.hideElements();
         this.clearAllMessages();
-    }
-
-    resetValuesSelected(){
-        this.cod_programa_origen = 0;
-        this.cod_planestudio_selected = 0;
         this.asignaturas_plancomun = [];
     }
 
@@ -132,7 +122,7 @@ export class AsignaturasPlancomunMainService {
     }
 
     async getProgramasPorFacultadOrigen(showCountTableValues: boolean = true, needShowLoading = true){
-		let params = { Cod_facultad: this.cod_facultad_selected_origen }
+		let params = { Cod_facultad: this.form.cod_facultad_selected_origen }
 		const response = await this.backend.getProgramasPorFacultad(params,needShowLoading);
 		if (response) {
 		  this.programas_origen = [...response];
@@ -156,7 +146,7 @@ export class AsignaturasPlancomunMainService {
 	}
 
     async getProgramasPorFacultadDestino(showCountTableValues: boolean = true, needShowLoading = true){
-		let params = { Cod_facultad: this.cod_facultad_selected_destino }
+		let params = { Cod_facultad: this.form.cod_facultad_selected_destino }
 		const response = await this.backend.getProgramasPorFacultad(params,needShowLoading);
 		if (response) {
 		  this.programas_destino = [...response];
@@ -180,7 +170,7 @@ export class AsignaturasPlancomunMainService {
 	}
 
     async getPlanesDeEstudiosPorProgramaOrigen(showCountTableValues: boolean = true){
-        let params = { Cod_Programa: this.cod_programa_origen }
+        let params = { Cod_Programa: this.form.cod_programa_origen }
         const response = await this.backend.getPlanesDeEstudiosPorPrograma(params);
         if (response) {
           this.planes_origen = [...response];
@@ -204,7 +194,7 @@ export class AsignaturasPlancomunMainService {
     }
 
     async getPlanesDeEstudiosPorProgramaDestino(showCountTableValues: boolean = true){
-        let params = { Cod_Programa: this.cod_programa_destno }
+        let params = { Cod_Programa: this.form.cod_programa_destno }
         const response = await this.backend.getPlanesDeEstudiosPorPrograma(params);
         if (response) {
           this.planes_destino = [...response];
@@ -228,12 +218,12 @@ export class AsignaturasPlancomunMainService {
     }
 
     async getAsignaturasPorPlanDeEstudioOrigen(showCountTableValues: boolean = true){
-        let params = { Cod_plan_estudio: this.cod_planestudio_selected }
+        let params = { Cod_plan_estudio: this.form.cod_planestudio_selected }
         const response = await this.backend.getAsignaturasPorPlanDeEstudio(params);
         if (response) {
             this.asignaturas_plancomun = [...response];
             if (this.asignaturas_plancomun.length === 0 ) {
-                this.form.setStatusControlFacultadDestino(false);
+                // this.form.setStatusControlFacultadDestino(false);
                 this.showMessageSinResultados('f');
             }else{
                 if (showCountTableValues){
@@ -507,9 +497,9 @@ export class AsignaturasPlancomunMainService {
     async setDropdownsFilterTable(){
         this.disabledDropdownPrograma = false;
         this.disabledDropdownPlanEstudio = false;
-        this.cod_facultad_selected_notform = this.cod_facultad_selected_origen;
-        this.cod_programa_postgrado_selected_notform = this.cod_programa_origen;
-        this.cod_plan_estudio_selected_notform = this.cod_planestudio_selected;
+        this.cod_facultad_selected_notform = this.form.cod_facultad_selected_origen;
+        this.cod_programa_postgrado_selected_notform = this.form.cod_programa_origen;
+        this.cod_plan_estudio_selected_notform = this.form.cod_planestudio_selected;
         await this.getProgramasPorFacultadNotForm(false);
         await this.getPlanesDeEstudiosPorProgramaNotForm(false);
     }

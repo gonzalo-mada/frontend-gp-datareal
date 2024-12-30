@@ -23,19 +23,19 @@ export class TablePlanesDeEstudiosService {
     _selectedColumns!: Column[];
     cols: Column[] = [
         { field: 'cod_programa', header: 'Programa', width: '300px', useMinWidth: true},
+        { field: 'rexe', header: 'REXE', width: '200px', useMinWidth: true, getValue: (data: any) => data?.rexe || '' },
+        { field: 'case_asignaturas', header: 'Asignaturas', width: '200px', useMinWidth: true},
         { field: 'case_menciones', header: 'Menciones', width: '200px', useMinWidth: true},
         { field: 'cupo_minimo', header: 'Cupo mínimo', width: '200px', useMinWidth: true, getValue: (data: any) => data?.cupo_minimo || ''  },
         { field: 'jornada.descripcion_jornada', header: 'Jornada', width: '200px', useMinWidth: true, getValue: (data: any) => data?.jornada?.descripcion_jornada || '' },
         { field: 'modalidad.descripcion_modalidad', header: 'Modalidad', width: '200px', useMinWidth: true, getValue: (data: any) => data?.modalidad?.descripcion_modalidad || '' },
         { field: 'estado.descripcion_estado', header: 'Estado', width: '200px', useMinWidth: true, getValue: (data: any) => data?.estado?.descripcion_estado || '' },
-        { field: 'rexe', header: 'REXE', width: '200px', useMinWidth: true, getValue: (data: any) => data?.rexe || '' },
-        // { field: 'Certificacion', header: 'Certificación', width: '200px', useMinWidth: true, getValue: (data: any) => data?.Certificacion || '' },
+        { field: 'regimen.descripcion_regimen', header: 'Régimen', width: '200px', useMinWidth: true, getValue: (data: any) => data?.regimen?.descripcion_regimen || '' },
         { field: 'case_articulaciones', header: 'Articulaciones', width: '200px', useMinWidth: true },
         { field: 'reglamento.descripcion_reglamento', header: 'Reglamento', width: '200px', useMinWidth: true, getValue: (data: any) => data?.reglamento?.descripcion_reglamento || '' },
-        { field: 'case_plancomun', header: 'Plan_comun (pendiente)', width: '200px', useMinWidth: true },
-        { field: 'case_rangos', header: 'Rangos de aprobación (pendiente)', width: '200px', useMinWidth: true},
-        { field: 'case_certificacion', header: 'Certificación intermedia', width: '200px', useMinWidth: true},
-        { field: 'regimen.descripcion_regimen', header: 'Régimen', width: '200px', useMinWidth: true, getValue: (data: any) => data?.regimen?.descripcion_regimen || '' },
+        { field: 'case_plancomun', header: 'Plan común', width: '200px', useMinWidth: true },
+        { field: 'case_rangos', header: 'Rangos de aprobación', width: '200px', useMinWidth: true},
+        { field: 'case_certificacion', header: 'Certificaciones intermedias', width: '200px', useMinWidth: true},
 
     ];
     constructor(

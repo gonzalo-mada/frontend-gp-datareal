@@ -14,6 +14,10 @@ export class FormCertifIntermediasPEService {
     modeForm: ModeForm = undefined;
     stateForm: StateValidatorForm = undefined;
 
+    cod_facultad_selected_postgrado: number = 0;
+    cod_programa_postgrado_selected: number = 0;
+    cod_planestudio_selected: number = 0;
+
     constructor(private fb: FormBuilder){}
 
     async initForm(): Promise<boolean>{
@@ -38,6 +42,12 @@ export class FormCertifIntermediasPEService {
             aux: ''
         });
         this.fbForm.enable();
+    }
+
+    resetValuesVarsSelected(){
+        this.cod_facultad_selected_postgrado = 0;
+        this.cod_programa_postgrado_selected = 0;
+        this.cod_planestudio_selected = 0;
     }
 
     setForm(mode:'show' | 'edit' ,data: CertificacionIntermediaPE): void{
@@ -69,5 +79,20 @@ export class FormCertifIntermediasPEService {
 	resetFormWhenChangedDropdownPE(){
 		this.fbForm.patchValue({ Asignaturas: '' });
 	}
+
+    setValuesVarsByAgregarPE(dataFromAgregarPE: any){
+        this.cod_facultad_selected_postgrado = dataFromAgregarPE.cod_facultad;
+        this.cod_programa_postgrado_selected = dataFromAgregarPE.cod_programa;
+        this.cod_planestudio_selected = dataFromAgregarPE.cod_plan_estudio;
+    }
+
+    setControlsFormByAgregarPE(dataFromAgregarPE: any){
+        this.fbForm.get('Cod_Facultad_Postgrado_Selected')?.patchValue(dataFromAgregarPE.cod_facultad);
+        this.fbForm.get('Cod_Programa_Postgrado_Selected')?.patchValue(dataFromAgregarPE.cod_programa);
+        this.fbForm.get('Cod_plan_estudio')?.patchValue(dataFromAgregarPE.cod_plan_estudio);
+        this.fbForm.get('Cod_Facultad_Postgrado_Selected')?.disable();
+        this.fbForm.get('Cod_Programa_Postgrado_Selected')?.disable();
+        this.fbForm.get('Cod_plan_estudio')?.disable();
+    }
 
 }

@@ -52,16 +52,6 @@
                         (onChange)="changePlanDeEstudio($event)" 
                     />
                 </div>
-                <div *ngIf="!main.showTable">
-                    <div class="flex align-items-center justify-content-center sm:justify-content-end sm:mt-5">
-                        <p-button
-                            (onClick)="this.main.setModeCrud('create')"
-                            label="Agregar"
-                            icon="pi pi-plus"
-                            styleClass="p-button-success"
-                        ></p-button>
-                    </div>
-                </div>
             </div>
         </div>
         <div *ngIf="main.showTable">

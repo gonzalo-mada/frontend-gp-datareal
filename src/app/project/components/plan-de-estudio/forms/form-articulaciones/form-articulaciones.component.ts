@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 import { FormArticulacionesService } from 'src/app/project/services/plan-de-estudio/articulaciones/form.service';
@@ -12,8 +12,10 @@ import { FacultadesMainService } from 'src/app/project/services/programas/facult
   styles: [
   ]
 })
-export class FormArticulacionesComponent implements OnInit, OnDestroy  {
+export class FormArticulacionesComponent implements OnInit, OnChanges, OnDestroy  {
 
+  @Input() dataFromAgregarPE: any = { data: false };
+  @Output() formWasClosed = new EventEmitter<boolean>();
   private subscription: Subscription = new Subscription();
 
   constructor(
@@ -25,11 +27,40 @@ export class FormArticulacionesComponent implements OnInit, OnDestroy  {
 
   async ngOnInit() {
     this.subscription.add(this.form.fbForm.statusChanges.subscribe(status => { this.form.stateForm = status as StateValidatorForm }));
-    await this.mainFacultad.getFacultades(false);
+    this.dataFromAgregarPE.data ? await this.setFormByAgregarPE() : this.initForm();
+  }
+
+  async ngOnChanges(changes: SimpleChanges) {
+    if ( changes['dataFromAgregarPE'] && changes['dataFromAgregarPE'].currentValue.data && changes['dataFromAgregarPE'].currentValue.show) {
+      await this.setFormByAgregarPE()
+    }else{
+      await this.initForm()
+    }
   }
 
   ngOnDestroy(): void {
+    this.main.showTable = false
     this.subscription.unsubscribe();
+  }
+
+  async setFormByAgregarPE(){
+    console.log("ejecuté setFormByAgregarPE");
+    
+    this.form.setValuesVarsByAgregarPE(this.dataFromAgregarPE);
+    this.main.cod_plan_estudio_selected_notform = this.dataFromAgregarPE.cod_plan_estudio;
+    await Promise.all([
+      this.main.getProgramasPorFacultad(false),
+      this.main.getPlanesDeEstudiosPorPrograma(false),
+      this.mainFacultad.getFacultades(false)
+    ]);
+    this.form.setControlsFormByAgregarPE(this.dataFromAgregarPE);
+    this.form.setDropdowns();
+    this.main.wasFilteredTable = true;
+  }
+
+  async initForm(){
+    await this.mainFacultad.getFacultades(false);
+    this.form.showDropdownSelectFacultadPostgrado = true;
   }
 
   async submit(){
@@ -42,11 +73,11 @@ export class FormArticulacionesComponent implements OnInit, OnDestroy  {
     this.form.fbForm.get('Cod_Programa_Postgrado_Selected')?.reset();
     this.form.fbForm.get('Cod_plan_estudio')?.reset();
     this.form.fbForm.get('Cod_Facultad_Selected')?.reset();
-    this.main.cod_facultad_selected_postgrado = event.value;
-    if (this.main.showDropdownSelectProgramaPostgrado) this.main.showDropdownSelectProgramaPostgrado = false
-    if (this.main.showDropdownSelectPlanEstudio) this.main.showDropdownSelectPlanEstudio = false
-    if (this.main.showDropdownSelectFacultad) this.main.showDropdownSelectFacultad = false
-    if (this.main.showTables) this.main.showTables = false
+    this.form.cod_facultad_selected_postgrado = event.value;
+    if (this.form.showDropdownSelectProgramaPostgrado) this.form.showDropdownSelectProgramaPostgrado = false
+    if (this.form.showDropdownSelectPlanEstudio) this.form.showDropdownSelectPlanEstudio = false
+    if (this.form.showDropdownSelectFacultad) this.form.showDropdownSelectFacultad = false
+    if (this.form.showTables) this.form.showTables = false
     await this.main.getProgramasPorFacultad();
   }
 
@@ -55,10 +86,10 @@ export class FormArticulacionesComponent implements OnInit, OnDestroy  {
     this.clearArraysDataTable();
     this.form.fbForm.get('Cod_plan_estudio')?.reset();
     this.form.fbForm.get('Cod_Facultad_Selected')?.reset();
-    this.main.cod_programa_postgrado_selected = event.value;
-    if (this.main.showDropdownSelectPlanEstudio) this.main.showDropdownSelectPlanEstudio = false
-    if (this.main.showDropdownSelectFacultad) this.main.showDropdownSelectFacultad = false
-    if (this.main.showTables) this.main.showTables = false
+    this.form.cod_programa_postgrado_selected = event.value;
+    if (this.form.showDropdownSelectPlanEstudio) this.form.showDropdownSelectPlanEstudio = false
+    if (this.form.showDropdownSelectFacultad) this.form.showDropdownSelectFacultad = false
+    if (this.form.showTables) this.form.showTables = false
     await this.main.getPlanesDeEstudiosPorPrograma();
   }
 
@@ -66,18 +97,18 @@ export class FormArticulacionesComponent implements OnInit, OnDestroy  {
     this.table.resetSelectedRowsAllTables();
     this.clearArraysDataTable();
     this.form.fbForm.get('Cod_Facultad_Selected')?.reset();
-    if (this.main.showTables) this.main.showTables = false
-    this.main.showDropdownSelectFacultad = true;
-    this.main.cod_plan_estudio_selected = event.value;
+    if (this.form.showTables) this.form.showTables = false
+    this.form.showDropdownSelectFacultad = true;
+    this.form.cod_plan_estudio_selected = event.value;
   }
 
   async changeFacultad(event: any){
     this.table.resetSelectedRowsAllTables();
     this.clearArraysDataTable();
-    this.main.cod_facultad_selected_pregrado = event.value;
+    this.form.cod_facultad_selected_pregrado = event.value;
     await this.main.getProgramasPregradoPorFacultad();
     this.form.fbForm.get('Cod_programa_pregrado')?.enable();
-    this.main.showTables = true
+    this.form.showTables = true
   }
 
   test(){
@@ -97,7 +128,7 @@ export class FormArticulacionesComponent implements OnInit, OnDestroy  {
   async selectPrograma(event: any){
     this.resetTableProgramaAndAsignatura();
     this.table.selectedProgramaRows = {...event}
-    this.main.cod_programa_selected = event.codPrograma;
+    this.form.cod_programa_selected = event.codPrograma;
     await this.main.getAsignaturasPorProgramaPregrado();
     this.form.fbForm.patchValue({ Cod_programa_pregrado: event.codPrograma });
     this.form.fbForm.patchValue({ Descripcion_programa_pregrado: event.nombreCarrera });
@@ -132,6 +163,9 @@ export class FormArticulacionesComponent implements OnInit, OnDestroy  {
     this.main.programas = [];
   }
 
+  formClosed(){
+    this.formWasClosed.emit();
+  }
 
 
 }

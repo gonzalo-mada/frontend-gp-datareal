@@ -1,4 +1,4 @@
-<app-dialog [dialogWidth]="'90vw'" [(visible)]="main.dialogForm">
+<app-dialog [dialogWidth]="'90vw'" [(visible)]="main.dialogForm" (visibleChange)="formClosed()">
     <div header>
         <ng-container *ngIf="main.modeForm === 'create' || main.modeForm === 'insert' ">
             <span class="text-xl">Agregar {{ main.namesCrud.singular }}</span>
@@ -26,7 +26,7 @@
         <form [formGroup]="form.fbForm">
             <div class="formgrid grid">
 
-                <div class="field col-12 md:col-4">
+                <div *ngIf="form.showDropdownSelectFacultadPostgrado"  class="field col-12 md:col-6">
                     <label><strong>Facultad {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
                     
                     <p-dropdown 
@@ -41,7 +41,7 @@
                     />
                 </div>
 
-                <div *ngIf="main.showDropdownSelectProgramaPostgrado" class="field col-12 md:col-4">
+                <div *ngIf="form.showDropdownSelectProgramaPostgrado" class="field col-12 md:col-6">
                     <label><strong>Programas postgrado {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
                     
                     <p-dropdown 
@@ -56,8 +56,8 @@
                     />
                 </div>
 
-                <div *ngIf="main.showDropdownSelectPlanEstudio" class="field col-12 md:col-4">
-                    <label><strong>Plan de estudio {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                <div *ngIf="form.showDropdownSelectPlanEstudio" class="field col-12 md:col-6 ">
+                    <label><strong>Plan de estudio {{ main.modeForm !== 'create' ? '' : '*'}} </strong></label>
                     <p-dropdown 
                         [options]="main.planes"
                         formControlName="Cod_plan_estudio"
@@ -70,11 +70,7 @@
                     />
                 </div>
 
-
-            </div>
-
-            <div class="formgrid grid">
-                <div *ngIf="main.showDropdownSelectFacultad" class="field col-12">
+                <div *ngIf="form.showDropdownSelectFacultad" class="field col-12 md:col-6 ">
                     <label><strong>{{ main.modeForm === 'show' ? 'Facultad seleccionada' : 'Seleccione facultad para cargar programas de pregrado *'}}</strong></label>
                     <p-dropdown 
                         [options]="mainFacultad.facultades"
@@ -87,9 +83,11 @@
                         (onChange)="changeFacultad($event)" 
                     />
                 </div>
+
+
             </div>
 
-            <div *ngIf="main.showTables" class="formgrid grid">
+            <div *ngIf="form.showTables" class="formgrid grid">
                 <div class="field col-12 {{ main.modeForm === 'show' ? 'md:col-6' : 'md:col-6 lg:col-4'}}">
                     <label><strong>{{ main.modeForm === 'show' ? 'Programa de pregrado seleccionado' : 'Seleccione programa de pregrado *'}}</strong></label>
                     <p-table

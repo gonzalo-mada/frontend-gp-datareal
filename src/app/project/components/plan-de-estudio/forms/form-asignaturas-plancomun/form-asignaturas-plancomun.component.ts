@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 import { FormAsignaturasPlancomunService } from 'src/app/project/services/plan-de-estudio/asignaturas-plancomun/form.service';
@@ -13,7 +13,8 @@ import { FacultadesMainService } from 'src/app/project/services/programas/facult
   ]
 })
 export class FormAsignaturasPlancomunComponent implements OnInit, OnDestroy {
-	
+	@Input() dataFromAgregarPE: any = { data: false };
+  	@Output() formWasClosed = new EventEmitter<boolean>();
 	private subscription: Subscription = new Subscription();
 
 	constructor(
@@ -24,12 +25,24 @@ export class FormAsignaturasPlancomunComponent implements OnInit, OnDestroy {
 	){}
 	
 	async ngOnInit() {
+		console.log("dataFromAgregarPE",this.dataFromAgregarPE);
 		this.subscription.add(this.form.fbForm.statusChanges.subscribe(status => { this.form.stateForm = status as StateValidatorForm }));
-		await this.mainFacultad.getFacultades(false);
+		this.dataFromAgregarPE.data ? await this.setFormByAgregarPE() : await this.mainFacultad.getFacultades(false);		
 	}
 
 	ngOnDestroy(): void {
 		this.subscription.unsubscribe();
+	}
+
+	async setFormByAgregarPE(){
+		this.form.setValuesVarsByAgregarPE(this.dataFromAgregarPE);
+		this.main.cod_plan_estudio_selected_notform = this.dataFromAgregarPE.cod_plan_estudio;
+		await this.main.getProgramasPorFacultadOrigen(false);
+		await this.main.getPlanesDeEstudiosPorProgramaOrigen(false);
+		await this.main.getAsignaturasPorPlanDeEstudioOrigen(false);
+		await this.mainFacultad.getFacultades(false);
+		this.form.setControlsFormByAgregarPE(this.dataFromAgregarPE);
+		this.main.wasFilteredTable = true;
 	}
 
 	async submit(){
@@ -55,7 +68,7 @@ export class FormAsignaturasPlancomunComponent implements OnInit, OnDestroy {
 		this.main.resetArraysWhenChangedDropdownFacultadOrigen();
 		this.form.resetControlsWhenChangedDropdownFacultadOrigen();
 		this.form.disabledControlsWhenChangedDropdownFacultadOrigen();
-		this.main.cod_facultad_selected_origen = event.value;
+		this.form.cod_facultad_selected_origen = event.value;
 		if (this.main.showTables) this.main.showTables = false
 		await this.main.getProgramasPorFacultadOrigen();
 	}
@@ -64,7 +77,7 @@ export class FormAsignaturasPlancomunComponent implements OnInit, OnDestroy {
 		this.main.resetArraysWhenChangedDropdownFacultadDestino();
 		this.form.resetControlsWhenChangedDropdownFacultadDestino();
 		this.form.disabledControlsWhenChangedDropdownFacultadDestino();
-		this.main.cod_facultad_selected_destino = event.value;
+		this.form.cod_facultad_selected_destino = event.value;
 		await this.main.getProgramasPorFacultadDestino();
 	}
 
@@ -73,7 +86,7 @@ export class FormAsignaturasPlancomunComponent implements OnInit, OnDestroy {
 		this.main.resetArraysWhenChangedDropdownProgramaOrigen();
 		this.form.resetControlWhenChangedDropdownProgramaOrigen();
 		this.form.disabledControlWhenChangedDropdownProgramaOrigen();
-		this.main.cod_programa_origen = event.value;
+		this.form.cod_programa_origen = event.value;
 		if (this.main.showTables) this.main.showTables = false
 		await this.main.getPlanesDeEstudiosPorProgramaOrigen();
 	}
@@ -82,7 +95,7 @@ export class FormAsignaturasPlancomunComponent implements OnInit, OnDestroy {
 		this.main.resetArraysWhenChangedDropdownProgramaDestino();
 		this.form.resetControlWhenChangedDropdownProgramaDestino();
 		this.form.disabledControlWhenChangedDropdownProgramaDestino();
-		this.main.cod_programa_destno = event.value;
+		this.form.cod_programa_destno = event.value;
 		await this.main.getPlanesDeEstudiosPorProgramaDestino();
 	}
 
@@ -90,7 +103,7 @@ export class FormAsignaturasPlancomunComponent implements OnInit, OnDestroy {
 		this.table.resetSelectedRowsTableAsignaturas();
 		this.main.resetArraysWhenChangedDropdownPE();
 		this.form.resetFormWhenChangedDropdownPEOrigen();
-		this.main.cod_planestudio_selected = event.value;
+		this.form.cod_planestudio_selected = event.value;
 		await this.main.getAsignaturasPorPlanDeEstudioOrigen();
 	}
 

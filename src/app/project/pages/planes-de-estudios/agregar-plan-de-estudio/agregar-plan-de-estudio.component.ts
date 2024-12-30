@@ -1,5 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Programa } from 'src/app/project/models/programas/Programa';
+import { ArticulacionesMainService } from 'src/app/project/services/plan-de-estudio/articulaciones/main.service';
+import { AsignaturasPlancomunMainService } from 'src/app/project/services/plan-de-estudio/asignaturas-plancomun/main.service';
+import { CertifIntermediasPEMainService } from 'src/app/project/services/plan-de-estudio/certificaciones-intermedias-pe/main.service';
 import { AgregarPlanDeEstudioMainService } from 'src/app/project/services/plan-de-estudio/plan-de-estudio/agregar-plan-de-estudio/main.service';
 import { BackendPlanesDeEstudiosService } from 'src/app/project/services/plan-de-estudio/plan-de-estudio/backend.service';
 import { FormPlanDeEstudioService } from 'src/app/project/services/plan-de-estudio/plan-de-estudio/form.service';
@@ -12,26 +15,26 @@ import { FacultadesMainService } from 'src/app/project/services/programas/facult
 })
 export class AgregarPlanDeEstudioComponent implements OnInit, OnDestroy {
 
-  sidebarVisible2: boolean = false;
-  showForm: boolean = false;
-  showTableMenciones: boolean = false;
+
   estadosPlanEstudio: any[] = [];
   modalidades: any[] = [];
   jornadas: any[] = [];
   regimenes: any[] = [];
   programa_postgrado: Programa = {};
-  showAsteriskCI: boolean = false;
 
   constructor(
     private backend: BackendPlanesDeEstudiosService,
     public main: AgregarPlanDeEstudioMainService,
     public form: FormPlanDeEstudioService,
     public mainFacultad: FacultadesMainService,
+    private mainArticulacion: ArticulacionesMainService,
+    private mainAsigPlanComun: AsignaturasPlancomunMainService,
+    private mainCertifIntPe: CertifIntermediasPEMainService
   ){}
 
 
   get contentWrapperClass() {
-    return this.main.disposition ? 'col-12 lg:col-9' : 'col-12';
+    return this.form.disposition ? 'col-12 lg:col-9' : 'col-12';
   }
 
   get sidebarClass() {
@@ -43,6 +46,8 @@ export class AgregarPlanDeEstudioComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    console.log("me destrui agregar plan de estudio.");
+    
     this.form.resetForm();
     this.main.reset();
   }
@@ -73,24 +78,39 @@ export class AgregarPlanDeEstudioComponent implements OnInit, OnDestroy {
     this.regimenes = await this.backend.getRegimenes();
   }
 
+  changeFacultad(event: any){
+    if (this.form.stepOne) this.form.stepOne = false;
+    this.form.setSelectFacultad(event.value);
+    this.main.getProgramasPorFacultad();
+  }
+
+  async changePrograma(event: any){
+    this.form.resetForm(false);
+    await this.form.setSelectPrograma(event.value);
+    let params = { Cod_Programa: this.form.selected_CodigoPrograma }
+    this.programa_postgrado = await this.backend.getProgramaPostgrado(params, false);
+    this.form.checkCertifIntermedia(this.programa_postgrado);
+    this.form.stepOne = true;
+  }
+
   changeEstadoPlanEstudio(event: any){
-    this.form.setSelectEstadoPlanEstudio(event);
+    this.form.setSelectEstadoPlanEstudio(event.value);
   }
 
   changeModalidad(event: any){
-    this.form.setSelectModalidad(event);
+    this.form.setSelectModalidad(event.value);
   }
 
   changeJornadas(event: any){
-    this.form.setSelectJornada(event);
+    this.form.setSelectJornada(event.value);
   }
 
   changeRegimenes(event: any){
-    this.form.setSelectRegimen(event);
+    this.form.setSelectRegimen(event.value);
   }
 
   changeDisposition(){
-    this.main.disposition = !this.main.disposition;
+    this.form.disposition = !this.form.disposition;
   }
 
   getStateClass(state: boolean): string {
@@ -106,23 +126,6 @@ export class AgregarPlanDeEstudioComponent implements OnInit, OnDestroy {
     this.form.activeIndexStateForm = value;
   }
 
-  changeFacultad(event: any){
-    this.main.cod_facultad_selected = event.value;
-    this.main.getProgramasPorFacultad();
-    if (this.showForm) this.showForm = false;
-  }
-
-  async changePrograma(event: any){
-    let params = { Cod_Programa: event.value }
-    this.programa_postgrado = await this.backend.getProgramaPostgrado(params, false);
-    console.log("this.programa_postgrado",this.programa_postgrado);
-    this.form.resetForm(false);
-    this.form.cod_programa_selected = event.value;
-    this.form.fbForm.patchValue({ cod_programa: event.value });
-    this.form.checkCertifIntermedia(this.programa_postgrado);
-    this.showForm = true;
-  }
-
 
   test(){
     Object.keys(this.form.fbForm.controls).forEach(key => {
@@ -132,9 +135,11 @@ export class AgregarPlanDeEstudioComponent implements OnInit, OnDestroy {
       }
     });
     console.log("VALORES FORMULARIO:",this.form.fbForm.value);
+    this.form.showCardForm = false;
     // this.form.getValuesSelected();
     // this.form.getValuesIndex();
   }
+  
 
   changeRadioButtonCI(event: any){
     switch (event.value) {
@@ -164,11 +169,61 @@ export class AgregarPlanDeEstudioComponent implements OnInit, OnDestroy {
     }
   }
 
-  changeSwitchMenciones(event: any){
-    switch (event.checked) {
-      case true: this.showTableMenciones = true; break;
-      case false : this.showTableMenciones = false; break;
+  changeRadioButtonMencion(event: any){
+    switch (event.value) {
+      case 1: this.form.showMessageMenciones = true; break;
+      case 0 : this.form.showMessageMenciones = false; break;
     }
   }
+
+  onShowClick(pendingForm: any){
+    console.log("pendingForm",pendingForm);
+    switch (pendingForm) {
+      case 'tiene_articulacion':
+        this.resetDataToPendingForm();
+        this.form.showTableArticulaciones = true
+      break;
+    
+      default:
+        break;
+    }
+    
+  }
+
+  async onCreateClick(pendingForm: any){
+    console.log("pendingForm",pendingForm);
+    switch (pendingForm) {
+      case 'tiene_articulacion': this.initCreateFormArticulacion(); break;
+      case 'tiene_plan_comun':
+        this.form.showFormAsignPlanComun = true
+        await this.mainAsigPlanComun.setModeCrud('create');
+      break;
+
+      case 'tiene_certificacion':
+        this.form.showFormCertif = true
+        await this.mainCertifIntPe.setModeCrud('create');
+      break;
+    
+      default:
+        break;
+    }
+    
+  }
+
+  setDataToPendingForm(){
+	const actual_values = {...this.form.dataToPendingForm}
+	this.form.dataToPendingForm = {...actual_values,show: true}
+  }
+
+  resetDataToPendingForm(){
+	const actual_values = {...this.form.dataToPendingForm}
+	this.form.dataToPendingForm = {...actual_values,show: false}
+  }
+
+  async initCreateFormArticulacion(){
+	this.setDataToPendingForm();
+	await this.mainArticulacion.setModeCrud('create');
+  }
+
 
 }

@@ -35,6 +35,7 @@
         <div class="flex flex-wrap flex-column md:flex-row justify-content-between align-items-center">
             <div class="flex flex-row">
                 <p-button
+                    *ngIf="mode !== 'show'"
                     icon="pi pi-trash"
                     styleClass="p-button-danger p-button-outlined mr-2"
                     pTooltip="Eliminar seleccionados"
@@ -83,7 +84,7 @@
 
     <ng-template pTemplate="header">
         <tr>
-            <th style="min-width: 1rem">
+            <th *ngIf="mode !== 'show'" style="min-width: 1rem">
                 <p-tableHeaderCheckbox class="ml-2"></p-tableHeaderCheckbox>
             </th>
             <th style="min-width: 1rem"></th>
@@ -94,7 +95,7 @@
                     </th>
                 </ng-container>
                 <ng-template #actionsColumn>
-                    <th style="min-width: 10rem; ">{{ col.header }}</th>
+                    <th  style="min-width: 10rem; ">{{ col.header }}</th>
                 </ng-template>
             </ng-container>
         </tr>
@@ -102,11 +103,11 @@
 
     <ng-template pTemplate="body" let-data let-expanded="expanded">
         <tr>
-            <td>
+            <td *ngIf="mode !== 'show'">
                 <p-tableCheckbox class="ml-2" [value]="data"></p-tableCheckbox>
             </td>
             <td> <p-button type="button" pRipple [pRowToggler]="data" [text]="true" [rounded]="true" [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" /> </td>
-            <td style="width:30%;">
+            <td style="width:50%;">
                 {{data.Descripcion_programa_pregrado}}
             </td>
             <td style="width:25%;">
@@ -122,15 +123,17 @@
             <td style="width:25%;">
                 {{data.nombre_plan_estudio_completo}}
             </td>
-            <td>
+            <td >
                 <div class="flex">
-                    <p-button 
+                    <p-button
+                        *ngIf="mode !== 'show'" 
                         icon="pi pi-trash" 
                         styleClass="p-button-sm p-button-danger mr-2"
                         pTooltip="Eliminar registro" 
                         (click)="delete(data)">
                     </p-button>
-                    <p-button 
+                    <p-button
+                        *ngIf="mode !== 'show'" 
                         icon="pi pi-pencil" 
                         styleClass="p-button-sm p-button-warning mr-2"
                         pTooltip="Editar registro" 

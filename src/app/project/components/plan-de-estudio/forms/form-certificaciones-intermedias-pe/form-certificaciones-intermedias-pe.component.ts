@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 import { FormCertifIntermediasPEService } from 'src/app/project/services/plan-de-estudio/certificaciones-intermedias-pe/form.service';
@@ -14,6 +14,8 @@ import { FacultadesMainService } from 'src/app/project/services/programas/facult
 })
 export class FormCertificacionesIntermediasPeComponent implements OnInit, OnDestroy {
 
+	@Input() dataFromAgregarPE: any = { data: false };
+  	@Output() formWasClosed = new EventEmitter<boolean>();
 	private subscription: Subscription = new Subscription();
 
 	constructor(
@@ -25,36 +27,35 @@ export class FormCertificacionesIntermediasPeComponent implements OnInit, OnDest
 	
 	async ngOnInit() {
 		this.subscription.add(this.form.fbForm.statusChanges.subscribe(status => { this.form.stateForm = status as StateValidatorForm }));
-		await this.mainFacultad.getFacultades(false);
+		this.dataFromAgregarPE.data ? await this.setFormByAgregarPE() : await this.mainFacultad.getFacultades(false);
 	}
 
 	ngOnDestroy(): void {
 		this.subscription.unsubscribe();
 	}
 
-	async submit(){
-		this.main.modeForm === 'create' ? this.main.setModeCrud('insert') : this.main.setModeCrud('update')
+	async setFormByAgregarPE(){
+		this.form.setValuesVarsByAgregarPE(this.dataFromAgregarPE);
+		this.main.cod_plan_estudio_selected_notform = this.dataFromAgregarPE.cod_plan_estudio;
+		await this.mainFacultad.getFacultades(false);
+		await this.main.getProgramasPostgradoConCertifIntermediaPorFacultad(false);
+		await this.main.getPlanesDeEstudiosPorPrograma(false);
+		await this.main.getCertificacionIntermedia_Prog(false);
+		await this.main.getAsignaturasPorPlanDeEstudio();
+		this.form.setControlsFormByAgregarPE(this.dataFromAgregarPE);
+		this.main.showDropdowns();
+		this.main.wasFilteredTable = true;
 	}
 
-	test(){
-		Object.keys(this.form.fbForm.controls).forEach(key => {
-		  const control = this.form.fbForm.get(key);
-		  if (control?.invalid) {
-			console.log(`Errores en ${key}:`, control.errors);
-		  }
-		});
-		console.log("VALORES FORMULARIO:",this.form.fbForm.value);
-		console.log("ROW SELECTED PROGRAMA:",this.table.selectedCertifIntermediaRows);
-		console.log("ROWS SELECTED ASIGNATURAS:",this.table.selectedAsignaturaRows);
-		// this.form.getValuesSelected();
-		// this.form.getValuesIndex();
+	async submit(){
+		this.main.modeForm === 'create' ? this.main.setModeCrud('insert') : this.main.setModeCrud('update')
 	}
 
 	async changeFacultadPostgrado(event:any){
 		this.table.resetSelectedRowsTableAsignaturas();
 		this.main.resetArraysWhenChangedDropdownFacultad();
 		this.form.resetFormWhenChangedDropdownFacultad();
-		this.main.cod_facultad_selected_postgrado = event.value;
+		this.form.cod_facultad_selected_postgrado = event.value;
 		if (this.main.showDropdownSelectProgramaPostgrado) this.main.showDropdownSelectProgramaPostgrado = false
 		if (this.main.showDropdownSelectPlanEstudio) this.main.showDropdownSelectPlanEstudio = false
 		if (this.main.showTables) this.main.showTables = false
@@ -65,7 +66,7 @@ export class FormCertificacionesIntermediasPeComponent implements OnInit, OnDest
 		this.table.resetSelectedRowsAllTables();
 		this.main.resetArraysWhenChangedDropdownPrograma();
 		this.form.resetFormWhenChangedDropdownPrograma();
-		this.main.cod_programa_postgrado_selected = event.value;
+		this.form.cod_programa_postgrado_selected = event.value;
 		if (this.main.showDropdownSelectPlanEstudio) this.main.showDropdownSelectPlanEstudio = false
 		if (this.main.showTables) this.main.showTables = false
 		await this.main.getPlanesDeEstudiosPorPrograma();
@@ -77,7 +78,7 @@ export class FormCertificacionesIntermediasPeComponent implements OnInit, OnDest
 		this.table.resetSelectedRowsTableAsignaturas();
 		this.main.resetArraysWhenChangedDropdownPE();
 		this.form.resetFormWhenChangedDropdownPE();
-		this.main.cod_planestudio_selected = event.value;
+		this.form.cod_planestudio_selected = event.value;
 		this.form.fbForm.patchValue({ Cod_plan_estudio: event.value });
 		await this.main.getAsignaturasPorPlanDeEstudio();
 	}
@@ -106,6 +107,20 @@ export class FormCertificacionesIntermediasPeComponent implements OnInit, OnDest
 		this.table.resetSelectedRowsAllTables();
 		this.form.fbForm.patchValue({ Cod_CertificacionIntermedia: '' });
 		this.form.fbForm.patchValue({ Asignaturas: '' });
+	}
+
+	test(){
+		Object.keys(this.form.fbForm.controls).forEach(key => {
+		  const control = this.form.fbForm.get(key);
+		  if (control?.invalid) {
+			console.log(`Errores en ${key}:`, control.errors);
+		  }
+		});
+		console.log("VALORES FORMULARIO:",this.form.fbForm.value);
+		console.log("ROW SELECTED PROGRAMA:",this.table.selectedCertifIntermediaRows);
+		console.log("ROWS SELECTED ASIGNATURAS:",this.table.selectedAsignaturaRows);
+		// this.form.getValuesSelected();
+		// this.form.getValuesIndex();
 	}
 
 

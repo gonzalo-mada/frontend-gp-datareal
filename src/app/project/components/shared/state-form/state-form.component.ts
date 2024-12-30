@@ -135,7 +135,8 @@ export class StateFormComponent implements OnInit  {
           { label: 'Certificaciones intermedias', control: 'tiene_certificacion' },
           { label: 'Articulaciones', control: 'tiene_articulacion' },
           { label: 'Plan común', control: 'tiene_plan_comun' },
-          { label: 'Rangos de aprobación', control: 'tiene_rangos' }
+          { label: 'Rangos de aprobación', control: 'tiene_rango_aprob_g' },
+          { label: 'Menciones', control: 'tiene_mencion' }
         ]
       },
       {
@@ -143,12 +144,7 @@ export class StateFormComponent implements OnInit  {
         title: 'Paso 3',
         state: 'stateStepThree',
         fields: [
-          { label: 'Reglamento', control: 'cod_reglamento' },
-          { 
-            label: 'Menciones', 
-            control: 'menciones', 
-            conditional: { field: 'tiene_mencion', value: true }
-          }
+          { label: 'Reglamento', control: 'cod_reglamento' }
         ]
       },
       {

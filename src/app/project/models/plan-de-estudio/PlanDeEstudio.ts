@@ -22,7 +22,7 @@ export interface PlanDeEstudio {
     nombre_programa?: string,
     rexe_programa?: string,
     nombre_programa_completo?: string,
-    nombre_plan_de_estudio_completo?: string
+    nombre_plan_estudio_completo?: string
 }
 
 export type ModeDialogPE =
@@ -35,7 +35,11 @@ export type ModeDialogPE =
     'reglamento' |
     'rexe' |
     'cupo_minimo' |
-    'articulacion'
+    'articulacion' |
+    'certificacion' |
+    'rangos' |
+    'menciones' |
+    'asignaturas'
 ;
 
 export interface UpdatePlanEstudio {

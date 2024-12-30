@@ -8,6 +8,7 @@
     [closable]="closable"
     [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
     (onHide)="onChange()"
+    appendTo="body"
 >
     <ng-template pTemplate="header">
         <ng-content select="[header]"></ng-content>
