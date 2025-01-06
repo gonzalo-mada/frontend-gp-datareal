@@ -82,35 +82,47 @@ async deleteMencionBackend(params: any, namesCrud: NamesCrud) {
   }
 }
 
-  // Servicios relacionados con documentos en MongoDB
-  async getDocumentosWithBinary(Cod_mencion: number) {
+
+
+async getDocsMongo(Cod_mencion: number) {
+    console.log("getDocs id:", Cod_mencion)
     try {
         return await this.invoker.httpInvoke(
-            this.serviceUtils.generateServiceMongo('menciones/getDocumentosWithBinary', false),
+            this.serviceUtils.generateServiceMongo('menciones/getDocsMongo', false),
             { Cod_mencion }
         );
     } catch (error: any) {
         this.errorTemplateHandler.processError(error, {
             notifyMethod: 'alert',
             summary: 'Error al obtener documentos',
-            message: error?.message || error.detail.error.message.message
+            message: error.detail.error.message.message
         });
     }
 }
 
-async getArchiveDoc(idDocumento: any) {
+async getArchiveDoc(id: any, needBinaryString: boolean) {
     try {
-        return await this.invoker.httpInvokeReport(
-            'menciones/getArchiveDoc',
-            'pdf',
-            { id: idDocumento }
-        );
+        if (needBinaryString) {
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('menciones/getArchiveDoc',false),
+                { id , needBinaryString }
+            )
+        }else{
+            return await this.invoker.httpInvokeReport(
+                this.serviceUtils.generateServiceMongo('menciones/getArchiveDoc',false), 
+                'pdf', 
+                { id , needBinaryString }
+            )
+        }
     } catch (error: any) {
-        this.errorTemplateHandler.processError(error, {
-            notifyMethod: 'alert',
-            summary: 'Error al descargar documento',
-            message: error?.message || error.detail.error.message.message
-        });
+        this.errorTemplateHandler.processError(
+            error, 
+            {
+                notifyMethod: 'alert',
+                summary: `Error al descargar documento.`,
+                message: error?.message || error.detail.error.message.message
+            }
+        );
     }
 }
 

@@ -31,7 +31,7 @@ const routes: Routes = [
     path: 'asigPlanComun',
     loadChildren: () => import('../mantenedores-plan/asignaturas-plancomun/asignaturas-plancomun.module').then((j) => j.AsignaturasPlancomunModule),
     title: 'Asignaturas plan común'
-  },,
+  },
   {
     path: 'jornadas',
     loadChildren: () => import('../mantenedores-plan/jornada/jornada.module').then((j) => j.JornadaModule),

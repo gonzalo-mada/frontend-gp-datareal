@@ -4,7 +4,7 @@ import { ActionUploader, UploaderFilesService } from '../../components/uploader-
 import { CommonUtils } from 'src/app/base/tools/utils/common.utils';
 import { BackendMencionesService } from './backend.service';
 import { Mencion } from 'src/app/project/models/plan-de-estudio/Mencion';
-import { CollectionsMongo, LabelComponent, ModeUploader, Module, NameComponent } from 'src/app/project/models/shared/Context';
+import { CollectionsMongo, ModeUploader, Module, NameComponent } from 'src/app/project/models/shared/Context';
 import { ActionUploadDoc } from 'src/app/project/models/shared/ActionUploadDoc';
 import { FormMencionesService } from './form.service';
 
@@ -107,15 +107,21 @@ export class FilesMencionesService {
     }
 
     async downloadDoc(documento: any) {
-        let blob: Blob = await this.backend.getArchiveDoc(documento.id);
+        let blob: Blob = await this.backend.getArchiveDoc(documento.id,false);
         this.commonUtils.downloadBlob(blob, documento.nombre);      
     }
 
-    async loadDocsWithBinary(mencion: Mencion){
-        this.uploaderFilesService.setLoading(true,true);  
-        const files = await this.backend.getDocumentosWithBinary(mencion.Cod_mencion!);
+    async loadDocsWithBinary(mencion: Mencion) {
+        if (!mencion || !mencion.Cod_mencion) {
+            console.error('Error: mencion o mencion.Cod_mencion no tiene un valor válido.');
+            return;
+        }
+    
+        this.uploaderFilesService.setLoading(true, true);
+        const files = await this.backend.getDocsMongo(mencion.Cod_mencion!);
         await this.uploaderFilesService.updateFilesFromMongo(files);
-        this.uploaderFilesService.setLoading(false); 
+        this.uploaderFilesService.setLoading(false);
     }
+    
     
 }

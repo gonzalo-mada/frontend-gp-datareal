@@ -19,6 +19,81 @@ export class BackendRangosAGService {
     this.serviceUtils.countTableValues(value,namesCrud);
   }
 
+  async getProgramasPorFacultad(params: any, loading = true) {
+    try {
+        return await this.invoker.httpInvoke(
+            this.serviceUtils.generateServiceMongo('programas/getProgramasPorFacultad', loading),
+            params
+        );
+    } catch (error: any) {
+        this.errorTemplateHandler.processError(error, {
+            notifyMethod: 'alert',
+            message: 'Hubo un error al obtener programas por facultad seleccionada. Intente nuevamente.'
+        });
+    }
+}
+
+async getProgramasPostgrado(loading = true) {
+    try {
+        return await this.invoker.httpInvoke({service: 'planesDeEstudio/getProgramasPostgrado', loading: loading});
+    } catch (error: any) {
+        this.errorTemplateHandler.processError(
+            error, 
+            {
+                notifyMethod: 'alert',
+                message: `Hubo un error al obtener programas. Intente nuevamente.`,
+            }
+        );
+    }
+}
+
+async getPlanesDeEstudiosPorPrograma(params: any, loading = true) {
+    try {
+        return await this.invoker.httpInvoke(
+            this.serviceUtils.generateServiceMongo('planesDeEstudio/getPlanesDeEstudiosPorPrograma', loading),
+            params
+        );
+    } catch (error: any) {
+        this.errorTemplateHandler.processError(error, {
+            notifyMethod: 'alert',
+            message: 'Hubo un error al obtener planes de estudios por programa seleccionado. Intente nuevamente.',
+        });
+    }
+}
+async getPlanesDeEstudiosMergedPorPrograma(params: any, loading = true) {
+    try {
+        return await this.invoker.httpInvoke(
+            this.serviceUtils.generateServiceMongo('planesDeEstudio/getPlanesDeEstudiosMergedPorPrograma', loading),
+            params
+        );
+    } catch (error: any) {
+        this.errorTemplateHandler.processError(error, {
+            notifyMethod: 'alert',
+            message: 'Hubo un error al obtener planes de estudios por programa seleccionado. Intente nuevamente.',
+        });
+    }
+}
+
+async getRangoAprobacionPorPlanDeEstudio(params: any, namesCrud: NamesCrud, loading = true) {
+  try {
+      return await this.invoker.httpInvoke(
+          this.serviceUtils.generateServiceMongo('rangoAprobacion/getRangoAprobacionPorPlanDeEstudio', loading),
+          params
+      );
+  } catch (error: any) {
+      this.errorTemplateHandler.processError(
+          error, 
+          {
+              notifyMethod: 'alert',
+              summary: `Error al obtener ${namesCrud.articulo_plural}.`,
+              message: error?.message || error.detail.error.message.message
+          }
+      );
+  }
+}
+
+
+
   async getRangosAprobacion(namesCrud: NamesCrud) {
     try {
       return await this.invoker.httpInvoke('rangoAprobacion/getRangoAprobacion');

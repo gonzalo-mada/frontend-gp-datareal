@@ -97,6 +97,7 @@ async showForm(){
     this.form.setForm('show',this.mencion);
     this.dialogForm = true;
     await this.files.loadDocsWithBinary(this.mencion);
+    
 }
 
 async editForm(){

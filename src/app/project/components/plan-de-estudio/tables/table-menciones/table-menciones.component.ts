@@ -29,7 +29,6 @@ export class TableMencionesComponent implements OnInit, OnDestroy{
 
   ngOnDestroy(): void {
     this.tableMencionesService.resetSelectedRows();
-
   }
 
   async getMenciones(showCountTableValues: boolean){
