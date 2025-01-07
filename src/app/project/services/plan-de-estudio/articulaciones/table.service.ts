@@ -17,11 +17,11 @@ export class TableArticulacionesService {
     ];
     globalFiltros : any[] = [ 'nombre_plan_estudio_completo' , 'Descripcion_programa_pregrado' ];
     globalFiltrosPrograma : any[] = [ 'codPrograma' , 'nombreCarrera' ];
-    globalFiltrosAsignatura : any[] = [ 'Cod_Asignatura' , 'Descripcion_asignatura' , 'Cod_Tema' , 'Descripcion_tema' ];
+    globalFiltrosAsignatura : any[] = [ 'cod_asignatura' , 'nombre_asignatura' , 'cod_tema' , 'tema' ];
     dataKeyTable : string = 'Cod_Articulacion';
     selectedRows: Articulacion[] = [];
-    selectedProgramaRows: any[] = [];
-    selectedAsignaturaRows: any[] = [];
+    selectedAsignaturaPregrado: any[] = [];
+    selectedAsignaturasPostgrado: any[] = [];
 
     constructor(private tableCrudService: TableCrudService){}
 
@@ -38,17 +38,21 @@ export class TableArticulacionesService {
         this.tableCrudService.emitResetExpandedRowsTable();
     }
 
-    resetSelectedRowsTablePrograma(){
-        this.selectedProgramaRows = [];
+    resetSelectedAsignaturasPregrado(){
+        this.selectedAsignaturaPregrado = [];
     }
 
-    resetSelectedRowsTableAsignaturas(){
-        this.selectedAsignaturaRows = [];
+    resetSelectedAsignaturasPostgrado(){
+        this.selectedAsignaturasPostgrado = [];
     }
 
     resetSelectedRowsAllTables(){
-        this.resetSelectedRowsTablePrograma();
-        this.resetSelectedRowsTableAsignaturas();
+        this.resetSelectedAsignaturasPregrado();
+        this.resetSelectedAsignaturasPostgrado();
+    }
+
+    deleteRowAsignaturasPregradoSelected(index: number){
+        this.selectedAsignaturaPregrado.splice(index, 1);
     }
 
 }

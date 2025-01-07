@@ -316,7 +316,7 @@
                 </span>
             </ng-template>
         </p-messages>
-        <app-table-programas-historial-actividad *ngIf="main.dialogHistorialActividades" [data]="logsPrograma" [mode]="mode"></app-table-programas-historial-actividad>
+        <app-table-programas-historial-actividad *ngIf="main.dialogHistorialActividades" [data]="logsPrograma" [mode]="mode" [form]="'programa'"></app-table-programas-historial-actividad>
     </div>
     <div footer>
         <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" (click)="main.dialogHistorialActividades = false" [text]="true"></p-button>

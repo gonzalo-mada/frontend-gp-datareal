@@ -14,7 +14,7 @@
         </p-button>  -->
         <form *ngIf="main.dialogUpdate" [formGroup]="form.fbFormUpdate">
             <div class="formgrid grid">
-                <div class="col-12" *ngIf="mode !== 'show' ">
+                <div class="col-12" *ngIf="mode !== 'show' && main.dialogUpdateMode !== 'reglamento' ">
                     <app-form-isvalid [valid]="form.fbFormUpdate.valid"></app-form-isvalid>
                 </div>
 
@@ -44,19 +44,106 @@
                             placeholder="Seleccione modalidad"
                             optionLabel="Descripcion_modalidad"
                             optionValue="Cod_modalidad"
-                            (onChange)="changeEstadoPlanEstudio($event)"
+                            (onChange)="changeModalidad($event)"
                         />
                         <app-form-control [control]="form.fbFormUpdate.controls['cod_modalidad']" [validators]="['required']"></app-form-control>
                     </div>
                 </ng-container>
 
-                <ng-container *ngIf="main.dialogUpdateMode === 'articulacion' ">
-                    <div class="col-12 mt-2">
-                        <app-table-articulaciones [mode]="mode" [dataFromAgregarPE]="form.dataToPendingForm" *ngIf="form.showTableArticulaciones"></app-table-articulaciones>
+                
+                <ng-container *ngIf="main.dialogUpdateMode === 'jornada' ">
+                    <div class="field col-12">
+                        <label><strong>Jornada {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                        <p-dropdown
+                            [options]="main.jornadas"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
+                            formControlName="cod_jornada"
+                            placeholder="Seleccione jornada"
+                            optionLabel="Descripcion_jornada"
+                            optionValue="Cod_jornada"
+                            (onChange)="changeJornada($event)"
+                        />
+                        <app-form-control [control]="form.fbFormUpdate.controls['cod_jornada']" [validators]="['required']"></app-form-control>
                     </div>
                 </ng-container>
 
-                <div class="field col-12"  *ngIf=" main.dialogUpdateMode !== 'articulacion'">
+                <ng-container *ngIf="main.dialogUpdateMode === 'regimen' ">
+                    <div class="field col-12">
+                        <label><strong>Régimen {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                        <p-dropdown
+                            [options]="main.regimenes"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
+                            formControlName="cod_regimen"
+                            placeholder="Seleccione régimen"
+                            optionLabel="Descripcion_regimen"
+                            optionValue="Cod_regimen"
+                            (onChange)="changeRegimen($event)"
+                        />
+                        <app-form-control [control]="form.fbFormUpdate.controls['cod_jornada']" [validators]="['required']"></app-form-control>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngIf="main.dialogUpdateMode === 'reglamento'">
+                    <div class="col-12 mt-2">
+                        <app-table-reglamentos [form]="'planDeEstudio'" [planDeEstudio]="planDeEstudio" [mode]="mode!" ></app-table-reglamentos>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngIf="main.dialogUpdateMode === 'rexe' ">
+                    <div class="field col-12">
+                        <label><strong>REXE {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                        <input type="text" pInputText formControlName="rexe" maxlength="50" class="w-full" placeholder="Ingrese REXE del plan de estudio"/>
+                        <app-form-control [control]="form.fbFormUpdate.controls['rexe']" [validators]="['required', 'num_o_letras']"></app-form-control>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngIf="main.dialogUpdateMode === 'cupo_minimo' ">
+                    <div class="field col-12">
+                        <label><strong>Cupo mínimo {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                        <p-inputNumber 
+                            [allowEmpty]="true"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
+                            formControlName="cupo_minimo"
+                            format="false"
+                            maxlength="8"
+                            placeholder="Ingrese cupo mínimo de estudiantes"
+                            class="w-full p-d-flex p-flex-column"
+                        />
+                        <app-form-control [control]="form.fbFormUpdate.controls['cupo_minimo']" [validators]="['required', 'solo_num']"></app-form-control>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngIf="main.dialogUpdateMode === 'articulacion' ">
+                    <div class="col-12 mt-2">
+                        <div class="flex justify-content-between align-items-center">
+                            <div class="flex align-items-center justify-content-center">
+                                <p-messages severity="info">
+                                    <ng-template pTemplate>
+                                        <i class="pi pi-info-circle mr-3"></i>
+                                        <span *ngIf="mode === 'edit'">
+                                            A continuación se enlistan las articulaciones entre programas de pregrado y el plan de estudio. 
+                                            Si desea agregar una nueva articulación, presione el botón <strong>Agregar</strong>.
+                                        </span>
+                                        <span *ngIf="mode === 'show'">
+                                            A continuación se enlistan las articulaciones entre programas de pregrado y el plan de estudio. 
+                                        </span>
+                                    </ng-template>
+                                </p-messages>
+                            </div>
+                            <div *ngIf="mode === 'edit'" class="flex align-items-center justify-content-center">
+                                <p-button
+                                    label="Agregar"
+                                    icon="pi pi-plus"
+                                    styleClass="p-button-success ml-4"
+                                    (click)="initCreateFormArticulacion()"
+                                ></p-button>
+                            </div>
+                        </div>
+                        <app-form-articulaciones [dataFromAgregarPE]="form.dataToPendingForm"></app-form-articulaciones>
+                    </div>
+                </ng-container>
+
+                <div class="field col-12"  *ngIf=" main.dialogUpdateMode !== 'articulacion' && main.dialogUpdateMode !== 'reglamento'">
                     <label>
                         <strong> 
                             {{ mode === 'show' ? 'Documentos adjuntos' : 'Adjunte documentos *'}} 

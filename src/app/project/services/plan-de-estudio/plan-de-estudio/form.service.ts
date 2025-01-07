@@ -74,25 +74,25 @@ export class FormPlanDeEstudioService {
             ]
         },
         {   
-            col_lg: 4, col_md: 6, isEditable: true, haveSecondaryValue: false, modeDialog: 'estado', collection: 'plan_estudio', 
+            col_lg: 4, col_md: 6, isEditable: true, haveSecondaryValue: false, modeDialog: 'estado', collection: 'estado_pe', 
             items: [
                 { title: 'Estado', control: '', iconHelp: false, principalValue: 'form.selectedEstadoPlanEstudio'}
             ]
         },
         {   
-            col_lg: 4, col_md: 6, isEditable: true, haveSecondaryValue: false, modeDialog: 'modalidad', collection: 'plan_estudio', 
+            col_lg: 4, col_md: 6, isEditable: true, haveSecondaryValue: false, modeDialog: 'modalidad', collection: 'modalidad_pe', 
             items: [
                 { title: 'Modalidad', control: '', iconHelp: false, principalValue: 'form.selectedModalidad'}
             ]
         },
         {   
-            col_lg: 4, col_md: 6, isEditable: true, haveSecondaryValue: false, modeDialog: 'jornada', collection: undefined, 
+            col_lg: 4, col_md: 6, isEditable: true, haveSecondaryValue: false, modeDialog: 'jornada', collection: 'jornada_pe', 
             items: [
                 { title: 'Jornada', control: '', iconHelp: false, principalValue: 'form.selectedJornada'}
             ]
         },
         {   
-            col_lg: 4, col_md: 6, isEditable: true, haveSecondaryValue: false, modeDialog: 'regimen', collection: undefined, 
+            col_lg: 4, col_md: 6, isEditable: true, haveSecondaryValue: false, modeDialog: 'regimen', collection: 'regimen_pe', 
             items: [
                 { title: 'Régimen', control: '', iconHelp: false, principalValue: 'form.selectedRegimen'}
             ]
@@ -104,13 +104,13 @@ export class FormPlanDeEstudioService {
             ]
         },
         {   
-            col_lg: 2, col_md: 6, isEditable: true, haveSecondaryValue: false, modeDialog: 'rexe', collection: undefined, 
+            col_lg: 2, col_md: 6, isEditable: true, haveSecondaryValue: false, modeDialog: 'rexe', collection: 'rexe_pe', 
             items: [
                 { title: 'REXE', control: 'rexe', iconHelp: false}
             ]
         },
         {   
-            col_lg: 2, col_md: 6, isEditable: true, haveSecondaryValue: false, modeDialog: 'cupo_minimo', collection: undefined, 
+            col_lg: 2, col_md: 6, isEditable: true, haveSecondaryValue: false, modeDialog: 'cupo_minimo', collection: 'cupo_minimo_pe', 
             items: [
                 { title: 'Cupo mínimo', control: 'cupo_minimo', iconHelp: false}
             ]
@@ -384,7 +384,8 @@ export class FormPlanDeEstudioService {
             cod_plan_estudio: data.cod_plan_estudio,
             cod_programa: data.cod_programa
         }
-        console.log("setee formulario plan de estudio");
+        console.log("SETEO FORMULARIO PLAN DE ESTUDIO: ",this.fbForm.value);
+        
     }
 
     updateFilesForm(files: any): void {
@@ -578,6 +579,13 @@ export class FormPlanDeEstudioService {
 
     async setFormUpdate(modeDialog: ModeDialogPE, plan: PlanDeEstudio): Promise<boolean> {
         switch (modeDialog) {
+
+            case 'docs_maestros_plan_estudio':
+                this.fbFormUpdate = this.fb.group({
+                    files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
+                })
+            break;
+
             case 'estado':
                 this.fbFormUpdate = this.fb.group({
                     cod_estado: [plan.cod_estado, [Validators.required]],
@@ -594,6 +602,50 @@ export class FormPlanDeEstudioService {
                     description_new: [],
                     files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
                 })
+            break;
+
+            case 'jornada':
+                this.fbFormUpdate = this.fb.group({
+                    cod_jornada: [plan.cod_jornada, [Validators.required]],
+                    description_old: [this.selectedJornada],
+                    description_new: [],
+                    files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
+                })
+            break;
+
+            case 'regimen':
+                this.fbFormUpdate = this.fb.group({
+                    cod_regimen: [plan.cod_regimen, [Validators.required]],
+                    description_old: [this.selectedJornada],
+                    description_new: [],
+                    files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
+                })
+            break;
+
+            case 'reglamento':
+                this.fbFormUpdate = this.fb.group({
+                    cod_reglamento: [plan.cod_reglamento, [Validators.required]],
+                    description_old: [this.selectedReglamento],
+                    description_new: []
+                });  
+            break;
+
+            case 'rexe': 
+                this.fbFormUpdate = this.fb.group({
+                    rexe: [plan.rexe, [Validators.required]],
+                    files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
+                });  
+            break;
+
+            case 'cupo_minimo': 
+                this.fbFormUpdate = this.fb.group({
+                    cupo_minimo: [plan.cupo_minimo, [Validators.required]],
+                    files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
+                });  
+            break;
+
+            case 'articulacion':
+
             break;
         
         }

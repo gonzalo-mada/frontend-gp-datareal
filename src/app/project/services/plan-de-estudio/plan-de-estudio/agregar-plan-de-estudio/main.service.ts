@@ -31,7 +31,7 @@ export class AgregarPlanDeEstudioMainService {
     pendingForms: any[] = [
         { title: 'Continuar con Asignaturas', subtitle: 'Permite asociar asignaturas al plan de estudio recién agregado', icon: 'pi pi-book', isConditional: false, form: 'asignatura', needAsign: false },
         { title: 'Continuar con Certificación intermedia', subtitle: 'Permite asociar certificaciones intermedias con asignaturas al plan de estudio recién agregado', icon: 'fa fa-stamp', isConditional: true, form: 'tiene_certificacion', needAsign: true },
-        { title: 'Continuar con Articulación', subtitle: 'Permite crear articulaciones entre programas de pregrado y el plan de estudio recién agregado', icon: 'fa fa-handshake', isConditional: true, form: 'tiene_articulacion', needAsign: false },
+        { title: 'Continuar con Articulación', subtitle: 'Permite crear articulaciones entre programas de pregrado y el plan de estudio recién agregado', icon: 'fa fa-handshake', isConditional: true, form: 'tiene_articulacion', needAsign: true },
         { title: 'Continuar con Asignaturas plan común', subtitle: 'Permite asociar asignaturas del plan de estudio recien agregado a un plan común', icon: 'fa fa-arrows-turn-to-dots', isConditional: true, form: 'tiene_plan_comun', needAsign: true },
         { title: 'Continuar con Rangos de aprobación', subtitle: 'Permite asociar rangos de aprobación a un plan de estudio recién agregado', icon: 'fa fa-list-ol', isConditional: true, form: 'tiene_rango_aprob_g', needAsign: false },
         { title: 'Continuar con Menciones', subtitle: 'Permite asociar menciones a un plan de estudio recién agregado', icon: 'fa fa-diagram-project', isConditional: true, form: 'tiene_mencion', needAsign: true },

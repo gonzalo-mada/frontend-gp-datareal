@@ -28,7 +28,7 @@ export interface PlanDeEstudio {
 export type ModeDialogPE =
     undefined |
     'estado' |
-    'maestro' |
+    'docs_maestros_plan_estudio' |
     'modalidad' |
     'jornada' |
     'regimen' |

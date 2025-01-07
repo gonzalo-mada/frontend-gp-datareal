@@ -61,6 +61,22 @@ export class BackendArticulacionesService {
             });
         }
     }
+
+
+    async getAsignaturasPorPlanDeEstudio(params: any, loading = true) {
+        try {
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('planesDeEstudio/getAsignaturasPorPlanDeEstudio', loading),
+                params
+            );
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(error, {
+                notifyMethod: 'alert',
+                message: 'Hubo un error al obtener asignaturas por plan de estudio seleccionado. Intente nuevamente.',
+            });
+        }
+    }
+    
     async getPlanesDeEstudiosMergedPorPrograma(params: any, loading = true) {
         try {
             return await this.invoker.httpInvoke(

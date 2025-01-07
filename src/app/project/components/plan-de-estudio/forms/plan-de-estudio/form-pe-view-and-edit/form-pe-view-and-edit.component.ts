@@ -1,8 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { ModeDialogPE, PlanDeEstudio, UpdatePlanEstudio } from 'src/app/project/models/plan-de-estudio/PlanDeEstudio';
 import { CollectionsMongo } from 'src/app/project/models/shared/Context';
 import { LoadinggpService } from 'src/app/project/services/components/loadinggp.service';
+import { ArticulacionesMainService } from 'src/app/project/services/plan-de-estudio/articulaciones/main.service';
 import { BackendPlanesDeEstudiosService } from 'src/app/project/services/plan-de-estudio/plan-de-estudio/backend.service';
 import { FormPlanDeEstudioService } from 'src/app/project/services/plan-de-estudio/plan-de-estudio/form.service';
 import { PlanDeEstudioMainService } from 'src/app/project/services/plan-de-estudio/plan-de-estudio/main.service';
@@ -16,10 +18,12 @@ import { VerEditarPlanEstudioMainService } from 'src/app/project/services/plan-d
 })
 export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 
+	private subscription: Subscription = new Subscription();
 	loading: boolean = true
 	planDeEstudio: PlanDeEstudio = {};
 	updatePE!: UpdatePlanEstudio | undefined; 
 	onClickRefreshPE: boolean = false;
+	logsPE: any[] = [];
 
 	constructor(
 		private backend: BackendPlanesDeEstudiosService,
@@ -28,9 +32,11 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 		public main: VerEditarPlanEstudioMainService,
 		private systemService: LoadinggpService,
 		public form: FormPlanDeEstudioService,
+		private mainArticulacion: ArticulacionesMainService,
 	){}
 
 	async ngOnInit() {
+		this.subscription.add(this.mainArticulacion.onActionToBD$.subscribe(() => this.getArticulacionesPorPlanDeEstudio()));
 		await this.getPlanDeEstudio();
 		await this.getData();
 	}
@@ -122,7 +128,6 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 	async getArticulacionesPorPlanDeEstudio(){
         let params = { cod_plan_estudio: this.mainPE.planDeEstudio.cod_plan_estudio }
 		this.main.articulaciones = await this.backend.getArticulacionesPorPlanDeEstudio(params,false);
-		console.log("articulaciones",this.main.articulaciones);
 		this.form.setSelectArticulacion(this.mainPE.planDeEstudio.tiene_articulacion,this.main.articulaciones.length)
 	}
 
@@ -155,7 +160,7 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 	}
 
 	async getLogPE(){
-		//todo:
+		this.logsPE = await this.backend.getLogPE({cod_plan_estudio: this.mainPE.planDeEstudio.cod_plan_estudio},false);
 	}
 
 	async setNames(){

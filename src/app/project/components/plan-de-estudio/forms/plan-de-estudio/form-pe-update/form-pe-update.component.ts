@@ -3,6 +3,7 @@ import { ErrorTemplateHandler } from 'src/app/base/tools/error/error.handler';
 import { ModeDialogPE, PlanDeEstudio, UpdatePlanEstudio } from 'src/app/project/models/plan-de-estudio/PlanDeEstudio';
 import { CollectionsMongo } from 'src/app/project/models/shared/Context';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
+import { ArticulacionesMainService } from 'src/app/project/services/plan-de-estudio/articulaciones/main.service';
 import { BackendPlanesDeEstudiosService } from 'src/app/project/services/plan-de-estudio/plan-de-estudio/backend.service';
 import { FormPlanDeEstudioService } from 'src/app/project/services/plan-de-estudio/plan-de-estudio/form.service';
 import { FilesVerEditarPlanEstudioService } from 'src/app/project/services/plan-de-estudio/plan-de-estudio/ver-editar-plan-de-estudio/files.service';
@@ -29,6 +30,7 @@ export class FormPeUpdateComponent implements OnChanges {
 		private files: FilesVerEditarPlanEstudioService,
 		public form: FormPlanDeEstudioService,
 		public main: VerEditarPlanEstudioMainService,
+		private mainArticulacion: ArticulacionesMainService,
 		
 	){}
 
@@ -45,15 +47,29 @@ export class FormPeUpdateComponent implements OnChanges {
 		this.main.dialogUpdateMode = modeDialog;
 		this.files.resetLocalFiles();
 		switch (modeDialog) {
-			default: 
-			await this.main.createFormUpdate(modeDialog, collection); 
-			break;
+			case 'articulacion' : await this.createFormArticulacion(); break;
+			default: await this.main.createFormUpdate(modeDialog, collection); break;
 		}
 	}
 
 	changeEstadoPlanEstudio(event: any){
 		let dataSelected = this.main.estados.find( c => c.cod_estado === event.value );
 		this.form.fbFormUpdate.get('description_new')?.patchValue(dataSelected.descripcion_estado);
+	}
+
+	changeModalidad(event: any){
+		let dataSelected = this.main.modalidades.find( c => c.Cod_modalidad === event.value );
+		this.form.fbFormUpdate.get('description_new')?.patchValue(dataSelected.Descripcion_modalidad);
+	}
+
+	changeJornada(event: any){
+		let dataSelected = this.main.jornadas.find( c => c.Cod_jornada === event.value );
+		this.form.fbFormUpdate.get('description_new')?.patchValue(dataSelected.Descripcion_jornada);
+	}
+
+	changeRegimen(event: any){
+		let dataSelected = this.main.regimenes.find( c => c.Cod_regimen === event.value );
+		this.form.fbFormUpdate.get('description_new')?.patchValue(dataSelected.Descripcion_regimen);
 	}
 
 	closeDialog(){
@@ -63,8 +79,30 @@ export class FormPeUpdateComponent implements OnChanges {
 
 	async submit(){
 		// this.main.programa = this.programa
-		// const response = await this.main.updateForm()
-		// this.formUpdated.emit(response)
-	  }
+		const response = await this.main.updateForm()
+		this.formUpdated.emit(response)
+	}
+
+	setDataToPendingForm(){
+		const actual_values = {...this.form.dataToPendingForm}
+		this.form.dataToPendingForm = {...actual_values,show: true}
+	}
+	
+	resetDataToPendingForm(){
+		const actual_values = {...this.form.dataToPendingForm}
+		this.form.dataToPendingForm = {...actual_values,show: false}
+	}
+
+	async createFormArticulacion(){
+		console.log("data from createFormArticulacion",this.planDeEstudio);
+		
+	}
+	
+	async initCreateFormArticulacion(){
+		this.setDataToPendingForm();
+		console.log("this.form.dataToPendingForm",this.form.dataToPendingForm);
+		
+		await this.mainArticulacion.setModeCrud('create');
+	}
 
 }

@@ -31,6 +31,7 @@ export class FormArticulacionesComponent implements OnInit, OnChanges, OnDestroy
   }
 
   async ngOnChanges(changes: SimpleChanges) {
+    console.log("changes",changes);
     if ( changes['dataFromAgregarPE'] && changes['dataFromAgregarPE'].currentValue.data && changes['dataFromAgregarPE'].currentValue.show) {
       await this.setFormByAgregarPE()
     }else{
@@ -49,18 +50,17 @@ export class FormArticulacionesComponent implements OnInit, OnChanges, OnDestroy
     this.form.setValuesVarsByAgregarPE(this.dataFromAgregarPE);
     this.main.cod_plan_estudio_selected_notform = this.dataFromAgregarPE.cod_plan_estudio;
     await Promise.all([
-      this.main.getProgramasPorFacultad(false),
+      this.mainFacultad.getFacultades(false),
+      this.main.getProgramasPostgradoPorFacultad(false),
       this.main.getPlanesDeEstudiosPorPrograma(false),
-      this.mainFacultad.getFacultades(false)
     ]);
-    this.form.setControlsFormByAgregarPE(this.dataFromAgregarPE);
-    this.form.setDropdowns();
+    await this.main.getAsignaturasPorPlanDeEstudio(false)
+    this.form.setControlsFormByAgregarPE(this.dataFromAgregarPE);    
     this.main.wasFilteredTable = true;
   }
 
   async initForm(){
     await this.mainFacultad.getFacultades(false);
-    this.form.showDropdownSelectFacultadPostgrado = true;
   }
 
   async submit(){
@@ -68,49 +68,66 @@ export class FormArticulacionesComponent implements OnInit, OnChanges, OnDestroy
   }
 
   async changeFacultadPostgrado(event:any){
-    this.table.resetSelectedRowsAllTables();
-    this.clearArraysDataTable();
-    this.form.fbForm.get('Cod_Programa_Postgrado_Selected')?.reset();
-    this.form.fbForm.get('Cod_plan_estudio')?.reset();
-    this.form.fbForm.get('Cod_Facultad_Selected')?.reset();
+    this.table.resetSelectedAsignaturasPostgrado();
+    this.main.resetArraysWhenChangedDropdownFacultadPostgrado();
+    this.form.resetControlsWhenChangedDropdownFacultadPostgrado();
+    this.form.disabledControlsWhenChangedDropdownFacultadPostgrado();
     this.form.cod_facultad_selected_postgrado = event.value;
-    if (this.form.showDropdownSelectProgramaPostgrado) this.form.showDropdownSelectProgramaPostgrado = false
-    if (this.form.showDropdownSelectPlanEstudio) this.form.showDropdownSelectPlanEstudio = false
-    if (this.form.showDropdownSelectFacultad) this.form.showDropdownSelectFacultad = false
-    if (this.form.showTables) this.form.showTables = false
-    await this.main.getProgramasPorFacultad();
+    await this.main.getProgramasPostgradoPorFacultad();
   }
 
   async changeProgramaPostgrado(event:any){
-    this.table.resetSelectedRowsAllTables();
-    this.clearArraysDataTable();
-    this.form.fbForm.get('Cod_plan_estudio')?.reset();
-    this.form.fbForm.get('Cod_Facultad_Selected')?.reset();
+    this.table.resetSelectedAsignaturasPostgrado();
+    this.main.resetArraysWhenChangedDropdownProgramaPostgrado();
+    this.form.resetControlsWhenChangedDropdownProgramaPostgrado();
+    this.form.disabledControlsWhenChangedDropdownProgramaPostgrado();
     this.form.cod_programa_postgrado_selected = event.value;
-    if (this.form.showDropdownSelectPlanEstudio) this.form.showDropdownSelectPlanEstudio = false
-    if (this.form.showDropdownSelectFacultad) this.form.showDropdownSelectFacultad = false
-    if (this.form.showTables) this.form.showTables = false
     await this.main.getPlanesDeEstudiosPorPrograma();
   }
 
-  changePlanDeEstudio(event:any){
-    this.table.resetSelectedRowsAllTables();
-    this.clearArraysDataTable();
-    this.form.fbForm.get('Cod_Facultad_Selected')?.reset();
-    if (this.form.showTables) this.form.showTables = false
-    this.form.showDropdownSelectFacultad = true;
+  async changePlanDeEstudio(event:any){
+    this.table.resetSelectedAsignaturasPostgrado();
     this.form.cod_plan_estudio_selected = event.value;
+    await this.main.getAsignaturasPorPlanDeEstudio();
   }
 
-  async changeFacultad(event: any){
-    this.table.resetSelectedRowsAllTables();
-    this.clearArraysDataTable();
+  async changeFacultadPregrado(event: any){
+    this.main.resetArraysWhenChangedDropdownFacultadPregrado();
+    this.form.resetControlsWhenChangedDropdownFacultadPregrado();
+    this.form.disabledControlsWhenChangedDropdownFacultadPregrado();
     this.form.cod_facultad_selected_pregrado = event.value;
     await this.main.getProgramasPregradoPorFacultad();
-    this.form.fbForm.get('Cod_programa_pregrado')?.enable();
-    this.form.showTables = true
   }
 
+  async changeProgramaPregrado(event:any){
+    console.log("event changeProgramaPregrado", event);
+    
+    this.main.resetArraysWhenChangedDropdownProgramaPregrado();
+    this.form.resetControlsWhenChangedDropdownProgramaPregrado();
+    this.form.disabledControlsWhenChangedDropdownProgramaPregrado();
+    this.form.cod_programa_selected_pregrado = event.value.codPrograma;
+    this.form.fbForm.patchValue({ data_programa_pregrado: event.value });
+    await this.main.getAsignaturasPorProgramaPregrado();
+  }
+
+  changeAsignaturasPregrado(event: any){
+    console.log("event changeAsignaturasPregrado",event);
+    this.table.selectedAsignaturaPregrado.push(event.itemValue)
+    this.form.fbForm.patchValue({ asignaturas_articuladas_selected: event });
+    
+  }
+
+  selectAsignaturaPostgrado(event: any){
+    console.log("event selectAsignaturaPostgrado",event);
+    
+    this.form.fbForm.patchValue({ asignatura_postgrado: event });
+  }
+
+  formClosed(){
+    this.formWasClosed.emit();
+  }
+
+  
   test(){
     Object.keys(this.form.fbForm.controls).forEach(key => {
       const control = this.form.fbForm.get(key);
@@ -119,53 +136,20 @@ export class FormArticulacionesComponent implements OnInit, OnChanges, OnDestroy
       }
     });
     console.log("VALORES FORMULARIO:",this.form.fbForm.value);
-    console.log("ROW SELECTED PROGRAMA:",this.table.selectedProgramaRows);
-    console.log("ROWS SELECTED ASIGNATURAS:",this.table.selectedAsignaturaRows);
+    // console.log("ROW SELECTED PROGRAMA:",this.table.selectedProgramaRows);
+    // console.log("ROWS SELECTED ASIGNATURAS:",this.table.selectedAsignaturaRows);
     // this.form.getValuesSelected();
     // this.form.getValuesIndex();
   }
 
-  async selectPrograma(event: any){
-    this.resetTableProgramaAndAsignatura();
-    this.table.selectedProgramaRows = {...event}
-    this.form.cod_programa_selected = event.codPrograma;
-    await this.main.getAsignaturasPorProgramaPregrado();
-    this.form.fbForm.patchValue({ Cod_programa_pregrado: event.codPrograma });
-    this.form.fbForm.patchValue({ Descripcion_programa_pregrado: event.nombreCarrera });
+  resetSelectedAsignaturasPregrado(){
+    this.table.resetSelectedAsignaturasPregrado();
+    this.form.resetControlAsignaturaPregrado();
   }
 
-  selectAsignatura(event: any){
-    this.form.fbForm.patchValue({ Asignaturas: event });
+  resetSelectedAsignaturasPostgrado(){
+    this.table.resetSelectedAsignaturasPostgrado();
+    this.form.resetControlAsignaturaPostgrado();
   }
-
-  clearTablePrograma(){
-    this.table.resetSelectedRowsAllTables();
-    this.form.fbForm.patchValue({ Cod_programa_pregrado: '' });
-    this.form.fbForm.patchValue({ Descripcion_programa_pregrado: '' });
-    this.clearTableAsignatura();
-    this.main.asignaturas = [];
-  }
-
-  clearTableAsignatura(){
-    this.table.resetSelectedRowsTableAsignaturas();
-    this.form.fbForm.patchValue({ Asignaturas: '' });
-  }
-
-  resetTableProgramaAndAsignatura(){
-    this.table.resetSelectedRowsAllTables();
-    this.form.fbForm.patchValue({ Cod_programa_pregrado: '' });
-    this.form.fbForm.patchValue({ Descripcion_programa_pregrado: '' });
-    this.form.fbForm.patchValue({ Asignaturas: '' });
-  }
-
-  clearArraysDataTable(){
-    this.main.asignaturas = [];
-    this.main.programas = [];
-  }
-
-  formClosed(){
-    this.formWasClosed.emit();
-  }
-
 
 }

@@ -212,6 +212,20 @@ export class BackendPlanesDeEstudiosService {
         }
     }
 
+    async getLogPE(params: any, loading = true) {
+        try {
+            return await this.invoker.httpInvoke(
+                { service: 'planesDeEstudio/getLogPE', loading: loading },
+                params
+            );
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(error, {
+                notifyMethod: 'alert',
+                message: 'Hubo un error al obtener historial de actividades. Intente nuevamente.'
+            });
+        }
+    }
+
     async getArchiveDoc(id: any, from: string, needBinaryString: boolean) {
         try {
             if (needBinaryString) {

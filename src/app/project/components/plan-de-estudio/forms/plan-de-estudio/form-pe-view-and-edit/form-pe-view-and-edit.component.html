@@ -92,7 +92,7 @@
                         [label]=" mode === 'show' ?  'Ver documentos maestros' : 'Editar documentos maestros' " 
                         [icon]=" mode === 'show' ? 'pi pi-eye' : 'pi pi-pencil' " 
                         [styleClass]=" mode === 'show' ? 'p-button w-full sm:w-auto' : 'p-button-warning w-full sm:w-auto' " 
-                        (click)="openDialog('maestro', 'maestro')">
+                        (click)="openDialog('docs_maestros_plan_estudio', 'plan_estudio')">
                     </p-button>
                 </div>
             </div>
@@ -209,11 +209,31 @@
 
 <app-form-pe-update
     [mode]="mode"
-    [planDeEstudio]="planDeEstudio"
+    [planDeEstudio]="mainPE.planDeEstudio"
     [modeDialogInput]="updatePE"
     [refreshPE]="onClickRefreshPE"
     (formUpdated)="formUpdated()"
     (resetDialog)="resetDialog()"
 ></app-form-pe-update>
 
-<app-form-articulaciones [dataFromAgregarPE]="form.dataToPendingForm"></app-form-articulaciones>
+<app-form-reglamentos></app-form-reglamentos>
+
+<app-dialog [dialogWidth]="'80vw'" [(visible)]="main.dialogHistorialActividades">
+    <div header>
+        <span class="text-xl">Historial de actividades</span>
+    </div>
+    <div content>
+        <p-messages severity="info">
+            <ng-template pTemplate>
+                <i class="pi pi-info-circle mr-3"></i>
+                <span>
+                    Muestra un historial de las actividades realizadas en el programa, incluyendo creación, actualización y eliminación, la información anterior y actual, la fecha de cada actividad y quien la realizó.
+                </span>
+            </ng-template>
+        </p-messages>
+        <app-table-programas-historial-actividad *ngIf="main.dialogHistorialActividades" [data]="logsPE" [mode]="mode" [form]="'plan de estudio'"></app-table-programas-historial-actividad>
+    </div>
+    <div footer>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" (click)="main.dialogHistorialActividades = false" [text]="true"></p-button>
+    </div>
+</app-dialog>

@@ -55,6 +55,13 @@ undefined |
 'codigo_sies' |
 'tipo_programa' |
 'graduacion_colaborativa' |
+'plan_estudio' |
+'estado_pe' | 
+'modalidad_pe' |
+'jornada_pe' | 
+'regimen_pe' |
+'rexe_pe' |
+'cupo_minimo_pe' | 
 'plan_estudio'
 ; 
 
