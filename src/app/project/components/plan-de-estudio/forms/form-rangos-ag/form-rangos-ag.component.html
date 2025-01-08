@@ -27,13 +27,13 @@
                         [validators]="['required', 'num_y_letras']">
                     </app-form-control>
                 </div>
-                
+
                 <div class="field col-12 md:col-6">
                     <label><strong>Nota mínima {{ main.modeForm === 'show' ? '' : '*' }}</strong></label>
                     <p-inputNumber 
                         formControlName="NotaMinima" 
                         [min]="4.00" 
-                        [max]="6.99" 
+                        [max]="6.99"
                         [showButtons]="true" 
                         [useGrouping]="false"
                         [mode]="'decimal'" 
@@ -43,8 +43,16 @@
                         class="w-full"
                         placeholder="Ingrese la nota mínima">
                     </p-inputNumber>
+                
+                    <!-- Mensaje de error personalizado -->
+                    <div *ngIf="form.fbForm.controls['NotaMinima'].errors?.['invalidRange']" class="error-message">
+                        <small class="p-error">
+                            Nota mínima debe ser menor que la nota máxima.
+                        </small>
+                    </div>
+                
                     <app-form-control [control]="form.fbForm.controls['NotaMinima']"
-                        [validators]="['required', 'invalidRange']">
+                        [validators]="['required']">
                     </app-form-control>
                 </div>
                 
@@ -62,11 +70,18 @@
                         class="w-full"
                         placeholder="Ingrese la nota máxima">
                     </p-inputNumber>
+                
+                    <!-- Mensaje de error personalizado -->
+                    <div *ngIf="form.fbForm.controls['NotaMaxima'].errors?.['invalidRange']" class="error-message">
+                        <small class="p-error">
+                            Nota máxima debe ser mayor que la nota mínima.
+                        </small>
+                    </div>
+                
                     <app-form-control [control]="form.fbForm.controls['NotaMaxima']"
-                        [validators]="['required', 'invalidRange']">
+                        [validators]="['required']">
                     </app-form-control>
                 </div>
-                
                 
                 <div class="field col-12">
                     <label><strong>N° REXE {{ main.modeForm !== 'show' ? '*' : '' }}</strong></label>

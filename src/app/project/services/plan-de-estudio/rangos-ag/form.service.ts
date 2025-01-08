@@ -37,7 +37,7 @@ export class FormRangosAGService {
         aux: [""],
       },
       {
-        validators: GPValidator.minMaxValidator("NotaMinima", "NotaMaxima"),
+        validators: GPValidator.rangeValidator()
       },
     );
 

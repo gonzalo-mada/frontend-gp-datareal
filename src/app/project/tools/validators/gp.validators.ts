@@ -211,33 +211,50 @@ export class GPValidator {
         };
     }
 
-    static minMaxValidator(minControlName: string, maxControlName: string): ValidatorFn {
+    // static minMaxValidator(minControlName: string, maxControlName: string): ValidatorFn {
+    //     return (formGroup: AbstractControl): ValidationErrors | null => {
+    //         const form = formGroup as FormGroup;
+    //         const minControl = form.get(minControlName);
+    //         const maxControl = form.get(maxControlName);
+    
+    //         if (minControl && maxControl) {
+    //             const minValue = parseFloat(minControl.value);
+    //             const maxValue = parseFloat(maxControl.value);
+    
+    //             // Verificar si los valores son válidos y no nulos
+    //             if (!isNaN(minValue) && !isNaN(maxValue)) {
+    //                 // Validar que el mínimo no sea mayor que el máximo
+    //                 if (minValue > maxValue) {
+    //                     return { minGreaterThanMax: true };
+    //                 }
+    
+    //                 // Validar que el máximo no sea menor que el mínimo
+    //                 if (maxValue < minValue) {
+    //                     return { maxLessThanMin: true };
+    //                 }
+    //             }
+    //         }
+    
+    //         return null; // No hay errores
+    //     };
+    // }    
+
+    static rangeValidator(): ValidatorFn {
         return (formGroup: AbstractControl): ValidationErrors | null => {
-            const form = formGroup as FormGroup;
-            const minControl = form.get(minControlName);
-            const maxControl = form.get(maxControlName);
-    
-            if (minControl && maxControl) {
-                const minValue = parseFloat(minControl.value);
-                const maxValue = parseFloat(maxControl.value);
-    
-                // Verificar si los valores son válidos y no nulos
-                if (!isNaN(minValue) && !isNaN(maxValue)) {
-                    // Validar que el mínimo no sea mayor que el máximo
-                    if (minValue > maxValue) {
-                        return { minGreaterThanMax: true };
-                    }
-    
-                    // Validar que el máximo no sea menor que el mínimo
-                    if (maxValue < minValue) {
-                        return { maxLessThanMin: true };
-                    }
-                }
+          const notaMinima = formGroup.get('NotaMinima')?.value;
+          const notaMaxima = formGroup.get('NotaMaxima')?.value;
+      
+          if (notaMinima && notaMaxima) {
+            if (notaMinima > notaMaxima) {
+              return { invalidRange: 'La nota mínima no puede ser mayor que la nota máxima.' };
+            } else if (notaMaxima < notaMinima) {
+              return { invalidRange: 'La nota máxima no puede ser menor que la nota mínima.' };
             }
-    
-            return null; // No hay errores
+          }
+          return null;
         };
-    }    
+      }
+
 
     static decimalValidator(): ValidatorFn {
         return (control: AbstractControl): ValidationErrors | null => {

@@ -47,18 +47,51 @@ export class FormMencionesService {
 
     //llamar uploader
 
-    setForm(mode:'show' | 'edit' ,data: Mencion): void{
-        this.fbForm.patchValue({...data});
-        if (mode === 'show') {
-            this.fbForm.disable();
-        }
-        if (mode === 'edit') {
-            this.fbForm.patchValue({aux: data});
-        }
+    setForm(mode: 'show' | 'edit', data: Mencion): void {
+      const fechaCreacion = data.Fecha_creacion 
+          ? this.formatDate(new Date(data.Fecha_creacion)) // Formatear la fecha
+          : null;
 
-        //const respondeUploader agregar
-    }
+      this.fbForm.patchValue({
+          ...data,
+          Fecha_creacion: fechaCreacion // Asignar la fecha formateada
+      });
 
+      if (mode === 'show') {
+          this.fbForm.disable();
+      }
+      if (mode === 'edit') {
+          this.fbForm.patchValue({ aux: data });
+      }
+  }
+
+  prepareDataForSubmission(): Mencion {
+      const fechaCreacion = this.fbForm.value.Fecha_creacion;
+      const vigencia = this.fbForm.value.Vigencia;
+
+      console.log('Valor de Vigencia antes de enviar:', vigencia); // Diagnóstico
+      return {
+          ...this.fbForm.value,
+          Fecha_creacion: fechaCreacion ? this.parseDate(fechaCreacion) : null
+      };
+  }
+
+  private formatDate(fecha: Date): string {
+      if (!fecha) return '';
+      return new Intl.DateTimeFormat('es-CL', { 
+          year: 'numeric', 
+          month: '2-digit', 
+          day: '2-digit', 
+          timeZone: 'UTC' 
+      }).format(fecha);
+  }
+
+  private parseDate(fecha: string): string {
+      if (!fecha) return '';
+      const [day, month, year] = fecha.split('-');
+      return `${year}-${month}-${day}`; // Convertir a yyyy-MM-dd
+  }
+  
     updateFilesForm(files: any): void {
         this.fbForm.patchValue({ files });
         this.fbForm.controls['files'].updateValueAndValidity();
