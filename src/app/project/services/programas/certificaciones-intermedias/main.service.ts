@@ -10,6 +10,7 @@ import { ConfirmationService, Message } from 'primeng/api';
 import { TableCertifIntermediaService } from './table.service';
 import { CertificacionIntermedia } from 'src/app/project/models/programas/CertificacionIntermedia';
 import { Subject } from 'rxjs';
+import { HistorialActividadService } from '../../components/historial-actividad.service';
 @Injectable({
     providedIn: 'root'
 })
@@ -30,6 +31,7 @@ export class CertifIntermediaMainService {
 
     //MODAL
     dialogForm: boolean = false
+    needUpdateHistorial: boolean = false;
 
     private onInsertedData = new Subject<void>();
     onInsertedData$ = this.onInsertedData.asObservable();
@@ -37,13 +39,12 @@ export class CertifIntermediaMainService {
     constructor(
         private backend: BackendCertifIntermediaService,
         private confirmationService: ConfirmationService,
-        private files: FilesCertifIntermediaService,
         private form: FormCertifIntermediaService,
         private messageService: MessageServiceGP,
-        private table: TableCertifIntermediaService
+        private table: TableCertifIntermediaService,
+        private historialActividad: HistorialActividadService
     ){
         this.form.initForm();
-        this.files.initFiles();
     }
 
     get modeForm(){
@@ -61,11 +62,11 @@ export class CertifIntermediaMainService {
             case 'update': await this.updateForm(); break;
             case 'delete': await this.openConfirmationDelete(); break;
             case 'delete-selected': await this.openConfirmationDeleteSelected(); break;
+            case 'historial': this.openHistorialActividad(); break;
         }
     }
 
     reset(){
-        this.files.resetLocalFiles();
         this.form.resetForm();
         this.table.resetSelectedRows();
     }
@@ -92,89 +93,66 @@ export class CertifIntermediaMainService {
     }
 
     async createForm(){
-        await this.files.setContextUploader('create','servicio','certificacion-intermedia')
         this.table.emitResetExpandedRows();
         this.form.resetForm();
         this.dialogForm = true;
     }
 
     async showForm(){
-        await this.files.setContextUploader('show','servicio','certificacion-intermedia')
-        this.files.resetLocalFiles();
         this.form.resetForm();
         this.form.setForm('show',this.certificacion);
         this.dialogForm = true;
-        await this.files.loadDocsWithBinary(this.certificacion);
     }
 
     async editForm(){
-        await this.files.setContextUploader('edit','servicio','certificacion-intermedia')
-        this.files.resetLocalFiles();
         this.form.resetForm();
         this.form.setForm('edit',this.certificacion);
         this.dialogForm = true;
-        await this.files.loadDocsWithBinary(this.certificacion);
     }
 
     async insertForm(){
         try {
-            const responseUploader = await this.files.setActionUploader('upload');
-            if (responseUploader) {
-                const { files, ...formData } = this.form.fbForm.value;
-                let params = {
-                    ...formData,
-                    docsToUpload: responseUploader.docsToUpload
-                };
-    
-                const response = await this.backend.insertCertificacionIntermedia(params, this.namesCrud);
-                if (response && response.dataWasInserted) {
-                    this.messageService.add({
-                        key: 'main',
-                        severity: 'success',
-                        detail: generateMessage(this.namesCrud,response.dataInserted,'creado',true,false)
-                    });
-                    this.emitInsertedData();
-                }
+            let params = { ...this.form.fbForm.value };
+            const response = await this.backend.insertCertificacionIntermedia(params, this.namesCrud);
+            if (response && response.dataWasInserted) {
+                this.messageService.add({
+                    key: 'main',
+                    severity: 'success',
+                    detail: generateMessage(this.namesCrud,response.dataInserted,'creado',true,false)
+                });
+                this.emitInsertedData();
             }
         }catch (error) {
             console.log(error);
         }finally{
             this.dialogForm = false;
             this.getCertificacionesIntermedias(false);
-            this.table.resetSelectedRows();
-            this.files.resetLocalFiles();
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
+            this.reset();
         }
     }
 
     async updateForm(){
         try {
-            const responseUploader = await this.files.setActionUploader('upload');
-            if (responseUploader) {
-                const { files, ...formData } = this.form.fbForm.value;
-                let params = {
-                    ...formData,
-                    Cod_CertificacionIntermedia: this.certificacion.Cod_CertificacionIntermedia,
-                    docsToUpload: responseUploader.docsToUpload,
-                    docsToDelete: responseUploader.docsToDelete 
-                };
-    
-                const response = await this.backend.updateCertificacionIntermedia(params, this.namesCrud);
-                
-                if (response && response.dataWasUpdated) {
-                    this.messageService.add({
-                        key: 'main',
-                        severity: 'success',
-                        detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
-                    });
-                }
+            let params = {
+                ...this.form.fbForm.value,
+                Cod_CertificacionIntermedia: this.certificacion.Cod_CertificacionIntermedia,
+            };
+            const response = await this.backend.updateCertificacionIntermedia(params, this.namesCrud);
+            if ( response && response.dataWasUpdated ) {
+                this.messageService.add({
+                    key: 'main',
+                    severity: 'success',
+                    detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
+                });
             }
         }catch (error) {
             console.log(error);
         }finally{
             this.dialogForm = false;
             this.getCertificacionesIntermedias(false);
-            this.table.resetSelectedRows();
-            this.files.resetLocalFiles();
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
+            this.reset();
         }
     }
 
@@ -213,8 +191,8 @@ export class CertifIntermediaMainService {
             console.log(error);
         }finally{
             this.getCertificacionesIntermedias(false);
-            this.table.resetSelectedRows();
-            this.files.resetLocalFiles();
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
+            this.reset();
         }
     }
 
@@ -258,5 +236,16 @@ export class CertifIntermediaMainService {
         this.onInsertedData.next();
     }
 
+    openHistorialActividad(){
+        this.historialActividad.showDialog = true;
+    }
+
+    setOrigen(origen: string){
+        this.historialActividad.setOrigen(origen);
+    }
+
+    setNeedUpdateHistorial(need: boolean){
+        this.needUpdateHistorial = need;
+    }
 
 }

@@ -22,7 +22,7 @@ export class BackendTiposGraduacionesService {
 
     async getTipoGradConjunta(namesCrud: NamesCrud) {
         try {
-            return await this.invoker.httpInvoke('tipoGraduacionConjunta/getTipoGradConjunta')
+            return await this.invoker.httpInvoke('tiposGraduacionesColaborativas/getTipoColaborativa')
         } catch (error: any) {
             this.errorTemplateHandler.processError(
                 error, 
@@ -39,7 +39,7 @@ export class BackendTiposGraduacionesService {
         try {
             const response = await this.serviceUtils.checkResponse(
                 await this.invoker.httpInvoke(
-                    this.serviceUtils.generateServiceMongo('tipoGraduacionConjunta/insertTipoGradConjunta'),
+                    this.serviceUtils.generateServiceMongo('tiposGraduacionesColaborativas/insertTipoColaborativa'),
                     params
                 ),
                 namesCrud
@@ -61,7 +61,7 @@ export class BackendTiposGraduacionesService {
         try {
             const response = await this.serviceUtils.checkResponse(
                 await this.invoker.httpInvoke(
-                    this.serviceUtils.generateServiceMongo('tipoGraduacionConjunta/updateTipoGradConjunta'),
+                    this.serviceUtils.generateServiceMongo('tiposGraduacionesColaborativas/updateTipoColaborativa'),
                     params
                 ),
                 namesCrud
@@ -81,7 +81,7 @@ export class BackendTiposGraduacionesService {
 
     async deleteTipoGradConjunta(params: any, namesCrud: NamesCrud) {
         try {
-            return await this.invoker.httpInvoke('tipoGraduacionConjunta/deleteTipoGradConjunta',{tipoGCToDelete: params});
+            return await this.invoker.httpInvoke('tiposGraduacionesColaborativas/deleteTipoColaborativa',{tipoGCToDelete: params});
         } catch (error: any) {
             this.errorTemplateHandler.processError(
                 error, 

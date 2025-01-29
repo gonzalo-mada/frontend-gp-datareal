@@ -12,7 +12,7 @@
     </div>
     
     <div content>
-        <p-messages *ngIf="main.modeForm === 'edit' || main.modeForm === 'update' " [(value)]="main.messages" [enableService]="false" />
+        <!-- <p-messages *ngIf="main.modeForm === 'edit' || main.modeForm === 'update' " [(value)]="main.messages" [enableService]="false" /> -->
         <div class="grid" *ngIf="main.modeForm !== 'show'">
             <div class="col-12">
                 <app-form-isvalid [valid]="form.fbForm.valid"></app-form-isvalid>

@@ -35,13 +35,14 @@ export class GPValidator {
         }
     }
 
-    static regexPattern(pattern: 'num_y_letras' | 'solo_num' | 'solo_letras' | 'num_o_letras' ): ValidatorFn {
+    static regexPattern(pattern: 'num_y_letras' | 'solo_num' | 'solo_letras' | 'num_o_letras' | 'solo_num_and_decimals' ): ValidatorFn {
         let regex : any ;
         switch (pattern) {
             case 'num_y_letras': regex = /^(?=.*[a-zA-ZñÑ]).+$/; break; // no acepta espacio en blanco y se necesita al menos una letra
             case 'num_o_letras': regex = /^(?!\s*$).+/; break; 
             case 'solo_num':  regex = /^[0-9]+$/; break;
             case 'solo_letras': regex = /^[a-zA-ZñÑ]+$/; break;
+            case 'solo_num_and_decimals': regex = /^[0-9]+(\.[0-9]+)?$/; break;
         }
         return (control: AbstractControl): ValidationErrors | null => {
             if (control.value && !regex.test(control.value)) {
@@ -50,6 +51,7 @@ export class GPValidator {
                     case 'num_o_letras': return { num_o_letras: true };
                     case 'solo_num': return { solo_num: true };
                     case 'solo_letras': return { solo_letras: true };
+                    case 'solo_num_and_decimals': return { solo_num_and_decimals: true };
                 }
                 
             } else {
@@ -210,4 +212,41 @@ export class GPValidator {
             return null;
         };
     }
+
+    static needAsignaturas(getFrom: () => any ): ValidatorFn {
+        return (control: AbstractControl): { [key: string]: boolean } | null => {
+            const formGroup = control.parent as FormGroup;
+            if (!formGroup) return null;
+    
+            const from = getFrom();
+            const asignaturas = formGroup.get('asignaturas')?.value;
+            
+            if (from === 'mantenedor'){
+                if (!asignaturas || ( asignaturas.length === 0 )) {
+                    return { required: true };
+                }
+            } 
+            return null;
+        };
+    }
+
+    static rangeValidator(): ValidatorFn {
+        return (control: AbstractControl): { [key: string]: boolean } | null => {
+            const formGroup = control.parent as FormGroup;
+            if (!formGroup) return null;
+            
+            const notaMinima = formGroup.get('NotaMinima')?.value;
+            const notaMaxima = formGroup.get('NotaMaxima')?.value;
+      
+            if (notaMinima && notaMaxima) {
+                if (notaMinima > notaMaxima) {
+                return { invalidRangeMax: true, invalidRangeMin: true };
+                } else if (notaMaxima < notaMinima) {
+                return { invalidRangeMin: true, invalidRangeMax: true };
+                }
+            }
+            return null;
+        };
+    }
+
 }

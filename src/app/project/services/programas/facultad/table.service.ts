@@ -11,9 +11,10 @@ export class TableFacultadesService {
     cols : any[] = [
         { field: 'Descripcion_facu', header: 'Nombre' },
         { field: 'Estado_facu', header: 'Estado' },
+        { field: 'Sigla_facu', header: 'Sigla' },
         { field: 'accion', header: 'Acciones' }
     ];
-    globalFiltros : any[] = [ 'Descripcion_facu' ];
+    globalFiltros : any[] = [ 'Descripcion_facu' , 'Sigla_facu' ];
     dataKeyTable : string = 'Cod_facultad';
     selectedRows: Facultad[] = [];
 

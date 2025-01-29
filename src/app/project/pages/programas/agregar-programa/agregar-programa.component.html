@@ -35,7 +35,7 @@
                     (click)="test2()" [text]="true">
                 </p-button> -->
                     
-                <button pButton icon="pi pi-upload" label="Adjuntar documento maestro" (click)="main.openDialogChooseDocsMaestro()"></button>
+                <button pButton icon="pi pi-paperclip" label="Documentos maestros" (click)="main.openDialogChooseDocsMaestro()"></button>
                 <button 
                     pButton 
                     class="hidden p-button-secondary p-button-outlined ml-2 lg:inline" 
@@ -81,9 +81,9 @@
                                         <app-form-control [control]="form.fbForm.controls['Nombre_programa']" [validators]="['required', 'num_y_letras']"></app-form-control>
                                     </div>
                                     <div class="field col-12 md:col-6">
-                                        <label><strong>Grupo de correo en LDAP *</strong></label>
-                                        <input type="email" pInputText formControlName="Grupo_correo" maxlength="80" class="w-full" placeholder="Ingrese correo LDAP del programa"/>
-                                        <app-form-control [control]="form.fbForm.controls['Grupo_correo']" [validators]="['required', 'checkCorreoUV']"></app-form-control>
+                                        <label><strong>Grupo de correo</strong></label>
+                                        <input type="email" pInputText formControlName="Grupo_correo" maxlength="80" class="w-full" placeholder="Ingrese grupo de correo del programa"/>
+                                        <app-form-control [control]="form.fbForm.controls['Grupo_correo']" [validators]="['checkCorreoUV']"></app-form-control>
                                     </div>
                                     <div class="field col-12 md:col-6">
                                         <label><strong>Título *</strong></label>
@@ -96,12 +96,12 @@
                                         <app-form-control [control]="form.fbForm.controls['Grado_academico']" [validators]="['required', 'num_y_letras']"></app-form-control>
                                     </div>
                                     <div class="field col-12 md:col-6 lg:col-3">
-                                        <label><strong>Centro costo</strong></label>
+                                        <label><strong>Centro de responsabilidad</strong></label>
                                         <p-inputNumber 
                                             formControlName="Centro_costo"
                                             format="false"
                                             [allowEmpty]="true"
-                                            placeholder="Ingrese centro costo del programa"
+                                            placeholder="Ingrese centro de responsabilidad del programa"
                                             maxlength="9"
                                             class="w-full p-d-flex p-flex-column"
                                             [style]="{ width: '100%', 'min-width': '100%' }"
@@ -141,7 +141,7 @@
                                     </div>
                             
                                     <div class="field col-12 md:col-6 lg:col-3">
-                                        <label><strong>REXE *</strong></label>
+                                        <label><strong>REXE / DEXE *</strong></label>
                                         <input type="text" pInputText formControlName="REXE" maxlength="50" class="w-full" placeholder="Ingrese REXE del programa"/>
                                         <app-form-control [control]="form.fbForm.controls['REXE']" [validators]="['required', 'num_o_letras']"></app-form-control>
                                     </div>
@@ -195,8 +195,8 @@
                                             (onChange)="changeCampus($event)"
                                             formControlName="Campus"
                                             placeholder="Seleccione campus"
-                                            optionLabel="Descripcion_campus"
-                                            optionValue="Cod_campus"
+                                            optionLabel="descripcionCampus"
+                                            optionValue="codigoCampus"
                                         >
                                         </p-dropdown>
                                         <app-form-control [control]="form.fbForm.controls['Campus']" [validators]="['required']"></app-form-control>
@@ -356,6 +356,7 @@
                                 </div>
                             </ng-template>
                         </p-stepperPanel>
+                        
                         <p-stepperPanel id="paso3">
                             <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback">
                                 <div class="flex flex-column">
@@ -536,7 +537,7 @@
 
                 <div class="col-12 sm:col-6 mb-3">
                     <div class="flex flex-column">
-                        <span class="text-900"> <strong>Grupo correo LDAP</strong> </span>
+                        <span class="text-900"> <strong>Grupo de correo</strong> </span>
                         <span class="text-700"> {{ form.fbForm.get('Grupo_correo')!.value }} </span>
                     </div>
                 </div>
@@ -557,7 +558,7 @@
 
                 <div class="col-12 sm:col-6 md:col-3 mb-3">
                     <div class="flex flex-column">
-                        <span class="text-900"> <strong>Centro costo</strong> </span>
+                        <span class="text-900"> <strong>Centro de responsabilidad</strong> </span>
                         <span class="text-700"> {{ form.fbForm.get('Centro_costo')!.value !== ''  ? form.fbForm.get('Centro_costo')!.value : 'NO APLICA'}} </span>
                     </div>
                 </div>
@@ -769,12 +770,12 @@
     </div>
 </app-dialog>
 
-<app-dialog [dialogWidth]="'45vw'" [(visible)]="main.dialogSuccessAddPrograma" [closable]="false" [maximizable]="false">
+<app-dialog [dialogWidth]="'45vw'" [(visible)]="form.dialogSuccessAddPrograma" [closable]="false" [maximizable]="false">
     <div header>
         <span class="text-xl">Programa agregado exitosamente</span>
     </div>
 
-    <div content *ngIf="main.dialogSuccessAddPrograma">
+    <div content *ngIf="form.dialogSuccessAddPrograma">
         <div class="flex align-items-center justify-content-center flex-column">
                 <i class="pi pi-check-circle text-5xl text-green-400"></i>
                 <span class="text-900">El programa <strong>{{ form.nameProgramaAdded }}</strong> ha sido agregado exitosamente.</span>
@@ -800,7 +801,7 @@
             label="Ver programa agregado"
             icon="pi pi-eye"
             styleClass="mr-2 p-button p-button-sm" 
-            (click)="redirectTo('v')">
+            (click)="redirectTo('v')"> 
         </p-button>
     </div>
 </app-dialog>

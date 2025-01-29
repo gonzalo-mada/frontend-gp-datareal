@@ -1,0 +1,196 @@
+<app-dialog [dialogWidth]="'85vw'" [(visible)]="main.dialogForm">
+    <div header>
+        <ng-container *ngIf="main.modeForm === 'create' || main.modeForm === 'insert' ">
+            <span class="text-xl">Agregar {{ main.namesCrud.singular }}</span>
+        </ng-container>
+        <ng-container *ngIf="main.modeForm === 'edit' || main.modeForm === 'update' ">
+            <span class="text-xl">Actualizar {{ main.namesCrud.singular }}</span>
+        </ng-container>
+        <ng-container *ngIf="main.modeForm === 'show'">
+            <span class="text-xl">Visualizar {{ main.namesCrud.singular }}</span>
+        </ng-container>
+    </div>
+    
+    <div content>
+        <!-- <p-button 
+            label="test" 
+            icon="pi pi-times" 
+            styleClass="p-button-sm p-button-secondary mr-2" 
+            (click)="test()" [text]="true">
+        </p-button>   -->
+
+        <div class="grid" *ngIf="main.modeForm !== 'show' ">
+            <div class="col-12">
+                <app-form-isvalid [valid]="form.fbForm.valid"></app-form-isvalid>
+            </div>
+        </div>
+
+        <div class="mt-2">
+            <p-messages [(value)]="main.messagesFormulario" [enableService]="false" />
+        </div>
+
+        <form [formGroup]="form.fbForm">
+            <div class="formgrid grid">
+
+                <div class="field col-12 {{ from === 'mantenedor' ? 'md:col-3' : 'md:col-4' }}">
+                    <label><strong>Facultad {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                    
+                    <p-dropdown 
+                        [options]="mainFacultad.facultades"
+                        formControlName="cod_facultad"
+                        optionLabel="Descripcion_facu"
+                        optionValue="Cod_facultad" 
+                        placeholder="Seleccione facultad"
+                        appendTo="body" 
+                        styleClass="w-full p-d-flex p-flex-column" 
+                        (onChange)="changeFacultad($event)" 
+                    />
+                </div>
+
+                <div class="field col-12 {{ from === 'mantenedor' ? 'md:col-3' : 'md:col-4' }}">
+                    <label><strong>Programas {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                    
+                    <p-dropdown 
+                        [options]="main.programas"
+                        formControlName="cod_programa"
+                        optionLabel="Nombre_programa_completo"
+                        optionValue="Cod_Programa" 
+                        placeholder="Seleccione programa de postgrado"
+                        appendTo="body" 
+                        styleClass="w-full p-d-flex p-flex-column" 
+                        (onChange)="changeProgramaPostgrado($event)" 
+                    />
+                </div>
+
+                <div class="field col-12 {{ from === 'mantenedor' ? 'md:col-3' : 'md:col-4' }}">
+                    <label><strong>Plan de estudio {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                    <p-dropdown 
+                        [options]="main.planes"
+                        formControlName="cod_plan_estudio"
+                        optionLabel="nombre_plan_estudio_completo"
+                        optionValue="cod_plan_estudio" 
+                        placeholder="Seleccione plan de estudio"
+                        appendTo="body" 
+                        styleClass="w-full p-d-flex p-flex-column" 
+                        (onChange)="changePlanDeEstudio($event)" 
+                    />
+                </div>
+
+                <div class="field col-12 {{ from === 'mantenedor' ? 'md:col-3' : 'md:col-4' }}" *ngIf="from === 'mantenedor'">
+                    <div class="flex flex-wrap">
+                        <div class="w-full">
+                            <div class="mb-2">
+                                <label><strong>Asignaturas {{ main.modeForm !== 'show' ? '*' : '' }}</strong></label>
+                            </div>
+                            <p-multiSelect
+                                [options]="main.asignaturas"
+                                [style]="{ width: '100%', 'min-width': '100%' }"
+                                [virtualScroll]="true"
+                                [virtualScrollItemSize]="55"
+                                [filterFields]="['nombre_tema', 'nombre_asignatura' , 'codigo_externo']"
+                                [maxSelectedLabels]="0"
+                                [optionDisabled]="form.optionDisabled"
+                                formControlName="asignaturas"
+                                placeholder="Seleccione asignatura(s) de mención"
+                                appendTo="body"
+                                selectedItemsLabel="{0} asignatura(s) seleccionada(s)"
+                                filterPlaceHolder="Buscar asignatura..."
+                                optionLabel="nombre_asignatura_completa"
+                            >
+                                <ng-template let-item pTemplate="item">
+                                    <div class="inline-flex align-items-center px-1">
+                                        <span>
+                                            {{ item.codigo_externo }} - {{ item.nombre_asignatura }} <br/>
+                                            <i>Tema:</i> {{ item.nombre_tema === '' ? '-' : item.nombre_tema }}
+                                        </span>
+                                    </div>
+                                </ng-template>
+                            </p-multiSelect>
+                            <app-form-control *ngIf="main.modeForm !== 'show'" [control]="form.fbForm.controls['asignaturas']" [validators]="['required']"></app-form-control>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label><strong>Nombre {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                    <input type="text" pInputText formControlName="nombre_mencion" maxlength="50" class="w-full" placeholder="Ingrese nombre de la mención" />
+                    <app-form-control [control]="form.fbForm.controls['nombre_mencion']" [validators]="['required', 'num_y_letras']"></app-form-control>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label><strong>Descripción {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                    <input type="text" pInputText formControlName="descripcion_mencion" maxlength="50" class="w-full" placeholder="Ingrese descripción de la mención" />
+                    <app-form-control [control]="form.fbForm.controls['descripcion_mencion']" [validators]="['required', 'num_y_letras']"></app-form-control>
+                </div>
+
+                <div class="field col-12 md:col-4">
+                    <label><strong>¿Está vigente? {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                    <div class="flex flex-row flex-wrap">
+                        <div class="flex align-items-center justify-content-center">
+                            <span>No</span>
+                        </div>
+                        <div class="flex align-items-center justify-content-center mx-2">
+                            <p-inputSwitch formControlName="vigencia" styleClass="mt-1"></p-inputSwitch>
+                        </div>
+                        <div class="flex align-items-center justify-content-center">
+                            <span>Si</span>
+
+                        </div>
+                    </div>
+                    <app-form-control [control]="form.fbForm.controls['vigencia']" [validators]="['required']"></app-form-control>
+                </div>
+
+
+
+                <div class="field col-12 md:col-4">
+                    <label><strong>N° REXE {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                    <input type="text" pInputText formControlName="mencion_rexe" maxlength="50" class="w-full" placeholder="Ingrese N° REXE de la mención" />
+                    <app-form-control [control]="form.fbForm.controls['mencion_rexe']" [validators]="['required', 'num_y_letras']"></app-form-control>
+                </div>
+
+                <div class="field col-12 md:col-4">
+                    <div class="flex flex-wrap">
+                        <div class="w-full">
+                            <div class="mb-2">
+                                <label><strong>Fecha de creación {{ main.modeForm !== 'show' ? '*' : '' }}</strong></label>
+                            </div>
+                            <p-calendar
+                                formControlName="fecha_creacion"
+                                dateFormat="dd-mm-yy"
+                                placeholder="Seleccione fecha de creación"
+                                [monthNavigator]="true" [yearNavigator]="true"
+                                class="w-full p-d-flex p-flex-column"
+                                readonlyInput="true"
+                                appendTo="body"
+                                autofocus="false"
+                                [style]="{ width: '100%', 'min-width': '100%' }"
+                                dataType="string"
+                            ></p-calendar>
+                            <app-form-control [control]="form.fbForm.controls['fecha_creacion']" [validators]="['required']"></app-form-control>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="field col-12">
+                    <label><strong>{{ main.modeForm === 'show' ? 'Documento(s) adjunto(s)' : 'Adjunte documento(s) *'}} </strong></label>
+                    <app-uploader-files [mode]="main.modeForm!"></app-uploader-files>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+    <div footer>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
+            (click)="main.dialogForm = false" [text]="true"></p-button>
+
+        <p-button *ngIf="main.modeForm === 'create' || main.modeForm === 'edit'"
+            [label]="main.modeForm === 'edit' ? 'Actualizar' : 'Agregar'" icon="pi pi-check"
+            styleClass="mr-2 p-button-success p-button-sm" [disabled]="form.stateForm === 'INVALID'"
+            (click)="submit()">
+        </p-button>
+    </div>
+
+</app-dialog>

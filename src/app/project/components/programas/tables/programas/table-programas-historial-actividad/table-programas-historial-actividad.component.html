@@ -195,13 +195,13 @@
             <td>
                 <ng-container [ngSwitch]="data.tipo_movimiento">
                     <ng-container *ngSwitchCase="'C'">
-                        <span>Creación de programa</span>
+                        <span>Creación de {{ form }}</span>
                     </ng-container>
                     <ng-container *ngSwitchCase="'U'">
-                        <span>Actualización en el programa</span>
+                        <span>Actualización en el {{ form }} </span>
                     </ng-container>
                     <ng-container *ngSwitchCase="'D'">
-                        <span>Eliminación en el programa</span>
+                        <span>Eliminación en el {{ form }} </span>
                     </ng-container>
                 </ng-container>
 
@@ -248,9 +248,9 @@
             <div class="col-12 sm:col-4 mb-3">
                 <div class="flex flex-column">
                     <span class="text-900"> <strong>Tipo de actividad</strong> </span>
-                    <span *ngIf="actividad.tipo_movimiento === 'C' " class="text-700"> Creación de programa </span>
-                    <span *ngIf="actividad.tipo_movimiento === 'U' " class="text-700"> Actualización en el programa </span>
-                    <span *ngIf="actividad.tipo_movimiento === 'D' " class="text-700"> Eliminación en el programa </span>
+                    <span *ngIf="actividad.tipo_movimiento === 'C' " class="text-700"> Creación de {{ form }} </span>
+                    <span *ngIf="actividad.tipo_movimiento === 'U' " class="text-700"> Actualización en el {{ form }} </span>
+                    <span *ngIf="actividad.tipo_movimiento === 'D' " class="text-700"> Eliminación en el {{ form }} </span>
                 </div>
             </div>
 

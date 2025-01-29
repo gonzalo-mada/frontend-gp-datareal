@@ -1,11 +1,11 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { Table } from 'primeng/table';
-import { HistorialActividad } from 'src/app/project/models/programas/HistorialActividad';
+import { HistorialActividad } from 'src/app/project/models/shared/HistorialActividad';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
 import { MessageServiceGP } from 'src/app/project/services/components/message-service.service';
 
 interface Actividad {
-  Cod_programa?: number,
+  codigo?: number,
   correo_usuario?: string,
   descripcion?: {
     descripcion: string,
@@ -32,8 +32,9 @@ export class TableProgramasHistorialActividadComponent implements OnInit {
   
   @Input() data: HistorialActividad[] = [];
   @Input() mode: ModeForm;
+  @Input() form!: 'programa' | 'plan de estudio' ;
 
-  dataKeyTable: string = ''
+  dataKeyTable: string = '';
   searchValue: string | undefined;
   globalFiltros: any[] = [
     'descripcion.descripcion' , 
@@ -52,7 +53,7 @@ export class TableProgramasHistorialActividadComponent implements OnInit {
   
 
   async ngOnInit() {
-    this.dataKeyTable = 'Cod_Programa';
+    this.dataKeyTable = 'codigo';
     this.groupedData = this.formatData(this.data);
     console.log("data",this.data);
     
@@ -104,9 +105,9 @@ export class TableProgramasHistorialActividadComponent implements OnInit {
     ];
 
     const tipos_actividades = [
-      { label: 'Creación de programa', value: 'C' },
-      { label: 'Actualización en el programa', value: 'U' },
-      { label: 'Eliminación en el programa', value: 'D' }
+      { label: `Creación de ${this.form}`, value: 'C' },
+      { label: `Actualización en el ${this.form}`, value: 'U' },
+      { label: `Eliminación en el ${this.form}`, value: 'D' }
     ];
 
     const usuarios = Array.from(
@@ -199,7 +200,7 @@ export class TableProgramasHistorialActividadComponent implements OnInit {
       switch (from) {
         case 'actividad':
           this.data = this.data.filter((item) =>
-            valueSelected.some((actividad: any) => item.descripcion.descripcion === actividad)
+            valueSelected.some((actividad: any) => item.descripcion?.titulo === actividad)
           );
         break;
       

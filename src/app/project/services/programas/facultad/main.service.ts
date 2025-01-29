@@ -9,6 +9,7 @@ import { BackendFacultadesService } from './backend.service';
 import { FilesFacultadesService } from './files.service';
 import { FormFacultadesService } from './form.service';
 import { TableFacultadesService } from './table.service';
+import { HistorialActividadService } from '../../components/historial-actividad.service';
 @Injectable({
     providedIn: 'root'
 })
@@ -37,7 +38,8 @@ export class FacultadesMainService {
         private files: FilesFacultadesService,
         private form: FormFacultadesService,
         private messageService: MessageServiceGP,
-        private table: TableFacultadesService
+        private table: TableFacultadesService,
+        private historialActividad: HistorialActividadService
     ){
         this.form.initForm();
         this.files.initFiles();
@@ -59,6 +61,7 @@ export class FacultadesMainService {
             case 'delete': await this.openConfirmationDelete(); break;
             case 'delete-selected': await this.openConfirmationDeleteSelected(); break;
             case 'changeState': this.openConfirmationChangeState(); break;
+            case 'historial': this.openHistorialActividad(); break;
         }
     }
 
@@ -132,6 +135,7 @@ export class FacultadesMainService {
         }finally{
             this.dialogForm = false;
             this.getFacultades(false);
+            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -146,6 +150,7 @@ export class FacultadesMainService {
                 let params = {
                     Cod_facultad: this.facultad.Cod_facultad,
                     Descripcion_facu: this.form.fbForm.get('Descripcion_facu')!.value == '' ? this.facultad.Descripcion_facu : this.form.fbForm.get('Descripcion_facu')!.value,
+                    Sigla_facu: this.form.fbForm.get('Sigla_facu')!.value == '' ? this.facultad.Sigla_facu : this.form.fbForm.get('Sigla_facu')!.value,
                     Estado_facu: this.modeForm == 'changeState' ? this.facultad.Estado_facu : this.form.fbForm.get('Estado_facu')!.value,
                     docsToUpload: responseUploader.docsToUpload,
                     docsToDelete: responseUploader.docsToDelete,
@@ -168,6 +173,7 @@ export class FacultadesMainService {
         }finally{
             this.dialogForm = false;
             this.getFacultades(false);
+            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -207,6 +213,7 @@ export class FacultadesMainService {
             console.log(error);
         }finally{
             this.getFacultades(false);
+            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -264,7 +271,15 @@ export class FacultadesMainService {
             await this.updateForm()
           }
         })    
-      }
+    }
+
+    openHistorialActividad(){
+        this.historialActividad.showDialog = true;
+    }
+
+    setOrigen(origen: string){
+        this.historialActividad.setOrigen(origen);
+    }
 
 
 }

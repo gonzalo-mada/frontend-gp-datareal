@@ -118,8 +118,8 @@
                 <span class="p-column-title">Vigencia</span>
                 <div class="flex flex-row flex-wrap">
                     <div class="flex align-items-center justify-content-center">
-                        <span [ngClass]="data.vigencia ? 'estado-badge estado-activo' : 'estado-badge estado-desactivo'">
-                            {{ data.vigencia ? 'vigente' : 'no vigente' }}
+                        <span [ngClass]="data.vigencia === 'SI' ? 'estado-badge estado-activo' : 'estado-badge estado-desactivo'">
+                            {{ data.vigencia === 'SI' ? 'vigente' : 'no vigente' }}
                           </span>
                     </div>
                 </div>

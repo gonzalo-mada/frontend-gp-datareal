@@ -21,6 +21,7 @@ export class ArticulacionesComponent implements OnInit, OnDestroy  {
   ){}
 
   async ngOnInit() {
+    this.main.resetDropdownsFilterTable();
     this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => { 
       action==='agregar' 
       ? this.main.setModeCrud('create') 

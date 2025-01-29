@@ -49,10 +49,10 @@
 
                     <p-button 
                         pRipple 
-                        label="Ver historial de actividad" 
-                        icon="pi pi-eye" 
+                        label="Historial de actividad" 
+                        icon="pi pi-history" 
                         styleClass="p-button w-full mt-1 sm:mt-0 sm:w-auto" 
-                        (click)="main.dialogHistorialActividades = true">
+                        (click)="main.openHistorialActividad()">
                     </p-button>
                 </div>
             </div>
@@ -62,6 +62,11 @@
 
     <ng-template pTemplate="content">
         <div class="surface-card shadow-2 p-3 border-round">
+            <div class="flex flex-column sm:flex-row align-items-center justify-content-center border-round" *ngIf="mode === 'edit' || mode === 'update' ">
+                <div class="w-full sm:w-auto">
+                    <p-messages  [(value)]="form.messages" [enableService]="false" [escape]="false" />
+                </div>
+            </div>
             <div class="flex flex-column sm:flex-row align-items-center justify-content-between border-round gap-3 mb-4 h-5rem">
                 <div class="w-full sm:w-auto">
                     <span class="p-input-icon-left p-input-icon-right w-full sm:w-auto">
@@ -83,10 +88,10 @@
                 <div class="w-full sm:w-auto">
                     <p-button 
                         pRipple 
-                        [label]=" mode === 'show' ?  'Ver documentos maestros' : 'Editar documentos maestros' " 
-                        [icon]=" mode === 'show' ? 'pi pi-eye' : 'pi pi-pencil' " 
+                        [label]=" mode === 'show' ?  'Documentos maestros' : 'Documentos maestros' " 
+                        [icon]=" mode === 'show' ? 'pi pi-paperclip' : 'pi pi-paperclip' " 
                         [styleClass]=" mode === 'show' ? 'p-button w-full sm:w-auto' : 'p-button-warning w-full sm:w-auto' " 
-                        (click)="openDialog('maestro', 'maestro')">
+                        (click)="openDialog('maestro', 'maestro', true)">
                     </p-button>
                 </div>
             </div>
@@ -267,7 +272,7 @@
                                         <p-button 
                                             pButton  
                                             [disabled]="!input.isEditable" 
-                                            (click)="openDialog(input.modeDialog , input.collection)" 
+                                            (click)="openDialog(input.modeDialog , input.collection, input.isEditableWithPE)" 
                                             [plain]="true" [text]="true" type="button"  
                                             [icon]="mode === 'edit' ? 'pi pi-pencil' : 'pi pi-eye'" 
                                             iconPos="right" class="p-button-secondary w-full" 
@@ -299,26 +304,6 @@
 <app-form-suspension></app-form-suspension>
 <app-form-reglamentos></app-form-reglamentos>
 <app-form-estados-acreditacion></app-form-estados-acreditacion>
-<app-form-certificaciones-intermedias (formWasClosed)="updateFilesUploader()"></app-form-certificaciones-intermedias>
+<app-form-certificaciones-intermedias></app-form-certificaciones-intermedias>
 <app-form-tipos-graduacion></app-form-tipos-graduacion>
-
-
-<app-dialog [dialogWidth]="'80vw'" [(visible)]="main.dialogHistorialActividades">
-    <div header>
-        <span class="text-xl">Historial de actividades</span>
-    </div>
-    <div content>
-        <p-messages severity="info">
-            <ng-template pTemplate>
-                <i class="pi pi-info-circle mr-3"></i>
-                <span>
-                    Muestra un historial de las actividades realizadas en el programa, incluyendo creación, actualización y eliminación, la información anterior y actual, la fecha de cada actividad y quien la realizó.
-                </span>
-            </ng-template>
-        </p-messages>
-        <app-table-programas-historial-actividad *ngIf="main.dialogHistorialActividades" [data]="logsPrograma" [mode]="mode"></app-table-programas-historial-actividad>
-    </div>
-    <div footer>
-        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" (click)="main.dialogHistorialActividades = false" [text]="true"></p-button>
-    </div>
-</app-dialog>
+<app-historial-actividad></app-historial-actividad>

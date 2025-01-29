@@ -5,10 +5,14 @@
         "num_y_letras": "Field must contain at least one letter",
         "num_o_letras": "Field must not contain blank spaces",
         "solo_num": "Field only accepts numbers",
+        "solo_num_and_decimals": "Field only accepts numbers and decimals",
         "solo_letras": "Field only accepts letters",
         "checkCorreoUV": "Field only accepts emails from @uv.cl, @postgrado.uv.cl",
         "notSameAsDirector": "Alternate Director cannot be the same as Director",
         "rutMustBeDifferent": "RUT must be different from the RUT already registered",
-        "notSameDirectorsInUpdate": "The RUT entered is already associated with the Director or Alternate Director."
+        "notSameDirectorsInUpdate": "The RUT entered is already associated with the Director or Alternate Director.",
+        "invalidRangeMax": "The minimum grade cannot be higher than the maximum grade",
+        "invalidRangeMin": "The maximum grade cannot be lower than the minimum grade"
+
     }
 }

@@ -11,6 +11,7 @@ import { CardModule } from 'primeng/card';
 import { AccordionModule } from 'primeng/accordion';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { BadgeModule } from 'primeng/badge';
+import { BlockUIModule } from 'primeng/blockui';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { CalendarModule } from 'primeng/calendar';
 import { ChipModule } from 'primeng/chip';
@@ -44,6 +45,7 @@ const primeGp = [
   AccordionModule,
   AutoCompleteModule,
   BadgeModule,
+  BlockUIModule,
   BreadcrumbModule,
   CalendarModule,
   ChipModule,

@@ -10,6 +10,7 @@ import { FilesUnidadesAcadService } from './files.service';
 import { FormUnidadesAcadService } from './form.service';
 import { TableUnidadesAcadService } from './table.service';
 import { Facultad } from 'src/app/project/models/programas/Facultad';
+import { HistorialActividadService } from '../../components/historial-actividad.service';
 
 @Injectable({
     providedIn: 'root'
@@ -39,7 +40,8 @@ export class UnidadesAcadMainService {
         private files: FilesUnidadesAcadService,
         private form: FormUnidadesAcadService,
         private messageService: MessageServiceGP,
-        private table: TableUnidadesAcadService
+        private table: TableUnidadesAcadService,
+        private historialActividad: HistorialActividadService
     ){
         this.form.initForm();
         this.files.initFiles();
@@ -60,6 +62,7 @@ export class UnidadesAcadMainService {
             case 'update': await this.updateForm(); break;
             case 'delete': await this.openConfirmationDelete(); break;
             case 'delete-selected': await this.openConfirmationDeleteSelected(); break;
+            case 'historial': this.openHistorialActividad(); break;
         }
     }
 
@@ -137,6 +140,7 @@ export class UnidadesAcadMainService {
         }finally{
             this.dialogForm = false;
             this.getUnidadesAcademicas(false);
+            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -175,6 +179,7 @@ export class UnidadesAcadMainService {
         }finally{
             this.dialogForm = false;
             this.getUnidadesAcademicas(false);
+            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -214,6 +219,7 @@ export class UnidadesAcadMainService {
             console.log(error);
         }finally{
             this.getUnidadesAcademicas(false);
+            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -252,6 +258,14 @@ export class UnidadesAcadMainService {
                 await this.deleteRegisters(data);
             }
         }) 
+    }
+
+    openHistorialActividad(){
+        this.historialActividad.showDialog = true;
+    }
+
+    setOrigen(origen: string){
+        this.historialActividad.setOrigen(origen);
     }
 
 }

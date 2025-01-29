@@ -10,18 +10,16 @@ export class TableArticulacionesService {
 
 
     cols : any[] = [
-        { field: 'Descripcion_programa_pregrado', header: 'Programa pregrado' },
+        { field: 'asignatura', header: 'Asignatura' },
         { field: 'Asignaturas', header: 'Núm. de asignaturas articuladas' },
-        { field: 'Cod_plan_estudio', header: 'Plan de estudio' },
         { field: 'accion', header: 'Acciones' }
     ];
-    globalFiltros : any[] = [ 'nombre_plan_estudio_completo' , 'Descripcion_programa_pregrado' ];
-    globalFiltrosPrograma : any[] = [ 'codPrograma' , 'nombreCarrera' ];
-    globalFiltrosAsignatura : any[] = [ 'Cod_Asignatura' , 'Descripcion_asignatura' , 'Cod_Tema' , 'Descripcion_tema' ];
-    dataKeyTable : string = 'Cod_Articulacion';
+    globalFiltros : any[] = ['asignatura_postgrado.nombre_asignatura_completo' ];
+    globalFiltrosAsignatura : any[] = [ 'codigo_externo' , 'nombre_asignatura' , 'nombre_tema' ];
+    dataKeyTable : string = 'cod_articulacion';
     selectedRows: Articulacion[] = [];
-    selectedProgramaRows: any[] = [];
-    selectedAsignaturaRows: any[] = [];
+    selectedAsignaturaPregrado: any[] = [];
+    selectedAsignaturasPostgrado: any[] = [];
 
     constructor(private tableCrudService: TableCrudService){}
 
@@ -31,6 +29,7 @@ export class TableArticulacionesService {
 
     resetSelectedRows(){
         this.selectedRows = [];
+        this.resetSelectedRowsAllTables();
         this.setSelectedRows();
     }
 
@@ -38,17 +37,23 @@ export class TableArticulacionesService {
         this.tableCrudService.emitResetExpandedRowsTable();
     }
 
-    resetSelectedRowsTablePrograma(){
-        this.selectedProgramaRows = [];
+    resetSelectedAsignaturasPregrado(){
+        this.selectedAsignaturaPregrado = [];
     }
 
-    resetSelectedRowsTableAsignaturas(){
-        this.selectedAsignaturaRows = [];
+    resetSelectedAsignaturasPostgrado(){
+        this.selectedAsignaturasPostgrado = [];
     }
 
     resetSelectedRowsAllTables(){
-        this.resetSelectedRowsTablePrograma();
-        this.resetSelectedRowsTableAsignaturas();
+        this.resetSelectedAsignaturasPregrado();
+        this.resetSelectedAsignaturasPostgrado();
     }
 
+    pushSelectedAsignaturaPregrado(event: any) {
+        const exists = this.selectedAsignaturaPregrado.some(asignatura => asignatura.cod_tema === event.cod_tema);
+        if (!exists) this.selectedAsignaturaPregrado.push(event);
+        
+    }
+    
 }

@@ -34,20 +34,6 @@ export class BackendArticulacionesService {
         }
     }
 
-    async getProgramasPostgrado(loading = true) {
-        try {
-            return await this.invoker.httpInvoke({service: 'planesDeEstudio/getProgramasPostgrado', loading: loading});
-        } catch (error: any) {
-            this.errorTemplateHandler.processError(
-                error, 
-                {
-                    notifyMethod: 'alert',
-                    message: `Hubo un error al obtener programas. Intente nuevamente.`,
-                }
-            );
-        }
-    }
-
     async getPlanesDeEstudiosPorPrograma(params: any, loading = true) {
         try {
             return await this.invoker.httpInvoke(
@@ -61,16 +47,17 @@ export class BackendArticulacionesService {
             });
         }
     }
-    async getPlanesDeEstudiosMergedPorPrograma(params: any, loading = true) {
+
+    async getAsignaturasPorPlanDeEstudio(params: any, loading = true) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('planesDeEstudio/getPlanesDeEstudiosMergedPorPrograma', loading),
+                this.serviceUtils.generateServiceMongo('asignaturas/getAsignaturasSimplificatedPorPlanDeEstudio', loading),
                 params
             );
         } catch (error: any) {
             this.errorTemplateHandler.processError(error, {
                 notifyMethod: 'alert',
-                message: 'Hubo un error al obtener planes de estudios por programa seleccionado. Intente nuevamente.',
+                message: 'Hubo un error al obtener asignaturas por plan de estudio seleccionado. Intente nuevamente.',
             });
         }
     }

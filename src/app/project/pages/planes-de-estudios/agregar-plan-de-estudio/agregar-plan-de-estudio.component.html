@@ -1,10 +1,10 @@
 <app-breadcrumbgp></app-breadcrumbgp>
-<p-card>
+<p-card *ngIf="form.showCardForm">
     <ng-template pTemplate="header">
         <div class="flex justify-content-between flex-wrap"  [style]="{ 'padding-left': '1.5rem' , 'padding-top': '1.5rem' , 'padding-right': '1.5rem'}">
             <div>
-                <div class="p-card-title">Agregar plan de estudio</div>
-                <div class="p-card-subtitle">Permite agregar un plan de estudio. <br/> Los campos con (*) son requeridos.</div>
+                <div class="p-card-title">Agregar {{ main.namesCrud.singular }}</div>
+                <div class="p-card-subtitle">Permite agregar un {{ main.namesCrud.singular }}. <br/> Los campos con (*) son requeridos.</div>
             </div>
             <div>
                 <p-button 
@@ -13,24 +13,30 @@
                     styleClass="p-button-sm p-button-secondary mr-2" 
                     (click)="test()" [text]="true">
                 </p-button>
-                <button pButton icon="pi pi-upload" label="Adjuntar documento maestro" (click)="main.openDialogChooseDocsMaestro()"></button>
+                <p-button 
+                    label="mensajeExito" 
+                    icon="pi pi-eye" 
+                    styleClass="p-button-sm p-button-secondary mr-2" 
+                    (click)="form.showCardForm = !form.showCardForm" [text]="true">
+                </p-button>
+                <button pButton icon="pi pi-paperclip" label="Documentos maestros" (click)="main.openDialogChooseDocsMaestro()"></button>
                 <button 
                     pButton 
                     class="hidden p-button-secondary p-button-outlined ml-2 lg:inline" 
                     (click)="changeDisposition()" 
                 >
                 <div class="flex align-items-center justify-content-center">
-                        <i [ngClass]="main.disposition ? 'pi pi-eye-slash' : 'pi pi-eye'" ></i>
+                        <i [ngClass]="form.disposition ? 'pi pi-eye-slash' : 'pi pi-eye'" ></i>
                         <span class="ml-1">
-                            {{ main.disposition ? 'Ocultar estado formulario' : 'Ver estado formulario' }}
+                            {{ form.disposition ? 'Ocultar estado formulario' : 'Ver estado formulario' }}
                         </span>
                     </div>
                 </button>
-                <button pButton class="p-button-secondary p-button-outlined ml-2 mt-2 lg:hidden" (click)="sidebarVisible2 = true" >
+                <button pButton class="p-button-secondary p-button-outlined ml-2 mt-2 lg:hidden" (click)="form.sidebarVisible2 = true" >
                     <div class="flex align-items-center justify-content-center">
-                        <i [ngClass]="sidebarVisible2 ? 'pi pi-eye-slash' : 'pi pi-eye'" ></i>
+                        <i [ngClass]="form.sidebarVisible2 ? 'pi pi-eye-slash' : 'pi pi-eye'" ></i>
                         <span class="ml-1">
-                            {{ sidebarVisible2 ? 'Ocultar estado formulario' : 'Ver estado formulario' }}
+                            {{ form.sidebarVisible2 ? 'Ocultar estado formulario' : 'Ver estado formulario' }}
                         </span>
                     </div>
                 </button>
@@ -49,12 +55,11 @@
                                 <div class="formgrid grid">
 
                                     <div class="field col-12 md:col-6">
-                                        <label><strong>Seleccione facultad para cargar programas</strong></label>
+                                        <label><strong>Facultad</strong></label>
                                         <p-dropdown 
                                             [options]="mainFacultad.facultades"
                                             formControlName="cod_facultad_selected"
                                             optionLabel="Descripcion_facu"
-                                            optionValue="Cod_facultad" 
                                             placeholder="Seleccione facultad"
                                             appendTo="body" 
                                             styleClass="w-full p-d-flex p-flex-column" 
@@ -62,14 +67,13 @@
                                         />
                                     </div>
 
-                                    <div *ngIf="main.loadedProgramas" class="field col-12 md:col-6">
-                                        <label><strong>Seleccione programa para el plan de estudio *</strong></label>
+                                    <div *ngIf="form.loadedProgramas" class="field col-12 md:col-6">
+                                        <label><strong>Programa *</strong></label>
                                         <p-dropdown
                                             [options]="main.programas"
                                             formControlName="cod_programa"
                                             placeholder="Seleccione programa"
                                             optionLabel="Nombre_programa_completo"
-                                            optionValue="Cod_Programa"
                                             styleClass="w-full"
                                             appendTo="body"
                                             (onChange)="changePrograma($event)"
@@ -80,7 +84,7 @@
 
                                 </div>
 
-                                <div *ngIf="showForm">
+                                <div *ngIf="form.stepOne">
                                     <div class="formgrid grid">
 
                                         <div class="field col-12 md:col-6 lg:col-4">
@@ -90,7 +94,6 @@
                                                 formControlName="cod_estado"
                                                 placeholder="Seleccione estado"
                                                 optionLabel="descripcion_estado"
-                                                optionValue="cod_estado"
                                                 styleClass="w-full p-d-flex p-flex-column"
                                                 (onChange)="changeEstadoPlanEstudio($event)"
                                             />
@@ -104,7 +107,6 @@
                                                 formControlName="cod_modalidad"
                                                 placeholder="Seleccione modalidad"
                                                 optionLabel="Descripcion_modalidad"
-                                                optionValue="Cod_modalidad"
                                                 styleClass="w-full p-d-flex p-flex-column"
                                                 (onChange)="changeModalidad($event)"
                                             />
@@ -118,7 +120,6 @@
                                                 formControlName="cod_jornada"
                                                 placeholder="Seleccione jornada"
                                                 optionLabel="Descripcion_jornada"
-                                                optionValue="Cod_jornada"
                                                 styleClass="w-full p-d-flex p-flex-column"
                                                 (onChange)="changeJornadas($event)"
                                             />
@@ -132,7 +133,6 @@
                                                 formControlName="cod_regimen"
                                                 placeholder="Seleccione régimen"
                                                 optionLabel="Descripcion_regimen"
-                                                optionValue="Cod_regimen"
                                                 styleClass="w-full p-d-flex p-flex-column"
                                                 (onChange)="changeRegimenes($event)"
                                             />
@@ -173,101 +173,190 @@
                         <p-stepperPanel id="paso2">
                             <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback" let-index="index">
                                 
-                                <div class="formgrid grid">
-                                    <div class="field col-12 md:col-4">
-                                        <div class="surface-card shadow-2 p-3 border-round">
-                                            <div class="flex flex-column align-items-center justify-content-center">
-                                                <label><strong>¿Tiene certificación intermedia?</strong></label>
-                                                <div class="flex flex-row justify-content-around  flex-wrap gap-3 mt-2">
-                                                    <div class="flex flex-column align-items-center justify-content-center">
-                                                        <p-radioButton [value]="0" formControlName="tiene_certificacion" inputId="ingredient1" (onClick)="changeRadioButtonCI($event)" />
-                                                        <label for="ingredient1" class="ml-2"> No </label>
-                                                    </div>
-        
-                                                    <div class="flex flex-column align-items-center justify-content-center">
-                                                        <p-radioButton [value]="1" formControlName="tiene_certificacion" inputId="ingredient2" (onClick)="changeRadioButtonCI($event)" />
-                                                        <label for="ingredient2" class="ml-2"> Si </label>
+                                <div class="grid">
+                                    <div class="col-6">
+                                        <div class="flex flex-column gap-3">
+
+                                            <div class="surface-card shadow-2 p-3 border-round">
+                                                <div class="flex flex-column align-items-center justify-content-center">
+                                                    <label><strong>¿Tiene certificación intermedia?</strong></label>
+                                                    <div class="flex flex-row justify-content-around  flex-wrap gap-3 mt-2">
+                                                        <div class="flex flex-column align-items-center justify-content-center">
+                                                            <p-radioButton [value]="0" formControlName="tiene_certificacion" inputId="ingredient1" (onClick)="changeRadioButtonCI($event)" />
+                                                            <label for="ingredient1" class="ml-2"> No </label>
+                                                        </div>
+            
+                                                        <div class="flex flex-column align-items-center justify-content-center">
+                                                            <p-radioButton [value]="1" formControlName="tiene_certificacion" inputId="ingredient2" (onClick)="changeRadioButtonCI($event)" />
+                                                            <label for="ingredient2" class="ml-2"> Si </label>
+                                                        </div>
                                                     </div>
                                                 </div>
+                                                <div *ngIf="form.showMessageDontHaveCI">
+                                                    <p-messages styleClass="mt-2" severity="warn">
+                                                        <ng-template pTemplate>
+                                                            <div class="flex flex-column justify-content-center align-items-center">
+                                                                <span><i class="pi pi-exclamation-triangle"></i><strong> Atención:</strong></span>
+                                                                <span>No es posible activar ya que el programa seleccionado <strong> {{ form.selectedPrograma }} </strong>  no cuenta con certificación intermedia.</span>
+                                                            </div>
+                                                        </ng-template>
+                                                    </p-messages>
+                                                </div>
+                                                <div *ngIf="form.showMessageCI">
+                                                    <p-messages styleClass="mt-2" severity="info">
+                                                        <ng-template pTemplate>
+                                                            <div class="flex flex-column justify-content-center align-items-center">
+                                                                <span><i class="pi pi-info-circle"></i><strong> Atención:</strong></span>
+                                                                <span>
+                                                                    Puede asociar asignaturas a la certificación intermedia del {{ main.namesCrud.singular }} de las siguientes maneras:
+                                                                    <ul>
+                                                                        <li>Presionando el botón <strong>Continuar con certificaciones intermedias</strong> desplegado una vez agregado el {{ main.namesCrud.singular }}.</li>
+                                                                        <li>Desde el mantenedor de Certificaciones intermedias ubicado en el menú Mantenedores {{ main.namesCrud.singular }}. </li>
+                                                                    </ul>
+                                                                </span>
+                                                            </div>
+                                                        </ng-template>
+                                                    </p-messages>
+                                                </div>
                                             </div>
-                                            <div *ngIf="form.showMessageDontHaveCI">
-                                                <p-messages styleClass="mt-2" severity="warn">
-                                                    <ng-template pTemplate>
-                                                        <i class="pi pi-info-circle mr-3"></i>
-                                                        <span>
-                                                            <strong>Atención:</strong> No es posible activar ya que el programa seleccionado <strong> {{ form.name_programa_selected }} </strong>  no cuenta con certificación intermedia.
-                                                        </span>
-                                                    </ng-template>
-                                                </p-messages>
+
+                                            <div class="surface-card shadow-2 p-3 border-round">
+                                                <div class="flex flex-column align-items-center justify-content-center ">
+                                                    <label><strong>¿Tiene plan común?</strong></label>
+                                                    <div class="flex flex-row justify-content-around  flex-wrap gap-3 mt-2">
+                                                        <div class="flex flex-column align-items-center justify-content-center">
+                                                            <p-radioButton [value]="0" formControlName="tiene_plan_comun" inputId="ingredient1" (onClick)="changeRadioButtonPlanComun($event)" />
+                                                            <label for="ingredient1" class="ml-2"> No </label>
+                                                        </div>
+            
+                                                        <div class="flex flex-column align-items-center justify-content-center">
+                                                            <p-radioButton [value]="1" formControlName="tiene_plan_comun" inputId="ingredient2" (onClick)="changeRadioButtonPlanComun($event)" />
+                                                            <label for="ingredient2" class="ml-2"> Si </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div *ngIf="form.showMessagePlanComun">
+                                                    <p-messages styleClass="mt-2" severity="info">
+                                                        <ng-template pTemplate>
+                                                            <div class="flex flex-column justify-content-center align-items-center">
+                                                                <span><i class="pi pi-info-circle"></i><strong> Atención:</strong></span>
+                                                                <span>
+                                                                    Puede asociar asignaturas al plan de común de las siguientes maneras:
+                                                                    <ul>
+                                                                        <li>Presionando el botón <strong>Continuar con asignaturas plan común</strong> desplegado una vez agregado el {{ main.namesCrud.singular }}.</li>
+                                                                        <li>Desde el mantenedor de Asignaturas plan común ubicado en el menú Mantenedores {{ main.namesCrud.singular }}. </li>
+                                                                    </ul>
+                                                                </span>
+                                                            </div>
+                                                        </ng-template>
+                                                    </p-messages>
+                                                </div>
                                             </div>
-                                            <div *ngIf="form.showMessageCI">
-                                                <p-messages styleClass="mt-2" severity="info">
-                                                    <ng-template pTemplate>
-                                                        <i class="pi pi-info-circle mr-3"></i>
-                                                        <span>
-                                                            <strong>Atención:</strong> Una vez agregado el plan de estudio, diríjase al Mantenedor de certificaciones intermedias ubicado en el menú Mantenedores plan de estudio para asociar asignaturas.
-                                                        </span>
-                                                    </ng-template>
-                                                </p-messages>
+
+                                            <div class="surface-card shadow-2 p-3 border-round">
+                                                <div class="flex flex-column align-items-center justify-content-center ">
+                                                    <label><strong>¿Tiene menciones?</strong></label>
+                                                    <div class="flex flex-row justify-content-around  flex-wrap gap-3 mt-2">
+                                                        <div class="flex flex-column align-items-center justify-content-center">
+                                                            <p-radioButton [value]="0" formControlName="tiene_mencion" inputId="ingredient1" (onClick)="changeRadioButtonMencion($event)" />
+                                                            <label for="ingredient1" class="ml-2"> No </label>
+                                                        </div>
+            
+                                                        <div class="flex flex-column align-items-center justify-content-center">
+                                                            <p-radioButton [value]="1" formControlName="tiene_mencion" inputId="ingredient2" (onClick)="changeRadioButtonMencion($event)" />
+                                                            <label for="ingredient2" class="ml-2"> Si </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div *ngIf="form.showMessageMenciones">
+                                                    <p-messages styleClass="mt-2" severity="info">
+                                                        <ng-template pTemplate>
+                                                            <div class="flex flex-column justify-content-center align-items-center">
+                                                                <span><i class="pi pi-info-circle"></i><strong> Atención:</strong></span>
+                                                                <span>
+                                                                    Puede asociar menciones de las siguientes maneras:
+                                                                    <ul>
+                                                                        <li>Presionando el botón <strong>Continuar con menciones</strong> desplegado una vez agregado el {{ main.namesCrud.singular }}.</li>
+                                                                        <li>Desde el mantenedor de Menciones ubicado en el menú Mantenedores {{ main.namesCrud.singular }}. </li>
+                                                                    </ul>
+                                                                </span>
+                                                            </div>
+                                                        </ng-template>
+                                                    </p-messages>
+                                                </div>
                                             </div>
+
                                         </div>
                                     </div>
+                                    <div class="col-6">
+                                        <div class="flex flex-column gap-3">
 
-                                    <div class="field col-12 md:col-4">
-                                        <div class="surface-card shadow-2 p-3 border-round">
-                                            <div class="flex flex-column align-items-center justify-content-center">
-                                                <label><strong>¿Tiene articulación con programas de Pregrado?</strong></label>
-                                                <div class="flex flex-row justify-content-around  flex-wrap gap-3 mt-2">
-                                                    <div class="flex flex-column align-items-center justify-content-center">
-                                                        <p-radioButton [value]="0" formControlName="tiene_articulacion" inputId="ingredient1" (onClick)="changeRadioButtonArticulaciones($event)" />
-                                                        <label for="ingredient1" class="ml-2"> No </label>
-                                                    </div>
-        
-                                                    <div class="flex flex-column align-items-center justify-content-center">
-                                                        <p-radioButton [value]="1" formControlName="tiene_articulacion" inputId="ingredient2" (onClick)="changeRadioButtonArticulaciones($event)" />
-                                                        <label for="ingredient2" class="ml-2"> Si </label>
+                                            <div class="surface-card shadow-2 p-3 border-round">
+                                                <div class="flex flex-column align-items-center justify-content-center">
+                                                    <label><strong>¿Tiene articulación con programas de Pregrado?</strong></label>
+                                                    <div class="flex flex-row justify-content-around  flex-wrap gap-3 mt-2">
+                                                        <div class="flex flex-column align-items-center justify-content-center">
+                                                            <p-radioButton [value]="0" formControlName="tiene_articulacion" inputId="ingredient1" (onClick)="changeRadioButtonArticulaciones($event)" />
+                                                            <label for="ingredient1" class="ml-2"> No </label>
+                                                        </div>
+            
+                                                        <div class="flex flex-column align-items-center justify-content-center">
+                                                            <p-radioButton [value]="1" formControlName="tiene_articulacion" inputId="ingredient2" (onClick)="changeRadioButtonArticulaciones($event)" />
+                                                            <label for="ingredient2" class="ml-2"> Si </label>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div *ngIf="form.showMessageArticulacion">
-                                                <p-messages styleClass="mt-2" severity="info">
-                                                    <ng-template pTemplate>
-                                                        <i class="pi pi-info-circle mr-3"></i>
-                                                        <span>
-                                                            <strong>Atención:</strong> Una vez agregado el plan de estudio, diríjase al Mantenedor de articulaciones ubicado en el menú Mantenedores plan de estudio para articular.
-                                                        </span>
-                                                    </ng-template>
-                                                </p-messages>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="field col-12 md:col-4">
-                                        <div class="surface-card shadow-2 p-3 border-round">
-                                            <div class="flex flex-column align-items-center justify-content-center ">
-                                                <label><strong>¿Tiene plan común?</strong></label>
-                                                <div class="flex flex-row justify-content-around  flex-wrap gap-3 mt-2">
-                                                    <div class="flex flex-column align-items-center justify-content-center">
-                                                        <p-radioButton [value]="0" formControlName="tiene_plan_comun" inputId="ingredient1" (onClick)="changeRadioButtonPlanComun($event)" />
-                                                        <label for="ingredient1" class="ml-2"> No </label>
-                                                    </div>
-        
-                                                    <div class="flex flex-column align-items-center justify-content-center">
-                                                        <p-radioButton [value]="1" formControlName="tiene_plan_comun" inputId="ingredient2" (onClick)="changeRadioButtonPlanComun($event)" />
-                                                        <label for="ingredient2" class="ml-2"> Si </label>
-                                                    </div>
+                                                <div *ngIf="form.showMessageArticulacion">
+                                                    <p-messages styleClass="mt-2" severity="info">
+                                                        <ng-template pTemplate>
+                                                            <div class="flex flex-column justify-content-center align-items-center">
+                                                                <span><i class="pi pi-info-circle"></i><strong> Atención:</strong></span>
+                                                                <span>
+                                                                    Puede agregar articulaciones de las siguientes maneras:
+                                                                    <ul>
+                                                                        <li>Presionando el botón <strong>Continuar con articulaciones</strong> desplegado una vez agregado el {{ main.namesCrud.singular }}.</li>
+                                                                        <li>Desde el mantenedor de Articulaciones ubicado en el menú Mantenedores {{ main.namesCrud.singular }}. </li>
+                                                                    </ul>
+                                                                </span>
+                                                            </div>
+                                                        </ng-template>
+                                                    </p-messages>
                                                 </div>
                                             </div>
-                                            <div *ngIf="form.showMessagePlanComun">
-                                                <p-messages styleClass="mt-2" severity="info">
-                                                    <ng-template pTemplate>
-                                                        <i class="pi pi-info-circle mr-3"></i>
-                                                        <span>
-                                                            <strong>Atención:</strong> Una vez agregado el plan de estudio, diríjase al Mantenedor de asignaturas plan común ubicado en el menú Mantenedores plan de estudio para asociar asignaturas.
-                                                        </span>
-                                                    </ng-template>
-                                                </p-messages>
+    
+                                            <div class="surface-card shadow-2 p-3 border-round">
+                                                <div class="flex flex-column align-items-center justify-content-center ">
+                                                    <label><strong>¿Tiene rangos de aprobación?</strong></label>
+                                                    <div class="flex flex-row justify-content-around  flex-wrap gap-3 mt-2">
+                                                        <div class="flex flex-column align-items-center justify-content-center">
+                                                            <p-radioButton [value]="0" formControlName="tiene_rango_aprob_g" inputId="ingredient1" (onClick)="changeRadioButtonRangos($event)" />
+                                                            <label for="ingredient1" class="ml-2"> No </label>
+                                                        </div>
+            
+                                                        <div class="flex flex-column align-items-center justify-content-center">
+                                                            <p-radioButton [value]="1" formControlName="tiene_rango_aprob_g" inputId="ingredient2" (onClick)="changeRadioButtonRangos($event)" />
+                                                            <label for="ingredient2" class="ml-2"> Si </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div *ngIf="form.showMessageRangos">
+                                                    <p-messages styleClass="mt-2" severity="info">
+                                                        <ng-template pTemplate>
+                                                            <div class="flex flex-column justify-content-center align-items-center">
+                                                                <span><i class="pi pi-info-circle"></i><strong> Atención:</strong></span>
+                                                                <span>
+                                                                    Puede asociar rangos de aprobación de las siguientes maneras:
+                                                                    <ul>
+                                                                        <li>Presionando el botón <strong>Continuar con rangos de aprobación</strong> desplegado una vez agregado el {{ main.namesCrud.singular }}.</li>
+                                                                        <li>Desde el mantenedor de Rangos de aprobación ubicado en el menú Mantenedores {{ main.namesCrud.singular }}. </li>
+                                                                    </ul>
+                                                                </span>
+                                                            </div>
+                                                        </ng-template>
+                                                    </p-messages>
+                                                </div>
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -282,88 +371,12 @@
                         <p-stepperPanel id="paso3">
                             <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback" let-index="index">
 
-                                <div class="flex flex-column">
-
-                                    <p-accordion class="w-full">
-
-                                        <p-accordionTab id="reglamento">
-                                            <ng-template pTemplate="header">
-                                                <div class="flex justify-content-between flex-wrap w-full">
-                                                    <div>
-                                                        <span><strong>Reglamento</strong></span>
-                                                    </div>
-                                                    <div *ngIf="form.selectedReglamento !== '' ">
-                                                        <span style="font-weight: 100;"><i>{{ form.selectedReglamento }}</i></span>
-                                                    </div>
-                                                </div>
-                                            </ng-template>
-                                            <ng-template pTemplate="body">
-                                                <app-table-reglamentos [form]="'planDeEstudio'"></app-table-reglamentos>
-                                            </ng-template>
-                                        </p-accordionTab>
-
-                                        <p-accordionTab id="rangosdeaprobacion">
-                                            <ng-template pTemplate="header">
-                                                <div class="flex justify-content-between flex-wrap w-full">
-                                                    <div>
-                                                        <span><strong>Rangos de aprobación de grados</strong></span>
-                                                    </div>
-                                                    <div *ngIf="form.selectedReglamento !== '' ">
-                                                        <span style="font-weight: 100;"><i>{{ form.selectedReglamento }}</i></span>
-                                                    </div>
-                                                </div>
-                                            </ng-template>
-                                            <ng-template pTemplate="body">
-                                                <div class="formgrid grid">
-                                                    <div class="col-12">
-                                                        <span>AQUI TABLA DE MENCIONES</span>
-                                                    </div>
-                                                </div>
-                                            </ng-template>
-                                        </p-accordionTab>
-
-                                        <p-accordionTab id="menciones">
-                                            <ng-template pTemplate="header">
-                                                <div class="flex justify-content-between flex-wrap w-full">
-                                                    <div>
-                                                        <span><strong>Menciones</strong></span>
-                                                    </div>
-                                                    <div *ngIf="form.selectedReglamento !== '' ">
-                                                        <span style="font-weight: 100;"><i>{{ form.selectedReglamento }}</i></span>
-                                                    </div>
-                                                </div>
-                                            </ng-template>
-                                            <ng-template pTemplate="body">
-                                                <div class="formgrid grid">
-                                                    <div class="field col-12 md:col-6 lg:col-4">
-                                                        <label><strong>¿Tiene menciones?</strong></label>
-                                                        <div class="flex flex-row justify-content-start flex-wrap">
-                                                            <div class="flex align-items-center justify-content-center">
-                                                                <span>No</span>
-                                                            </div>
-                                                            <div class="flex align-items-center justify-content-center mx-2">
-                                                                <p-inputSwitch formControlName="tiene_mencion"  (onChange)="changeSwitchMenciones($event)" styleClass="mt-1 mx-1"/>
-                                                            </div>
-                                                            <div class="flex align-items-center justify-content-center">
-                                                                <span>Si</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div *ngIf="showTableMenciones" class="col-12">
-                                                        <span>AQUI TABLA DE MENCIONES</span>
-                                                    </div>
-                                                </div>
-                                            </ng-template>
-                                        </p-accordionTab>
-
-                                    </p-accordion>
-                                </div>
+                                <app-table-reglamentos [form]="'planDeEstudio'"></app-table-reglamentos>
 
 
                                 <div class="flex pt-4 justify-content-between">
                                     <p-button label="Atrás" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()" />
-                                    <!-- <p-button styleClass="p-button-success" label="Confirmar" icon="pi pi-check" iconPos="right" (onClick)="confirmAddPrograma = true" [disabled]="!form.stateFormPlanDeEstudio" /> -->
+                                    <p-button styleClass="p-button-success" label="Confirmar" icon="pi pi-check" iconPos="right" (onClick)="form.confirmAdd = true" [disabled]="!form.stateFormPlanDeEstudio" />
 
                                 </div>
                             </ng-template>
@@ -371,8 +384,9 @@
 
                     </p-stepper>
                 </form>
+                <p-messages [(value)]="main.messagesFormulario" [enableService]="false" />
             </div>
-            <div class="hidden lg:block" *ngIf="main.disposition" [ngClass]="sidebarClass" >
+            <div class="hidden lg:block" *ngIf="form.disposition" [ngClass]="sidebarClass" >
                 <p-card styleClass="border-1 surface-border border-round rounded-lg">
                     <ng-template pTemplate="header">
                         <div class="flex flex-row justify-content-between flex-wrap"  [style]="{ 'padding-left': '1.5rem' , 'padding-top': '1.5rem' , 'padding-right': '1.5rem' , 'width': '100%'}">
@@ -401,7 +415,7 @@
                     <app-state-form formName="planDeEstudio"></app-state-form>
                 </p-card>
             </div>
-            <p-sidebar [(visible)]="sidebarVisible2" position="right">
+            <p-sidebar [(visible)]="form.sidebarVisible2" position="right">
                 <h3>Estado formulario</h3>
                 <app-state-form formName="planDeEstudio"></app-state-form>
             </p-sidebar>
@@ -409,16 +423,242 @@
     </ng-template>
 </p-card>
 
-<app-dialog [(visible)]="main.dialogChooseDocsMaestro">
+<p-card *ngIf="!form.showCardForm">
+    <ng-template pTemplate="header">
+        <div class="flex justify-content-between flex-wrap"  [style]="{ 'padding-left': '1.5rem' , 'padding-top': '1.5rem' , 'padding-right': '1.5rem'}">
+            <div>
+                <div class="p-card-title">Agregar {{ main.namesCrud.singular }}</div>
+                <div class="p-card-subtitle">Permite agregar un {{ main.namesCrud.singular }}. <br/> Los campos con (*) son requeridos.</div>
+            </div>
+            <div>
+                <p-button 
+                    label="mensajeExito" 
+                    icon="pi pi-eye-slash" 
+                    styleClass="p-button-sm p-button-secondary mr-2" 
+                    (click)="form.showCardForm = !form.showCardForm" [text]="true">
+                </p-button>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="body">
+        <div class="surface-card shadow-2 p-3 border-round">
+            <div class="flex align-items-center justify-content-center flex-column mb-4">
+                <i class="pi pi-check-circle text-5xl text-green-400"></i>
+                <span class="text-900 text-xl mt-1">El {{ main.namesCrud.singular }}  <strong>{{ form.namePlanDeEstudioAdded || '_NOMBRE_PLAN_ESTUDIO_CREADO_' }}</strong> ha sido agregado exitosamente.</span>
+            </div>
+
+            <ul class="list-none px-0 pb-0 m-0 border-top-1 surface-border">
+
+                <li *ngFor="let item of main.pendingForms" class="py-2">
+                    <div *ngIf="!item.isConditional || form.fbForm.get(item.form)?.value === 1 " class="flex align-items-center border-round border-1 border-transparent hover:border-300 p-1 transition-colors transition-duration-150">
+                        <i class="{{item.icon}} text-blue text-xl"></i>
+                        <div class="ml-3">
+                            <span class="text-900 font-medium text-lg inline-block">{{item.title}}</span>
+                            <p class="text-600 m-0 line-height-3">{{item.subtitle}}.</p>
+                            <small *ngIf="item.needAsign" class="text-red-600 ">Requiere plan de estudio con asignaturas.</small>
+                        </div>
+                        <div class="ml-auto">
+                            <p-button (click)="onShowClick(item.form)" icon="pi pi-eye" styleClass="p-button-sm p-button-info m-1"></p-button>
+                            <p-button (click)="onCreateClick(item.form)" icon="pi pi-plus" styleClass="p-button-sm p-button-success m-1"></p-button>
+                        </div>
+                    </div>
+                </li>
+                
+            </ul>
+        </div>
+    </ng-template>
+</p-card>
+
+<app-dialog [(visible)]="form.dialogChooseDocsMaestro">
     <div header>
         <span class="text-xl">Adjuntar documentos maestros</span>
     </div>
     <div content>
-        <app-uploader-files *ngIf="main.dialogChooseDocsMaestro"></app-uploader-files>
+        <app-uploader-files *ngIf="form.dialogChooseDocsMaestro"></app-uploader-files>
     </div>
     <div footer>
-        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" (click)="main.dialogChooseDocsMaestro = false" [text]="true"></p-button>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" (click)="form.dialogChooseDocsMaestro = false" [text]="true"></p-button>
+    </div>
+</app-dialog>
+
+<app-dialog [dialogWidth]="'80vw'" [(visible)]="form.confirmAdd">
+    <div header>
+        <span class="text-xl">Confirma para agregar el {{ main.namesCrud.singular }}</span>
+    </div>
+
+    <div content *ngIf="form.confirmAdd">
+        <p-messages severity="info" [closable]="true" [style]="{ 'padding': '0rem'}">
+            <ng-template pTemplate>
+                <i class="pi pi-info-circle mr-3"></i>
+                <span>A continuación se muestra un resumen con la información del {{ main.namesCrud.singular }} que desea agregar.</span>
+            </ng-template>
+        </p-messages>
+
+        <span class="text-xl">Detalles del {{ main.namesCrud.singular }}</span>
+        <p-divider />
+        <form [formGroup]="form.fbForm">
+            <div class="formgrid grid">
+                <div class="col-12 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Programa</strong> </span>
+                        <span class="text-700"> {{ form.selectedPrograma }}</span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 md:col-3 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Estado</strong> </span>
+                        <span class="text-700"> {{ form.selectedEstadoPlanEstudio }} </span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 md:col-3 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Modalidad</strong> </span>
+                        <span class="text-700"> {{ form.selectedModalidad }} </span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 md:col-3 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Jornada</strong> </span>
+                        <span class="text-700"> {{ form.selectedJornada }} </span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 md:col-3 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Régimen</strong> </span>
+                        <span class="text-700"> {{ form.selectedRegimen }} </span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 md:col-3 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Cupo mínimo</strong> </span>
+                        <span class="text-700"> {{ form.fbForm.get('cupo_minimo')!.value }} estudiantes</span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 md:col-3 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>REXE</strong> </span>
+                        <span class="text-700"> {{ form.fbForm.get('rexe')!.value }}</span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>¿Tiene certificación intermedia?</strong> </span>
+                        <ng-container *ngIf="form.fbForm.get('tiene_certificacion')!.value === null else notNull;">
+                            <span class="text-700"> NO APLICA </span>
+
+                        </ng-container>
+                        <ng-template #notNull>
+                            <span class="text-700"> {{ form.fbForm.get('tiene_certificacion')!.value === 0 ? 'No' : 'Si' }}</span>
+                        </ng-template>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>¿Tiene articulación con programas de Pregrado?</strong> </span>
+                        <span class="text-700"> {{ form.fbForm.get('tiene_articulacion')!.value === 0 ? 'No' : 'Si' }}</span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>¿Tiene plan común?</strong> </span>
+                        <span class="text-700"> {{ form.fbForm.get('tiene_plan_comun')!.value === 0 ? 'No' : 'Si' }}</span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>¿Tiene rangos de aprobación?</strong> </span>
+                        <span class="text-700"> {{ form.fbForm.get('tiene_rango_aprob_g')!.value === 0 ? 'No' : 'Si' }}</span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>¿Tiene menciones?</strong> </span>
+                        <span class="text-700"> {{ form.fbForm.get('tiene_rango_aprob_g')!.value === 0 ? 'No' : 'Si' }}</span>
+                    </div>
+                </div>
+
+                <div class="col-12 sm:col-6 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>Reglamento</strong> </span>
+                        <span class="text-700"> {{ form.selectedReglamento }} </span>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="mb-2">
+                        <label><strong>Documentos maestros adjuntos</strong></label>                                  
+                    </div>
+                    <app-uploader-files *ngIf="form.confirmAdd" mode="show"></app-uploader-files>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div footer>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
+            (click)="form.confirmAdd = false" [text]="true">
+        </p-button>
+
+        <p-button 
+            label="Confirmar y agregar"
+            icon="pi pi-check"
+            styleClass="mr-2 p-button-success p-button-sm" 
+            (click)="main.insertForm()">
+        </p-button>
     </div>
 </app-dialog>
 
 <app-form-reglamentos></app-form-reglamentos>
+
+<!-- Articulaciones -->
+<app-form-articulaciones [dataExternal]="form.dataExternal" (formWasClosed)="resetDataToPendingForm()"></app-form-articulaciones>
+<app-dialog [dialogWidth]="'80vw'" [(visible)]="form.showTableArticulaciones" (visibleChange)="form.showTableArticulaciones = false">
+    <div header>
+        <span class="text-xl">Articulaciones con el plan de estudio</span>
+    </div>
+    <div content>
+        <div class="flex justify-content-between align-items-center">
+            <div class="flex align-items-center justify-content-center">
+                <p-messages severity="info">
+                    <ng-template pTemplate>
+                        <i class="pi pi-info-circle mr-3"></i>
+                        <span>
+                            A continuación se enlistan las articulaciones entre programas de pregrado y el plan de estudio. 
+                            Si desea agregar una nueva articulación, presione el botón <strong>Agregar</strong>.
+                        </span>
+                    </ng-template>
+                </p-messages>
+            </div>
+            <div class="flex align-items-center justify-content-center">
+                <p-button
+                    label="Agregar"
+                    icon="pi pi-plus"
+                    styleClass="p-button-success ml-4"
+                    (click)="initCreateFormArticulacion()"
+                ></p-button>
+            </div>
+        </div>
+        <app-table-articulaciones [dataExternal]="form.dataExternal" *ngIf="form.showTableArticulaciones"></app-table-articulaciones>
+    </div>
+    <div footer>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" (click)="form.showTableArticulaciones = false" [text]="true"></p-button>
+    </div>
+</app-dialog>
+
+<!-- Asignaturas plan común -->
+<app-form-asignaturas-plancomun *ngIf="form.showFormAsignPlanComun" [dataFromAgregarPE]="form.dataExternal" (formWasClosed)="form.showFormAsignPlanComun = false"></app-form-asignaturas-plancomun>
+
+
+<!-- Certificaciones intermedias PE -->
+ <app-form-certificaciones-intermedias-pe *ngIf="form.showFormCertif" [dataFromAgregarPE]="form.dataExternal" (formWasClosed)="form.showFormCertif = false"></app-form-certificaciones-intermedias-pe>

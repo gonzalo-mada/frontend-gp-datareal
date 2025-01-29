@@ -1,13 +1,13 @@
 <div class="grid">
     <div class="col-12">
-        <app-card header="Mantenedor de {{ main.namesCrud.plural }} de planes de estudios"
-        subheader="Permite visualizar, agregar, actualizar y eliminar {{ main.namesCrud.plural }} de planes de estudios.">
+        <app-card header="Mantenedor de {{ main.namesCrud.plural }}"
+        subheader="Permite visualizar, agregar, actualizar y eliminar {{ main.namesCrud.plural }}.">
 
         <div class="surface-card shadow-2 p-3 border-round mb-4">
             <div class="flex flex-column lg:flex-row align-items-center justify-content-between gap-3 w-full lg:w-auto">
                 <div class="w-full">
                     <div class="mb-2">
-                        <label><strong>Seleccione facultad para cargar programas</strong></label>
+                        <label><strong>Facultad </strong></label>
                     </div>
                     <p-dropdown
                         [options]="mainFacultad.facultades"
@@ -22,7 +22,7 @@
                 </div>
                 <div class="w-full">
                     <div class="mb-2">
-                        <label><strong>Seleccione programa para cargar planes de estudios</strong></label>
+                        <label><strong>Programa </strong></label>
                     </div>
                     <p-dropdown 
                         [options]="main.programas_postgrado_notform"
@@ -38,7 +38,7 @@
                 </div>
                 <div class="w-full">
                     <div class="mb-2">
-                        <label><strong>Seleccione plan de estudio para listar articulaciones </strong></label>
+                        <label><strong>Plan común </strong></label>
                     </div>
                     <p-dropdown 
                         [options]="main.planes_notform"
@@ -46,21 +46,11 @@
                         [disabled]="main.disabledDropdownPlanEstudio" 
                         optionLabel="nombre_plan_estudio_completo"
                         optionValue="cod_plan_estudio" 
-                        placeholder="Seleccione plan de estudio"
+                        placeholder="Seleccione plan común"
                         appendTo="body" 
                         styleClass="w-full p-d-flex p-flex-column" 
                         (onChange)="changePlanDeEstudio($event)" 
                     />
-                </div>
-                <div *ngIf="!main.showTable">
-                    <div class="flex align-items-center justify-content-center sm:justify-content-end sm:mt-5">
-                        <p-button
-                            (onClick)="this.main.setModeCrud('create')"
-                            label="Agregar"
-                            icon="pi pi-plus"
-                            styleClass="p-button-success"
-                        ></p-button>
-                    </div>
                 </div>
             </div>
         </div>

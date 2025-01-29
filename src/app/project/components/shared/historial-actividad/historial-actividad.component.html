@@ -1,0 +1,343 @@
+<app-dialog [dialogWidth]="'80vw'" [(visible)]="main.showDialog">
+    <div header>
+        <span class="text-xl">Historial de actividad</span>
+    </div>
+
+    <div content>
+        <p-table
+            #dt
+            [value]="main.historial" 
+            [dataKey]="main.dataKeyTable" 
+            [rows]="10" 
+            [paginator]="true" 
+            [rowsPerPageOptions]="[10,25,50]" 
+            [showCurrentPageReport]="true"
+            [globalFilterFields]="main.globalFiltros"
+            [customSort]="true"
+            (sortFunction)="main.customSort($event)"
+            sortField="fecha" [sortOrder]="-1"
+            currentPageReportTemplate="{first} hasta {last} de {totalRecords} actividades."
+            autoLayout="true"
+        >
+
+            <ng-template pTemplate="caption">
+                <div class="flex align-items-center justify-content-between">
+                    <div class="flex mb-2 md:mb-0">
+                        <span class="p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="main.searchValue" (input)="onGlobalFilter(dt, $event)" />
+                            </span>
+                        <p-button 
+                            styleClass="p-button-text ml-2" 
+                            icon="pi pi-filter-slash" 
+                            pTooltip="Limpiar filtros"
+                            tooltipPosition="bottom" 
+                            (click)="clear(dt)">
+                        </p-button>
+                    </div>
+                    <div class="flex">
+                      <p-button 
+                        pRipple 
+                        label="Actualizar" 
+                        icon="pi pi-refresh" 
+                        styleClass="p-button-info" 
+                        (click)="main.refreshHistorialActividad()">
+                      </p-button>
+                    </div>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="descripcion_registro" style="width:15%;">
+                        <div class="flex justify-content-start align-items-center">
+                            Valor registro 
+                            <p-sortIcon field="descripcion_registro" /> 
+                            <p-columnFilter 
+                                [showMatchModes]="false" 
+                                [showOperator]="false" 
+                                [showAddButton]="false"
+                                [showButtons]="false"
+                                field="descripcion_registro" 
+                                matchMode="in" 
+                                display="menu"
+                                appendTo="body"
+                            >
+                                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                                    <p-multiSelect
+                                        [options]="main.groupedData.registros" 
+                                        [ngModel]="value"
+                                        [maxSelectedLabels]="1"
+                                        (onChange)="filter($event.value); main.countTableValues(dt)" 
+                                        appendTo="body" 
+                                        placeholder="Filtrar por registro"
+                                        selectedItemsLabel="{0} registros seleccionados" 
+                                    >
+                                    </p-multiSelect>
+                                </ng-template>
+                            </p-columnFilter>
+                        </div>
+                    </th>
+                    <th pSortableColumn="descripcion.titulo" style="width:25%;">
+                        <div class="flex justify-content-start align-items-center">
+                            Actividad
+                            <p-sortIcon field="descripcion.titulo" />
+                            <p-columnFilter
+                                [showMatchModes]="false" 
+                                [showOperator]="false" 
+                                [showAddButton]="false"
+                                [showButtons]="false"
+                                field="descripcion.titulo" 
+                                matchMode="in" 
+                                display="menu"
+                            >
+                                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                                    <p-multiSelect 
+                                        [options]="main.groupedData.actividades" 
+                                        [group]="true" 
+                                        [ngModel]="value"
+                                        [maxSelectedLabels]="2"
+                                        (onChange)="filter($event.value); main.countTableValues(dt)"
+                                        appendTo="body" 
+                                        placeholder="Filtrar por actividad" 
+                                        selectedItemsLabel="{0} actividades seleccionadas"
+                                    >
+                                        <ng-template let-group pTemplate="group">
+                                            <div class="flex align-items-center">
+                                                <span>{{ group.label }}</span>
+                                            </div>
+                                        </ng-template>
+                                    </p-multiSelect>
+                                </ng-template>
+                            </p-columnFilter> 
+                        </div>
+                    </th>
+                    <!-- <th pSortableColumn="tipo_movimiento" style="width:15%;">
+                        <div class="flex justify-content-start align-items-center">
+                            Tipo de actividad 
+                            <p-sortIcon field="tipo_movimiento" /> 
+                            <p-columnFilter
+                                [showMatchModes]="false" 
+                                [showOperator]="false" 
+                                [showAddButton]="false"
+                                [showButtons]="false"
+                                field="tipo_movimiento" 
+                                matchMode="in" 
+                                display="menu"
+                            >
+                                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                                    <p-multiSelect 
+                                        [options]="main.groupedData.tipos_actividades" 
+                                        [ngModel]="value"
+                                        [maxSelectedLabels]="2"
+                                        (onChange)="filter($event.value); main.countTableValues(dt)"
+                                        appendTo="body" 
+                                        placeholder="Filtrar por tipo de actividad" 
+                                        selectedItemsLabel="{0} tipos de actividades seleccionadas"
+                                    >
+                                    </p-multiSelect>
+                                </ng-template>
+                            </p-columnFilter>
+                        </div>
+                    </th> -->
+                    <th pSortableColumn="fecha" style="width:15%;">
+                        <div class="flex justify-content-start align-items-center">
+                            Fecha 
+                            <p-sortIcon field="fecha" /> 
+                            <p-columnFilter
+                                #f 
+                                [showMatchModes]="false" 
+                                [showOperator]="false" 
+                                [showAddButton]="false"
+                                [showButtons]="false"
+                                field="fecha" 
+                                display="menu" 
+                            >
+                                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                                    <p-calendar 
+                                        [(ngModel)]="main.selectedDate" 
+                                        [hideOnDateTimeSelect]="false" 
+                                        [readonlyInput]="true"
+                                        (onSelect)="filter(main.selectedDate); main.countTableValues(dt)"
+                                        placeholder="Filtre por fecha" 
+                                        appendTo="body" 
+                                        dataType="string" 
+                                        dateFormat="dd-mm-yy" 
+                                    >
+                                        <ng-template pTemplate="footer">
+                                            <div class="flex justify-content-center flex-wrap mb-2">
+                                                <p-button 
+                                                    styleClass="p-button-sm p-button-text" 
+                                                    icon="pi pi-times" 
+                                                    pTooltip="Cerrar"
+                                                    (click)="f.hide()">
+                                                </p-button>
+                                            </div>
+                                            
+                                        </ng-template>
+                                    </p-calendar>
+                                </ng-template>
+                            </p-columnFilter>
+                        </div>
+        
+                    </th>
+                    <th pSortableColumn="nombre_usuario" style="width:25%;">
+                        <div class="flex justify-content-start align-items-center">
+                            Realizada por 
+                            <p-sortIcon field="nombre_usuario" /> 
+                            <p-columnFilter 
+                                [showMatchModes]="false" 
+                                [showOperator]="false" 
+                                [showAddButton]="false"
+                                [showButtons]="false"
+                                field="nombre_usuario" 
+                                matchMode="in" 
+                                display="menu"
+                                appendTo="body"
+                            >
+                                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                                    <p-multiSelect
+                                        [options]="main.groupedData.usuarios" 
+                                        [ngModel]="value"
+                                        [maxSelectedLabels]="1"
+                                        (onChange)="filter($event.value); main.countTableValues(dt)" 
+                                        appendTo="body" 
+                                        placeholder="Filtrar por usuario"
+                                        selectedItemsLabel="{0} usuarios seleccionados" 
+                                    >
+                                    </p-multiSelect>
+                                </ng-template>
+                            </p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="width:5%;">Acción</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-data>
+                <tr>
+                    <td> 
+                        {{data.descripcion_registro | slice:0:45 }} {{ (data.descripcion_registro.length > 45 ) ? '...' : '' }}
+                    </td>
+                    <td>
+                        <span> {{data.descripcion.titulo}} </span>
+                    </td>
+                    <!-- <td>
+                        <ng-container [ngSwitch]="data.tipo_movimiento">
+                            <ng-container *ngSwitchCase="'C'">
+                                <span>Creación</span>
+                            </ng-container>
+                            <ng-container *ngSwitchCase="'U'">
+                                <span>Actualización</span>
+                            </ng-container>
+                            <ng-container *ngSwitchCase="'D'">
+                                <span>Eliminación</span>
+                            </ng-container>
+                        </ng-container>
+                    </td> -->
+                    <td>
+                        {{data.fecha_hora}}
+                    </td>
+                    <td>
+                        <span> {{data.nombre_usuario}}  <br> </span>
+                        <span style="font-size: 0.8rem;">
+                            <strong>RUT:</strong> {{data.usuario}}<br>
+                            <strong>Correo:</strong> {{data.correo_usuario}}<br>
+                        </span>
+                    </td>
+                    <td>
+                        <div class="flex align-items-center justify-content-center">
+                            <p-button 
+                                icon="pi pi-eye" 
+                                styleClass="p-button-sm p-button-info mr-2" 
+                                pTooltip="Ver registro"
+                                (click)="main.show(data)" 
+                                tooltipPosition="left"
+                            >
+                            </p-button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td [attr.colspan]="6">Sin registros</td>
+                </tr>
+            </ng-template>
+
+        </p-table>
+    </div>
+
+    <div footer>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
+        (click)="main.showDialog = false" [text]="true"></p-button>
+    </div>
+</app-dialog>
+
+
+<app-dialog *ngIf="main.showDialogVerActividad" [(visible)]="main.showDialogVerActividad">
+    <div header>
+        <span class="text-xl">Ver actividad</span>
+    </div>
+    <div content>
+        <div class="formgrid grid">
+            <div class="col-12 sm:col-4 mb-3">
+                <div class="flex flex-column">
+                    <span class="text-900"> <strong>Valor registro</strong> </span>
+                    <span class="text-700"> {{main.actividad.descripcion_registro}}</span>
+                </div>
+            </div>
+
+            <div class="col-12 sm:col-4 mb-3">
+                <div class="flex flex-column">
+                    <span class="text-900"> <strong>Realizada por</strong> </span>
+                    <span class="text-700"> {{main.actividad.nombre_usuario}}  <br> </span>
+                    <span class="text-700" style="font-size: 0.8rem;">
+                        <strong>RUT:</strong> {{main.actividad.rut_usuario}}<br>
+                        <strong>Correo:</strong> {{main.actividad.correo_usuario}}<br>
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-12 sm:col-4 mb-3">
+                <div class="flex flex-column">
+                    <span class="text-900"> <strong>Fecha</strong> </span>
+                    <span class="text-700"> {{main.actividad.fecha_hora}} </span>
+                </div>
+            </div>
+
+            <div class="col-12 mb-3">
+                <div class="flex flex-column">
+                    <span class="text-900"> <strong>Actividad</strong> </span>
+                    <span class="text-700"> {{main.actividad.descripcion?.titulo}} </span>
+                </div>
+            </div>
+
+        </div>
+        <div class="grid" *ngIf="main.actividad.descripcion?.necesita_tabla === true">
+            <div class="col-12">
+                <p-table [value]="main.actividad.data_tabla!" [tableStyle]="{ 'min-width': '50rem' }" styleClass="p-datatable-sm w-full">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th> {{ main.fromMultiSelect ? 'Antes' : 'Documentos' }} </th>
+                            <th *ngIf="main.fromMultiSelect"> Ahora </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-data>
+                        <tr>
+                            <td *ngIf="!main.fromMultiSelect">{{ data }}</td>
+                            <td *ngIf="main.fromMultiSelect">{{ data.antes }}</td>
+                            <td *ngIf="main.fromMultiSelect">{{ data.despues }}</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+    </div>
+    <div footer>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
+        (click)="main.showDialogVerActividad = false" [text]="true">
+    </p-button>
+    </div>
+</app-dialog>

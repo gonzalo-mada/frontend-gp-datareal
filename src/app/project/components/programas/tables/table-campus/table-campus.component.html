@@ -24,7 +24,9 @@
     [globalFilterFields]="table.globalFiltros"
     [(selection)]="table.selectedRows" 
     [dataKey]="table.dataKeyTable" 
-    (selectionChange)="table.setSelectedRows()" >
+    (selectionChange)="table.setSelectedRows()" 
+    sortField="estadoCampus" [sortOrder]="-1"
+    >
     <ng-template pTemplate="caption">
         <div class="flex flex-wrap flex-column md:flex-row justify-content-between align-items-center">
             <div class="flex mb-2 md:mb-0">
@@ -88,13 +90,13 @@
             </td>
             <td style="width:50%; min-width:10rem;">
                 <span class="p-column-title">Nombre</span>
-                {{campus.Descripcion_campus}}
+                {{campus.descripcionCampus}}
             </td>
             <td style="width:50%; min-width:10rem;">
                 <div class="flex flex-row flex-wrap">
                     <div class="flex align-items-center justify-content-center">
-                        <span [ngClass]="campus.Estado_campus ? 'estado-badge estado-activo' : 'estado-badge estado-desactivo'">
-                            {{ campus.Estado_campus ? 'activo' : 'inactivo' }}
+                        <span [ngClass]="campus.estadoCampus === 1 ? 'estado-badge estado-activo' : 'estado-badge estado-desactivo'">
+                            {{ campus.estadoCampus === 1 ? 'activo' : 'inactivo' }}
                           </span>
                     </div>
                     <div class="flex align-items-center justify-content-center">

@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { FormAsignaturasService } from 'src/app/project/services/asignaturas/asignaturas/form.service';
 import { FormPlanDeEstudioService } from 'src/app/project/services/plan-de-estudio/plan-de-estudio/form.service';
 import { FormProgramaService } from 'src/app/project/services/programas/programas/form.service';
 
@@ -14,17 +15,27 @@ export class StateFormComponent implements OnInit  {
 
   constructor(
     public formPrograma: FormProgramaService,
-    public formPlanDeEstudio: FormPlanDeEstudioService
+    public formPlanDeEstudio: FormPlanDeEstudioService,
+    public formAsignaturas: FormAsignaturasService
   ){}
 
   async ngOnInit() {
-    if (this.formName === 'programa'){
-      this.form = this.formPrograma;
-      await this.setPrograma();
-    } 
-    if (this.formName === 'planDeEstudio'){
-      this.form = this.formPlanDeEstudio;
-      await this.setPlanDeEstudio();
+    switch (this.formName) {
+      case 'programa':
+        this.form = this.formPrograma;
+        await this.setPrograma();
+      break;
+
+      case 'planDeEstudio':
+        this.form = this.formPlanDeEstudio;
+        await this.setPlanDeEstudio();
+      break;
+
+      case 'asignaturas':
+        this.form = this.formAsignaturas;
+        await this.setAsignaturas();
+      break;
+    
     } 
   }
 
@@ -45,14 +56,14 @@ export class StateFormComponent implements OnInit  {
         state: 'stateStepOne',
         fields: [
           { label: 'Nombre de programa', control: 'Nombre_programa' },
-          { label: 'Correo LDAP', control: 'Grupo_correo' },
+          { label: 'Grupo de correo', control: 'Grupo_correo' },
           { label: 'Título', control: 'Titulo' },
           { label: 'Grado académico', control: 'Grado_academico' },
-          { label: 'Centro costo', control: 'Centro_costo' },
+          { label: 'Centro de responsabilidad', control: 'Centro_costo' },
           { label: 'Código SIES', control: 'Codigo_SIES' },
           { label: 'Créditos totales', control: 'Creditos_totales' },
           { label: 'Horas totales', control: 'Horas_totales' },
-          { label: 'REXE', control: 'REXE' },
+          { label: 'REXE / DEXE', control: 'REXE' },
         ]
       },
       {
@@ -100,7 +111,7 @@ export class StateFormComponent implements OnInit  {
         title: 'Documento adjunto',
         state: 'stateFileMaestro',
         fields: [
-          { label: 'Documento maestro', control: 'file_maestro' },
+          { label: 'Documentos maestros', control: 'file_maestro' },
         ]
       }
     ]
@@ -134,7 +145,9 @@ export class StateFormComponent implements OnInit  {
         fields: [
           { label: 'Certificaciones intermedias', control: 'tiene_certificacion' },
           { label: 'Articulaciones', control: 'tiene_articulacion' },
-          { label: 'Plan común', control: 'tiene_plan_comun' }
+          { label: 'Plan común', control: 'tiene_plan_comun' },
+          { label: 'Rangos de aprobación', control: 'tiene_rango_aprob_g' },
+          { label: 'Menciones', control: 'tiene_mencion' }
         ]
       },
       {
@@ -142,13 +155,7 @@ export class StateFormComponent implements OnInit  {
         title: 'Paso 3',
         state: 'stateStepThree',
         fields: [
-          { label: 'Reglamento', control: 'cod_reglamento' },
-          { label: 'Rangos de aprobación', control: 'Cod_RangosAprobacion' },
-          { 
-            label: 'Menciones', 
-            control: 'menciones', 
-            conditional: { field: 'tiene_mencion', value: true }
-          }
+          { label: 'Reglamento', control: 'cod_reglamento' }
         ]
       },
       {
@@ -156,7 +163,89 @@ export class StateFormComponent implements OnInit  {
         title: 'Documento adjunto',
         state: 'stateFileMaestro',
         fields: [
-          { label: 'Documento maestro', control: 'file_maestro' },
+          { label: 'Documentos maestros', control: 'file_maestro' },
+        ]
+      }
+    ]
+  }
+
+  async setAsignaturas(){
+    return this.dataForm = [
+      {
+        step: 1,
+        title: 'Paso 1',
+        state: 'stateStepOne',
+        fields: [
+          { label: 'Programa', control: 'cod_programa' },
+          { label: 'Plan de estudio', control: 'cod_plan_estudio' },
+          { label: 'Modalidad', control: 'cod_modalidad' },
+          { label: 'Régimen', control: 'cod_regimen' },
+          { label: 'Tipo de evaluación', control: 'cod_tipo_evaluacion' },
+          { label: 'Código asignatura', control: 'codigo_externo' },
+          { label: 'Nombre', control: 'nombre_asignatura' },
+          { label: 'Semestre', control: 'semestre' },
+          { label: 'Duración', control: 'duracion' },
+          { label: 'Máximo duración', control: 'max_duracion' },
+          { label: 'Créditos', control: 'num_creditos' }
+        ]
+      },
+      {
+        step: 2,
+        title: 'Paso 2',
+        state: 'stateStepTwo',
+        fields: [
+          { label: 'Horas síncronas', control: 'horas_sincronas' },
+          { label: 'Horas asíncronas', control: 'horas_asincronas' },
+          { label: 'Horas presenciales', control: 'horas_presenciales' },
+          { label: 'Horas indirectas', control: 'horas_indirectas' }
+        ]
+      },
+      {
+        step: 3,
+        title: 'Paso 3',
+        state: 'stateStepThree',
+        fields: [
+          { label: 'Menciones', control: 'tiene_mencion' },
+          { 
+            label: 'Mención seleccionada', 
+            control: 'menciones',
+            conditional: { field: 'tiene_mencion', value: 1 } 
+          },
+          { label: 'Evaluaciones intermedias', control: 'tiene_evaluacionintermedia' },
+          { label: 'Pre requisitos', control: 'tiene_prerequisitos' },
+          { 
+            label: 'Pre requisitos seleccionados', 
+            control: 'pre_requisitos' ,
+            conditional: { field: 'tiene_prerequisitos', value: 1 }
+          },
+          { label: 'Tema', control: 'tiene_tema' },
+          { 
+            label: 'Temas seleccionados', 
+            control: 'tema',
+            conditional: { field: 'tiene_tema', value: 1 } 
+          },
+          { label: 'Colegiada', control: 'tiene_colegiada' },
+          { 
+            label: 'Tipo de colegiada', 
+            control: 'cod_tipo_colegiada',
+            conditional: { field: 'tiene_colegiada', value: 1 } 
+          },
+          { label: 'Obligatoria / Electiva', control: 'obligatoria_electiva' },
+          { label: 'Articulable', control: 'tiene_articulacion' },
+          { label: 'Paralela / Secuencial', control: 'tiene_secuencialidad' },
+          { 
+            label: 'Asign. secuencial', 
+            control: 'secuencialidad',
+            conditional: { field: 'tiene_secuencialidad', value: 1 }  
+          },
+        ]
+      },
+      {
+        step: 0,
+        title: 'Documento adjunto',
+        state: 'stateFileMaestro',
+        fields: [
+          { label: 'Documentos maestros', control: 'file_maestro' },
         ]
       }
     ]

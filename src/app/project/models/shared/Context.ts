@@ -31,7 +31,11 @@ export type NameComponent = undefined |
                 'tipo-graduacion' |
                 'certificacion-intermedia' |
                 'agregar-plandeestudio' |
-                'ver/editar-plandeestudio';
+                'ver/editar-plandeestudio' |
+                'agregar-asignatura' |
+                'ver/editar-asignatura' |
+                'menciones'
+                ;
 export type CollectionsMongo = 
 undefined | 
 'REXE' | 
@@ -54,7 +58,17 @@ undefined |
 'centro_costo' |
 'codigo_sies' |
 'tipo_programa' |
-'graduacion_colaborativa' ; 
+'graduacion_colaborativa' |
+'plan_estudio' |
+'estado_pe' | 
+'modalidad_pe' |
+'jornada_pe' | 
+'regimen_pe' |
+'rexe_pe' |
+'cupo_minimo_pe' | 
+'plan_estudio' |
+'articulaciones'
+; 
 
 
 export interface Context {

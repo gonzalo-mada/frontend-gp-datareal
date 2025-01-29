@@ -3,10 +3,10 @@
         <div class="flex justify-content-between flex-wrap w-auto" [style]="{ 'padding-left': '1.5rem', 'padding-top': '1.5rem', 'padding-right': '1.5rem' }">
             <div class="flex flex-column w-full sm:w-auto">
                 <div class="p-card-title">
-                    {{ mode === 'show' ? 'Visualización del' : 'Edición del'}} {{ mainPE.namesCrud.articulo_singular }}
+                    {{ mode === 'show' ? 'Visualización del' : 'Edición del'}} {{ mainPE.namesCrud.singular }}
                 </div>
                 <div class="p-card-subtitle">
-                    <span>A continuación, se despliegan la totalidad de campos que contiene un {{ mainPE.namesCrud.articulo_singular }}.</span> <br/>
+                    <span>A continuación, se despliegan la totalidad de campos que contiene un {{ mainPE.namesCrud.singular }}.</span> <br/>
                     <span *ngIf="mode === 'show'">
                         Para ver más detalles del campo, como por ejemplo: sus documentos adjuntos, presione el botón 
                         (<i class="pi pi-eye" style="font-size: 0.8rem; font-weight: 1000;"></i>).
@@ -89,10 +89,10 @@
                 <div class="w-full sm:w-auto">
                     <p-button 
                         pRipple 
-                        [label]=" mode === 'show' ?  'Ver documentos maestros' : 'Editar documentos maestros' " 
-                        [icon]=" mode === 'show' ? 'pi pi-eye' : 'pi pi-pencil' " 
+                        [label]=" mode === 'show' ?  'Documentos maestros' : 'Documentos maestros' " 
+                        [icon]=" mode === 'show' ? 'pi pi-paperclip' : 'pi pi-paperclip' " 
                         [styleClass]=" mode === 'show' ? 'p-button w-full sm:w-auto' : 'p-button-warning w-full sm:w-auto' " 
-                        (click)="openDialog('maestro', 'maestro')">
+                        (click)="openDialog('docs_maestros_plan_estudio', 'plan_estudio')">
                     </p-button>
                 </div>
             </div>
@@ -108,7 +108,7 @@
                                             <div class="flex flex-column w-full">
                                                 <div class="flex flex-row flex-wrap mb-2">
                                                     <div class="align-items-center">
-                                                        <label><strong> {{ item.title }} </strong></label>
+                                                        <label [class]=" item.title.length > 40 ? 'font-bold text-900 text-sm' : 'font-bold text-base text-900' " class="">{{ item.title }}</label>
                                                     </div>
                                                     <div *ngIf="item.iconHelp" class="align-items-center ml-1" [style]="{'margin-top': '0.1rem !important'}">
                                                         <i class="pi pi-question-circle" [pTooltip]='tooltipTp' tooltipPosition="top"></i>
@@ -118,6 +118,63 @@
                                                     </div>
                                                 </div>
                                                 <ng-container *ngIf="item.control !== ''  " [ngSwitch]="item.control">
+                                                    <div *ngSwitchCase="'tiene_articulacion'" >
+                                                        <div class="flex flex-row justify-content-start flex-wrap">
+                                                            <div class="flex align-items-center justify-content-center">
+                                                                <span>No</span>
+                                                            </div>
+                                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_articulacion"  styleClass="mt-1 mx-1"/>
+                                                            </div>
+                                                            <div class="flex align-items-center justify-content-center">
+                                                                <span>Si</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div *ngSwitchCase="'tiene_certificacion'" >
+                                                        <div class="flex flex-row justify-content-start flex-wrap">
+                                                            <div class="flex align-items-center justify-content-center">
+                                                                <span>No</span>
+                                                            </div>
+                                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_certificacion"  styleClass="mt-1 mx-1"/>
+                                                            </div>
+                                                            <div class="flex align-items-center justify-content-center">
+                                                                <span>Si</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div *ngSwitchCase="'tiene_rango_aprob_g'" >
+                                                        <div class="flex flex-row justify-content-start flex-wrap">
+                                                            <div class="flex align-items-center justify-content-center">
+                                                                <span>No</span>
+                                                            </div>
+                                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_rango_aprob_g"  styleClass="mt-1 mx-1"/>
+                                                            </div>
+                                                            <div class="flex align-items-center justify-content-center">
+                                                                <span>Si</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div *ngSwitchCase="'tiene_mencion'" >
+                                                        <div class="flex flex-row justify-content-start flex-wrap">
+                                                            <div class="flex align-items-center justify-content-center">
+                                                                <span>No</span>
+                                                            </div>
+                                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_mencion"  styleClass="mt-1 mx-1"/>
+                                                            </div>
+                                                            <div class="flex align-items-center justify-content-center">
+                                                                <span>Si</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div *ngSwitchCase="'cupo_minimo'" >
+                                                        <div [class]=" form.fbForm.get(item.control)!.value.length > 20 ? 'text-700 font-medium text-sm sm:text-base' : 'text-700 font-medium text-base' ">
+                                                            {{ form.fbForm.get(item.control)!.value }} {{ form.fbForm.get(item.control)!.value > 1 ? 'estudiantes' : 'estudiante' }} 
+                                                        </div>
+                                                    </div>
                                                     <div *ngSwitchDefault [class]=" form.fbForm.get(item.control)!.value.length > 20 ? 'text-700 font-medium text-sm sm:text-base' : 'text-700 font-medium text-base' ">
                                                         {{ form.fbForm.get(item.control)!.value }} 
                                                     </div>
@@ -149,3 +206,34 @@
         </div>
     </ng-template>
 </p-card>
+
+<app-form-pe-update
+    [mode]="mode"
+    [planDeEstudio]="mainPE.planDeEstudio"
+    [modeDialogInput]="updatePE"
+    [refreshPE]="onClickRefreshPE"
+    (formUpdated)="formUpdated()"
+    (resetDialog)="resetDialog()"
+></app-form-pe-update>
+
+<app-form-reglamentos></app-form-reglamentos>
+
+<app-dialog [dialogWidth]="'80vw'" [(visible)]="main.dialogHistorialActividades">
+    <div header>
+        <span class="text-xl">Historial de actividades</span>
+    </div>
+    <div content>
+        <p-messages severity="info">
+            <ng-template pTemplate>
+                <i class="pi pi-info-circle mr-3"></i>
+                <span>
+                    Muestra un historial de las actividades realizadas en el plan de estudio, incluyendo creación, actualización y eliminación, la información anterior y actual, la fecha de cada actividad y quien la realizó.
+                </span>
+            </ng-template>
+        </p-messages>
+        <app-table-programas-historial-actividad *ngIf="main.dialogHistorialActividades" [data]="logsPE" [mode]="mode" [form]="'plan de estudio'"></app-table-programas-historial-actividad>
+    </div>
+    <div footer>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" (click)="main.dialogHistorialActividades = false" [text]="true"></p-button>
+    </div>
+</app-dialog>

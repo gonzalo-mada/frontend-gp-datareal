@@ -49,7 +49,18 @@ export class BackendProgramasService {
 
     async getCampus(loading = true) {
         try {
-            return await this.invoker.httpInvoke({ service: 'campus/logica_getCampus', loading: loading });
+            return await this.invoker.httpInvoke({ service: 'campus/getCampusActivos', loading: loading });
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(error, {
+                notifyMethod: 'alert',
+                message: 'Hubo un error al obtener campus. Intente nuevamente.',
+            });
+        }
+    }
+
+    async getCampusActivos(loading = true) {
+        try {
+            return await this.invoker.httpInvoke({ service: 'campus/getCampusActivos', loading: loading });
         } catch (error: any) {
             this.errorTemplateHandler.processError(error, {
                 notifyMethod: 'alert',
@@ -126,7 +137,7 @@ export class BackendProgramasService {
     
     async getTiposGraduaciones(loading = true) {
         try {
-            return await this.invoker.httpInvoke({ service: 'tipoGraduacionConjunta/getTipoGradConjunta', loading: loading });
+            return await this.invoker.httpInvoke({ service: 'tiposGraduacionesColaborativas/getTipoColaborativa', loading: loading });
         } catch (error: any) {
             this.errorTemplateHandler.processError(error, {
                 notifyMethod: 'alert',

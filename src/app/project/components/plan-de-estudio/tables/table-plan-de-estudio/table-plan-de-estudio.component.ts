@@ -29,7 +29,7 @@ export class TablePlanDeEstudioComponent implements OnInit, OnDestroy {
   }
 
   async getData(showCountTableValues: boolean){
-    // await this.main.getPlanesDeEstudios(showCountTableValues);
+    // await this.main.getPlanesDeEstudiosMergedPorPrograma(showCountTableValues);
   }
 
   onGlobalFilter(table: Table, event: Event) {

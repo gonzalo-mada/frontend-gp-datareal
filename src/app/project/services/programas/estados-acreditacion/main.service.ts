@@ -9,6 +9,7 @@ import { BackendEstadosAcreditacionService } from './backend.service';
 import { FilesEstadosAcreditacionService } from './files.service';
 import { FormEstadosAcreditacionService } from './form.service';
 import { TableEstadosAcreditacionService } from './table.service';
+import { HistorialActividadService } from '../../components/historial-actividad.service';
 @Injectable({
     providedIn: 'root'
 })
@@ -27,7 +28,8 @@ export class EstadosAcreditacionMainService {
     estado: EstadosAcreditacion = {};
 
     //MODAL
-    dialogForm: boolean = false
+    dialogForm: boolean = false;
+    needUpdateHistorial: boolean = false;
 
     constructor(
         private backend: BackendEstadosAcreditacionService,
@@ -35,7 +37,8 @@ export class EstadosAcreditacionMainService {
         private files: FilesEstadosAcreditacionService,
         private form: FormEstadosAcreditacionService,
         private messageService: MessageServiceGP,
-        private table: TableEstadosAcreditacionService
+        private table: TableEstadosAcreditacionService,
+        private historialActividad: HistorialActividadService
     ){
         this.form.initForm();
         this.files.initFiles();
@@ -57,6 +60,7 @@ export class EstadosAcreditacionMainService {
             case 'delete': await this.openConfirmationDelete(); break;
             case 'delete-selected': await this.openConfirmationDeleteSelected(); break;
             case 'rowExpandClick': await this.clickRowExpandTablePrograma(); break;
+            case 'historial': this.openHistorialActividad(); break;
         }
     }
 
@@ -116,14 +120,15 @@ export class EstadosAcreditacionMainService {
                     severity: 'success',
                     detail: generateMessage(this.namesCrud,response.dataInserted,'creado',true,false)
                 });
+                this.table.emitRefreshTablesEA();
             }
             
         }catch (error) {
             console.log(error);
         }finally{
             this.dialogForm = false;
-            this.table.emitRefreshTablesEA();
             this.getEstadosAcreditacion(false);
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -138,13 +143,14 @@ export class EstadosAcreditacionMainService {
                     severity: 'success',
                     detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
                 });
+                this.table.emitRefreshTablesEA();
             }
         }catch (error) {
             console.log(error);
         }finally{
             this.dialogForm = false;
-            this.table.emitRefreshTablesEA();
             this.getEstadosAcreditacion(false);
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -233,6 +239,7 @@ export class EstadosAcreditacionMainService {
         }finally{
             this.getEstadosAcreditacion(false);
             this.table.emitRefreshTablesEA();
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -354,6 +361,18 @@ export class EstadosAcreditacionMainService {
         await this.files.setContextUploader('show','servicio','estado-acreditacion');
         this.files.resetLocalFiles();
         await this.files.loadDocsWithBinary(this.estado)
+    }
+
+    openHistorialActividad(){
+        this.historialActividad.showDialog = true;
+    }
+
+    setOrigen(origen: string){
+        this.historialActividad.setOrigen(origen);
+    }
+
+    setNeedUpdateHistorial(need: boolean){
+        this.needUpdateHistorial = need;
     }
 
 

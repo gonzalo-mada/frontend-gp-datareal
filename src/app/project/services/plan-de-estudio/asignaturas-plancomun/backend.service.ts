@@ -62,9 +62,12 @@ export class BackendAsignaturasPlancomunService {
         }
     }
 
-    async getAsignaturasPorPlanDeEstudio(params: any) {
+    async getAsignaturasSimplificatedPorPlanDeEstudio(params: any, loading = true) {
         try {
-            return await this.invoker.httpInvoke('planesDeEstudio/getAsignaturasPorPlanDeEstudio', params );
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('asignaturas/getAsignaturasSimplificatedPorPlanDeEstudio', loading),
+                params
+            );
         } catch (error: any) {
             this.errorTemplateHandler.processError(
                 error, 
@@ -76,11 +79,28 @@ export class BackendAsignaturasPlancomunService {
         }
     }
 
-    async insertArticulacion(params: any, namesCrud: NamesCrud) {
+    async getPlanesDeEstudiosConPlanComun(params: any, loading = true) {
+        try {
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('asign-plancomun/getPlanesDeEstudiosConPlanComun', loading),
+                params
+            );
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(
+                error, 
+                {
+                    notifyMethod: 'alert',
+                    message: `Hubo un error al obtener plan común por plan de estudio seleccionado. Intente nuevamente.`,
+                }
+            );
+        }
+    }
+
+    async insertAsignaturasPlanComun(params: any, namesCrud: NamesCrud) {
         try {
             const response = await this.serviceUtils.checkResponse(
                 await this.invoker.httpInvoke(
-                    this.serviceUtils.generateServiceMongo('articulaciones/insertArticulacion'),
+                    this.serviceUtils.generateServiceMongo('asign-plancomun/insertAsignaturasPlanComun'),
                     params
                 ),
                 namesCrud
@@ -98,10 +118,13 @@ export class BackendAsignaturasPlancomunService {
         }
     }
 
-    async updateArticulacion(params: any, namesCrud: NamesCrud) {
+    async updateAsignaturasPlanComun(params: any, namesCrud: NamesCrud) {
         try {
             const response = await this.serviceUtils.checkResponse(
-                await this.invoker.httpInvoke('articulaciones/updateArticulacion',params),
+                await this.invoker.httpInvoke(
+                    this.serviceUtils.generateServiceMongo('asign-plancomun/updateAsignaturasPlanComun'),
+                    params
+                ),
                 namesCrud
             );
             return response;
@@ -117,9 +140,9 @@ export class BackendAsignaturasPlancomunService {
         }
     }
 
-    async deleteArticulacion(params: any, namesCrud: NamesCrud) {
+    async deleteAsignaturasPlanComun(params: any, namesCrud: NamesCrud) {
         try {
-            return await this.invoker.httpInvoke('articulaciones/deleteArticulacion',{articulacionesToDelete: params});
+            return await this.invoker.httpInvoke('asign-plancomun/deleteAsignaturasPlanComun',{asignPCToDelete: params});
         } catch (error: any) {
             this.errorTemplateHandler.processError(
                 error, 

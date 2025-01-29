@@ -9,12 +9,12 @@ import { Campus } from 'src/app/project/models/programas/Campus';
 export class TableCampusService {
 
     cols : any[] = [
-        { field: 'Descripcion_campus', header: 'Nombre' },
-        { field: 'Estado_campus', header: 'Estado' },
+        { field: 'descripcionCampus', header: 'Nombre' },
+        { field: 'estadoCampus', header: 'Estado' },
         { field: 'accion', header: 'Acciones' }
     ];
-    globalFiltros : any[] = [ 'Descripcion_campus' ];
-    dataKeyTable : string = 'Cod_campus';
+    globalFiltros : any[] = [ 'descripcionCampus' ];
+    dataKeyTable : string = 'codigoCampus';
     selectedRows: Campus[] = [];
 
     constructor(private tableCrudService: TableCrudService){}

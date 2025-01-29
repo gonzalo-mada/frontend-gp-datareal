@@ -102,6 +102,74 @@ export class BackendPlanesDeEstudiosService {
         }
     }
 
+    async getCertifIntermediasPorPlanDeEstudio(params: any,  loading = true) {
+        try {
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('certificacionIntermediaPE/getCertificacionesIntermediasPorPlanDeEstudio', loading),
+                params
+            );
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(
+                error, 
+                {
+                    notifyMethod: 'alert',
+                   message: 'Hubo un error al obtener certificaciones intermedias. Intente nuevamente.'
+                }
+            );
+        }
+    }
+
+    async getAsignaturasPorPlanDeEstudio(params: any,  loading = true) {
+        try {
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('asignaturas/getAsignaturasSimplificatedPorPlanDeEstudio', loading),
+                params
+            );
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(
+                error, 
+                {
+                    notifyMethod: 'alert',
+                   message: 'Hubo un error al obtener asignaturas. Intente nuevamente.'
+                }
+            );
+        }
+    }
+
+    async getRangosPorPlanDeEstudio(params: any,  loading = true) {
+        try {
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('rangoAprobacion/getRangosAprobacionPorPlanDeEstudio', loading),
+                params
+            );
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(
+                error, 
+                {
+                    notifyMethod: 'alert',
+                   message: 'Hubo un error al obtener grados de aprobación. Intente nuevamente.'
+                }
+            );
+        }
+    }
+
+    async getMencionesPorPlanDeEstudio(params: any,  loading = true) {
+        try {
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('menciones/getMencionesPorPlanDeEstudio', loading),
+                params
+            );
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(
+                error, 
+                {
+                    notifyMethod: 'alert',
+                   message: 'Hubo un error al obtener menciones. Intente nuevamente.'
+                }
+            );
+        }
+    }
+
     async getProgramaPostgrado(params: any, loading = true) {
         try {
             return await this.invoker.httpInvoke(
@@ -144,6 +212,20 @@ export class BackendPlanesDeEstudiosService {
         }
     }
 
+    async getLogPE(params: any, loading = true) {
+        try {
+            return await this.invoker.httpInvoke(
+                { service: 'planesDeEstudio/getLogPE', loading: loading },
+                params
+            );
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(error, {
+                notifyMethod: 'alert',
+                message: 'Hubo un error al obtener historial de actividades. Intente nuevamente.'
+            });
+        }
+    }
+
     async getArchiveDoc(id: any, from: string, needBinaryString: boolean) {
         try {
             if (needBinaryString) {
@@ -174,7 +256,7 @@ export class BackendPlanesDeEstudiosService {
         try {
             return await this.invoker.httpInvoke(
                 this.serviceUtils.generateServiceMongo('planesDeEstudio/getDocsMongo', false),
-                { Cod_Programa: cod_plan_estudio, from: from }
+                { cod_plan_estudio: cod_plan_estudio, from: from }
             );
         } catch (error: any) {
             this.errorTemplateHandler.processError(error, {
@@ -230,7 +312,7 @@ export class BackendPlanesDeEstudiosService {
         } catch (error: any) {
             this.errorTemplateHandler.processError(error, {
                 notifyMethod: 'alert',
-                summary: `Error al agregar ${namesCrud.articulo_singular}.`,
+                summary: `Error al actualizar ${namesCrud.articulo_singular}.`,
                 message: error?.message || error.detail.error.message.message
             });
         }
@@ -241,14 +323,14 @@ export class BackendPlanesDeEstudiosService {
             return this.serviceUtils.checkResponse(
                 await this.invoker.httpInvoke(
                     this.serviceUtils.generateServiceMongo('planesDeEstudio/deletePlanDeEstudio'),
-                    params
+                    {planesToDelete: params}
                 ),
                 namesCrud
             );
         } catch (error: any) {
             this.errorTemplateHandler.processError(error, {
                 notifyMethod: 'alert',
-                summary: `Error al agregar ${namesCrud.articulo_singular}.`,
+                summary: `Error al eliminar ${namesCrud.articulo_singular}.`,
                 message: error?.message || error.detail.error.message.message
             });
         }

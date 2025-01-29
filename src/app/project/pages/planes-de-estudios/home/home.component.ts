@@ -34,17 +34,18 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
     this.tableCrudService.resetSelectedRows();
-    this.main.reset();
+    // this.main.reset();
   }
 
   changeFacultad(event: any){
+    this.main.resetWhenChangedDropdownFacultad();
     this.main.cod_facultad_selected = event.value;
     this.main.getProgramasPorFacultad();
   }
 
   async changeProgramaPostgrado(event:any){
     this.main.cod_programa_postgrado_selected = event.value;
-    await this.main.getPlanesDeEstudiosMergedPorPrograma();
+    await this.main.getPlanesDeEstudiosMergedPorPrograma(false);
   }
 
 }

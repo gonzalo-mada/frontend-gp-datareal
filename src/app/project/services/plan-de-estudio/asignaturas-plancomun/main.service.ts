@@ -10,6 +10,7 @@ import { MessageServiceGP } from '../../components/message-service.service';
 import { TableAsignaturasPlancomunService } from './table.service';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
+import { LoadinggpService } from '../../components/loadinggp.service';
 
 @Injectable({
     providedIn: 'root'
@@ -18,10 +19,10 @@ import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.ut
 export class AsignaturasPlancomunMainService {
 
     namesCrud: NamesCrud = {
-        singular: 'asignatura de plan común',
-        plural: 'asignaturas de plan común',
-        articulo_singular: 'la asignatura de plan común',
-        articulo_plural: 'las asignaturas de plan común',
+        singular: 'asignatura de un plan de estudio para un plan común',
+        plural: 'asignaturas de un plan de estudio para un plan común',
+        articulo_singular: 'la asignatura de un plan de estudio para un plan común',
+        articulo_plural: 'las asignaturas de un plan de estudio para un plan común',
         genero: 'femenino'
     }
 
@@ -46,21 +47,16 @@ export class AsignaturasPlancomunMainService {
 
     asignaturas_plancomun: AsignaturasPlancomun[] = [];
     asignatura_plancomun: AsignaturasPlancomun = {};
+    planes_pc: any[] = [];
     
     //vars origen
     programas_origen: any[] = [];
-    cod_facultad_selected_origen: number = 0;
     planes_origen: PlanDeEstudio[] = [];
-    cod_programa_origen: number = 0;
 
-    //vars origen
+    //vars destino
     programas_destino: any[] = [];
-    cod_facultad_selected_destino: number = 0;
     planes_destino: PlanDeEstudio[] = [];
-    cod_programa_destno: number = 0;
 
-    showTables: boolean = false; 
-    cod_planestudio_selected: number = 0;
 
     //MODAL
     dialogForm: boolean = false
@@ -73,7 +69,8 @@ export class AsignaturasPlancomunMainService {
         private confirmationService: ConfirmationService,
         private form: FormAsignaturasPlancomunService,
         private messageService: MessageServiceGP,
-        private table: TableAsignaturasPlancomunService
+        private table: TableAsignaturasPlancomunService,
+        private systemService: LoadinggpService
     ){
         this.form.initForm();
     }
@@ -98,17 +95,12 @@ export class AsignaturasPlancomunMainService {
     }
 
     async reset(){
+        this.wasFilteredTable = false;
         this.form.resetForm();
         this.table.emitResetExpandedRows();
         this.table.resetSelectedRows();
-        this.resetValuesSelected();
-        this.hideElements();
+        this.form.resetValuesVarsSelected();
         this.clearAllMessages();
-    }
-
-    resetValuesSelected(){
-        this.cod_programa_origen = 0;
-        this.cod_planestudio_selected = 0;
         this.asignaturas_plancomun = [];
     }
 
@@ -128,16 +120,17 @@ export class AsignaturasPlancomunMainService {
     }
 
     countTableValues(value?: number){
-        value ? this.backend.countTableRegisters(value,this.namesCrud) : this.backend.countTableRegisters(this.asignaturas_plancomun.length, this.namesCrud);
+        value ? this.backend.countTableRegisters(value,this.namesCrud) : this.backend.countTableRegisters(this.planes_pc.length, this.namesCrud);
     }
 
     async getProgramasPorFacultadOrigen(showCountTableValues: boolean = true, needShowLoading = true){
-		let params = { Cod_facultad: this.cod_facultad_selected_origen }
+		let params = { Cod_facultad: this.form.cod_facultad_selected_origen }
 		const response = await this.backend.getProgramasPorFacultad(params,needShowLoading);
 		if (response) {
 		  this.programas_origen = [...response];
 		  if (this.programas_origen.length === 0 ) {
             this.form.setStatusControlProgramaOrigen(false)
+            this.form.setArrowColor('facultad_to_programas_left','red');
             this.showMessageSinResultadosPrograma('f');
 		  }else{
             if (showCountTableValues) {
@@ -150,18 +143,20 @@ export class AsignaturasPlancomunMainService {
                 });
             }
             this.form.setStatusControlProgramaOrigen(true)
+            this.form.setArrowColor('facultad_to_programas_left','green');
             this.clearMessagesSinResultados('f');
 		  }
 		}
 	}
 
     async getProgramasPorFacultadDestino(showCountTableValues: boolean = true, needShowLoading = true){
-		let params = { Cod_facultad: this.cod_facultad_selected_destino }
+		let params = { Cod_facultad: this.form.cod_facultad_selected_destino }
 		const response = await this.backend.getProgramasPorFacultad(params,needShowLoading);
 		if (response) {
 		  this.programas_destino = [...response];
 		  if (this.programas_destino.length === 0 ) {
             this.form.setStatusControlProgramaDestino(false)
+            this.form.setArrowColor('facultad_to_programas_right','red');
             this.showMessageSinResultadosPrograma('f');
 		  }else{
             if (showCountTableValues) {
@@ -173,19 +168,21 @@ export class AsignaturasPlancomunMainService {
                     : `${this.programas_destino.length} programa cargado.`
                 });
             }
-            this.form.setStatusControlProgramaDestino(true)
+            this.form.setStatusControlProgramaDestino(true);
+            this.form.setArrowColor('facultad_to_programas_right','green');
             this.clearMessagesSinResultados('f');
 		  }
 		}
 	}
 
-    async getPlanesDeEstudiosPorProgramaOrigen(showCountTableValues: boolean = true){
-        let params = { Cod_Programa: this.cod_programa_origen }
-        const response = await this.backend.getPlanesDeEstudiosPorPrograma(params);
+    async getPlanesDeEstudiosPorProgramaOrigen(showCountTableValues: boolean = true, needShowLoading = true){
+        let params = { Cod_Programa: this.form.cod_programa_selected_origen }
+        const response = await this.backend.getPlanesDeEstudiosPorPrograma(params,needShowLoading);
         if (response) {
           this.planes_origen = [...response];
           if (this.planes_origen.length === 0 ) {
             this.form.setStatusControlPlanEstudioOrigen(false);
+            this.form.setArrowColor('programas_to_planestudio_left','red');
             this.showMessageSinResultadosPlanes('f');
           }else{
             if (showCountTableValues){
@@ -198,18 +195,20 @@ export class AsignaturasPlancomunMainService {
                 });
             }
             this.form.setStatusControlPlanEstudioOrigen(true);
+            this.form.setArrowColor('programas_to_planestudio_left','green');
             this.clearMessagesSinResultados('f');
           }
         }
     }
 
-    async getPlanesDeEstudiosPorProgramaDestino(showCountTableValues: boolean = true){
-        let params = { Cod_Programa: this.cod_programa_destno }
-        const response = await this.backend.getPlanesDeEstudiosPorPrograma(params);
+    async getPlanesDeEstudiosPorProgramaDestino(showCountTableValues: boolean = true, needShowLoading = true){
+        let params = { Cod_Programa: this.form.cod_programa_selected_destino }
+        const response = await this.backend.getPlanesDeEstudiosPorPrograma(params,needShowLoading);
         if (response) {
           this.planes_destino = [...response];
           if (this.planes_destino.length === 0 ) {
             this.form.setStatusControlPlanEstudioDestino(false);
+            this.form.setArrowColor('programas_to_planestudio_right','red');
             this.showMessageSinResultadosPlanes('f');
           }else{
             if (showCountTableValues){
@@ -222,18 +221,19 @@ export class AsignaturasPlancomunMainService {
                 });
             }
             this.form.setStatusControlPlanEstudioDestino(true);
+            this.form.setArrowColor('programas_to_planestudio_right','green');
             this.clearMessagesSinResultados('f');
           }
         }
     }
 
-    async getAsignaturasPorPlanDeEstudioOrigen(showCountTableValues: boolean = true){
-        let params = { Cod_plan_estudio: this.cod_planestudio_selected }
-        const response = await this.backend.getAsignaturasPorPlanDeEstudio(params);
+    async getAsignaturasPorPlanDeEstudioOrigen(showCountTableValues: boolean = true, needShowLoading = true){
+        let params = { cod_plan_estudio: this.form.cod_planestudio_selected_origen }
+        const response = await this.backend.getAsignaturasSimplificatedPorPlanDeEstudio(params,needShowLoading);
         if (response) {
             this.asignaturas_plancomun = [...response];
             if (this.asignaturas_plancomun.length === 0 ) {
-                this.form.setStatusControlFacultadDestino(false);
+                this.form.setArrowColor('planestudio_to_table_left','red');
                 this.showMessageSinResultados('f');
             }else{
                 if (showCountTableValues){
@@ -245,8 +245,8 @@ export class AsignaturasPlancomunMainService {
                         : `${this.asignaturas_plancomun.length} asignatura cargada.`
                     });
                 }
-                this.form.setStatusControlFacultadDestino(true);
-                this.clearMessagesSinResultados('f')
+                this.form.setArrowColor('planestudio_to_table_left','green');
+                this.clearMessagesSinResultados('f');
             }
         }
     }
@@ -301,10 +301,12 @@ export class AsignaturasPlancomunMainService {
         }
     }
 
-    async getAsignaturasPlanComunPorPlanDeEstudio(showCountTableValues: boolean = true, needShowLoading = true): Promise<AsignaturasPlancomun[]>{
-        //todo: falta para llenar la tabla
-        this.asignaturas_plancomun = []
-        return this.asignaturas_plancomun
+    async getPlanesDeEstudiosConPlanComun(showCountTableValues: boolean = true, needShowLoading = true): Promise<AsignaturasPlancomun[]>{
+        let params = { cod_plan_estudio: this.cod_plan_estudio_selected_notform }
+        this.planes_pc = await this.backend.getPlanesDeEstudiosConPlanComun(params,needShowLoading);
+        this.planes_pc.length !== 0 ? (this.showTable = true , this.clearMessagesSinResultados('m')) : (this.showTable = false , this.showMessageSinResultados('m'))
+        if (showCountTableValues) this.countTableValues();
+        return this.planes_pc
     }
 
     async createForm(){
@@ -313,30 +315,28 @@ export class AsignaturasPlancomunMainService {
     }
 
     async showForm(){
-        await this.reset();
+        this.form.resetForm();
+        await this.setDropdowns();
         this.form.setForm('show',this.asignatura_plancomun);
-        await this.setTables();
-        this.showElements();
         this.dialogForm = true;
     }
 
     async editForm(){
-        await this.reset();
+        this.form.resetForm();
+        await this.setDropdowns();
         this.form.setForm('edit',this.asignatura_plancomun);
-        await this.setTables();
-        this.showElements();
         this.dialogForm = true;
     }
 
     async insertForm(){
         try {
             let params = { ...this.form.fbForm.value };
-            const response = await this.backend.insertArticulacion(params, this.namesCrud);
+            const response = await this.backend.insertAsignaturasPlanComun(params, this.namesCrud);
             if (response && response.dataWasInserted) {
                 this.messageService.add({
                     key: 'main',
                     severity: 'success',
-                    detail: generateMessage(this.namesCrud,response.dataInserted,'creado',true,false)
+                    detail: generateMessage(this.namesCrud,response.dataInserted,'creado',true,true)
                 });
                 this.emitInsertedData();
             }
@@ -345,7 +345,7 @@ export class AsignaturasPlancomunMainService {
         }finally{
             this.dialogForm = false;
             if ( !this.wasFilteredTable) await this.setDropdownsFilterTable();
-            this.getAsignaturasPlanComunPorPlanDeEstudio(false);
+            this.getPlanesDeEstudiosConPlanComun(false);
             this.reset()
         }
     }
@@ -354,30 +354,32 @@ export class AsignaturasPlancomunMainService {
         try {
             let params = { 
                 ...this.form.fbForm.value,
-                Cod_Articulacion: this.asignatura_plancomun.Cod_plan_estudio
+                cod_plan_estudio_plan_comun: this.asignatura_plancomun.cod_plan_estudio_plan_comun,
+                cod_facultad_pc: this.asignatura_plancomun.cod_facultad_pc
             }
 
-            const response = await this.backend.updateArticulacion(params,this.namesCrud);
+            const response = await this.backend.updateAsignaturasPlanComun(params,this.namesCrud);
             
             if ( response && response.dataWasUpdated ) {
                 this.messageService.add({
                     key: 'main',
                     severity: 'success',
-                    detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
+                    detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,true)
                 });
             }
         }catch (error) {
             console.log(error);
         }finally{
             this.dialogForm = false;
-            // this.getArticulaciones(false);
+            if ( !this.wasFilteredTable) await this.setDropdownsFilterTable();
+            this.getPlanesDeEstudiosConPlanComun(false);
             this.reset();
         }
     }
 
     async deleteRegisters(dataToDelete: AsignaturasPlancomun[]){
         try {
-            const response = await this.backend.deleteArticulacion(dataToDelete,this.namesCrud);
+            const response = await this.backend.deleteAsignaturasPlanComun(dataToDelete,this.namesCrud);
             if (response && response.notDeleted.length !== 0) {
                 for (let i = 0; i < response.notDeleted.length; i++) {
                     const element = response.notDeleted[i];
@@ -409,7 +411,7 @@ export class AsignaturasPlancomunMainService {
         } catch (error) {
             console.log(error);
         }finally{
-            // this.getArticulaciones(false);
+            this.getPlanesDeEstudiosConPlanComun(false);
             this.reset();
         }
     }
@@ -417,7 +419,7 @@ export class AsignaturasPlancomunMainService {
     async openConfirmationDelete(){
         this.confirmationService.confirm({
             header: 'Confirmar',
-            message: `Es necesario confirmar la acción para eliminar ${this.namesCrud.articulo_singular} <b>${this.asignatura_plancomun.Cod_plan_estudio}</b>. ¿Desea confirmar?`,
+            message: `Es necesario confirmar la acción para eliminar las asignaturas del plan de estudio: <b>${this.asignatura_plancomun.nombre_plan_estudio_completo}</b>. ¿Desea confirmar?`,
             acceptLabel: 'Si',
             rejectLabel: 'No',
             icon: 'pi pi-exclamation-triangle',
@@ -434,10 +436,10 @@ export class AsignaturasPlancomunMainService {
 
     async openConfirmationDeleteSelected(){
         const data = this.table.selectedRows;
-        const message = mergeNames(this.namesCrud,data,true,'Cod_Articulacion');
+        const message = mergeNames(null,data,true,'nombre_plan_estudio_completo');
         this.confirmationService.confirm({
             header: "Confirmar",
-            message: `Es necesario confirmar la acción para eliminar ${message}. ¿Desea confirmar?`,
+            message: `Es necesario confirmar la acción para eliminar las asignaturas de los planes de estudios${message}. ¿Desea confirmar?`,
             acceptLabel: 'Si',
             rejectLabel: 'No',
             icon: 'pi pi-exclamation-triangle',
@@ -454,13 +456,6 @@ export class AsignaturasPlancomunMainService {
         this.onInsertedData.next();
     }
 
-    showElements(){
-        this.showTables = true;
-    }
-
-    hideElements(){
-        this.showTables = false;
-    }
 
     async setTables(){
 
@@ -507,9 +502,9 @@ export class AsignaturasPlancomunMainService {
     async setDropdownsFilterTable(){
         this.disabledDropdownPrograma = false;
         this.disabledDropdownPlanEstudio = false;
-        this.cod_facultad_selected_notform = this.cod_facultad_selected_origen;
-        this.cod_programa_postgrado_selected_notform = this.cod_programa_origen;
-        this.cod_plan_estudio_selected_notform = this.cod_planestudio_selected;
+        this.cod_facultad_selected_notform = this.form.cod_facultad_selected_destino;
+        this.cod_programa_postgrado_selected_notform = this.form.cod_programa_selected_destino;
+        this.cod_plan_estudio_selected_notform = this.form.cod_planestudio_selected_destino;
         await this.getProgramasPorFacultadNotForm(false);
         await this.getPlanesDeEstudiosPorProgramaNotForm(false);
     }
@@ -543,6 +538,31 @@ export class AsignaturasPlancomunMainService {
 
     showMessageSinResultados(key: 'm' | 'f'){
         this.showMessagesSinResultados(key, 'plan')
+    }
+
+    async setDropdowns(){
+        this.systemService.loading(true);
+        let dataDropdowns = {
+            cod_facultad_selected_origen: this.asignatura_plancomun.cod_facultad_pe,
+            cod_programa_selected_origen: this.asignatura_plancomun.cod_programa_pe,
+            cod_planestudio_selected_origen: this.asignatura_plancomun.cod_plan_estudio,
+
+            cod_facultad_selected_destino: this.asignatura_plancomun.cod_facultad_pc,
+            cod_programa_selected_destino: this.asignatura_plancomun.cod_programa_pc,
+            cod_planestudio_selected_destino: this.asignatura_plancomun.cod_plan_estudio_plan_comun,
+
+        }
+        this.table.selectedAsignaturaRows = [...this.asignatura_plancomun.asignaturas!]
+        await this.form.setDropdownsAndVars(dataDropdowns);
+        await Promise.all([
+            this.getProgramasPorFacultadOrigen(false,false),
+            this.getPlanesDeEstudiosPorProgramaOrigen(false,false),
+            this.getAsignaturasPorPlanDeEstudioOrigen(false,false),
+            this.getProgramasPorFacultadDestino(false,false),
+            this.getPlanesDeEstudiosPorProgramaDestino(false,false),
+        ]);
+        this.form.disableDropdowns();
+        this.systemService.loading(false);
     }
 
     

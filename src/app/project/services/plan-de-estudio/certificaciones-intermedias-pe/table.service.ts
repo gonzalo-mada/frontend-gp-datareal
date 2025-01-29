@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { TableCrudService } from '../../components/table-crud.service';
-import { Articulacion } from 'src/app/project/models/plan-de-estudio/Articulacion';
+import { CertificacionIntermediaPE } from 'src/app/project/models/plan-de-estudio/CertificacionIntermediaPE';
 
 @Injectable({
     providedIn: 'root'
@@ -9,17 +9,15 @@ import { Articulacion } from 'src/app/project/models/plan-de-estudio/Articulacio
 export class TableCertifIntermediasPEService {
 
     cols : any[] = [
-        { field: 'Cod_Articulacion', header: 'Código articulación' },
-        { field: 'Cod_plan_estudio', header: 'Plan de estudio' },
-        { field: 'Descripcion_programa_pregrado', header: 'Programa' },
-        { field: 'Asignaturas', header: 'Núm. de asignaturas articuladas' },
+        { field: 'descripcion_certif_intermedia', header: 'Certificación intermedia' },
+        { field: 'asignaturas', header: 'Núm. de asignaturas' },
         { field: 'accion', header: 'Acciones' }
     ];
-    globalFiltros : any[] = [ 'Cod_Articulacion' , 'Cod_plan_estudio' , 'Descripcion_programa_pregrado' ];
+    globalFiltros : any[] = [ 'descripcion_certif_intermedia' ];
     globalFiltrosCertifIntermedia : any[] = [ 'Cod_CertificacionIntermedia' , 'Descripcion_certif_inter' ];
-    globalFiltrosAsignatura : any[] = [ 'cod_asignatura' , 'nombre_asignatura' , 'cod_tema' , 'tema' ];
-    dataKeyTable : string = 'Cod_Articulacion';
-    selectedRows: Articulacion[] = [];
+    globalFiltrosAsignatura : any[] = [ 'nombre_asignatura'  , 'nombre_tema', 'codigo_externo' ];
+    dataKeyTable : string = 'cod_certif_intermedia';
+    selectedRows: CertificacionIntermediaPE[] = [];
     selectedCertifIntermediaRows: any[] = [];
     selectedAsignaturaRows: any[] = [];
 
@@ -31,6 +29,7 @@ export class TableCertifIntermediasPEService {
 
     resetSelectedRows(){
         this.selectedRows = [];
+        this.resetSelectedRowsAllTables();
         this.setSelectedRows();
     }
 

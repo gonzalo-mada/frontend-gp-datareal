@@ -8,6 +8,7 @@ import { CategoriaTp } from 'src/app/project/models/programas/CategoriaTp';
 import { BackendCategoriasTpService } from './backend.service';
 import { FormCategoriasTpService } from './form.service';
 import { TableCategoriasTpService } from './table.service';
+import { HistorialActividadService } from '../../components/historial-actividad.service';
 @Injectable({
     providedIn: 'root'
 })
@@ -33,7 +34,8 @@ export class CategoriasTpMainService {
         private confirmationService: ConfirmationService,
         private form: FormCategoriasTpService,
         private messageService: MessageServiceGP,
-        private table: TableCategoriasTpService
+        private table: TableCategoriasTpService,
+        private historialActividad: HistorialActividadService
     ){
         this.form.initForm();
     }
@@ -53,6 +55,7 @@ export class CategoriasTpMainService {
             case 'update': await this.updateForm(); break;
             case 'delete': await this.openConfirmationDelete(); break;
             case 'delete-selected': await this.openConfirmationDeleteSelected(); break;
+            case 'historial': this.openHistorialActividad(); break;
         }
     }
 
@@ -109,6 +112,7 @@ export class CategoriasTpMainService {
         }finally{
             this.dialogForm = false;
             this.getCategoriasTp(false);
+            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -132,6 +136,7 @@ export class CategoriasTpMainService {
         }finally{
             this.dialogForm = false;
             this.getCategoriasTp(false);
+            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -171,6 +176,7 @@ export class CategoriasTpMainService {
             console.log(error);
         }finally{
             this.getCategoriasTp(false);
+            this.historialActividad.refreshHistorialActividad();
             this.table.resetSelectedRows();
         }
     }
@@ -209,6 +215,14 @@ export class CategoriasTpMainService {
                 await this.deleteRegisters(data);
             }
         }) 
+    }
+
+    openHistorialActividad(){
+        this.historialActividad.showDialog = true;
+    }
+
+    setOrigen(origen: string){
+        this.historialActividad.setOrigen(origen);
     }
 
 }

@@ -27,6 +27,7 @@ export class CertificacionesIntermediasComponent implements OnInit, OnDestroy {
 			: this.main.setModeCrud('delete-selected')
 		}));
 		await this.mainFacultad.getFacultades(false);
+		this.main.resetDropdownsFilterTable();
 	}
 
 	ngOnDestroy(): void {
@@ -50,6 +51,6 @@ export class CertificacionesIntermediasComponent implements OnInit, OnDestroy {
 	async changePlanDeEstudio(event:any){
 		this.main.wasFilteredTable = true;
 		this.main.cod_plan_estudio_selected_notform = event.value;
-		await this.main.getCertificacionesPorPlanDeEstudio(false,false);
+		await this.main.getCertificacionesIntermediasPorPlanDeEstudio(false,false);
 	}
 }

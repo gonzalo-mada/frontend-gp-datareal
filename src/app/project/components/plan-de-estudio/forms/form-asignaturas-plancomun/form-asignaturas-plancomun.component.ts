@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 import { FormAsignaturasPlancomunService } from 'src/app/project/services/plan-de-estudio/asignaturas-plancomun/form.service';
@@ -13,23 +13,35 @@ import { FacultadesMainService } from 'src/app/project/services/programas/facult
   ]
 })
 export class FormAsignaturasPlancomunComponent implements OnInit, OnDestroy {
-	
+	@Input() dataFromAgregarPE: any = { data: false };
+  	@Output() formWasClosed = new EventEmitter<boolean>();
 	private subscription: Subscription = new Subscription();
 
 	constructor(
 		public form: FormAsignaturasPlancomunService,
 		public main: AsignaturasPlancomunMainService,
 		public table: TableAsignaturasPlancomunService,
-		 public mainFacultad: FacultadesMainService
+		public mainFacultad: FacultadesMainService
 	){}
 	
 	async ngOnInit() {
 		this.subscription.add(this.form.fbForm.statusChanges.subscribe(status => { this.form.stateForm = status as StateValidatorForm }));
-		await this.mainFacultad.getFacultades(false);
+		this.dataFromAgregarPE.data ? await this.setFormByAgregarPE() : await this.mainFacultad.getFacultades(false);		
 	}
 
 	ngOnDestroy(): void {
 		this.subscription.unsubscribe();
+	}
+
+	async setFormByAgregarPE(){
+		this.form.setValuesVarsByAgregarPE(this.dataFromAgregarPE);
+		this.main.cod_plan_estudio_selected_notform = this.dataFromAgregarPE.cod_plan_estudio;
+		await this.main.getProgramasPorFacultadOrigen(false);
+		await this.main.getPlanesDeEstudiosPorProgramaOrigen(false);
+		await this.main.getAsignaturasPorPlanDeEstudioOrigen(false);
+		await this.mainFacultad.getFacultades(false);
+		this.form.setControlsFormByAgregarPE(this.dataFromAgregarPE);
+		this.main.wasFilteredTable = true;
 	}
 
 	async submit(){
@@ -54,57 +66,60 @@ export class FormAsignaturasPlancomunComponent implements OnInit, OnDestroy {
 		this.table.resetSelectedRowsTableAsignaturas();
 		this.main.resetArraysWhenChangedDropdownFacultadOrigen();
 		this.form.resetControlsWhenChangedDropdownFacultadOrigen();
+		this.form.resetArrowsColorsWhenChangedDropdownFacultadOrigen();
 		this.form.disabledControlsWhenChangedDropdownFacultadOrigen();
-		this.main.cod_facultad_selected_origen = event.value;
-		if (this.main.showTables) this.main.showTables = false
+		this.form.cod_facultad_selected_origen = event.value;
 		await this.main.getProgramasPorFacultadOrigen();
-	}
-
-	async changeFacultadDestino(event:any){
-		this.main.resetArraysWhenChangedDropdownFacultadDestino();
-		this.form.resetControlsWhenChangedDropdownFacultadDestino();
-		this.form.disabledControlsWhenChangedDropdownFacultadDestino();
-		this.main.cod_facultad_selected_destino = event.value;
-		await this.main.getProgramasPorFacultadDestino();
 	}
 
 	async changeProgramaOrigen(event: any){
 		this.table.resetSelectedRowsTableAsignaturas();
 		this.main.resetArraysWhenChangedDropdownProgramaOrigen();
 		this.form.resetControlWhenChangedDropdownProgramaOrigen();
+		this.form.resetArrowsColorsWhenChangedDropdownProgramaOrigen();
 		this.form.disabledControlWhenChangedDropdownProgramaOrigen();
-		this.main.cod_programa_origen = event.value;
-		if (this.main.showTables) this.main.showTables = false
+		this.form.cod_programa_selected_origen = event.value;
 		await this.main.getPlanesDeEstudiosPorProgramaOrigen();
-	}
-
-	async changeProgramaDestino(event: any){
-		this.main.resetArraysWhenChangedDropdownProgramaDestino();
-		this.form.resetControlWhenChangedDropdownProgramaDestino();
-		this.form.disabledControlWhenChangedDropdownProgramaDestino();
-		this.main.cod_programa_destno = event.value;
-		await this.main.getPlanesDeEstudiosPorProgramaDestino();
 	}
 
 	async changePlanDeEstudioOrigen(event:any){
 		this.table.resetSelectedRowsTableAsignaturas();
 		this.main.resetArraysWhenChangedDropdownPE();
 		this.form.resetFormWhenChangedDropdownPEOrigen();
-		this.main.cod_planestudio_selected = event.value;
+		this.form.cod_planestudio_selected_origen = event.value;
 		await this.main.getAsignaturasPorPlanDeEstudioOrigen();
 	}
 
+	async changeFacultadDestino(event:any){
+		this.main.resetArraysWhenChangedDropdownFacultadDestino();
+		this.form.resetControlsWhenChangedDropdownFacultadDestino();
+		this.form.resetArrowsColorsWhenChangedDropdownFacultadDestino();
+		this.form.disabledControlsWhenChangedDropdownFacultadDestino();
+		this.form.cod_facultad_selected_destino = event.value;
+		await this.main.getProgramasPorFacultadDestino();
+	}
+
+	async changeProgramaDestino(event: any){
+		this.main.resetArraysWhenChangedDropdownProgramaDestino();
+		this.form.resetControlWhenChangedDropdownProgramaDestino();
+		this.form.resetArrowsColorsWhenChangedDropdownProgramaDestino();
+		this.form.disabledControlWhenChangedDropdownProgramaDestino();
+		this.form.cod_programa_selected_destino = event.value;
+		await this.main.getPlanesDeEstudiosPorProgramaDestino();
+	}
+
+
 	async changePlanDeEstudioDestino(event:any){
-		this.main.showTables = true;
+		this.form.cod_planestudio_selected_destino = event.value;
 	}
 
 	selectAsignatura(event: any){
-		this.form.fbForm.patchValue({ Asignaturas: event });
+		this.form.setAsignatura(event);
 	}
 
 	clearTableAsignatura(){
 		this.table.resetSelectedRowsTableAsignaturas();
-		this.form.fbForm.patchValue({ Asignaturas: '' });
+		this.form.setAsignatura('');
 	}
 
 }

@@ -11,6 +11,8 @@ import { ProgramaMainService } from '../main.service';
 import { Campus } from 'src/app/project/models/programas/Campus';
 import { TipoGraduacion } from 'src/app/project/models/programas/TipoGraduacion';
 import { Router } from '@angular/router';
+import { HistorialActividadService } from '../../../components/historial-actividad.service';
+import { Message } from 'primeng/api';
 
 @Injectable({
     providedIn: 'root'
@@ -23,7 +25,6 @@ export class VerEditarProgramaMainService {
     dialogUpdate: boolean = false
     dialogUpdateMode!: ModeDialog;
     showButtonSubmitUpdate: boolean = false;
-    dialogHistorialActividades: boolean = false;
 
     //arrays para update
     campus: Campus[] = [];
@@ -46,7 +47,8 @@ export class VerEditarProgramaMainService {
         private form: FormProgramaService,
         private files: FilesVerEditarProgramaService,
         private messageService: MessageServiceGP,
-        private router: Router
+        private router: Router,
+        private historialActividad: HistorialActividadService
     ){
         this.form.initForm();
         this.files.initFiles();
@@ -131,11 +133,11 @@ export class VerEditarProgramaMainService {
         await this.setLoadDocsWithBinary(this.cod_programa, from!)
     }
 
-    async createFormUpdate(form: ModeDialog, collection: CollectionsMongo){
+    async createFormUpdate(form: ModeDialog, collection: CollectionsMongo, isEditableWithPE: boolean){
 
         switch (form) {
             case 'estado acreditación':
-                await this.commonFormUpdate(form, collection, false);
+                await this.commonFormUpdate(form, collection, false, isEditableWithPE);
                 this.form.fbForm.get('Cod_acreditacion')!.valueChanges.subscribe( value => {
                     this.form.fbFormUpdate.get('Cod_acreditacion')?.patchValue(value);
                     this.form.fbFormUpdate.get('nombreEstadoAcreditacion')?.patchValue(this.form.estadoAcreditacionSiglaSelected);
@@ -143,7 +145,7 @@ export class VerEditarProgramaMainService {
             break;
 
             case 'reglamento':
-                await this.commonFormUpdate(form, collection, false);
+                await this.commonFormUpdate(form, collection, false, isEditableWithPE);
                 this.form.fbForm.get('Cod_Reglamento')!.valueChanges.subscribe( value => {
                     this.form.fbFormUpdate.get('Cod_Reglamento')?.patchValue(value);
                     this.form.fbFormUpdate.get('nombreReglamento')?.patchValue(this.form.reglamentoSelected);
@@ -151,14 +153,14 @@ export class VerEditarProgramaMainService {
             break;
         
             default:
-                await this.commonFormUpdate(form, collection, true);
+                await this.commonFormUpdate(form, collection, true, isEditableWithPE);
             break;
         }
 
     }
 
-    async commonFormUpdate(form: ModeDialog, collection: CollectionsMongo, needFiles: boolean){
-        await this.form.setFormUpdate(form, this.programa);
+    async commonFormUpdate(form: ModeDialog, collection: CollectionsMongo, needFiles: boolean, isEditableWithPE: boolean){
+        await this.form.setFormUpdate(form, this.programa, isEditableWithPE);
         if (this.mode === 'show' && form !== 'unidades académicas') this.form.fbFormUpdate.disable();
         this.dialogUpdate = true;
         if (needFiles) {
@@ -191,6 +193,18 @@ export class VerEditarProgramaMainService {
 
     updateFilesUploader(){
         this.files.setFiles();
+    }
+
+    openHistorialActividad(){
+        this.historialActividad.showDialog = true;
+    }
+
+    setOrigen(origen: string, origen_s?: string, codigo?: number){
+        this.historialActividad.setOrigen(origen,origen_s,codigo);
+    }
+
+    async refreshHistorialActividad(){
+        await this.historialActividad.refreshHistorialActividad();
     }
     
 

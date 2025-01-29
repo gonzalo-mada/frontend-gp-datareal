@@ -95,28 +95,28 @@ export class PlanDeEstudioMainService {
       
   	}
 
-	async getProgramasPorFacultad(){
-		let params = { Cod_facultad: this.cod_facultad_selected }
-		const response = await this.backend.getProgramasPorFacultad(params);
-		if (response) {
-		  this.programas_postgrado = [...response];
-		  if (this.programas_postgrado.length === 0 ) {
-			  this.disabledDropdownPrograma = true;
-			  this.showTable = false
-			  this.showMessageSinResultadosPrograma('m');
-		  }else{
-			  this.messageService.add({
-				key: 'main',
-				severity: 'info',
-				detail: this.programas_postgrado.length > 1
-				  ? `${this.programas_postgrado.length} programas cargados.`
-				  : `${this.programas_postgrado.length} programa cargado.`
-			  });
-			  this.clearMessagesSinResultados('m');
-			  this.disabledDropdownPrograma = false;
-		  }
-		}
-	}
+    async getProgramasPorFacultad(){
+      let params = { Cod_facultad: this.cod_facultad_selected }
+      const response = await this.backend.getProgramasPorFacultad(params);
+      if (response) {
+        this.programas_postgrado = [...response];
+        if (this.programas_postgrado.length === 0 ) {
+          this.disabledDropdownPrograma = true;
+          this.showTable = false
+          this.showMessageSinResultadosPrograma('m');
+        }else{
+          this.messageService.add({
+          key: 'main',
+          severity: 'info',
+          detail: this.programas_postgrado.length > 1
+            ? `${this.programas_postgrado.length} programas cargados.`
+            : `${this.programas_postgrado.length} programa cargado.`
+          });
+          this.clearMessagesSinResultados('m');
+          this.disabledDropdownPrograma = false;
+        }
+      }
+    }
 
 
     reset(){
@@ -176,7 +176,7 @@ export class PlanDeEstudioMainService {
         } catch (error) {
           console.log(error);
         }finally{
-        //   this.getProgramasPorFacultad();
+          this.getPlanesDeEstudiosMergedPorPrograma();
           this.table.resetSelectedRows();
         }
     }
@@ -184,7 +184,7 @@ export class PlanDeEstudioMainService {
     async openConfirmationDelete(){
         this.confirmationService.confirm({
           header: 'Confirmar',
-          message: `Es necesario confirmar la acción para <b>eliminar</b> ${this.namesCrud.articulo_singular}: <b>${this.planDeEstudio.nombre_plan_de_estudio_completo}</b>. ¿Desea confirmar?`,
+          message: `Es necesario confirmar la acción para <b>eliminar</b> ${this.namesCrud.articulo_singular}: <b>${this.planDeEstudio.nombre_plan_estudio_completo}</b>. ¿Desea confirmar?`,
           acceptLabel: 'Si',
           rejectLabel: 'No',
           icon: 'pi pi-exclamation-triangle',
@@ -201,7 +201,7 @@ export class PlanDeEstudioMainService {
 
     async openConfirmationDeleteSelected(){
         const data = this.table.selectedRows;
-        const message = mergeNames(this.namesCrud,data,true,'nombre_plan_de_estudio_completo'); 
+        const message = mergeNames(this.namesCrud,data,true,'nombre_plan_estudio_completo'); 
         this.confirmationService.confirm({
           header: "Confirmar",
           message: `Es necesario confirmar la acción para eliminar ${message}. ¿Desea confirmar?`,
@@ -243,5 +243,10 @@ export class PlanDeEstudioMainService {
     showMessageSinResultadosPlanes(key: 'm' | 'f'){
         this.showMessagesSinResultados(key, 'programa')
     }
+
+	resetWhenChangedDropdownFacultad(){
+		this.showTable = false;
+		this.cod_programa_postgrado_selected = 0;
+	}
 
 }

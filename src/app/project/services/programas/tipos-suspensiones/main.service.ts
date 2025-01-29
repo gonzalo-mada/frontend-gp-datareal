@@ -9,6 +9,7 @@ import { BackendTiposSuspensionesService } from './backend.service';
 import { FormTiposSuspensionesService } from './form.service';
 import { TableTiposSuspensionesService } from './table.service';
 import { Subject } from 'rxjs';
+import { HistorialActividadService } from '../../components/historial-actividad.service';
 @Injectable({
     providedIn: 'root'
 })
@@ -37,7 +38,8 @@ export class TiposSuspensionesMainService {
         private confirmationService: ConfirmationService,
         private form: FormTiposSuspensionesService,
         private messageService: MessageServiceGP,
-        private table: TableTiposSuspensionesService
+        private table: TableTiposSuspensionesService,
+        private historialActividad: HistorialActividadService
     ){
         this.form.initForm();
     }
@@ -57,6 +59,7 @@ export class TiposSuspensionesMainService {
             case 'update': await this.updateForm(); break;
             case 'delete': await this.openConfirmationDelete(); break;
             case 'delete-selected': await this.openConfirmationDeleteSelected(); break;
+            case 'historial': this.openHistorialActividad(); break;
         }
     }
 
@@ -114,6 +117,7 @@ export class TiposSuspensionesMainService {
         }finally{
             this.dialogForm = false;
             this.getTiposSuspensiones(false);
+            this.historialActividad.refreshHistorialActividad();
             this.reset()
         }
     }
@@ -137,6 +141,7 @@ export class TiposSuspensionesMainService {
         }finally{
             this.dialogForm = false;
             this.getTiposSuspensiones(false);
+            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -176,6 +181,7 @@ export class TiposSuspensionesMainService {
             console.log(error);
         }finally{
             this.getTiposSuspensiones(false);
+            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -218,6 +224,14 @@ export class TiposSuspensionesMainService {
 
     emitInsertedData(){
         this.onInsertedData.next();
+    }
+
+    openHistorialActividad(){
+        this.historialActividad.showDialog = true;
+    }
+
+    setOrigen(origen: string){
+        this.historialActividad.setOrigen(origen);
     }
 
 

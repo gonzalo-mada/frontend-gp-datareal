@@ -25,6 +25,10 @@ const routes: Routes = [
   {
     path: 'planes',
     loadChildren: () => import('../pages/planes-de-estudios/planes-de-estudios.module').then((m) => m.PlanesDeEstudiosModule),
+  },
+  {
+    path: 'asignaturas',
+    loadChildren: () => import('../pages/asignaturas/asignaturas.module').then((m) => m.AsignaturasModule),
   }
 ];
 

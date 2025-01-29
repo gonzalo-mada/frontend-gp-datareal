@@ -133,7 +133,7 @@ export class FilesCampusService {
 
     async loadDocsWithBinary(campus: Campus){
         this.uploaderFilesService.setLoading(true,true);  
-        const files = await this.backend.getDocsMongo(campus.Cod_campus!);
+        const files = await this.backend.getDocsMongo(campus.codigoCampus!);
         await this.uploaderFilesService.updateFilesFromMongo(files);
         this.uploaderFilesService.setLoading(false);
         return files 

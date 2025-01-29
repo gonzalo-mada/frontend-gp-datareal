@@ -6,9 +6,12 @@ export const project_form_validator = [
                                         'num_y_letras',
                                         'num_o_letras',
                                         'solo_num',
+                                        'solo_num_and_decimals',
                                         'solo_letras',
                                         'checkCorreoUV',
                                         'notSameAsDirector',
                                         'rutMustBeDifferent',
-                                        'notSameDirectorsInUpdate'
+                                        'notSameDirectorsInUpdate',
+                                        'invalidRangeMax',
+                                        'invalidRangeMin'
                                     ];

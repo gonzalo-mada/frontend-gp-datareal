@@ -22,20 +22,24 @@ export interface PlanDeEstudio {
     nombre_programa?: string,
     rexe_programa?: string,
     nombre_programa_completo?: string,
-    nombre_plan_de_estudio_completo?: string
+    nombre_plan_estudio_completo?: string
 }
 
 export type ModeDialogPE =
     undefined |
     'estado' |
-    'maestro' |
+    'docs_maestros_plan_estudio' |
     'modalidad' |
     'jornada' |
     'regimen' |
     'reglamento' |
     'rexe' |
     'cupo_minimo' |
-    'articulacion'
+    'articulacion' |
+    'certificacion' |
+    'rangos' |
+    'menciones' |
+    'asignaturas'
 ;
 
 export interface UpdatePlanEstudio {

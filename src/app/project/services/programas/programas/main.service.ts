@@ -9,6 +9,7 @@ import { TableProgramasService } from './table.service';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
 import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { Router } from '@angular/router';
+import { HistorialActividadService } from '../../components/historial-actividad.service';
 
 @Injectable({
     providedIn: 'root'
@@ -41,8 +42,8 @@ export class ProgramaMainService {
         private confirmationService: ConfirmationService,
         private messageService: MessageServiceGP,
         private router: Router,
-        private table: TableProgramasService 
-
+        private table: TableProgramasService, 
+		private historialActividad: HistorialActividadService
     ){}
 
     async setModeCrud(mode: ModeForm, data?: Programa | null, from?: CollectionsMongo | null ){
@@ -53,6 +54,7 @@ export class ProgramaMainService {
           case 'edit': this.editForm(); break;
           case 'delete': this.openConfirmationDelete(); break;
           case 'delete-selected': await this.openConfirmationDeleteSelected(); break;
+		  case 'historial': this.openHistorialActividad(); break;
       }
     }
 
@@ -139,6 +141,7 @@ export class ProgramaMainService {
         console.log(error);
       }finally{
         this.getProgramasPorFacultadMerged();
+		this.historialActividad.refreshHistorialActividad();
         this.table.resetSelectedRows();
       }
     }
@@ -200,6 +203,14 @@ export class ProgramaMainService {
 
     showMessageSinResultadosPrograma(key: 'm' | 'f'){
         this.showMessagesSinResultados(key, 'facultad')
+    }
+
+	openHistorialActividad(){
+        this.historialActividad.showDialog = true;
+    }
+
+    setOrigen(origen: string){
+        this.historialActividad.setOrigen(origen);
     }
 
 

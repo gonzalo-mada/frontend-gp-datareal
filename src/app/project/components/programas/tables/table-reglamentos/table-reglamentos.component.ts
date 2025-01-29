@@ -1,6 +1,7 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Table, TableRowExpandEvent } from 'primeng/table';
 import { Subscription } from 'rxjs';
+import { PlanDeEstudio } from 'src/app/project/models/plan-de-estudio/PlanDeEstudio';
 import { Programa } from 'src/app/project/models/programas/Programa';
 import { Reglamento } from 'src/app/project/models/programas/Reglamento';
 import { TableCrudService } from 'src/app/project/services/components/table-crud.service';
@@ -19,6 +20,7 @@ import { TableReglamentosService } from 'src/app/project/services/programas/regl
 export class TableReglamentosComponent implements OnInit, OnDestroy {
 
   @Input() programa: Programa = {};
+  @Input() planDeEstudio: PlanDeEstudio = {};
   @Input() form!: 'programa' | 'planDeEstudio' ;
   @Input() mode: string = '';
   @Input() from: string = '';
@@ -64,6 +66,18 @@ export class TableReglamentosComponent implements OnInit, OnDestroy {
           reglamento.isSelected = false
         }
       });
+    }else if (this.planDeEstudio.cod_reglamento) {
+      this.reglamentos.map( reglamento => {
+        if (reglamento.Cod_reglamento === this.planDeEstudio.cod_reglamento) {
+          reglamento.isSelected = true 
+          this.formPlanDeEstudio.stateFormUpdate = 'VALID';
+          this.isAnySelected = true;
+        }else{
+          reglamento.isSelected = false
+        }
+      });
+    }else{
+      this.isAnySelected = false;
     }
     
   }

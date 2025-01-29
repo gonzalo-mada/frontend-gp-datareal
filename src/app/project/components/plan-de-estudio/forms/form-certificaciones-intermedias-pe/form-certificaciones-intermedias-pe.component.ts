@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 import { FormCertifIntermediasPEService } from 'src/app/project/services/plan-de-estudio/certificaciones-intermedias-pe/form.service';
@@ -14,6 +14,8 @@ import { FacultadesMainService } from 'src/app/project/services/programas/facult
 })
 export class FormCertificacionesIntermediasPeComponent implements OnInit, OnDestroy {
 
+	@Input() dataFromAgregarPE: any = { data: false };
+  	@Output() formWasClosed = new EventEmitter<boolean>();
 	private subscription: Subscription = new Subscription();
 
 	constructor(
@@ -25,15 +27,80 @@ export class FormCertificacionesIntermediasPeComponent implements OnInit, OnDest
 	
 	async ngOnInit() {
 		this.subscription.add(this.form.fbForm.statusChanges.subscribe(status => { this.form.stateForm = status as StateValidatorForm }));
-		await this.mainFacultad.getFacultades(false);
+		this.dataFromAgregarPE.data ? await this.setFormByAgregarPE() : await this.mainFacultad.getFacultades(false);
 	}
 
 	ngOnDestroy(): void {
 		this.subscription.unsubscribe();
 	}
 
+	async setFormByAgregarPE(){
+		this.form.setValuesVarsByAgregarPE(this.dataFromAgregarPE);
+		this.main.cod_plan_estudio_selected_notform = this.dataFromAgregarPE.cod_plan_estudio;
+		await this.mainFacultad.getFacultades(false);
+		await this.main.getProgramasPostgradoConCertifIntermediaPorFacultad(false);
+		await this.main.getPlanesDeEstudiosPorPrograma(false);
+		await this.main.getCertificacionIntermedia_Prog(false);
+		await this.main.getAsignaturasPorPlanDeEstudio();
+		this.form.setControlsFormByAgregarPE(this.dataFromAgregarPE);
+		this.main.wasFilteredTable = true;
+	}
+
 	async submit(){
 		this.main.modeForm === 'create' ? this.main.setModeCrud('insert') : this.main.setModeCrud('update')
+	}
+
+	async changeFacultadPostgrado(event:any){
+		this.table.resetSelectedRowsTableAsignaturas();
+		this.main.resetArraysWhenChangedDropdownFacultad();
+		this.form.resetControlsWhenChangedDropdownFacultadPostgrado();
+		this.form.disabledControlsWhenChangedDropdownFacultadPostgrado();
+		this.form.cod_facultad_selected_postgrado = event.value;
+		await this.main.getProgramasPostgradoConCertifIntermediaPorFacultad();
+	}
+
+	async changeProgramaPostgrado(event:any){
+		this.table.resetSelectedRowsAllTables();
+		this.main.resetArraysWhenChangedDropdownPrograma();
+		this.form.resetControlsWhenChangedDropdownProgramaPostgrado();
+		this.form.disabledControlsWhenChangedDropdownProgramaPostgrado();
+		this.form.cod_programa_postgrado_selected = event.value;
+		await this.main.getPlanesDeEstudiosPorPrograma();
+		await this.main.getCertificacionIntermedia_Prog(false);
+	}
+
+	async changePlanDeEstudio(event:any){
+		this.table.resetSelectedRowsTableAsignaturas();
+		this.main.resetArraysWhenChangedDropdownPE();
+		this.form.resetFormWhenChangedDropdownPE();
+		this.form.cod_planestudio_selected = event.value;
+		await this.main.getAsignaturasPorPlanDeEstudio();
+	}
+
+	selectCertificacionIntermedia(event: any){
+		this.resetTableCertifIntermediaAndAsignaturas();
+		this.table.selectedCertifIntermediaRows = {...event};
+		this.form.setCertificacionIntermedia(event.Cod_CertificacionIntermedia);
+	}
+
+	selectAsignatura(event: any){
+		this.form.setAsignatura(event);
+	}
+
+	clearTableCertifIntermedia(){
+		this.table.resetSelectedRowsTableCertifIntermedias();
+		this.form.setCertificacionIntermedia('');
+	}
+
+	clearTableAsignatura(){
+		this.table.resetSelectedRowsTableAsignaturas();
+		this.form.setAsignatura('');
+	}
+
+	resetTableCertifIntermediaAndAsignaturas(){
+		this.table.resetSelectedRowsAllTables();
+		this.form.setCertificacionIntermedia('');
+		this.form.setAsignatura('');
 	}
 
 	test(){
@@ -48,64 +115,6 @@ export class FormCertificacionesIntermediasPeComponent implements OnInit, OnDest
 		console.log("ROWS SELECTED ASIGNATURAS:",this.table.selectedAsignaturaRows);
 		// this.form.getValuesSelected();
 		// this.form.getValuesIndex();
-	}
-
-	async changeFacultadPostgrado(event:any){
-		this.table.resetSelectedRowsTableAsignaturas();
-		this.main.resetArraysWhenChangedDropdownFacultad();
-		this.form.resetFormWhenChangedDropdownFacultad();
-		this.main.cod_facultad_selected_postgrado = event.value;
-		if (this.main.showDropdownSelectProgramaPostgrado) this.main.showDropdownSelectProgramaPostgrado = false
-		if (this.main.showDropdownSelectPlanEstudio) this.main.showDropdownSelectPlanEstudio = false
-		if (this.main.showTables) this.main.showTables = false
-		await this.main.getProgramasPostgradoConCertifIntermediaPorFacultad();
-	}
-
-	async changeProgramaPostgrado(event:any){
-		this.table.resetSelectedRowsAllTables();
-		this.main.resetArraysWhenChangedDropdownPrograma();
-		this.form.resetFormWhenChangedDropdownPrograma();
-		this.main.cod_programa_postgrado_selected = event.value;
-		if (this.main.showDropdownSelectPlanEstudio) this.main.showDropdownSelectPlanEstudio = false
-		if (this.main.showTables) this.main.showTables = false
-		await this.main.getPlanesDeEstudiosPorPrograma();
-		await this.main.getCertificacionIntermedia_Prog(false);
-		this.main.showDropdownSelectPlanEstudio = true;
-	}
-
-	async changePlanDeEstudio(event:any){
-		this.table.resetSelectedRowsTableAsignaturas();
-		this.main.resetArraysWhenChangedDropdownPE();
-		this.form.resetFormWhenChangedDropdownPE();
-		this.main.cod_planestudio_selected = event.value;
-		this.form.fbForm.patchValue({ Cod_plan_estudio: event.value });
-		await this.main.getAsignaturasPorPlanDeEstudio();
-	}
-
-	selectCertificacionIntermedia(event: any){
-		this.resetTableCertifIntermediaAndAsignaturas();
-		this.table.selectedCertifIntermediaRows = {...event};
-		this.form.fbForm.patchValue({ Cod_CertificacionIntermedia: event.Cod_CertificacionIntermedia });
-	}
-
-	selectAsignatura(event: any){
-		this.form.fbForm.patchValue({ Asignaturas: event });
-	}
-
-	clearTableCertifIntermedia(){
-		this.table.resetSelectedRowsTableCertifIntermedias();
-		this.form.fbForm.patchValue({ Cod_CertificacionIntermedia: '' });
-	}
-
-	clearTableAsignatura(){
-		this.table.resetSelectedRowsTableAsignaturas();
-		this.form.fbForm.patchValue({ Asignaturas: '' });
-	}
-
-	resetTableCertifIntermediaAndAsignaturas(){
-		this.table.resetSelectedRowsAllTables();
-		this.form.fbForm.patchValue({ Cod_CertificacionIntermedia: '' });
-		this.form.fbForm.patchValue({ Asignaturas: '' });
 	}
 
 
