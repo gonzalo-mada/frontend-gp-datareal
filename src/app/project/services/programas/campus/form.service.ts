@@ -20,8 +20,8 @@ export class FormCampusService {
 
     async initForm(): Promise<boolean>{
         this.fbForm = this.fb.group({
-            Estado_campus: [true, Validators.required],
-            Descripcion_campus: ['', [Validators.required , GPValidator.regexPattern('num_y_letras')]],
+            estadoCampus: [1, Validators.required],
+            descripcionCampus: ['', [Validators.required , GPValidator.regexPattern('num_y_letras')]],
             files: [[], this.filesValidator.bind(this)],
             aux: ['']
         });
@@ -30,8 +30,8 @@ export class FormCampusService {
 
     resetForm(): void {
         this.fbForm.reset({
-            Estado_campus: true,
-            Descripcion_campus: '',
+            estadoCampus: 1,
+            descripcionCampus: '',
             files: [],
             aux: ''
         });
@@ -65,11 +65,11 @@ export class FormCampusService {
     
         if (!formGroup) return null
     
-        const state = formGroup.get('Estado_campus')?.value;
+        const state = formGroup.get('estadoCampus')?.value;
         const files = formGroup.get('files')?.value; 
         
         if ( this.modeForm === 'create' || this.modeForm === 'edit' ){
-          if (files.length === 0 && state === true ) {
+          if (files.length === 0 && state === 1 ) {
             return { required: true };
           }
         }

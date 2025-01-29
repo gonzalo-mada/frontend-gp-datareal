@@ -9,6 +9,7 @@ import { FormTiposGraduacionesService } from './form.service';
 import { TableTiposGraduacionesService } from './table.service';
 import { TipoGraduacion } from 'src/app/project/models/programas/TipoGraduacion';
 import { Subject } from 'rxjs';
+import { HistorialActividadService } from '../../components/historial-actividad.service';
 @Injectable({
     providedIn: 'root'
 })
@@ -37,7 +38,8 @@ export class TiposGraduacionesMainService {
         private confirmationService: ConfirmationService,
         private form: FormTiposGraduacionesService,
         private messageService: MessageServiceGP,
-        private table: TableTiposGraduacionesService
+        private table: TableTiposGraduacionesService,
+        private historialActividad: HistorialActividadService
     ){
         this.form.initForm();
     }
@@ -57,6 +59,7 @@ export class TiposGraduacionesMainService {
             case 'update': await this.updateForm(); break;
             case 'delete': await this.openConfirmationDelete(); break;
             case 'delete-selected': await this.openConfirmationDeleteSelected(); break;
+            case 'historial': this.openHistorialActividad(); break;
         }
     }
 
@@ -114,6 +117,7 @@ export class TiposGraduacionesMainService {
         }finally{
             this.dialogForm = false;
             this.getTiposGraduaciones(false);
+            this.historialActividad.refreshHistorialActividad();
             this.reset()
         }
     }
@@ -137,6 +141,7 @@ export class TiposGraduacionesMainService {
         }finally{
             this.dialogForm = false;
             this.getTiposGraduaciones(false);
+            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -176,6 +181,7 @@ export class TiposGraduacionesMainService {
             console.log(error);
         }finally{
             this.getTiposGraduaciones(false);
+            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -218,6 +224,14 @@ export class TiposGraduacionesMainService {
 
     emitInsertedData(){
         this.onInsertedData.next();
+    }
+
+    openHistorialActividad(){
+        this.historialActividad.showDialog = true;
+    }
+
+    setOrigen(origen: string){
+        this.historialActividad.setOrigen(origen);
     }
 
 

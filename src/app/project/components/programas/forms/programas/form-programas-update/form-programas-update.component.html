@@ -1,11 +1,12 @@
 <app-dialog [dialogWidth]="'65vw'" [(visible)]="main.dialogUpdate" (visibleChange)="closeDialog()">
     <div header>
         <ng-container [ngSwitch]="main.dialogUpdateMode">
-            <span *ngSwitchCase="'grupo_correo'" class="text-xl" > {{mode === 'show' ? 'Ver' : 'Actualizar'}} grupo correo en LDAP</span>
-            <span *ngSwitchCase="'director'" class="text-xl" >{{mode === 'show' ? 'Ver' : 'Actualizar'}} director(a)</span>
-            <span *ngSwitchCase="'director alterno'" class="text-xl" >{{mode === 'show' ? 'Ver' : 'Actualizar'}} director(a) alterno(a)</span>
-            <span *ngSwitchCase="'maestro'" class="text-xl" >{{mode === 'show' ? 'Ver' : 'Actualizar'}} documento(s) maestro(s)</span>
-            <span *ngSwitchDefault class="text-xl" >{{mode === 'show' ? 'Ver' : 'Actualizar'}} {{ main.dialogUpdateMode }}</span>
+            <span *ngSwitchCase="'grupo_correo'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} grupo de correo</span>
+            <span *ngSwitchCase="'centro costo'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} centro de responsabilidad</span>
+            <span *ngSwitchCase="'director'" class="text-xl" >{{mode === 'show' ? 'Visualizar' : 'Actualizar'}} director(a)</span>
+            <span *ngSwitchCase="'director alterno'" class="text-xl" >{{mode === 'show' ? 'Visualizar' : 'Actualizar'}} director(a) alterno(a)</span>
+            <span *ngSwitchCase="'maestro'" class="text-xl" >{{mode === 'show' ? 'Visualizar' : 'Actualizar'}} documento(s) maestro(s)</span>
+            <span *ngSwitchDefault class="text-xl" >{{mode === 'show' ? 'Visualizar' : 'Actualizar'}} {{ main.dialogUpdateMode }}</span>
         </ng-container>
     </div>
 
@@ -64,12 +65,12 @@
 
                 <ng-container *ngIf="main.dialogUpdateMode === 'centro costo' ">
                     <div class="field col-12">
-                        <label><strong>Centro costo {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                        <label><strong>Centro de responsabilidad {{ mode === 'edit' ? '*' : ''}}</strong></label>
                         <p-inputNumber 
                             formControlName="Centro_costo"
                             format="false"
                             [allowEmpty]="true"
-                            placeholder="Ingrese centro costo del programa"
+                            placeholder="Ingrese centro de responsabilidad del programa"
                             maxlength="9"
                             class="w-full p-d-flex p-flex-column"
                             [style]="{ width: '100%', 'min-width': '100%' }"
@@ -88,7 +89,7 @@
         
                 <ng-container *ngIf="main.dialogUpdateMode === 'grupo_correo' ">
                     <div class="field col-12">
-                        <label><strong>Grupo de correo en LDAP {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                        <label><strong>Grupo de correo {{ mode === 'edit' ? '*' : ''}}</strong></label>
                         <input type="text" pInputText formControlName="Grupo_correo" maxlength="80" class="w-full" placeholder="Ingrese correo LDAP"/>
                         <app-form-control [control]="form.fbFormUpdate.controls['Grupo_correo']" [validators]="['required', 'checkCorreoUV']"></app-form-control>
                     </div>
@@ -190,8 +191,8 @@
                             (onChange)="changeCampus($event)"
                             formControlName="Campus"
                             placeholder="Seleccione campus"
-                            optionLabel="Descripcion_campus"
-                            optionValue="Cod_campus"
+                            optionLabel="descripcionCampus"
+                            optionValue="codigoCampus"
                         >
                         </p-dropdown>
                         <app-form-control [control]="form.fbFormUpdate.controls['Campus']" [validators]="['required']"></app-form-control>

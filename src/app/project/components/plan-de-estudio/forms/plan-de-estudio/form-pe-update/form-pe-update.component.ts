@@ -36,7 +36,7 @@ export class FormPeUpdateComponent implements OnChanges {
 
 	async ngOnChanges(changes: SimpleChanges) {
 		if ( changes['modeDialogInput'] && changes['modeDialogInput'].currentValue) {
-			console.log("MODE DIALOG: ",changes['modeDialogInput'].currentValue);
+			// console.log("MODE DIALOG: ",changes['modeDialogInput'].currentValue);
 			this.form.showButtonSubmitUpdate = false;
 	  		let modeDialogFromInput : UpdatePlanEstudio = changes['modeDialogInput'].currentValue
 			this.setForm(modeDialogFromInput.modeDialog , modeDialogFromInput.collection);
@@ -47,7 +47,7 @@ export class FormPeUpdateComponent implements OnChanges {
 		this.main.dialogUpdateMode = modeDialog;
 		this.files.resetLocalFiles();
 		switch (modeDialog) {
-			case 'articulacion' : await this.createFormArticulacion(); break;
+			// case 'articulacion' : await this.createFormArticulacion(); break;
 			default: await this.main.createFormUpdate(modeDialog, collection); break;
 		}
 	}
@@ -78,31 +78,43 @@ export class FormPeUpdateComponent implements OnChanges {
 	}
 
 	async submit(){
-		// this.main.programa = this.programa
 		const response = await this.main.updateForm()
 		this.formUpdated.emit(response)
 	}
 
 	setDataToPendingForm(){
-		const actual_values = {...this.form.dataToPendingForm}
-		this.form.dataToPendingForm = {...actual_values,show: true}
+		const actual_values = {...this.form.dataExternal}
+		this.form.dataExternal = {...actual_values,show: true}
 	}
 	
 	resetDataToPendingForm(){
-		const actual_values = {...this.form.dataToPendingForm}
-		this.form.dataToPendingForm = {...actual_values,show: false}
+		const actual_values = {...this.form.dataExternal}
+		this.form.dataExternal = {...actual_values,show: false}
 	}
 
 	async createFormArticulacion(){
-		console.log("data from createFormArticulacion",this.planDeEstudio);
+		// console.log("data from createFormArticulacion",this.planDeEstudio);
+		await this.form.setFormUpdate('articulacion', this.planDeEstudio);
+		this.main.dialogUpdate = true;
 		
 	}
 	
 	async initCreateFormArticulacion(){
 		this.setDataToPendingForm();
-		console.log("this.form.dataToPendingForm",this.form.dataToPendingForm);
-		
 		await this.mainArticulacion.setModeCrud('create');
 	}
 
+	test(){
+		console.log("fbFormUpdate",this.form.fbFormUpdate.value);
+		console.log("stateFormUpdate PEService: ",this.form.stateFormUpdate);
+		
+		Object.keys(this.form.fbFormUpdate.controls).forEach(key => {
+		  const control = this.form.fbFormUpdate.get(key);
+		  if (control?.invalid) {
+			console.log(`Errores en ${key}:`, control.errors);
+		  }else{
+			console.log("sin errores.")
+		  }
+		});
+	}
 }

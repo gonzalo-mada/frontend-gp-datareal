@@ -19,7 +19,7 @@
                     styleClass="p-button-sm p-button-secondary mr-2" 
                     (click)="form.showCardForm = !form.showCardForm" [text]="true">
                 </p-button>
-                <button pButton icon="pi pi-upload" label="Adjuntar documentos maestro" (click)="main.openDialogChooseDocsMaestro()"></button>
+                <button pButton icon="pi pi-paperclip" label="Documentos maestros" (click)="main.openDialogChooseDocsMaestro()"></button>
                 <button 
                     pButton 
                     class="hidden p-button-secondary p-button-outlined ml-2 lg:inline" 
@@ -55,7 +55,7 @@
                                 <div class="formgrid grid">
 
                                     <div class="field col-12 md:col-6">
-                                        <label><strong>Seleccione facultad para cargar programas</strong></label>
+                                        <label><strong>Facultad</strong></label>
                                         <p-dropdown 
                                             [options]="mainFacultad.facultades"
                                             formControlName="cod_facultad_selected"
@@ -68,7 +68,7 @@
                                     </div>
 
                                     <div *ngIf="form.loadedProgramas" class="field col-12 md:col-6">
-                                        <label><strong>Seleccione programa para el {{ main.namesCrud.singular }} *</strong></label>
+                                        <label><strong>Programa *</strong></label>
                                         <p-dropdown
                                             [options]="main.programas"
                                             formControlName="cod_programa"
@@ -622,7 +622,7 @@
 <app-form-reglamentos></app-form-reglamentos>
 
 <!-- Articulaciones -->
-<app-form-articulaciones [dataFromAgregarPE]="form.dataToPendingForm" (formWasClosed)="resetDataToPendingForm()"></app-form-articulaciones>
+<app-form-articulaciones [dataExternal]="form.dataExternal" (formWasClosed)="resetDataToPendingForm()"></app-form-articulaciones>
 <app-dialog [dialogWidth]="'80vw'" [(visible)]="form.showTableArticulaciones" (visibleChange)="form.showTableArticulaciones = false">
     <div header>
         <span class="text-xl">Articulaciones con el plan de estudio</span>
@@ -649,7 +649,7 @@
                 ></p-button>
             </div>
         </div>
-        <app-table-articulaciones [dataFromAgregarPE]="form.dataToPendingForm" *ngIf="form.showTableArticulaciones"></app-table-articulaciones>
+        <app-table-articulaciones [dataExternal]="form.dataExternal" *ngIf="form.showTableArticulaciones"></app-table-articulaciones>
     </div>
     <div footer>
         <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" (click)="form.showTableArticulaciones = false" [text]="true"></p-button>
@@ -657,8 +657,8 @@
 </app-dialog>
 
 <!-- Asignaturas plan común -->
-<app-form-asignaturas-plancomun *ngIf="form.showFormAsignPlanComun" [dataFromAgregarPE]="form.dataToPendingForm" (formWasClosed)="form.showFormAsignPlanComun = false"></app-form-asignaturas-plancomun>
+<app-form-asignaturas-plancomun *ngIf="form.showFormAsignPlanComun" [dataFromAgregarPE]="form.dataExternal" (formWasClosed)="form.showFormAsignPlanComun = false"></app-form-asignaturas-plancomun>
 
 
 <!-- Certificaciones intermedias PE -->
- <app-form-certificaciones-intermedias-pe *ngIf="form.showFormCertif" [dataFromAgregarPE]="form.dataToPendingForm" (formWasClosed)="form.showFormCertif = false"></app-form-certificaciones-intermedias-pe>
+ <app-form-certificaciones-intermedias-pe *ngIf="form.showFormCertif" [dataFromAgregarPE]="form.dataExternal" (formWasClosed)="form.showFormCertif = false"></app-form-certificaciones-intermedias-pe>

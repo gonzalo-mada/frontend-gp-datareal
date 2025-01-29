@@ -1,1 +1,138 @@
-<p>table-certificaciones-intermedias-pe works!</p>
+<p-table 
+    #dt 
+    [rows]="10" 
+    [paginator]="true" 
+    [rowsPerPageOptions]="[10,25,50]" 
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="{first} hasta {last} de {totalRecords} planes de estudios." 
+    selectionMode="multiple"
+    [rowHover]="true" 
+    [value]="main.certificaciones" 
+    [columns]="table.cols" 
+    [globalFilterFields]="table.globalFiltros"
+    [(selection)]="table.selectedRows" 
+    [dataKey]="table.dataKeyTable" 
+    (selectionChange)="table.setSelectedRows()"
+    [expandedRowKeys]="expandedRows"
+    rowExpandMode="multiple" 
+    >
+    <ng-template pTemplate="caption">
+        <div class="flex flex-wrap flex-column md:flex-row justify-content-between align-items-center">
+            <div class="flex mb-2 md:mb-0">
+              <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)" />
+              </span>
+              <p-button 
+                styleClass="p-button-text p-button-sm ml-2" 
+                icon="pi pi-filter-slash" 
+                pTooltip="Limpiar filtros" 
+                (click)="clear(dt)">
+              </p-button>
+            </div>
+                              
+            <div class="flex">
+              <p-button 
+                pRipple 
+                label="Actualizar" 
+                icon="pi pi-refresh" 
+                styleClass="p-button-info" 
+                (click)="main.getCertificacionesIntermediasPorPlanDeEstudio()">
+              </p-button>
+            </div>
+          </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+        <tr>
+            <th style="width: 1rem">
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th style="min-width: 1rem"></th>
+            <ng-container *ngFor="let col of table.cols">
+                <ng-container *ngIf="col.field !== 'accion'; else actionsColumn">
+                    <th pSortableColumn="{{col.field}}">
+                        {{col.header}} <p-sortIcon field="{{col.field}}"></p-sortIcon>
+                    </th>
+                </ng-container>
+                <ng-template #actionsColumn>
+                    <th style="min-width: 10rem; ">{{ col.header }}</th>
+                </ng-template>
+            </ng-container>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-data let-expanded="expanded">
+        <tr>
+            <td>
+                <p-tableCheckbox [value]="data"></p-tableCheckbox>
+            </td>
+            <td> <p-button type="button" pRipple [pRowToggler]="data" [text]="true" [rounded]="true" [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" /> </td>
+            <td style="width:50%;">
+                {{data.descripcion_certif_intermedia}}
+            </td>
+            <td style="width:50%;">
+                {{data.asignaturas.length}} asignatura(s)
+            </td>
+            <td>
+                <div class="flex">
+                    <p-button 
+                        icon="pi pi-trash" 
+                        styleClass="p-button-sm p-button-danger mr-2"
+                        pTooltip="Eliminar registro" 
+                        (click)="delete(data)">
+                    </p-button>
+                    <p-button 
+                        icon="pi pi-pencil" 
+                        styleClass="p-button-sm p-button-warning mr-2"
+                        pTooltip="Editar registro" 
+                        (click)="edit(data)">
+                    </p-button>
+                    <p-button 
+                        icon="pi pi-eye" 
+                        styleClass="p-button-sm p-button-info mr-2" 
+                        pTooltip="Ver registro"
+                        (click)="show(data)" 
+                        tooltipPosition="left">
+                    </p-button>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="rowexpansion" let-data>
+        <tr>
+            <td colspan="5">
+                <div class="p-3">
+                    <p-table [value]="data.asignaturas" dataKey="cod_tema">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th pSortableColumn="codigo_externo">Código asignatura <p-sortIcon field="codigo_externo" /></th>
+                                <th pSortableColumn="nombre_asignatura">Asignatura <p-sortIcon field="nombre_asignatura" /></th>
+                                <th pSortableColumn="nombre_tema">Tema <p-sortIcon field="nombre_tema" /></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-asign>
+                            <tr>
+                                <td>{{ asign.codigo_externo }}</td>
+                                <td>{{ asign.nombre_asignatura }}</td>
+                                <td>{{ asign.nombre_tema !== '' ? asign.nombre_tema : '-' }}</td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="7">Sin asignaturas</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td [attr.colspan]="table.cols.length + 1">Sin registros</td>
+        </tr>
+    </ng-template>
+</p-table>

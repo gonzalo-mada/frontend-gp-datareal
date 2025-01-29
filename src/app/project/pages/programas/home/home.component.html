@@ -1,9 +1,9 @@
-<app-card header="Programas" subheader="Permite ver, crear, actualizar y eliminar programas.">
+<app-card header="Programas" subheader="Permite visualizar, agregar, actualizar y eliminar programas.">
     <div class="surface-card shadow-2 p-3 border-round mb-4">
         <div class="flex flex-column sm:flex-row align-items-center justify-content-between gap-3 w-full sm:w-auto">
             <div class="w-full">
                 <div class="mb-2">
-                    <label><strong>Seleccione facultad para listar programas</strong></label>
+                    <label><strong>Facultad</strong></label>
                 </div>
                 <p-dropdown 
                     [options]="mainFacultad.facultades"
@@ -24,3 +24,4 @@
     </div>
     <p-messages [(value)]="main.messagesMantenedor" [enableService]="false" />
 </app-card>
+<app-historial-actividad></app-historial-actividad>

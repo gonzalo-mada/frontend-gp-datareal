@@ -6,10 +6,11 @@ import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.ut
 import { ConfirmationService, Message } from 'primeng/api';
 import { Subject } from 'rxjs';
 import { PlanDeEstudio } from 'src/app/project/models/plan-de-estudio/PlanDeEstudio';
-import { Articulacion } from 'src/app/project/models/plan-de-estudio/Articulacion';
 import { BackendCertifIntermediasPEService } from './backend.service';
 import { TableCertifIntermediasPEService } from './table.service';
 import { FormCertifIntermediasPEService } from './form.service';
+import { CertificacionIntermediaPE } from 'src/app/project/models/plan-de-estudio/CertificacionIntermediaPE';
+import { LoadinggpService } from '../../components/loadinggp.service';
 
 @Injectable({
     providedIn: 'root'
@@ -25,8 +26,8 @@ export class CertifIntermediasPEMainService {
         genero: 'femenino'
     }
 
-    articulaciones: Articulacion[] = [];
-    articulacion: Articulacion = {};
+    certificaciones: CertificacionIntermediaPE[] = [];
+    certificacion: CertificacionIntermediaPE = {};
     planes: PlanDeEstudio[] = [];
 
     message: any = {
@@ -52,14 +53,11 @@ export class CertifIntermediasPEMainService {
 
     cod_programa_selected: number = 0;
 
-    showTables: boolean = false; 
-    showDropdownSelectProgramaPostgrado: boolean = false;
-    showDropdownSelectPlanEstudio: boolean = false;
 
     programas_postgrado: any[] = [];
-    certificaciones: any[] = [];
+    certificaciones_by_programa: any[] = [];
     asignaturas: any[] = [];
-
+    
     //MODAL
     dialogForm: boolean = false
 
@@ -71,7 +69,8 @@ export class CertifIntermediasPEMainService {
         private confirmationService: ConfirmationService,
         private form: FormCertifIntermediasPEService,
         private messageService: MessageServiceGP,
-        private table: TableCertifIntermediasPEService
+        private table: TableCertifIntermediasPEService,
+        private systemService: LoadinggpService
     ){
         this.form.initForm();
     }
@@ -80,9 +79,10 @@ export class CertifIntermediasPEMainService {
         return this.form.modeForm;
     }
 
-    async setModeCrud(mode: ModeForm, data?: Articulacion | null){
+    async setModeCrud(mode: ModeForm, data?: CertificacionIntermediaPE | null){
         this.form.modeForm = mode;
-        if (data) this.articulacion = {...data};
+        if (data) this.certificacion = {...data};
+        console.log("this.certificacion",this.certificacion);
         
         switch (mode) {
             case 'create': this.createForm(); break;
@@ -100,12 +100,9 @@ export class CertifIntermediasPEMainService {
         this.form.resetForm();
         this.table.emitResetExpandedRows();
         this.table.resetSelectedRows();
-        this.form.resetValuesVarsSelected();
-        this.hideDropdowns();
         this.clearAllMessages();
-        this.certificaciones = [];
+        this.certificaciones_by_programa = [];
         this.asignaturas = [];
-        this.showTables = false;
     }
     
     emitResetExpandedRows(){
@@ -113,16 +110,17 @@ export class CertifIntermediasPEMainService {
     }
 
     countTableValues(value?: number){
-        value ? this.backend.countTableRegisters(value,this.namesCrud) : this.backend.countTableRegisters(this.articulaciones.length, this.namesCrud);
+        value ? this.backend.countTableRegisters(value,this.namesCrud) : this.backend.countTableRegisters(this.certificaciones.length, this.namesCrud);
     }
 
-    async getProgramasPostgradoConCertifIntermediaPorFacultad(showCountTableValues: boolean = true){
+    async getProgramasPostgradoConCertifIntermediaPorFacultad(showCountTableValues: boolean = true, needShowLoading = true){
         let params = { Cod_facultad: this.form.cod_facultad_selected_postgrado }
-        const response = await this.backend.getProgramasPostgradoConCertifIntermediaPorFacultad(params);
+        const response = await this.backend.getProgramasPostgradoConCertifIntermediaPorFacultad(params,needShowLoading);
         if (response) {
             this.programas_postgrado = [...response];
+            console.log("this.programas_postgrado",this.programas_postgrado);
             if (this.programas_postgrado.length === 0 ) {
-                this.showDropdownSelectProgramaPostgrado = false;
+                this.form.setStatusControlProgramaPostgrado(false);
                 this.showMessageSinResultadosPrograma('f');
             }else{
               if (showCountTableValues){
@@ -134,18 +132,19 @@ export class CertifIntermediasPEMainService {
                       : `${this.programas_postgrado.length} programa cargado.`
                   });
               }
-              this.showDropdownSelectProgramaPostgrado = true
+              this.form.setStatusControlProgramaPostgrado(true);
               this.clearMessagesSinResultados('f');
             }
         }
     }
 
-    async getPlanesDeEstudiosPorPrograma(showCountTableValues: boolean = true){
+    async getPlanesDeEstudiosPorPrograma(showCountTableValues: boolean = true, needShowLoading = true){
         let params = { Cod_Programa: this.form.cod_programa_postgrado_selected }
-        const response = await this.backend.getPlanesDeEstudiosPorPrograma(params);
+        const response = await this.backend.getPlanesDeEstudiosPorPrograma(params,needShowLoading);
         if (response) {
           this.planes = [...response];
           if (this.planes.length === 0 ) {
+            this.form.setStatusControlPlanEstudioPostgrado(false);
             this.showMessageSinResultadosPlanes('f');
           }else{
             if (showCountTableValues){
@@ -157,18 +156,18 @@ export class CertifIntermediasPEMainService {
                     : `${this.planes.length} plan de estudio cargado.`
                 });
             }
+            this.form.setStatusControlPlanEstudioPostgrado(true);
             this.clearMessagesSinResultados('f');
           }
         }
     }
 
-    async getAsignaturasPorPlanDeEstudio(showCountTableValues: boolean = true){
-        let params = { Cod_plan_estudio: this.form.cod_planestudio_selected }
-        const response = await this.backend.getAsignaturasPorPlanDeEstudio(params);
+    async getAsignaturasPorPlanDeEstudio(showCountTableValues: boolean = true, needShowLoading = true){
+        let params = { cod_plan_estudio: this.form.cod_planestudio_selected }
+        const response = await this.backend.getAsignaturasPorPlanDeEstudio(params,needShowLoading);
         if (response) {
             this.asignaturas = [...response];
             if (this.asignaturas.length === 0 ) {
-                this.showTables = false;
                 this.showMessageSinResultados('f')
             }else{
                 if (showCountTableValues){
@@ -180,27 +179,26 @@ export class CertifIntermediasPEMainService {
                         : `${this.asignaturas.length} asignatura cargada.`
                     });
                 }
-                this.showTables = true;
                 this.clearMessagesSinResultados('f')
             }
         }
     }
 
-    async getCertificacionIntermedia_Prog(showCountTableValues: boolean = true){
+    async getCertificacionIntermedia_Prog(showCountTableValues: boolean = true, needShowLoading = true){
         let params = { Cod_Programa: this.form.cod_programa_postgrado_selected }
-        const response = await this.backend.getCertificacionIntermedia_Prog(params);
+        const response = await this.backend.getCertificacionIntermedia_Prog(params,needShowLoading);
         if (response) {
-          this.certificaciones = [...response];
-          if (this.certificaciones.length === 0 ) {
+          this.certificaciones_by_programa = [...response];
+          if (this.certificaciones_by_programa.length === 0 ) {
             this.showMessageSinResultadosCertif('f')
           }else{
             if (showCountTableValues){
                 this.messageService.add({
                   key: 'main',
                   severity: 'info',
-                  detail: this.certificaciones.length > 1
-                    ? `${this.certificaciones.length} certificaciones intermedias cargadas.`
-                    : `${this.certificaciones.length} certificación intermedia cargada.`
+                  detail: this.certificaciones_by_programa.length > 1
+                    ? `${this.certificaciones_by_programa.length} certificaciones intermedias cargadas.`
+                    : `${this.certificaciones_by_programa.length} certificación intermedia cargada.`
                 });
             }
             this.clearMessagesSinResultados('f')
@@ -209,6 +207,7 @@ export class CertifIntermediasPEMainService {
         
     }
 
+    //INICIO FUNCIONES PARA TABLA DE MANTENEDOR
     async getProgramasPorFacultadNotForm(showCountTableValues: boolean = true, needShowLoading = true){
 		let params = { Cod_facultad: this.cod_facultad_selected_notform }
 		const response = await this.backend.getProgramasPorFacultad(params,needShowLoading);
@@ -259,10 +258,14 @@ export class CertifIntermediasPEMainService {
         }
     }
 
-    async getCertificacionesPorPlanDeEstudio(showCountTableValues: boolean = true, needShowLoading = true): Promise<any>{
-        //todo: pendiente esta funcion para llenar tabla.
-        //todo: pone el return
+    async getCertificacionesIntermediasPorPlanDeEstudio(showCountTableValues: boolean = true, needShowLoading = true): Promise<any>{
+        let params = { cod_plan_estudio: this.cod_plan_estudio_selected_notform }
+        this.certificaciones = await this.backend.getCertificacionesIntermediasPorPlanDeEstudio(params,needShowLoading);
+        this.certificaciones.length !== 0 ? (this.showTable = true , this.clearMessagesSinResultados('m')) : (this.showTable = false , this.showMessageSinResultados('m'))
+        if (showCountTableValues) this.countTableValues();
+        return this.certificaciones
     }
+    //FIN FUNCIONES PARA TABLA DE MANTENEDOR
 
     async createForm(){
         await this.reset();
@@ -270,26 +273,23 @@ export class CertifIntermediasPEMainService {
     }
 
     async showForm(){
-        await this.reset();
-        this.form.setForm('show',this.articulacion);
-        await this.setTables();
-        this.showDropdowns();
+        this.form.resetForm();
+        await this.setDropdowns();
+        this.form.setForm('show',this.certificacion);
         this.dialogForm = true;
-        this.showTables = true;
     }
 
     async editForm(){
-        await this.reset();
-        this.form.setForm('edit',this.articulacion);
-        await this.setTables();
-        this.showDropdowns();
+        this.form.resetForm();
+        await this.setDropdowns();
+        this.form.setForm('edit',this.certificacion);
         this.dialogForm = true;
     }
 
     async insertForm(){
         try {
             let params = { ...this.form.fbForm.value };
-            const response = await this.backend.insertArticulacion(params, this.namesCrud);
+            const response = await this.backend.insertAsignaturasToCertifIntermedia(params, this.namesCrud);
             if (response && response.dataWasInserted) {
                 this.messageService.add({
                     key: 'main',
@@ -303,7 +303,7 @@ export class CertifIntermediasPEMainService {
         }finally{
             this.dialogForm = false;
             if ( !this.wasFilteredTable) await this.setDropdownsFilterTable();
-            this.getCertificacionesPorPlanDeEstudio(false)
+            this.getCertificacionesIntermediasPorPlanDeEstudio(false)
             this.reset()
         }
     }
@@ -312,9 +312,9 @@ export class CertifIntermediasPEMainService {
         try {
             let params = { 
                 ...this.form.fbForm.value,
-                Cod_Articulacion: this.articulacion.Cod_Articulacion
+                cod_plan_estudio: this.certificacion.cod_plan_estudio
             }
-            const response = await this.backend.updateArticulacion(params,this.namesCrud);
+            const response = await this.backend.updateAsignaturasToCertifIntermedia(params,this.namesCrud);
             if ( response && response.dataWasUpdated ) {
                 this.messageService.add({
                     key: 'main',
@@ -327,14 +327,14 @@ export class CertifIntermediasPEMainService {
         }finally{
             this.dialogForm = false;
             if ( !this.wasFilteredTable) await this.setDropdownsFilterTable();
-            this.getCertificacionesPorPlanDeEstudio(false)
+            this.getCertificacionesIntermediasPorPlanDeEstudio(false)
             this.reset();
         }
     }
 
-    async deleteRegisters(dataToDelete: Articulacion[]){
+    async deleteRegisters(dataToDelete: CertificacionIntermediaPE[]){
         try {
-            const response = await this.backend.deleteArticulacion(dataToDelete,this.namesCrud);
+            const response = await this.backend.deleteAsignaturasToCertifIntermedia(dataToDelete,this.namesCrud);
             if (response && response.notDeleted.length !== 0) {
                 for (let i = 0; i < response.notDeleted.length; i++) {
                     const element = response.notDeleted[i];
@@ -366,6 +366,7 @@ export class CertifIntermediasPEMainService {
         } catch (error) {
             console.log(error);
         }finally{
+            this.getCertificacionesIntermediasPorPlanDeEstudio(false)
             this.reset();
         }
     }
@@ -373,7 +374,7 @@ export class CertifIntermediasPEMainService {
     async openConfirmationDelete(){
         this.confirmationService.confirm({
             header: 'Confirmar',
-            message: `Es necesario confirmar la acción para eliminar ${this.namesCrud.articulo_singular} <b>${this.articulacion.Cod_Articulacion}</b>. ¿Desea confirmar?`,
+            message: `Es necesario confirmar la acción para eliminar ${this.namesCrud.articulo_singular} <b>${this.certificacion.descripcion_certif_intermedia}</b>. ¿Desea confirmar?`,
             acceptLabel: 'Si',
             rejectLabel: 'No',
             icon: 'pi pi-exclamation-triangle',
@@ -382,7 +383,7 @@ export class CertifIntermediasPEMainService {
             rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
             accept: async () => {
                 let dataToDelete = []
-                dataToDelete.push(this.articulacion);
+                dataToDelete.push(this.certificacion);
                 await this.deleteRegisters(dataToDelete);
             }
         })
@@ -390,7 +391,7 @@ export class CertifIntermediasPEMainService {
 
     async openConfirmationDeleteSelected(){
         const data = this.table.selectedRows;
-        const message = mergeNames(this.namesCrud,data,true,'Cod_Articulacion');
+        const message = mergeNames(this.namesCrud,data,true,'descripcion_certif_intermedia');
         this.confirmationService.confirm({
             header: "Confirmar",
             message: `Es necesario confirmar la acción para eliminar ${message}. ¿Desea confirmar?`,
@@ -421,51 +422,49 @@ export class CertifIntermediasPEMainService {
         this.showTable = false
     }
 
-    async setTables(){
-        this.form.cod_programa_postgrado_selected = this.articulacion.Cod_Programa_Postgrado_Selected!;
-        // this.cod_planestudio_selected = this.articulacion.Cod_Facultad_Selected!;
-        this.cod_programa_selected = this.articulacion.Cod_programa_pregrado!;
-        this.table.selectedAsignaturaRows = [...this.articulacion.Asignaturas!]
+    async setDropdowns(){
+        this.systemService.loading(true);
+        let dataDropdowns = {
+            cod_facultad_selected_notform: this.cod_facultad_selected_notform,
+            cod_programa_postgrado_selected_notform: this.cod_programa_postgrado_selected_notform,
+            cod_plan_estudio_selected_notform: this.cod_plan_estudio_selected_notform,
+        }
+        this.table.selectedAsignaturaRows = [...this.certificacion.asignaturas!]
+        await this.form.setDropdownsAndVars(dataDropdowns);
         await Promise.all([
-            this.getCertificacionIntermedia_Prog(false),
-            this.getPlanesDeEstudiosPorPrograma(false)
-            
+            this.getProgramasPostgradoConCertifIntermediaPorFacultad(false,false),
+            this.getCertificacionIntermedia_Prog(false,false),
+            this.getPlanesDeEstudiosPorPrograma(false,false),
+            this.getAsignaturasPorPlanDeEstudio(false,false)
         ]);
-        this.setTablePrograma();
+        this.form.disableDropdowns();
+        this.setTableCertifIntermedia();
+        this.systemService.loading(false);
     }
 
-    setTablePrograma(){
-        // switch (this.form.modeForm) {
-        //     case 'show':
-        //         this.programas = this.programas.filter( prog => prog.codPrograma === this.articulacion.Cod_programa_pregrado!)
-        //     break;
 
-        //     case 'edit':
-        //         let valueIndex: number = 0;
-        //         this.programas.forEach((prog , index) => {
-        //             if (prog.codPrograma === this.articulacion.Cod_programa_pregrado) {
-        //                 valueIndex = index
-        //             }
-        //         });
-        //         this.table.selectedProgramaRows = [this.programas[valueIndex]];
-        //     break;
-        // }
-    }
 
-    showDropdowns(){
-        this.showDropdownSelectProgramaPostgrado = true;
-        this.showDropdownSelectPlanEstudio = true;
-        this.showTables = true;
-    }
+    setTableCertifIntermedia(){
+        switch (this.form.modeForm) {
+            case 'show':
+                this.certificaciones_by_programa = this.certificaciones_by_programa.filter( prog => prog.Cod_CertificacionIntermedia === this.certificacion.cod_certif_intermedia)
+            break;
 
-    hideDropdowns(){
-        this.showDropdownSelectProgramaPostgrado = false;
-        this.showDropdownSelectPlanEstudio = false;
+            case 'edit':
+                let valueIndex: number = 0;
+                this.certificaciones_by_programa.forEach((cert , index) => {
+                    if (cert.Cod_CertificacionIntermedia === this.certificacion.cod_certif_intermedia) {
+                        valueIndex = index
+                    }
+                });
+                this.table.selectedCertifIntermediaRows = [this.certificaciones_by_programa[valueIndex]];
+            break;
+        }
     }
 
     resetArraysWhenChangedDropdownPrograma(){
         this.planes = [];
-        this.certificaciones = [];
+        this.certificaciones_by_programa = [];
         this.asignaturas = [];
     }
 

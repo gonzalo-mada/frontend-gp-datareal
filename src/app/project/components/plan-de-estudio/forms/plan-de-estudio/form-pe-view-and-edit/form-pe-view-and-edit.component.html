@@ -89,8 +89,8 @@
                 <div class="w-full sm:w-auto">
                     <p-button 
                         pRipple 
-                        [label]=" mode === 'show' ?  'Ver documentos maestros' : 'Editar documentos maestros' " 
-                        [icon]=" mode === 'show' ? 'pi pi-eye' : 'pi pi-pencil' " 
+                        [label]=" mode === 'show' ?  'Documentos maestros' : 'Documentos maestros' " 
+                        [icon]=" mode === 'show' ? 'pi pi-paperclip' : 'pi pi-paperclip' " 
                         [styleClass]=" mode === 'show' ? 'p-button w-full sm:w-auto' : 'p-button-warning w-full sm:w-auto' " 
                         (click)="openDialog('docs_maestros_plan_estudio', 'plan_estudio')">
                     </p-button>
@@ -227,7 +227,7 @@
             <ng-template pTemplate>
                 <i class="pi pi-info-circle mr-3"></i>
                 <span>
-                    Muestra un historial de las actividades realizadas en el programa, incluyendo creación, actualización y eliminación, la información anterior y actual, la fecha de cada actividad y quien la realizó.
+                    Muestra un historial de las actividades realizadas en el plan de estudio, incluyendo creación, actualización y eliminación, la información anterior y actual, la fecha de cada actividad y quien la realizó.
                 </span>
             </ng-template>
         </p-messages>

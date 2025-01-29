@@ -19,8 +19,9 @@ export class FormFacultadesService {
 
     async initForm(): Promise<boolean>{
         this.fbForm = this.fb.group({
-            Estado_facu: [true, Validators.required],
+            Estado_facu: [1, Validators.required],
             Descripcion_facu: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
+            Sigla_facu: ['', [Validators.required, GPValidator.regexPattern('solo_letras')]],
             files: [[], this.filesValidator.bind(this)],
             aux: ['']
         });
@@ -29,8 +30,9 @@ export class FormFacultadesService {
 
     resetForm(): void {
         this.fbForm.reset({
-            Estado_facu: true,
+            Estado_facu: 1,
             Descripcion_facu: '',
+            Sigla_facu: '',
             files: [],
             aux: ''
         });
@@ -68,7 +70,7 @@ export class FormFacultadesService {
         const files = formGroup.get('files')?.value; 
         
         if ( this.modeForm === 'create' || this.modeForm === 'edit' ){
-          if (files.length === 0 && state === true ) {
+          if (files.length === 0 && state === 1 ) {
             return { required: true };
           }
         }

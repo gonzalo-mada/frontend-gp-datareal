@@ -25,6 +25,10 @@
             </div>
         </div>
 
+        <div class="mt-2">
+            <p-messages [(value)]="main.messagesFormulario" [enableService]="false" />
+        </div>
+
         <form [formGroup]="form.fbForm">
             <div class="formgrid grid">
 
@@ -43,12 +47,22 @@
                     />
                 </div>
 
-                <div *ngIf="main.showDropdownSelectProgramaPostgrado" class="field col-12 md:col-4">
-                    <label><strong>Programas con certificación intermedia {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                <div class="field col-12 md:col-4">
+                    <div class="flex flex-row flex-wrap mb-2">
+                        <div class="align-items-center">
+                            <label><strong>Programas con certificación intermedia {{ main.modeForm === 'show' ? '' : '*'}}</strong></label>
+                        </div>
+                        <div class="align-items-center ml-1" [style]="{'margin-top': '0.1rem !important'}">
+                            <i class="pi pi-question-circle" [pTooltip]='tooltipUa' tooltipPosition="top"></i>
+                            <ng-template #tooltipUa>
+                                <small>Se cargan solo programas con certificación intermedia habilitada</small>
+                            </ng-template>
+                        </div>
+                    </div>
                     <p-dropdown 
                         [options]="main.programas_postgrado"
                         formControlName="Cod_Programa_Postgrado_Selected"
-                        optionLabel="Nombre_programa"
+                        optionLabel="Nombre_programa_completo"
                         optionValue="Cod_Programa" 
                         placeholder="Seleccione programa de postgrado"
                         appendTo="body" 
@@ -57,11 +71,11 @@
                     />
                 </div>
 
-                <div *ngIf="main.showDropdownSelectPlanEstudio" class="field col-12 md:col-4">
+                <div class="field col-12 md:col-4">
                     <label><strong>Plan de estudio {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
                     <p-dropdown 
                         [options]="main.planes"
-                        formControlName="Cod_plan_estudio"
+                        formControlName="cod_plan_estudio"
                         optionLabel="nombre_plan_estudio_completo"
                         optionValue="cod_plan_estudio" 
                         placeholder="Seleccione plan de estudio"
@@ -73,12 +87,12 @@
 
             </div>
 
-            <div *ngIf="main.showTables" class="formgrid grid">
+            <div class="formgrid grid">
                 <div class="field col-12 {{ main.modeForm === 'show' ? 'md:col-6' : 'md:col-6 lg:col-4'}}">
                     <label><strong>{{ main.modeForm === 'show' ? 'Certificación intemedia seleccionada' : 'Seleccione certificación intermedia *'}}</strong></label>
                     <p-table
                         #dt    
-                        [value]="main.certificaciones"
+                        [value]="main.certificaciones_by_programa"
                         [globalFilterFields]="table.globalFiltrosCertifIntermedia"
                         [scrollable]="true"
                         [rowHover]="true"
@@ -94,7 +108,7 @@
                             <div class="flex flex-wrap flex-column sm:flex-row justify-content-center align-items-center">
                                 <p-button
                                     *ngIf="table.selectedCertifIntermediaRows.length !== 0 && main.modeForm !== 'show'"
-                                    label="Limpiar seleccionado"
+                                    label="Limpiar seleccionada"
                                     icon="pi pi-times"
                                     styleClass="p-button-danger p-button-outlined"
                                     (click)="clearTableCertifIntermedia(); "
@@ -126,10 +140,16 @@
                                 <td *ngIf="main.modeForm !== 'show'"><p-tableRadioButton [value]="certificacion" /></td>
                                 <td>
                                     <span>
-                                        <i>Código: </i> {{ certificacion.Cod_CertificacionIntermedia }} <br/>
-                                        <i>Nombre: </i> {{ certificacion.Descripcion_certif_inter }} 
+                                        <strong>Código: </strong> {{ certificacion.Cod_CertificacionIntermedia }} <br/>
+                                        <strong>Nombre: </strong> {{ certificacion.Descripcion_certif_inter }} 
                                     </span>
                                 </td>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td [attr.colspan]="2">Sin registros</td>
                             </tr>
                         </ng-template>
                         
@@ -188,9 +208,8 @@
                                 <td><p-tableCheckbox [value]="asignatura"></p-tableCheckbox></td>
                                 <td>
                                     <span>
-                                        <i>Código: </i> {{ asignatura.cod_asignatura }} <br/> 
-                                        <i>Nombre: </i> {{ asignatura.nombre_asignatura }} <br/>
-                                        <i>Tema: </i> {{ asignatura.tema === '' ? 'SIN TEMA' :  asignatura.tema }} 
+                                        <strong>Asignatura: </strong> {{ asignatura.codigo_externo }} - {{ asignatura.nombre_asignatura }} <br/>
+                                        <strong>Tema: </strong> {{ asignatura.nombre_tema === '' ? '-' :  asignatura.nombre_tema }} 
                                     </span> 
                                 </td>
                             </tr>
@@ -214,7 +233,7 @@
                         [globalFilterFields]="table.globalFiltrosAsignatura"
                         [scrollable]="true"
                         scrollHeight="350px"
-                        dataKey="Cod_Tema"
+                        dataKey="cod_tema"
                     >
                         <ng-template pTemplate="caption">
                             <div class="flex flex-wrap flex-column sm:flex-row justify-content-center align-items-center">
@@ -243,9 +262,8 @@
                             <tr>
                                 <td>
                                     <span>
-                                        <i>Código: </i> {{ asignatura.cod_asignatura }} <br/> 
-                                        <i>Nombre: </i> {{ asignatura.nombre_asignatura }} <br/>
-                                        <i>Tema: </i> {{ asignatura.tema === '' ? 'SIN TEMA' :  asignatura.tema }} 
+                                        <strong>Asignatura: </strong> {{ asignatura.codigo_externo }} - {{ asignatura.nombre_asignatura }} <br/>
+                                        <strong>Tema: </strong> {{ asignatura.nombre_tema === '' ? '-' :  asignatura.nombre_tema }} 
                                     </span> 
                                 </td>
                             </tr>
@@ -261,10 +279,6 @@
                 </div>
             </div>
         </form>
-
-        <div class="mt-2">
-            <p-messages [(value)]="main.messagesFormulario" [enableService]="false" />
-        </div>
 
     </div>
 

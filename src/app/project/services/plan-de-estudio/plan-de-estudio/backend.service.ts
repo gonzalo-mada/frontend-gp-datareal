@@ -105,7 +105,7 @@ export class BackendPlanesDeEstudiosService {
     async getCertifIntermediasPorPlanDeEstudio(params: any,  loading = true) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('certificacionIntermediaPE/getCertifIntermediasPorPlanDeEstudio', loading),
+                this.serviceUtils.generateServiceMongo('certificacionIntermediaPE/getCertificacionesIntermediasPorPlanDeEstudio', loading),
                 params
             );
         } catch (error: any) {
@@ -122,7 +122,7 @@ export class BackendPlanesDeEstudiosService {
     async getAsignaturasPorPlanDeEstudio(params: any,  loading = true) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('asignaturas/getAsignaturasPorPlanDeEstudio', loading),
+                this.serviceUtils.generateServiceMongo('asignaturas/getAsignaturasSimplificatedPorPlanDeEstudio', loading),
                 params
             );
         } catch (error: any) {
@@ -139,7 +139,7 @@ export class BackendPlanesDeEstudiosService {
     async getRangosPorPlanDeEstudio(params: any,  loading = true) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('planesDeEstudio/getRangosPorPlanDeEstudio', loading),
+                this.serviceUtils.generateServiceMongo('rangoAprobacion/getRangosAprobacionPorPlanDeEstudio', loading),
                 params
             );
         } catch (error: any) {
@@ -156,7 +156,7 @@ export class BackendPlanesDeEstudiosService {
     async getMencionesPorPlanDeEstudio(params: any,  loading = true) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('planesDeEstudio/getMencionesPorPlanDeEstudio', loading),
+                this.serviceUtils.generateServiceMongo('menciones/getMencionesPorPlanDeEstudio', loading),
                 params
             );
         } catch (error: any) {

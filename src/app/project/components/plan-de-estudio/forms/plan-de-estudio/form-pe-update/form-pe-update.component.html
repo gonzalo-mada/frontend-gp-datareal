@@ -6,15 +6,15 @@
     </div>
 
     <div content>
-        <!-- <p-button 
+        <p-button 
             label="test" 
             icon="pi pi-times" 
             styleClass="p-button-sm p-button-secondary mr-2" 
             (click)="test()" [text]="true">
-        </p-button>  -->
+        </p-button> 
         <form *ngIf="main.dialogUpdate" [formGroup]="form.fbFormUpdate">
             <div class="formgrid grid">
-                <div class="col-12" *ngIf="mode !== 'show' && main.dialogUpdateMode !== 'reglamento' ">
+                <div class="col-12" *ngIf="mode !== 'show' && main.dialogUpdateMode !== 'reglamento' && main.dialogUpdateMode !== 'articulacion' ">
                     <app-form-isvalid [valid]="form.fbFormUpdate.valid"></app-form-isvalid>
                 </div>
 
@@ -114,33 +114,58 @@
                 </ng-container>
 
                 <ng-container *ngIf="main.dialogUpdateMode === 'articulacion' ">
-                    <div class="col-12 mt-2">
-                        <div class="flex justify-content-between align-items-center">
+                    <div class="field col-12 lg:col-6 mt-2">
+                        <label><strong>¿Tiene articulación con programas de Pregrado?</strong></label>
+                        <div class="flex flex-row justify-content-start flex-wrap">
                             <div class="flex align-items-center justify-content-center">
-                                <p-messages severity="info">
-                                    <ng-template pTemplate>
-                                        <i class="pi pi-info-circle mr-3"></i>
-                                        <span *ngIf="mode === 'edit'">
-                                            A continuación se enlistan las articulaciones entre programas de pregrado y el plan de estudio. 
-                                            Si desea agregar una nueva articulación, presione el botón <strong>Agregar</strong>.
-                                        </span>
-                                        <span *ngIf="mode === 'show'">
-                                            A continuación se enlistan las articulaciones entre programas de pregrado y el plan de estudio. 
-                                        </span>
-                                    </ng-template>
-                                </p-messages>
+                                <span>No</span>
                             </div>
-                            <div *ngIf="mode === 'edit'" class="flex align-items-center justify-content-center">
-                                <p-button
-                                    label="Agregar"
-                                    icon="pi pi-plus"
-                                    styleClass="p-button-success ml-4"
-                                    (click)="initCreateFormArticulacion()"
-                                ></p-button>
+                            <div class="flex align-items-center justify-content-center mx-2">
+                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_articulacion"  styleClass="mt-1 mx-1"/>
+                            </div>
+                            <div class="flex align-items-center justify-content-center">
+                                <span>Si</span>
                             </div>
                         </div>
-                        <app-form-articulaciones [dataFromAgregarPE]="form.dataToPendingForm"></app-form-articulaciones>
                     </div>
+
+                    <div class="col-12 mt-2">
+                        <p-accordion [activeIndex]="0">
+                            <p-accordionTab  *ngIf="form.fbFormUpdate.get('tiene_articulacion')!.value === 1" header="Articulaciones">
+                                <div class="flex justify-content-between align-items-center">
+                                    <div class="flex align-items-center justify-content-center">
+                                        <p-messages severity="info">
+                                            <ng-template pTemplate>
+                                                <i class="pi pi-info-circle mr-3"></i>
+                                                <span *ngIf="mode === 'edit'">
+                                                    A continuación se enlistan las articulaciones entre asignatura(s) del plan de estudio y asignatura(s) de pregrado. 
+                                                    Si desea agregar una nueva articulación, presione el botón <strong>Agregar</strong>.
+                                                </span>
+                                                <span *ngIf="mode === 'show'">
+                                                    A continuación se enlistan las articulaciones entre asignatura(s) del plan de estudio y asignatura(s) de pregrado. 
+                                                </span>
+                                            </ng-template>
+                                        </p-messages>
+                                    </div>
+                                    <div *ngIf="mode === 'edit'" class="flex align-items-center justify-content-center">
+                                        <p-button
+                                            [disabled]="form.fbFormUpdate.get('tiene_articulacion')!.value === 0"
+                                            label="Agregar"
+                                            icon="pi pi-plus"
+                                            styleClass="p-button-success ml-4"
+                                            (click)="initCreateFormArticulacion()"
+                                        ></p-button>
+                                    </div>
+                                </div>
+                                <app-form-articulaciones [dataExternal]="form.dataExternal"></app-form-articulaciones>
+                                <app-table-articulaciones [mode]="mode" [dataExternal]="form.dataExternal"></app-table-articulaciones>
+                            </p-accordionTab>
+                            <p-accordionTab header="{{ mode === 'show' ? 'Documentos adjuntos' : 'Adjunte documentos *'}}">
+                                <app-uploader-files [mode]="mode!"></app-uploader-files>
+                            </p-accordionTab>
+                        </p-accordion>
+                    </div>
+
                 </ng-container>
 
                 <div class="field col-12"  *ngIf=" main.dialogUpdateMode !== 'articulacion' && main.dialogUpdateMode !== 'reglamento'">

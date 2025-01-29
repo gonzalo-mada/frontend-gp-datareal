@@ -21,11 +21,10 @@ export class FormAsignaturasPlancomunComponent implements OnInit, OnDestroy {
 		public form: FormAsignaturasPlancomunService,
 		public main: AsignaturasPlancomunMainService,
 		public table: TableAsignaturasPlancomunService,
-		 public mainFacultad: FacultadesMainService
+		public mainFacultad: FacultadesMainService
 	){}
 	
 	async ngOnInit() {
-		console.log("dataFromAgregarPE",this.dataFromAgregarPE);
 		this.subscription.add(this.form.fbForm.statusChanges.subscribe(status => { this.form.stateForm = status as StateValidatorForm }));
 		this.dataFromAgregarPE.data ? await this.setFormByAgregarPE() : await this.mainFacultad.getFacultades(false);		
 	}
@@ -67,57 +66,60 @@ export class FormAsignaturasPlancomunComponent implements OnInit, OnDestroy {
 		this.table.resetSelectedRowsTableAsignaturas();
 		this.main.resetArraysWhenChangedDropdownFacultadOrigen();
 		this.form.resetControlsWhenChangedDropdownFacultadOrigen();
+		this.form.resetArrowsColorsWhenChangedDropdownFacultadOrigen();
 		this.form.disabledControlsWhenChangedDropdownFacultadOrigen();
 		this.form.cod_facultad_selected_origen = event.value;
-		if (this.main.showTables) this.main.showTables = false
 		await this.main.getProgramasPorFacultadOrigen();
-	}
-
-	async changeFacultadDestino(event:any){
-		this.main.resetArraysWhenChangedDropdownFacultadDestino();
-		this.form.resetControlsWhenChangedDropdownFacultadDestino();
-		this.form.disabledControlsWhenChangedDropdownFacultadDestino();
-		this.form.cod_facultad_selected_destino = event.value;
-		await this.main.getProgramasPorFacultadDestino();
 	}
 
 	async changeProgramaOrigen(event: any){
 		this.table.resetSelectedRowsTableAsignaturas();
 		this.main.resetArraysWhenChangedDropdownProgramaOrigen();
 		this.form.resetControlWhenChangedDropdownProgramaOrigen();
+		this.form.resetArrowsColorsWhenChangedDropdownProgramaOrigen();
 		this.form.disabledControlWhenChangedDropdownProgramaOrigen();
-		this.form.cod_programa_origen = event.value;
-		if (this.main.showTables) this.main.showTables = false
+		this.form.cod_programa_selected_origen = event.value;
 		await this.main.getPlanesDeEstudiosPorProgramaOrigen();
-	}
-
-	async changeProgramaDestino(event: any){
-		this.main.resetArraysWhenChangedDropdownProgramaDestino();
-		this.form.resetControlWhenChangedDropdownProgramaDestino();
-		this.form.disabledControlWhenChangedDropdownProgramaDestino();
-		this.form.cod_programa_destno = event.value;
-		await this.main.getPlanesDeEstudiosPorProgramaDestino();
 	}
 
 	async changePlanDeEstudioOrigen(event:any){
 		this.table.resetSelectedRowsTableAsignaturas();
 		this.main.resetArraysWhenChangedDropdownPE();
 		this.form.resetFormWhenChangedDropdownPEOrigen();
-		this.form.cod_planestudio_selected = event.value;
+		this.form.cod_planestudio_selected_origen = event.value;
 		await this.main.getAsignaturasPorPlanDeEstudioOrigen();
 	}
 
+	async changeFacultadDestino(event:any){
+		this.main.resetArraysWhenChangedDropdownFacultadDestino();
+		this.form.resetControlsWhenChangedDropdownFacultadDestino();
+		this.form.resetArrowsColorsWhenChangedDropdownFacultadDestino();
+		this.form.disabledControlsWhenChangedDropdownFacultadDestino();
+		this.form.cod_facultad_selected_destino = event.value;
+		await this.main.getProgramasPorFacultadDestino();
+	}
+
+	async changeProgramaDestino(event: any){
+		this.main.resetArraysWhenChangedDropdownProgramaDestino();
+		this.form.resetControlWhenChangedDropdownProgramaDestino();
+		this.form.resetArrowsColorsWhenChangedDropdownProgramaDestino();
+		this.form.disabledControlWhenChangedDropdownProgramaDestino();
+		this.form.cod_programa_selected_destino = event.value;
+		await this.main.getPlanesDeEstudiosPorProgramaDestino();
+	}
+
+
 	async changePlanDeEstudioDestino(event:any){
-		this.main.showTables = true;
+		this.form.cod_planestudio_selected_destino = event.value;
 	}
 
 	selectAsignatura(event: any){
-		this.form.fbForm.patchValue({ Asignaturas: event });
+		this.form.setAsignatura(event);
 	}
 
 	clearTableAsignatura(){
 		this.table.resetSelectedRowsTableAsignaturas();
-		this.form.fbForm.patchValue({ Asignaturas: '' });
+		this.form.setAsignatura('');
 	}
 
 }

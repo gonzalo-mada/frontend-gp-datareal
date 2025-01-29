@@ -7,13 +7,17 @@ import { Subject } from 'rxjs';
 
 export class MenuButtonsTableService {
 
-    private actionClickButton = new Subject<'agregar' | 'eliminar'>();
+    private actionClickButton = new Subject<'agregar' | 'eliminar' | 'historial'>();
     actionClickButton$ = this.actionClickButton.asObservable();
 
     constructor(){}
 
     emitClickButtonAgregar(){
         this.actionClickButton.next('agregar');
+    }
+
+    emitClickButtonLog(){
+        this.actionClickButton.next('historial');
     }
 
     emitClickDeleteSelected(){

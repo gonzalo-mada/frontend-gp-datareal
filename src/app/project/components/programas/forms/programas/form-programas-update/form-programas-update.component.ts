@@ -58,22 +58,22 @@ export class FormProgramasUpdateComponent implements OnChanges {
       // console.log("MODE DIALOG: ",changes['modeDialogInput'].currentValue);
       this.main.showButtonSubmitUpdate = false;
       let modeDialogFromInput : UpdatePrograma = changes['modeDialogInput'].currentValue
-      this.setForm(modeDialogFromInput.modeDialog , modeDialogFromInput.collection);
+      this.setForm(modeDialogFromInput.modeDialog , modeDialogFromInput.collection, modeDialogFromInput.isEditableWithPE);
     }
   }
 
-  async setForm(modeDialog: ModeDialog, collection: CollectionsMongo){
+  async setForm(modeDialog: ModeDialog, collection: CollectionsMongo, isEditableWithPE: boolean){
     this.main.dialogUpdateMode = modeDialog;
     this.main.reset();
     switch (modeDialog) {
-      case 'director': await this.createFormDirector(); break;
-      case 'director alterno': await this.createFormDirectorAlterno(); break;
-      case 'estado maestro': await this.createFormEstadoMaestro(); break;
-      case 'certificación intermedia': await this.createFormCertificacionIntermedia(); break;
-      case 'graduación colaborativa': await this.createFormGraduacionColaborativa(); break;
+      case 'director': await this.createFormDirector(isEditableWithPE); break;
+      case 'director alterno': await this.createFormDirectorAlterno(isEditableWithPE); break;
+      case 'estado maestro': await this.createFormEstadoMaestro(isEditableWithPE); break;
+      case 'certificación intermedia': await this.createFormCertificacionIntermedia(isEditableWithPE); break;
+      case 'graduación colaborativa': await this.createFormGraduacionColaborativa(isEditableWithPE); break;
       // case 'unidades académicas': await this.createUnidadesAcademicas(); break;
       default: 
-        await this.main.createFormUpdate(modeDialog, collection); 
+        await this.main.createFormUpdate(modeDialog, collection, isEditableWithPE); 
       break;
     }
     
@@ -85,12 +85,12 @@ export class FormProgramasUpdateComponent implements OnChanges {
   }
 
   changeCampus(event: any){
-    let dataSelected : Campus = this.main.campus.find( c => c.Cod_campus === event.value )!
-    this.form.fbFormUpdate.get('Description_Campus_New')?.patchValue(dataSelected.Descripcion_campus);
+    let dataSelected : Campus = this.main.campus.find( c => c.codigoCampus === event.value )!
+    this.form.fbFormUpdate.get('Description_Campus_New')?.patchValue(dataSelected.descripcionCampus);
   }
 
   changeTipoGraduacion(event: any){
-    let dataSelected : TipoGraduacion = this.mainTipoGraduacion.tipos.find( c => c.Cod_TipoColaborativa === event.value )!
+    let dataSelected : TipoGraduacion = this.main.tiposGraduaciones.find( c => c.Cod_TipoColaborativa === event.value )!
     this.form.fbFormUpdate.get('Description_TG_New')?.patchValue(dataSelected.Descripcion_tipoColaborativa);
   }
 
@@ -106,12 +106,12 @@ export class FormProgramasUpdateComponent implements OnChanges {
     this.form.fbFormUpdate.get('Unidades_academicas_Selected')?.patchValue(event.value);
   }
 
-  async createFormDirector(){
+  async createFormDirector(isEditableWithPE: boolean){
     try {
       this.directores = [];
       this.directoresAlternos = [];
       await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', 'director');
-      await this.form.setFormUpdate('director', this.programa);
+      await this.form.setFormUpdate('director', this.programa, isEditableWithPE);
 
       this.form.fbFormUpdate.get('Director_selected')?.value !== '' ? this.selectedDirector = true : this.selectedDirector = false
       this.checkDirectorSelected('director');
@@ -150,12 +150,12 @@ export class FormProgramasUpdateComponent implements OnChanges {
     }
   }
 
-  async createFormDirectorAlterno(){
+  async createFormDirectorAlterno(isEditableWithPE: boolean){
     try {
       this.directores = [];
       this.directoresAlternos = [];
       await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', 'directorAlterno');
-      await this.form.setFormUpdate('director alterno', this.programa);
+      await this.form.setFormUpdate('director alterno', this.programa, isEditableWithPE);
 
       if (this.mode === 'show') this.form.fbFormUpdate.disable();
       
@@ -270,10 +270,10 @@ export class FormProgramasUpdateComponent implements OnChanges {
     }    
   }
 
-  async createFormCertificacionIntermedia(){
+  async createFormCertificacionIntermedia(isEditableWithPE: boolean){
     try {
       await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', 'certificacion_intermedia');
-      await this.form.setFormUpdate('certificación intermedia', this.programa);
+      await this.form.setFormUpdate('certificación intermedia', this.programa, isEditableWithPE);
       if (this.mode === 'show'){
         this.form.fbFormUpdate.get('Certificacion_intermedia_Switch')!.disable();
         this.form.fbFormUpdate.get('Certificacion_intermedia_old')!.enable();
@@ -300,10 +300,10 @@ export class FormProgramasUpdateComponent implements OnChanges {
     }
   }
 
-  async createFormGraduacionColaborativa(){
+  async createFormGraduacionColaborativa(isEditableWithPE: boolean){
     try {
       await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', 'graduacion_colaborativa');
-      await this.form.setFormUpdate('graduación colaborativa', this.programa);
+      await this.form.setFormUpdate('graduación colaborativa', this.programa, isEditableWithPE);
       if (this.mode === 'show'){
         this.form.fbFormUpdate.get('Graduacion_Conjunta_Switch')!.disable();
         this.form.fbFormUpdate.get('Cod_TipoGraduacion')!.disable();
@@ -336,19 +336,20 @@ export class FormProgramasUpdateComponent implements OnChanges {
 
 
 
-  async createFormEstadoMaestro(){
+  async createFormEstadoMaestro(isEditableWithPE: boolean){
     try {
       await this.files.setContextUploader('edit', 'programa', 'ver/editar-programa', 'estado_maestro');
-      await this.form.setFormUpdate('estado maestro', this.programa);
-      if (this.mode === 'show') this.form.fbFormUpdate.disable();
+      await this.form.setFormUpdate('estado maestro', this.programa, isEditableWithPE);
 
       if (this.programa.Cod_EstadoMaestro === 2 ) {
         this.form.fbFormUpdate.get('TipoSuspension')?.enable();
-        let suspensionSelected = this.mainTipoSuspension.tipos_susp.filter( r => r.ID_TipoSuspension === this.programa.ID_TipoSuspension)
+        let suspensionSelected = this.main.suspensiones.filter( r => r.ID_TipoSuspension === this.programa.ID_TipoSuspension)
         this.form.fbFormUpdate.get('TipoSuspension')?.patchValue(suspensionSelected[0]);
         this.form.fbFormUpdate.get('TipoSuspension')?.setValidators([Validators.required, GPValidator.notMinusOneCategory()]);
         this.form.fbFormUpdate.get('TipoSuspension')?.updateValueAndValidity();
       }
+
+      if (this.mode === 'show') this.form.fbFormUpdate.disable();
 
       this.main.dialogUpdate = true;
 

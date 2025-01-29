@@ -23,11 +23,14 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
   private subscription: Subscription = new Subscription();
 
   async ngOnInit() {
-    this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => { 
-      action==='agregar' 
-      ? this.main.setModeCrud('create') 
-      : this.main.setModeCrud('delete-selected')
+    this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => {
+      switch (action) {
+        case 'agregar': this.main.setModeCrud('create');break;
+        case 'eliminar': this.main.setModeCrud('delete-selected');break;
+        case 'historial': this.main.setModeCrud('historial');break;
+      } 
     }));
+    this.main.setOrigen('tiposProgramas');
     this.subscription.add(this.form.fbForm.statusChanges.subscribe(status => { this.form.stateForm = status as StateValidatorForm }));
     await this.mainCategoriasTp.getCategoriasTp(false);
   }
@@ -39,6 +42,12 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
 
   submit() {
     this.main.modeForm === 'create' ? this.main.setModeCrud('insert') : this.main.setModeCrud('update')
+  }
+
+  async formWasClosed(){
+    this.main.setOrigen('tiposProgramas');
+    this.main.showFormCatTP = false;
+    await this.main.refreshHistorialActividad();
   }
 
 }

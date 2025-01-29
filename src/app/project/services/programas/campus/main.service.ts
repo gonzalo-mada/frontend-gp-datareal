@@ -9,6 +9,7 @@ import { FilesCampusService } from './files.service';
 import { FormCampusService } from './form.service';
 import { TableCampusService } from './table.service';
 import { Campus } from 'src/app/project/models/programas/Campus';
+import { HistorialActividadService } from '../../components/historial-actividad.service';
 @Injectable({
     providedIn: 'root'
 })
@@ -37,7 +38,8 @@ export class CampusMainService {
         private files: FilesCampusService,
         private form: FormCampusService,
         private messageService: MessageServiceGP,
-        private table: TableCampusService
+        private table: TableCampusService,
+        private historialActividad: HistorialActividadService
     ){
         this.form.initForm();
         this.files.initFiles();
@@ -59,6 +61,7 @@ export class CampusMainService {
             case 'delete': await this.openConfirmationDelete(); break;
             case 'delete-selected': await this.openConfirmationDeleteSelected(); break;
             case 'changeState': this.openConfirmationChangeState(); break;
+            case 'historial': this.openHistorialActividad(); break;
         }
     }
 
@@ -132,6 +135,7 @@ export class CampusMainService {
         }finally{
             this.dialogForm = false;
             this.getCampus(false);
+            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -144,9 +148,9 @@ export class CampusMainService {
             const responseUploader = await this.files.setActionUploader('upload');
             if (responseUploader) {
                 let params = {
-                    Cod_campus: this.campus.Cod_campus,
-                    Descripcion_campus: this.form.fbForm.get('Descripcion_campus')!.value == '' ? this.campus.Descripcion_campus : this.form.fbForm.get('Descripcion_campus')!.value,
-                    Estado_campus: this.modeForm == 'changeState' ? this.campus.Estado_campus : this.form.fbForm.get('Estado_campus')!.value,
+                    codigoCampus: this.campus.codigoCampus,
+                    descripcionCampus: this.form.fbForm.get('descripcionCampus')!.value == '' ? this.campus.descripcionCampus : this.form.fbForm.get('descripcionCampus')!.value,
+                    estadoCampus: this.modeForm == 'changeState' ? this.campus.estadoCampus : this.form.fbForm.get('estadoCampus')!.value,
                     docsToUpload: responseUploader.docsToUpload,
                     docsToDelete: responseUploader.docsToDelete,
                     isFromChangeState : this.isFromChangeState,
@@ -167,6 +171,7 @@ export class CampusMainService {
             console.log(error);
         }finally{
             this.dialogForm = false;
+            this.historialActividad.refreshHistorialActividad();
             this.getCampus(false);
             this.reset();
         }
@@ -207,6 +212,7 @@ export class CampusMainService {
             console.log(error);
         }finally{
             this.getCampus(false);
+            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -214,7 +220,7 @@ export class CampusMainService {
     async openConfirmationDelete(){
         this.confirmationService.confirm({
             header: 'Confirmar',
-            message: `Es necesario confirmar la acción para eliminar ${this.namesCrud.articulo_singular} <b>${this.campus.Descripcion_campus}</b>. ¿Desea confirmar?`,
+            message: `Es necesario confirmar la acción para eliminar ${this.namesCrud.articulo_singular} <b>${this.campus.descripcionCampus}</b>. ¿Desea confirmar?`,
             acceptLabel: 'Si',
             rejectLabel: 'No',
             icon: 'pi pi-exclamation-triangle',
@@ -231,7 +237,7 @@ export class CampusMainService {
 
     async openConfirmationDeleteSelected(){
         const data = this.table.selectedRows;
-        const message = mergeNames(this.namesCrud,data,true,'Descripcion_campus');
+        const message = mergeNames(this.namesCrud,data,true,'descripcionCampus');
         this.confirmationService.confirm({
             header: "Confirmar",
             message: `Es necesario confirmar la acción para eliminar ${message}. ¿Desea confirmar?`,
@@ -248,11 +254,11 @@ export class CampusMainService {
     }
 
     openConfirmationChangeState(){
-        const state = this.campus.Estado_campus;
+        const state = this.campus.estadoCampus;
         const action = state ? 'desactivar' : 'activar';
         this.confirmationService.confirm({
           header: 'Confirmar',
-          message: `Es necesario confirmar la acción para <b>${action}</b> ${this.namesCrud.articulo_singular} <b>${this.campus.Descripcion_campus}</b>. ¿Desea confirmar?`,
+          message: `Es necesario confirmar la acción para <b>${action}</b> ${this.namesCrud.articulo_singular} <b>${this.campus.descripcionCampus}</b>. ¿Desea confirmar?`,
           acceptLabel: 'Si',
           rejectLabel: 'No',
           icon: 'pi pi-exclamation-triangle',
@@ -264,6 +270,14 @@ export class CampusMainService {
             await this.updateForm()
           }
         })    
+    }
+
+    openHistorialActividad(){
+        this.historialActividad.showDialog = true;
+    }
+
+    setOrigen(origen: string){
+        this.historialActividad.setOrigen(origen);
     }
 
 

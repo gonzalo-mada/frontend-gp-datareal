@@ -77,6 +77,7 @@ export class AgregarPlanDeEstudioMainService {
     reset(){
         this.programas = [];
         this.form.loadedProgramas = false;
+        this.clearAllMessages();
     }
 
     async openDialogChooseDocsMaestro(){
@@ -125,7 +126,7 @@ export class AgregarPlanDeEstudioMainService {
                     console.log("response",response);
                     this.form.namePlanDeEstudioAdded = response.dataInserted.nombre_plan_estudio;
                     this.form.codPlanDeEstudioAdded = response.dataInserted.cod_plan_estudio;
-                    this.form.dataToPendingForm = {
+                    this.form.dataExternal = {
                         data: true,
                         cod_plan_estudio: response.dataInserted.cod_plan_estudio,
                         cod_programa: response.dataInserted.cod_programa,

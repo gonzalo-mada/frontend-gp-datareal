@@ -108,20 +108,20 @@
             </td>
             <td> <p-button type="button" pRipple [pRowToggler]="data" [text]="true" [rounded]="true" [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" /> </td>
             <td style="width:50%;">
-                {{data.Descripcion_programa_pregrado}}
+                <span> {{data.asignatura_postgrado.nombre_asignatura_completo}} </span> <br>
+                <span style="font-size: 0.8rem;">
+                    <strong>TEMA:</strong> {{data.asignatura_postgrado.nombre_tema === '' ? '-' : data.asignatura_postgrado.nombre_tema}} 
+                </span>
             </td>
-            <td style="width:25%;">
+            <td style="width:50%;">
                 <div class="flex flex-row flex-wrap">
                     <div class="flex align-items-center justify-content-center">
-                        {{data.Asignaturas.length}} {{data.Asignaturas.length > 1 ? 'asignaturas' : 'asignatura'}}  
+                        {{data.asignaturas_pregrado.length}} {{data.asignaturas_pregrado.length > 1 ? 'asignaturas' : 'asignatura'}}  
                     </div>
                     <!-- <div class="flex align-items-center justify-content-center">
                         <p-button type="button" pRipple [pRowToggler]="data" [text]="true" [rounded]="true" [plain]="true" [icon]="expanded ? 'pi pi-eye-slash' : 'pi pi-eye'" />
                     </div> -->
                 </div>
-            </td>
-            <td style="width:25%;">
-                {{data.nombre_plan_estudio_completo}}
             </td>
             <td >
                 <div class="flex">
@@ -153,28 +153,31 @@
 
     <ng-template pTemplate="rowexpansion" let-data>
         <tr>
-            <td colspan="7">
+            <td [attr.colspan]="table.cols.length + 2">
                 <div class="p-3">
-                    <p-table [value]="data.Asignaturas" dataKey="Cod_Tema">
+                    <p-table [value]="data.asignaturas_pregrado" dataKey="Cod_Tema">
+                        <ng-template pTemplate="caption">
+                            <span>Asignaturas articulables pregrado</span>
+                        </ng-template>
                         <ng-template pTemplate="header">
                             <tr>
-                                <th pSortableColumn="Cod_Asignatura">Código asignatura <p-sortIcon field="Cod_Asignatura" /></th>
-                                <th pSortableColumn="Descripcion_asignatura">Asignatura <p-sortIcon field="Descripcion_asignatura" /></th>
-                                <th pSortableColumn="Cod_Tema">Código tema <p-sortIcon field="Cod_Tema" /></th>
-                                <th pSortableColumn="Descripcion_tema">Tema <p-sortIcon field="Descripcion_tema" /></th>
+                                <th pSortableColumn="descripcion_programa_pregrado">Programa<p-sortIcon field="descripcion_programa_pregrado" /></th>
+                                <th pSortableColumn="cod_asignatura">Código asignatura <p-sortIcon field="cod_asignatura" /></th>
+                                <th pSortableColumn="nombre_asignatura">Asignatura <p-sortIcon field="nombre_asignatura" /></th>
+                                <th pSortableColumn="nombre_tema">Tema <p-sortIcon field="nombre_tema" /></th>
                             </tr>
                         </ng-template>
                         <ng-template pTemplate="body" let-asign>
                             <tr>
-                                <td>{{ asign.Cod_Asignatura }}</td>
-                                <td>{{ asign.Descripcion_asignatura }}</td>
-                                <td>{{ asign.Descripcion_tema !== '' ? asign.Cod_Tema : 'SIN TEMA' }}</td>
-                                <td>{{ asign.Descripcion_tema !== '' ? asign.Descripcion_tema : 'SIN TEMA' }}</td>
+                                <td>{{ asign.descripcion_programa_pregrado }}</td>
+                                <td>{{ asign.codigo_externo }}</td>
+                                <td>{{ asign.nombre_asignatura }}</td>
+                                <td>{{ asign.nombre_tema !== '' ? asign.nombre_tema : '-' }}</td>
                             </tr>
                         </ng-template>
                         <ng-template pTemplate="emptymessage">
                             <tr>
-                                <td colspan="7">Sin asignaturas articulables</td>
+                                <td [attr.colspan]="table.cols.length + 1">Sin asignaturas articulables</td>
                             </tr>
                         </ng-template>
                     </p-table>
@@ -185,7 +188,7 @@
 
     <ng-template pTemplate="emptymessage">
         <tr>
-            <td [attr.colspan]="table.cols.length + 1">Sin registros</td>
+            <td [attr.colspan]="table.cols.length + 2">Sin registros</td>
         </tr>
     </ng-template>
 </p-table>

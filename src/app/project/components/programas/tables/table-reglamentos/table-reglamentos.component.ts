@@ -66,8 +66,7 @@ export class TableReglamentosComponent implements OnInit, OnDestroy {
           reglamento.isSelected = false
         }
       });
-    }
-    if (this.planDeEstudio.cod_reglamento) {
+    }else if (this.planDeEstudio.cod_reglamento) {
       this.reglamentos.map( reglamento => {
         if (reglamento.Cod_reglamento === this.planDeEstudio.cod_reglamento) {
           reglamento.isSelected = true 
@@ -77,6 +76,8 @@ export class TableReglamentosComponent implements OnInit, OnDestroy {
           reglamento.isSelected = false
         }
       });
+    }else{
+      this.isAnySelected = false;
     }
     
   }

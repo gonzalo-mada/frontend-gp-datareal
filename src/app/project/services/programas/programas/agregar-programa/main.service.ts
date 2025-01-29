@@ -22,7 +22,6 @@ export class AgregarProgramaMainService {
     };
 
     dialogChooseDocsMaestro: boolean = false;
-    dialogSuccessAddPrograma: boolean = false;
     disposition: boolean = true;
 
     constructor(
@@ -75,7 +74,7 @@ export class AgregarProgramaMainService {
                 if (response && response.dataWasInserted) {
                     this.form.nameProgramaAdded = response.dataInserted.Nombre_programa;
                     this.form.codProgramaAdded = response.dataInserted.Cod_Programa;
-                    this.dialogSuccessAddPrograma = true;
+                    this.form.dialogSuccessAddPrograma = true;
                 }
             }
         } catch (error) {

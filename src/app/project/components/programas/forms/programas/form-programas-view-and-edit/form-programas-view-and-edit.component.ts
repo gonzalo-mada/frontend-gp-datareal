@@ -54,6 +54,7 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
     this.subscription.add(this.mainCertifIntermedia.onInsertedData$.subscribe(() => this.getCertificacionIntermediaPrograma()));
     this.subscription.add(this.mainTipoSuspension.onInsertedData$.subscribe(() => this.getTiposSuspensiones()));
     this.subscription.add(this.mainTipoGraduacion.onInsertedData$.subscribe(() => this.getTiposGraduaciones()));
+    this.main.setOrigen('programa','programa_s',this.mainProgramas.cod_programa);
     await this.getPrograma();
     await this.getData();
   }
@@ -68,6 +69,7 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
   }
   
   async refreshPrograma(){
+    await this.main.refreshHistorialActividad();
     await this.getPrograma();
     await this.getData();
     this.onClickRefreshPrograma = true;
@@ -93,7 +95,7 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
   async getData(){
     try {
       await Promise.all([
-        this.getCampus(),
+        this.getCampusActivos(),
         this.getInstitucionesSelected(),
         this.getTiposProgramas(),
         this.getLogPrograma(),
@@ -130,9 +132,9 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
     this.main.suspensiones = await this.backend.getSuspensiones(false);
   }
 
-  async getCampus(){
-    this.main.campus = await this.backend.getCampus(false);
-    let campusSelected = this.main.campus.find( c => c.Cod_campus === this.programa.Campus);
+  async getCampusActivos(){
+    this.main.campus = await this.backend.getCampusActivos(false);
+    let campusSelected = this.main.campus.find( c => c.codigoCampus === this.programa.Campus);
     this.form.setSelectCampus(campusSelected as Campus)           
   }
 
@@ -143,6 +145,7 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
       this.form.fbForm.get('Instituciones_Selected')?.patchValue(this.main.institucionesSelected);
       await this.getTiposGraduaciones();
     }else{
+      this.form.fbForm.get('Instituciones_Selected')?.patchValue('');
       this.form.unsetSelectTipoGraduacion();
     }
   }
@@ -182,9 +185,9 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
     this.tableCrudService.emitResetExpandedRowsTable();
   }
 
-  async openDialog(modeDialog: ModeDialog, collection: CollectionsMongo){
+  async openDialog(modeDialog: ModeDialog, collection: CollectionsMongo, isEditableWithPE: boolean){
     try {
-      this.updatePrograma = {modeDialog , collection};
+      this.updatePrograma = {modeDialog , collection, isEditableWithPE};
     } catch (error) {
       console.log("error en openDialog()",error);
       this.errorTemplateHandler.processError(error, {
@@ -201,6 +204,7 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
   async formUpdated(modeDialog: ModeDialog){
     try {
       await this.getPrograma();
+      await this.main.refreshHistorialActividad();
       this.loading = true;
       // switch (modeDialog) {
       //   case 'unidades académicas': await this.getUnidadesAcademicasPrograma(); break;
@@ -268,8 +272,6 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
     }
   }
 
-  updateFilesUploader(){
-    this.main.updateFilesUploader();
-  }
+
 
 }

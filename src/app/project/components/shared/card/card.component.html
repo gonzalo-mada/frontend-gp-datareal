@@ -9,6 +9,18 @@
             <div>
                 <div class="flex justify-content-center align-items-center">
                     <p-button
+                    label="Historial de actividad"
+                    icon="pi pi-history"
+                    styleClass="p-button hidden sm:flex mr-1"
+                    (click)="menuButtonsTableService.emitClickButtonLog()"
+                    ></p-button>
+                    <p-button
+                    icon="pi pi-history"
+                    styleClass="p-button flex sm:hidden mr-1"
+                    (click)="menuButtonsTableService.emitClickButtonLog()"
+                    ></p-button>
+
+                    <p-button
                     label="Agregar"
                     icon="pi pi-plus"
                     styleClass="p-button-success hidden sm:flex"
@@ -19,6 +31,7 @@
                     styleClass="p-button-success flex sm:hidden"
                     (click)="menuButtonsTableService.emitClickButtonAgregar()"
                     ></p-button>
+
                 </div>
             </div>
         </div>

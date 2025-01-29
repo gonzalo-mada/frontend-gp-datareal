@@ -21,7 +21,7 @@ export class ArticulacionesComponent implements OnInit, OnDestroy  {
   ){}
 
   async ngOnInit() {
-    this.main.resetElementsMantenedor();
+    this.main.resetDropdownsFilterTable();
     this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => { 
       action==='agregar' 
       ? this.main.setModeCrud('create') 
@@ -33,7 +33,7 @@ export class ArticulacionesComponent implements OnInit, OnDestroy  {
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
     this.main.reset();
-    this.main.resetElementsMantenedor();
+    this.main.resetDropdownsFilterTable();
   }
 
   changeFacultad(event: any){

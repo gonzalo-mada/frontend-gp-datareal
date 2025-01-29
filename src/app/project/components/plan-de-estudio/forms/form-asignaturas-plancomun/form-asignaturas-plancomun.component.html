@@ -2,13 +2,13 @@
 
     <div header>
         <ng-container *ngIf="main.modeForm === 'create' || main.modeForm === 'insert' ">
-            <span class="text-xl">Agregar {{ main.namesCrud.plural }} para un plan de estudio</span>
+            <span class="text-xl">Agregar {{ main.namesCrud.plural }}</span>
         </ng-container>
         <ng-container *ngIf="main.modeForm === 'edit' || main.modeForm === 'update' ">
-            <span class="text-xl">Actualizar {{ main.namesCrud.plural }} para un plan de estudio</span>
+            <span class="text-xl">Actualizar {{ main.namesCrud.plural }}</span>
         </ng-container>
         <ng-container *ngIf="main.modeForm === 'show'">
-            <span class="text-xl">Visualizar {{ main.namesCrud.plural }} de un plan de estudio</span>
+            <span class="text-xl">Visualizar {{ main.namesCrud.plural }}</span>
         </ng-container>
     </div>
 
@@ -26,17 +26,22 @@
             </div>
         </div>
 
+        <div class="mt-2">
+            <p-messages [(value)]="main.messagesFormulario" [enableService]="false" />
+        </div>
+
         <form [formGroup]="form.fbForm">
             <div class="flex">
                 <div class="flex-grow-1 flex-shrink-1 flex align-items-start justify-content-center w-full">
                     <div class="surface-card shadow-2 p-3 border-round w-full">
-                        <span class="text-lg mt-3">Asignaturas disponibles</span>
+                        <span class="text-lg mt-3">Asignaturas disponibles de un plan de estudio</span>
                         <p-divider/>
+
                         <div class="field">
                             <label><strong>Facultad {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
                             <p-dropdown 
                                 [options]="mainFacultad.facultades"
-                                formControlName="Cod_Facultad_Postgrado_Selected_Origen"
+                                formControlName="cod_facultad_pe"
                                 optionLabel="Descripcion_facu"
                                 optionValue="Cod_facultad" 
                                 placeholder="Seleccione facultad"
@@ -45,12 +50,16 @@
                                 (onChange)="changeFacultadOrigen($event)" 
                             />
                         </div>
+
+                        <div class="flex align-items-center justify-content-center w-full">
+                            <i class="pi pi-arrow-down " [ngStyle]="{'color': form.getArrowColor('facultad_to_programas_left'), 'font-size' : '1.5rem'}"></i>
+                        </div>
     
                         <div class="field">
-                            <label><strong>Programas {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                            <label><strong>Programa {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
                             <p-dropdown 
                                 [options]="main.programas_origen"
-                                formControlName="Cod_Programa_Postgrado_Selected_Origen"
+                                formControlName="cod_programa_pe"
                                 optionLabel="Nombre_programa_completo"
                                 optionValue="Cod_Programa" 
                                 placeholder="Seleccione programa de postgrado"
@@ -59,12 +68,16 @@
                                 (onChange)="changeProgramaOrigen($event)" 
                             />
                         </div>
+
+                        <div class="flex align-items-center justify-content-center w-full">
+                            <i class="pi pi-arrow-down" [ngStyle]="{'color': form.getArrowColor('programas_to_planestudio_left'), 'font-size' : '1.5rem'}"></i>
+                        </div>
     
                         <div class="field">
                             <label><strong>Plan de estudio {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
                             <p-dropdown 
                                 [options]="main.planes_origen"
-                                formControlName="Cod_plan_estudio_Origen"
+                                formControlName="cod_plan_estudio"
                                 optionLabel="nombre_plan_estudio_completo"
                                 optionValue="cod_plan_estudio" 
                                 placeholder="Seleccione plan de estudio"
@@ -74,7 +87,11 @@
                             />
                         </div>
 
-                        <div *ngIf="main.showTables" class="field">
+                        <div class="flex align-items-center justify-content-center w-full mb-2">
+                            <i class="pi pi-arrow-down " [ngStyle]="{'color': form.getArrowColor('planestudio_to_table_left'), 'font-size' : '1.5rem'}"></i>
+                        </div>
+
+                        <div class="field mt-2">
                             <label><strong>Seleccione asignaturas *</strong></label>
                             <p-table
                                 #dt2    
@@ -92,7 +109,7 @@
                                 <ng-template pTemplate="caption">
                                     <div class="flex flex-wrap flex-column sm:flex-row justify-content-center align-items-center">
                                         <p-button
-                                            *ngIf="table.selectedAsignaturaRows.length !== 0"
+                                            *ngIf="table.selectedAsignaturaRows.length !== 0 && main.modeForm !== 'show'"
                                             label="Limpiar seleccionada(s)"
                                             icon="pi pi-times"
                                             styleClass="p-button-danger p-button-outlined"
@@ -115,19 +132,18 @@
         
                                 <ng-template pTemplate="header">
                                     <tr>
-                                        <th style="width: 2rem"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
+                                        <th style="width: 2rem"><p-tableHeaderCheckbox [disabled]="main.modeForm === 'show'"></p-tableHeaderCheckbox></th>
                                         <th>Asignatura</th>
                                     </tr>
                                 </ng-template>
         
                                 <ng-template pTemplate="body" let-asignatura>
                                     <tr>
-                                        <td><p-tableCheckbox [value]="asignatura"></p-tableCheckbox></td>
+                                        <td><p-tableCheckbox [disabled]="main.modeForm === 'show'" [value]="asignatura"></p-tableCheckbox></td>
                                         <td>
                                             <span>
-                                                <i>Código: </i> {{ asignatura.cod_asignatura }} <br/> 
-                                                <i>Nombre: </i> {{ asignatura.nombre_asignatura }} <br/>
-                                                <i>Tema: </i> {{ asignatura.tema === '' ? 'SIN TEMA' :  asignatura.tema }} 
+                                                <strong>Asignatura: </strong> {{ asignatura.codigo_externo }} - {{ asignatura.nombre_asignatura }} <br/>
+                                                <strong>Tema: </strong> {{ asignatura.nombre_tema === '' ? '-' :  asignatura.nombre_tema }} 
                                             </span> 
                                         </td>
                                     </tr>
@@ -148,14 +164,14 @@
                 </div>
                 <div class="flex-grow-1 flex-shrink-1 flex align-items-start justify-content-center w-full">
                     <div class="surface-card shadow-2 p-3 border-round w-full">
-                        <span class="text-lg mt-3">Asignaturas seleccionadas</span>
+                        <span class="text-lg mt-3">Asignaturas seleccionadas para plan común</span>
                         <p-divider/>
 
                         <div class="field">
                             <label><strong>Facultad {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
                             <p-dropdown 
                                 [options]="mainFacultad.facultades"
-                                formControlName="Cod_Facultad_Postgrado_Selected_Destino"
+                                formControlName="cod_facultad_pc"
                                 optionLabel="Descripcion_facu"
                                 optionValue="Cod_facultad" 
                                 placeholder="Seleccione facultad"
@@ -165,11 +181,15 @@
                             />
                         </div>
 
+                        <div class="flex align-items-center justify-content-center w-full">
+                            <i class="pi pi-arrow-down " [ngStyle]="{'color': form.getArrowColor('facultad_to_programas_right'), 'font-size' : '1.5rem'}"></i>
+                        </div>
+
                         <div class="field">
-                            <label><strong>Programas {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                            <label><strong>Programa {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
                             <p-dropdown 
                                 [options]="main.programas_destino"
-                                formControlName="Cod_Programa_Postgrado_Selected_Destino"
+                                formControlName="cod_programa_pc"
                                 optionLabel="Nombre_programa_completo"
                                 optionValue="Cod_Programa" 
                                 placeholder="Seleccione programa de postgrado"
@@ -179,29 +199,35 @@
                             />
                         </div>
 
+                        <div class="flex align-items-center justify-content-center w-full">
+                            <i class="pi pi-arrow-down " [ngStyle]="{'color': form.getArrowColor('programas_to_planestudio_right'), 'font-size' : '1.5rem'}"></i>
+                        </div>
+
                         <div class="field">
-                            <label><strong>Plan de estudio {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                            <label><strong>Plan común {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
                             <p-dropdown 
                                 [options]="main.planes_destino"
-                                formControlName="Cod_plan_estudio_Destino"
+                                formControlName="cod_plan_estudio_plan_comun"
                                 optionLabel="nombre_plan_estudio_completo"
                                 optionValue="cod_plan_estudio" 
-                                placeholder="Seleccione plan de estudio"
+                                placeholder="Seleccione plan común"
                                 appendTo="body" 
                                 styleClass="w-full p-d-flex p-flex-column" 
                                 (onChange)="changePlanDeEstudioDestino($event)" 
                             />
                         </div>
 
-                        <div *ngIf="main.showTables" class="field">
-                            <label><strong>Asignaturas seleccionadas {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                        
+
+                        <div class="field mt-6">
+                            <label><strong>Asignaturas seleccionadas para plan común {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
                             <p-table
                                 #dt3    
                                 [value]="table.selectedAsignaturaRows"
                                 [globalFilterFields]="table.globalFiltrosAsignatura"
                                 [scrollable]="true"
                                 scrollHeight="350px"
-                                dataKey="Cod_Tema"
+                                dataKey="cod_tema"
                             >
                                 <ng-template pTemplate="caption">
                                     <div class="flex flex-wrap flex-column sm:flex-row justify-content-center align-items-center">
@@ -230,9 +256,8 @@
                                     <tr>
                                         <td>
                                             <span>
-                                                <i>Código: </i> {{ asignatura.cod_asignatura }} <br/> 
-                                                <i>Nombre: </i> {{ asignatura.nombre_asignatura }} <br/>
-                                                <i>Tema: </i> {{ asignatura.tema === '' ? 'SIN TEMA' :  asignatura.tema }} 
+                                                <strong>Asignatura: </strong> {{ asignatura.codigo_externo }} - {{ asignatura.nombre_asignatura }} <br/>
+                                                <strong>Tema: </strong> {{ asignatura.nombre_tema === '' ? '-' :  asignatura.nombre_tema }} 
                                             </span> 
                                         </td>
                                     </tr>
@@ -250,9 +275,7 @@
                 </div>
             </div>
         </form>
-        <div class="mt-4">
-            <p-messages [(value)]="main.messagesFormulario" [enableService]="false" />
-        </div>
+
 
     </div>
 

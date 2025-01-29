@@ -75,7 +75,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
     try {
       await Promise.all([
         this.getTiposProgramas(),
-        this.getCampus(),
+        this.getCampusActivos(),
         this.getUnidadesAcademicas(),
         this.getInstituciones(),
         this.getEstadosMaestros(),
@@ -143,7 +143,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
       case 'p': this.router.navigate([`/programa/`]); break;
       case 'v': this.router.navigate([`/programa/show/${this.form.codProgramaAdded}`]); break;
       case 'c':
-        this.main.dialogSuccessAddPrograma = false;
+        this.form.dialogSuccessAddPrograma = false;
         this.confirmAddPrograma = false;
         this.main.setModeCrud('create');
       break;
@@ -165,7 +165,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
     console.log("VALORES FORMULARIO:",this.form.fbForm.value);
     this.form.getValuesSelected();
     this.form.getValuesIndex();
-    this.main.dialogSuccessAddPrograma = true;
+    this.form.dialogSuccessAddPrograma = true;
   }
 
   test2(){
@@ -191,12 +191,12 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
     this.form.setSelectTipoPrograma(dataSelected);
   }
 
-  async getCampus(){
-    this.campus =  await this.backend.getCampus();
+  async getCampusActivos(){
+    this.campus =  await this.backend.getCampusActivos();
   }
 
   changeCampus(event: any){
-    let dataSelected : Campus = this.campus.find( c => c.Cod_campus === event.value )
+    let dataSelected : Campus = this.campus.find( c => c.codigoCampus === event.value )
     this.form.setSelectCampus(dataSelected);
   }
 

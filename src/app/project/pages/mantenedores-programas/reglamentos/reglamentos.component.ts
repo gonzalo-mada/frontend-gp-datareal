@@ -19,11 +19,14 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
   private subscription: Subscription = new Subscription();
 
   ngOnInit() {
-    this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => { 
-      action==='agregar' 
-      ? this.reglamentosMainService.setModeCrud('create') 
-      : this.reglamentosMainService.setModeCrud('delete-selected')
+    this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => {
+      switch (action) {
+        case 'agregar': this.reglamentosMainService.setModeCrud('create');break;
+        case 'eliminar': this.reglamentosMainService.setModeCrud('delete-selected');break;
+        case 'historial': this.reglamentosMainService.setModeCrud('historial');break;
+      } 
     }));
+    this.reglamentosMainService.setOrigen('reglamento');
   }
   
   ngOnDestroy(): void {

@@ -94,11 +94,11 @@ export class BackendCampusService {
         }
     }
 
-    async getDocsMongo(Cod_campus: any) {
+    async getDocsMongo(codigoCampus: any) {
         try {
             return await this.invoker.httpInvoke(
                     this.serviceUtils.generateServiceMongo('campus/getDocsMongo', false),
-                    { Cod_campus }
+                    { codigoCampus }
                 )
         } catch (error: any) {
             this.errorTemplateHandler.processError(

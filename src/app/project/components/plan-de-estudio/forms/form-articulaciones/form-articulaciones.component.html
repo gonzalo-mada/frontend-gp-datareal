@@ -23,6 +23,11 @@
                 <app-form-isvalid [valid]="form.fbForm.valid"></app-form-isvalid>
             </div>
         </div>
+
+        <div class="mt-2">
+            <p-messages [(value)]="main.messagesFormulario" [enableService]="false" />
+        </div>
+
         <form [formGroup]="form.fbForm">
             <div class="flex">
                 <div class="flex-grow-1 flex-shrink-1 flex align-items-start justify-content-center w-full">
@@ -45,7 +50,7 @@
                         </div>
 
                         <div class="flex align-items-center justify-content-center w-full">
-                            <i class="pi pi-arrow-down " style="font-size: 1.5rem; color:#6c757d"></i>
+                            <i class="pi pi-arrow-down " [ngStyle]="{'color': form.getArrowColor('facultad_to_programas_left'), 'font-size' : '1.5rem'}"></i>
                         </div>
 
                         <div class="field">
@@ -63,7 +68,7 @@
                         </div>
 
                         <div class="flex align-items-center justify-content-center w-full">
-                            <i class="pi pi-arrow-down " style="font-size: 1.5rem; color:#6c757d"></i>
+                            <i class="pi pi-arrow-down" [ngStyle]="{'color': form.getArrowColor('programas_to_planestudio_left'), 'font-size' : '1.5rem'}"></i>
                         </div>
 
                         <div class="field">
@@ -80,8 +85,8 @@
                             />
                         </div>
 
-                        <div class="flex align-items-center justify-content-center w-full">
-                            <i class="pi pi-arrow-down " style="font-size: 1.5rem; color:#6c757d"></i>
+                        <div class="flex align-items-center justify-content-center w-full mb-2">
+                            <i class="pi pi-arrow-down " [ngStyle]="{'color': form.getArrowColor('planestudio_to_table_left'), 'font-size' : '1.5rem'}"></i>
                         </div>
 
                         <div class="field">
@@ -102,11 +107,11 @@
                                 <ng-template pTemplate="caption">
                                     <div class="flex flex-wrap flex-column sm:flex-row justify-content-center align-items-center">
                                         <p-button
-                                            *ngIf="table.selectedAsignaturasPostgrado.length !== 0"
+                                            *ngIf="table.selectedAsignaturasPostgrado.length !== 0 && main.modeForm === 'create'"
                                             label="Limpiar seleccionada(s)"
                                             icon="pi pi-times"
                                             styleClass="p-button-danger p-button-outlined"
-                                            (click)="resetSelectedAsignaturasPostgrado(); "
+                                            (click)="clearTableAsignaturaPostgrado(); "
                                         ></p-button>
                                         <div class="flex m-1">
                                             <span class="p-input-icon-left">
@@ -125,19 +130,18 @@
         
                                 <ng-template pTemplate="header">
                                     <tr>
-                                        <th *ngIf="main.modeForm !== 'show'" style="width: 2rem"></th>
+                                        <th style="width: 2rem"></th>
                                         <th>Asignatura</th>
                                     </tr>
                                 </ng-template>
         
                                 <ng-template pTemplate="body" let-asignatura>
                                     <tr>
-                                        <td *ngIf="main.modeForm !== 'show'"><p-tableRadioButton [value]="asignatura" /></td>
+                                        <td><p-tableRadioButton [disabled]="main.modeForm !== 'create'" [value]="asignatura" /></td>
                                         <td>
                                             <span>
-                                                <i>Código: </i> {{ asignatura.cod_asignatura }} <br/> 
-                                                <i>Nombre: </i> {{ asignatura.nombre_asignatura }} <br/>
-                                                <i>Tema: </i> {{ asignatura.tema === '' ? '-' :  asignatura.tema }} 
+                                                <strong>Asignatura: </strong> {{ asignatura.codigo_externo }} - {{ asignatura.nombre_asignatura }} <br/>
+                                                <strong>Tema: </strong> {{ asignatura.nombre_tema === '' ? '-' :  asignatura.nombre_tema }} 
                                             </span> 
         
                                         </td>
@@ -156,7 +160,8 @@
                     </div>
                 </div>
                 <div class="flex-shrink-0 flex align-items-center justify-content-center w-auto">
-                    <i class="pi pi-arrow-right mx-2" style="font-size: 2rem; color:#6c757d"></i>
+                    <i class="pi pi-arrow-left ml-2" style="font-size: 2rem; color:#6c757d"></i>
+                    <i class="pi pi-arrow-right mr-2" style="font-size: 2rem; color:#6c757d"></i>
                 </div>
                 <div class="flex-grow-1 flex-shrink-1 flex align-items-start justify-content-center w-full">
                     <div class="surface-card shadow-2 p-3 border-round w-full">
@@ -178,7 +183,7 @@
                         </div>
 
                         <div class="flex align-items-center justify-content-center w-full">
-                            <i class="pi pi-arrow-down " style="font-size: 1.5rem; color:#6c757d"></i>
+                            <i class="pi pi-arrow-down " [ngStyle]="{'color': form.getArrowColor('facultad_to_programas_right'), 'font-size' : '1.5rem'}"></i>
                         </div>
 
                         <div class="field">
@@ -195,7 +200,7 @@
                         </div>
 
                         <div class="flex align-items-center justify-content-center w-full">
-                            <i class="pi pi-arrow-down " style="font-size: 1.5rem; color:#6c757d"></i>
+                            <i class="pi pi-arrow-down " [ngStyle]="{'color': form.getArrowColor('programas_to_asignaturas_right'), 'font-size' : '1.5rem'}"></i>
                         </div>
 
                         <div class="field">
@@ -205,9 +210,9 @@
                                 [style]="{ width: '100%', 'min-width': '100%' }"
                                 [virtualScroll]="true"
                                 [virtualScrollItemSize]="55"
-                                [filterFields]="['tema', 'nombre_asignatura' , 'cod_asignatura']"
+                                [filterFields]="['nombre_tema', 'nombre_asignatura' , 'codigo_externo']"
                                 [maxSelectedLabels]="0"
-                                formControlName="asignaturas_pregrado"
+                                formControlName="asignaturas_pregrado_dropdown"
                                 placeholder="Seleccione asignatura(s)"
                                 appendTo="body"
                                 selectedItemsLabel="{0} asignatura(s) seleccionada(s)"
@@ -217,8 +222,8 @@
                                 <ng-template let-item pTemplate="item">
                                     <div class="inline-flex align-items-center px-1">
                                         <span>
-                                            {{ item.cod_asignatura }} - {{ item.nombre_asignatura }} <br/>
-                                            <i>Tema:</i> {{ item.tema === '' ? '-' : item.cod_tema + ' - ' +item.tema }}
+                                            {{ item.codigo_externo }} - {{ item.nombre_asignatura }} <br/>
+                                            <i>Tema:</i> {{ item.nombre_tema === '' ? '-' : item.nombre_tema }}
                                         </span>
                                     </div>
                                 </ng-template>
@@ -226,7 +231,7 @@
                         </div>
 
                         <div class="flex align-items-center justify-content-center w-full">
-                            <i class="pi pi-arrow-down " style="font-size: 1.5rem; color:#6c757d"></i>
+                            <i class="pi pi-arrow-down " [ngStyle]="{'color': form.getArrowColor('asignaturas_to_table_right'), 'font-size' : '1.5rem'}"></i>
                         </div>
 
                         <div class="field">
@@ -242,11 +247,11 @@
                                 <ng-template pTemplate="caption">
                                     <div class="flex flex-wrap flex-column sm:flex-row justify-content-center align-items-center">
                                         <p-button
-                                            *ngIf="table.selectedAsignaturaPregrado.length !== 0"
+                                            *ngIf="table.selectedAsignaturaPregrado.length !== 0 && main.modeForm !== 'show'"
                                             label="Limpiar seleccionada(s)"
                                             icon="pi pi-times"
                                             styleClass="p-button-danger p-button-outlined"
-                                            (click)="resetSelectedAsignaturasPregrado(); "
+                                            (click)="clearTableAsignaturaPregrado(); "
                                         ></p-button>
                                         <div class="flex m-1">
                                             <span class="p-input-icon-left">
@@ -274,9 +279,9 @@
                                     <tr>
                                         <td>
                                             <span>
-                                                <i>Código: </i> {{ asignatura.cod_asignatura }} <br/> 
-                                                <i>Nombre: </i> {{ asignatura.nombre_asignatura }} <br/>
-                                                <i>Tema: </i> {{ asignatura.tema === '' ? '-' :  asignatura.tema }} 
+                                                <strong>Programa: </strong> {{ asignatura.descripcion_programa_pregrado }} <br/> 
+                                                <strong>Asignatura: </strong> {{ asignatura.codigo_externo }} - {{ asignatura.nombre_asignatura }}<br/> 
+                                                <strong>Tema: </strong> {{ asignatura.nombre_tema === '' ? '-' :  asignatura.nombre_tema }} 
                                             </span> 
                                         </td>
                                         <td>
@@ -284,8 +289,9 @@
                                                 <p-button 
                                                     icon="pi pi-trash" 
                                                     styleClass="p-button-sm p-button-danger mr-2"
-                                                    pTooltip="Eliminar registro" 
-                                                    (click)="table.deleteRowAsignaturasPregradoSelected(i)">
+                                                    pTooltip="Eliminar registro"
+                                                    [disabled]="main.modeForm === 'show'" 
+                                                    (click)="main.deleteRowAsignaturasPregradoSelected(i)">
                                                 </p-button>
                                             </div>
                                         </td>
@@ -305,9 +311,6 @@
             </div>
         </form>
         
-        <div class="mt-2">
-            <p-messages [(value)]="main.messagesFormulario" [enableService]="false" />
-        </div>
 
     </div>
 

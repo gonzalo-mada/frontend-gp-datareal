@@ -1,0 +1,84 @@
+<app-dialog [dialogWidth]="'75vw'" [(visible)]="main.dialogForm">
+    <div header>
+        <ng-container *ngIf="main.modeForm === 'create' || main.modeForm === 'insert' ">
+            <span class="text-xl">Agregar {{ main.namesCrud.singular }}</span>
+        </ng-container>
+        <ng-container *ngIf="main.modeForm === 'edit' || main.modeForm === 'update' ">
+            <span class="text-xl">Actualizar {{ main.namesCrud.singular }}</span>
+        </ng-container>
+        <ng-container *ngIf="main.modeForm === 'show'">
+            <span class="text-xl">Visualizar {{ main.namesCrud.singular }}</span>
+        </ng-container>
+    </div>
+
+    <div content>
+        <div class="grid" *ngIf="main.modeForm !== 'show' ">
+            <div class="col-12">
+                <app-form-isvalid [valid]="form.fbForm.valid"></app-form-isvalid>
+            </div>
+        </div>
+
+        <div class="mt-2">
+            <p-messages [(value)]="main.messagesFormulario" [enableService]="false" />
+        </div>
+
+        <form [formGroup]="form.fbForm">
+            <div class="formgrid grid">
+
+                <div class="field col-12 md:col-6">
+                    <label><strong>Facultad {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                    
+                    <p-dropdown 
+                        [options]="mainFacultad.facultades"
+                        formControlName="cod_facultad"
+                        optionLabel="Descripcion_facu"
+                        optionValue="Cod_facultad" 
+                        placeholder="Seleccione facultad"
+                        appendTo="body" 
+                        styleClass="w-full p-d-flex p-flex-column" 
+                        (onChange)="changeFacultad($event)" 
+                    />
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label><strong>Programas {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                    
+                    <p-dropdown 
+                        [options]="main.programas"
+                        formControlName="cod_programa"
+                        optionLabel="Nombre_programa"
+                        optionValue="Cod_Programa" 
+                        placeholder="Seleccione programa de postgrado"
+                        appendTo="body" 
+                        styleClass="w-full p-d-flex p-flex-column" 
+                        (onChange)="changeProgramaPostgrado($event)" 
+                    />
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label><strong>Código {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                    <input type="text" pInputText formControlName="cod_tema" maxlength="50" class="w-full" placeholder="Ingrese código del tema" />
+                    <app-form-control [control]="form.fbForm.controls['cod_tema']" [validators]="['required', 'num_y_letras']"></app-form-control>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label><strong>Nombre {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                    <input type="text" pInputText formControlName="nombre_tema" maxlength="50" class="w-full" placeholder="Ingrese nombre del tema" />
+                    <app-form-control [control]="form.fbForm.controls['nombre_tema']" [validators]="['required', 'num_y_letras']"></app-form-control>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+    <div footer>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
+            (click)="main.dialogForm = false" [text]="true"></p-button>
+
+        <p-button *ngIf="main.modeForm === 'create' || main.modeForm === 'edit'"
+            [label]="main.modeForm === 'edit' ? 'Actualizar' : 'Agregar'" icon="pi pi-check"
+            styleClass="mr-2 p-button-success p-button-sm" [disabled]="form.stateForm === 'INVALID'"
+            (click)="submit()">
+        </p-button>
+    </div>
+</app-dialog>

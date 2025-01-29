@@ -68,9 +68,12 @@ export class BackendCertifIntermediasPEService {
         }
     }
     
-    async getAsignaturasPorPlanDeEstudio(params: any) {
+    async getAsignaturasPorPlanDeEstudio(params: any, loading = true) {
         try {
-            return await this.invoker.httpInvoke('planesDeEstudio/getAsignaturasPorPlanDeEstudio', params );
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('asignaturas/getAsignaturasSimplificatedPorPlanDeEstudio', loading),
+                params
+            );
         } catch (error: any) {
             this.errorTemplateHandler.processError(
                 error, 
@@ -82,29 +85,18 @@ export class BackendCertifIntermediasPEService {
         }
     }
 
-    async getCertificacionIntermedia_Prog(params: any) {
+    async getCertificacionIntermedia_Prog(params: any, loading = true) {
         try {
-            return await this.invoker.httpInvoke('certificacionIntermediaPE/getCertificacionIntermedia_Prog', params );
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('certificacionIntermediaPE/getCertificacionIntermedia_Prog', loading),
+                params
+            );
         } catch (error: any) {
             this.errorTemplateHandler.processError(
                 error, 
                 {
                     notifyMethod: 'alert',
                     message: `Hubo un error al obtener certificaciones intermedias por programa seleccionado. Intente nuevamente.`,
-                }
-            );
-        }
-    }
-
-    async getAsignaturasPorProgramaPregrado(params: any) {
-        try {
-            return await this.invoker.httpInvoke('articulaciones/getAsignaturasPorProgramaPregrado', params );
-        } catch (error: any) {
-            this.errorTemplateHandler.processError(
-                error, 
-                {
-                    notifyMethod: 'alert',
-                    message: `Hubo un error al obtener asignaturas por programa seleccionado. Intente nuevamente.`,
                 }
             );
         }
@@ -124,26 +116,28 @@ export class BackendCertifIntermediasPEService {
         }
     }
 
-    async getArticulaciones(namesCrud: NamesCrud) {
+    async getCertificacionesIntermediasPorPlanDeEstudio(params: any, loading = true) {
         try {
-            return await this.invoker.httpInvoke('articulaciones/getArticulaciones_Asign_All')
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('certificacionIntermediaPE/getCertificacionesIntermediasPorPlanDeEstudio', loading),
+                params
+            );
         } catch (error: any) {
             this.errorTemplateHandler.processError(
                 error, 
                 {
                     notifyMethod: 'alert',
-                    summary: `Error al obtener ${namesCrud.articulo_plural}.`,
-                    message: error?.message || error.detail.error.message.message
+                    message: `Hubo un error al obtener certificaciones intermedias por plan de estudio seleccionado. Intente nuevamente.`,
                 }
             );
         }
     }
     
-    async insertArticulacion(params: any, namesCrud: NamesCrud) {
+    async insertAsignaturasToCertifIntermedia(params: any, namesCrud: NamesCrud) {
         try {
             const response = await this.serviceUtils.checkResponse(
                 await this.invoker.httpInvoke(
-                    this.serviceUtils.generateServiceMongo('articulaciones/insertArticulacion'),
+                    this.serviceUtils.generateServiceMongo('certificacionIntermediaPE/insertAsignaturasToCertifIntermedia'),
                     params
                 ),
                 namesCrud
@@ -161,10 +155,13 @@ export class BackendCertifIntermediasPEService {
         }
     }
 
-    async updateArticulacion(params: any, namesCrud: NamesCrud) {
+    async updateAsignaturasToCertifIntermedia(params: any, namesCrud: NamesCrud) {
         try {
             const response = await this.serviceUtils.checkResponse(
-                await this.invoker.httpInvoke('articulaciones/updateArticulacion',params),
+                await this.invoker.httpInvoke(
+                    this.serviceUtils.generateServiceMongo('certificacionIntermediaPE/updateAsignaturasToCertifIntermedia'),
+                    params
+                ),
                 namesCrud
             );
             return response;
@@ -180,9 +177,9 @@ export class BackendCertifIntermediasPEService {
         }
     }
 
-    async deleteArticulacion(params: any, namesCrud: NamesCrud) {
+    async deleteAsignaturasToCertifIntermedia(params: any, namesCrud: NamesCrud) {
         try {
-            return await this.invoker.httpInvoke('articulaciones/deleteArticulacion',{articulacionesToDelete: params});
+            return await this.invoker.httpInvoke('certificacionIntermediaPE/deleteAsignaturasToCertifIntermedia',{asignCiToDelete: params});
         } catch (error: any) {
             this.errorTemplateHandler.processError(
                 error, 

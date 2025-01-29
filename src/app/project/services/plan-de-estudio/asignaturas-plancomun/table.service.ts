@@ -9,14 +9,13 @@ import { AsignaturasPlancomun } from 'src/app/project/models/plan-de-estudio/Asi
 export class TableAsignaturasPlancomunService {
 
     cols : any[] = [
-        { field: 'Cod_plan_estudio', header: 'Plan de estudio' },
-        { field: 'Cod_', header: 'Certificación intermedia' },
+        { field: 'cod_plan_estudio', header: 'Plan de estudio' },
         { field: 'Asignaturas', header: 'Núm. de asignaturas' },
         { field: 'accion', header: 'Acciones' }
     ];
-    globalFiltros : any[] = [ 'Cod_plan_estudio' , 'Descripcion_programa_pregrado' , 'Descripcion_programa_pregrado' ];
-    globalFiltrosAsignatura : any[] = [ 'cod_asignatura' , 'nombre_asignatura' , 'cod_tema' , 'tema' ];
-    dataKeyTable : string = 'Cod_Articulacion';
+    globalFiltros : any[] = [ 'cod_plan_estudio' , 'nombre_plan_estudio_completo'];
+    globalFiltrosAsignatura : any[] = [ 'codigo_externo' , 'nombre_asignatura' , 'nombre_tema' ];
+    dataKeyTable : string = 'cod_plan_estudio';
     selectedRows: AsignaturasPlancomun[] = [];
     selectedAsignaturaRows: any[] = [];
 
@@ -28,6 +27,7 @@ export class TableAsignaturasPlancomunService {
 
     resetSelectedRows(){
         this.selectedRows = [];
+        this.resetSelectedRowsAllTables();
         this.setSelectedRows();
     }
 

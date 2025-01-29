@@ -62,9 +62,9 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 		this.systemService.loading(true);
 		this.loading = true;
 		this.mainPE.planDeEstudio = await this.backend.getPlanDeEstudio({Cod_plan_estudio: this.mainPE.cod_plan_estudio},false,this.mainPE.namesCrud);
-		console.log("this.mainPE.planDeEstudio",this.mainPE.planDeEstudio);
+		// console.log("this.mainPE.planDeEstudio",this.mainPE.planDeEstudio);
 		this.form.resetForm(false);
-		this.form.setForm(this.mainPE.planDeEstudio);
+		this.form.setForm(this.mainPE.planDeEstudio, this.mainPE.cod_facultad_selected);
 		this.form.fbForm.disable();
 	}
 
@@ -128,7 +128,9 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 	async getArticulacionesPorPlanDeEstudio(){
         let params = { cod_plan_estudio: this.mainPE.planDeEstudio.cod_plan_estudio }
 		this.main.articulaciones = await this.backend.getArticulacionesPorPlanDeEstudio(params,false);
+		// console.log("this.main.articulaciones",this.main.articulaciones);
 		this.form.setSelectArticulacion(this.mainPE.planDeEstudio.tiene_articulacion,this.main.articulaciones.length)
+		
 	}
 
 	async getCertifIntermediaPorPlanDeEstudio(){
@@ -142,6 +144,8 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 		//todo: PENDIENTE POR FALTA DE TABLA ASIGNATURA
 		let params = { cod_plan_estudio: this.mainPE.planDeEstudio.cod_plan_estudio };
 		this.main.asignaturas = await this.backend.getAsignaturasPorPlanDeEstudio(params,false);
+		// console.log("this.main.asignaturas",this.main.asignaturas);
+		
 		this.form.setSelectAsignaturas(this.main.asignaturas.length)
 	}
 

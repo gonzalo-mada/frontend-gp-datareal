@@ -64,12 +64,6 @@ export class VerEditarPlanEstudioMainService {
                     this.form.fbFormUpdate.get('description_new')?.patchValue(this.form.selectedReglamento);
                 });
             break;
-
-            case 'articulacion':
-                this.form.showFormArticulaciones = true;
-                this.form.showTableArticulaciones = true;
-                await this.commonFormUpdate(form, collection, false);
-            break
         
             default:
                 await this.commonFormUpdate(form, collection, true);

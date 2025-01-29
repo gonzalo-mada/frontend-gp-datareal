@@ -8,6 +8,7 @@ import { Reglamento } from 'src/app/project/models/programas/Reglamento';
 import { Programa } from 'src/app/project/models/programas/Programa';
 import { ModeDialogPE, PlanDeEstudio } from 'src/app/project/models/plan-de-estudio/PlanDeEstudio';
 import { CollectionsMongo } from 'src/app/project/models/shared/Context';
+import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 
 interface CardPlanEstudio {
     // id: number,
@@ -52,7 +53,7 @@ export class FormPlanDeEstudioService {
     disposition: boolean = true;
     dialogChooseDocsMaestro: boolean = false;
     loadedProgramas: boolean = false;
-    dataToPendingForm: any = { data: false };
+    dataExternal: DataExternal = { data: false };
 
     inputs: CardPlanEstudio[] = [
         {   
@@ -116,7 +117,7 @@ export class FormPlanDeEstudioService {
             ]
         },
         {   
-            col_lg: 6, col_md: 12, isEditable: true, haveSecondaryValue: false, modeDialog: 'articulacion', collection: undefined, 
+            col_lg: 6, col_md: 12, isEditable: true, haveSecondaryValue: false, modeDialog: 'articulacion', collection: 'articulaciones', 
             items: [
                 { title: '¿Tiene articulación con programas de Pregrado?', control: 'tiene_articulacion', iconHelp: false},
                 { title: 'Número de articulaciones', control: '', iconHelp: false, principalValue: 'form.selectedArticulacion'}
@@ -372,20 +373,18 @@ export class FormPlanDeEstudioService {
         this.sidebarVisible2 = false;
         this.showCardForm = true;
         this.stepOne = false;
-        this.disposition = true;
         this.dialogChooseDocsMaestro = false;
-        this.dataToPendingForm = { data: false };
+        this.dataExternal = { data: false };
     }
 
-    setForm(data: PlanDeEstudio){
-        this.fbForm.patchValue({...data});
-        this.dataToPendingForm = {
+    setForm(data: PlanDeEstudio, cod_facultad_selected: number){
+        this.fbForm.patchValue({...data, cod_facultad_selected: cod_facultad_selected});
+        this.dataExternal = {
             data: true,
+            cod_facultad: cod_facultad_selected,
             cod_plan_estudio: data.cod_plan_estudio,
-            cod_programa: data.cod_programa
+            cod_programa: data.cod_programa,
         }
-        console.log("SETEO FORMULARIO PLAN DE ESTUDIO: ",this.fbForm.value);
-        
     }
 
     updateFilesForm(files: any): void {
@@ -645,7 +644,10 @@ export class FormPlanDeEstudioService {
             break;
 
             case 'articulacion':
-
+                this.fbFormUpdate = this.fb.group({
+                    tiene_articulacion: [plan.tiene_articulacion, [Validators.required]],
+                    files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
+                });
             break;
         
         }

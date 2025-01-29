@@ -66,6 +66,7 @@ export interface Programa {
 }
 export interface UpdatePrograma {
     modeDialog: ModeDialog,
-    collection: CollectionsMongo
+    collection: CollectionsMongo,
+    isEditableWithPE: boolean
 }
 

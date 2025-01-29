@@ -19,7 +19,8 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
   @Input() mode: string = '';
   // @Input() context!: Context;
 
-  docsToUpload : any[] = [];
+  newDocsToUpload : any[] = [];
+  updateDocsToUpload : any[] = [];
   leyendas: any[] = [
     { label: ' Archivo en línea' , icon:'pi-cloud' , color:'estado-cloud'},
     { label: ' Archivo por subir' , icon:'pi-cloud-upload' , color:'estado-upload'}
@@ -102,7 +103,8 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
 
   async newUploadHandler(resolve: Function, reject: Function){
     try {
-      this.docsToUpload = [];
+      this.newDocsToUpload = [];
+      this.updateDocsToUpload = [];
       if (this.uploaderFilesService.files.length != 0) {
         //subieron docs
         for (let i = 0; i < this.uploaderFilesService.files.length; i++) {
@@ -121,7 +123,7 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
               },
               from: doc.from
             };
-            this.docsToUpload.push(documento)
+            this.newDocsToUpload.push(documento)
             
           }else{
             //modo actualizar archivo
@@ -143,15 +145,15 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
                   },
                   from: doc.from
                 };
-                this.docsToUpload.push(documento)
+                this.updateDocsToUpload.push(documento)
                 this.uploaderFilesService.setLoading(false);
               }
             }            
           }
         }
-        resolve({success: true, docsToUpload: this.docsToUpload, docsToDelete: this.uploaderFilesService.filesToDelete})
+        resolve({success: true, docsToUpload: {new_files: this.newDocsToUpload , update_files: this.updateDocsToUpload}, docsToDelete: this.uploaderFilesService.filesToDelete})
       }else{
-        resolve({success: true , docsToUpload: this.docsToUpload = [], docsToDelete: this.uploaderFilesService.filesToDelete })
+        resolve({success: true , docsToUpload: {new_files: [] , update_files: []}, docsToDelete: this.uploaderFilesService.filesToDelete })
       }
     } catch (e) {
       reject(e);
@@ -212,7 +214,8 @@ export class UploaderFilesComponent implements OnInit, OnDestroy {
 
   resetQueueUploader(context: Context){
     console.log("me llamaron reset queue uploader desde:", context);
-    this.docsToUpload = [];  
+    this.newDocsToUpload = [];  
+    this.updateDocsToUpload = [];  
     this.uploader?.clear();
     this.uploaderFilesService.resetUploader();
   }

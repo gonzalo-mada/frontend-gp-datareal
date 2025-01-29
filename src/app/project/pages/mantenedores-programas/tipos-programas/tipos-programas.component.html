@@ -67,7 +67,7 @@
                                                 />
                                                 <button
                                                 *ngIf="main.modeForm !== 'show' "
-                                                (click)="mainCategoriasTp.setModeCrud('create')" 
+                                                (click)="main.showFormCatTP = true; mainCategoriasTp.setModeCrud('create')" 
                                                 type="button" pButton icon="pi pi-plus" iconPos="right" 
                                                 class="p-button-success" pTooltip="Agregar nueva categoría de tipo de programa" 
                                                 tooltipPosition="bottom"
@@ -101,5 +101,5 @@
         </app-card>
     </div>
 </div>
-
-<app-form-categorias-tp></app-form-categorias-tp>
+<app-historial-actividad></app-historial-actividad>
+<app-form-categorias-tp *ngIf="main.showFormCatTP" (formWasClosed)="formWasClosed()"></app-form-categorias-tp>

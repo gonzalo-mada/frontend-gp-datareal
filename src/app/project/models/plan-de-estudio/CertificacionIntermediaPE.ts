@@ -1,14 +1,14 @@
 export interface CertificacionIntermediaPE {
-    Cod_Programa_Postgrado_Selected?: number,
-    Cod_plan_estudio?: number,
-    Cod_CertificacionIntermedia?: number,
-    Asignaturas?: Asignatura[]
+    cod_plan_estudio?: number,
+    cod_certif_intermedia?: number,
+    descripcion_certif_intermedia?: string,
+    asignaturas?: Asignatura[]
 }
 
 interface Asignatura {
-    Cod_AsignaturaPreGradoArtic?: number,
-    Descripcion_asignatura?: string,
-    Descripcion_tema?: string,
-    Cod_Asignatura?: string,
-    Cod_Tema?: string,
+    cod_asignatura?: string,
+    codigo_externo?: string,
+    nombre_asignatura?: string,
+    cod_tema?: string,
+    nombre_tema?: string,
 }

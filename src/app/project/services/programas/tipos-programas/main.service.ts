@@ -9,6 +9,7 @@ import { CategoriaTp } from 'src/app/project/models/programas/CategoriaTp';
 import { BackendTiposProgramasService } from './backend.service';
 import { FormTiposProgramasService } from './form.service';
 import { TableTiposProgramasService } from './table.service';
+import { HistorialActividadService } from '../../components/historial-actividad.service';
 
 @Injectable({
     providedIn: 'root'
@@ -30,13 +31,15 @@ export class TiposProgramasMainService {
 
     //MODAL
     dialogForm: boolean = false
+    showFormCatTP: boolean = false
 
     constructor(
         private backend: BackendTiposProgramasService,
         private confirmationService: ConfirmationService,
         private form: FormTiposProgramasService,
         private messageService: MessageServiceGP,
-        private table: TableTiposProgramasService
+        private table: TableTiposProgramasService,
+        private historialActividad: HistorialActividadService
     ){
         this.form.initForm();
     }
@@ -56,6 +59,7 @@ export class TiposProgramasMainService {
             case 'update': await this.updateForm(); break;
             case 'delete': await this.openConfirmationDelete(); break;
             case 'delete-selected': await this.openConfirmationDeleteSelected(); break;
+            case 'historial': await this.openHistorialActividad(); break;
         }
     }
 
@@ -117,6 +121,7 @@ export class TiposProgramasMainService {
         }finally{
             this.dialogForm = false;
             this.getTiposProgramas(false);
+            await this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -140,6 +145,7 @@ export class TiposProgramasMainService {
         }finally{
             this.dialogForm = false;
             this.getTiposProgramas(false);
+            await this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -179,6 +185,7 @@ export class TiposProgramasMainService {
             console.log(error);
         }finally{
             this.getTiposProgramas(false);
+            await this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -217,6 +224,18 @@ export class TiposProgramasMainService {
                 await this.deleteRegisters(data);
             }
         }) 
+    }
+
+    async openHistorialActividad(){
+        this.historialActividad.showDialog = true;
+    }
+
+    setOrigen(origen: string){
+        this.historialActividad.setOrigen(origen);
+    }
+
+    async refreshHistorialActividad(){
+        await this.historialActividad.refreshHistorialActividad();
     }
 
 }

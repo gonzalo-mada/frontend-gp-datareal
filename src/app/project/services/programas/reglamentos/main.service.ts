@@ -10,6 +10,7 @@ import { MessageServiceGP } from '../../components/message-service.service';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
 import { ConfirmationService, Message } from 'primeng/api';
 import { TableReglamentosService } from './table.service';
+import { HistorialActividadService } from '../../components/historial-actividad.service';
 @Injectable({
     providedIn: 'root'
 })
@@ -37,7 +38,8 @@ export class ReglamentosMainService {
         private files: FilesReglamentosService,
         private form: FormReglamentosService,
         private messageService: MessageServiceGP,
-        private table: TableReglamentosService
+        private table: TableReglamentosService,
+        private historialActividad: HistorialActividadService
     ){
         this.form.initForm();
         this.files.initFiles();
@@ -59,6 +61,7 @@ export class ReglamentosMainService {
             case 'delete': await this.openConfirmationDelete(); break;
             case 'delete-selected': await this.openConfirmationDeleteSelected(); break;
             case 'rowExpandClick': await this.clickRowExpandTablePrograma(); break;
+            case 'historial': this.openHistorialActividad(); break;
         }
     }
 
@@ -131,6 +134,7 @@ export class ReglamentosMainService {
         }finally{
             this.dialogForm = false;
             this.getReglamentos(false);
+            this.historialActividad.refreshHistorialActividad();
             this.table.emitRefreshTablesReglamentos();
             this.reset();
         }
@@ -162,6 +166,7 @@ export class ReglamentosMainService {
         }finally{
             this.dialogForm = false;
             this.getReglamentos(false);
+            this.historialActividad.refreshHistorialActividad();
             this.table.emitRefreshTablesReglamentos();
             this.reset();
         }
@@ -203,6 +208,7 @@ export class ReglamentosMainService {
             
         }finally{
             this.getReglamentos(false);
+            this.historialActividad.refreshHistorialActividad();
             this.table.emitRefreshTablesReglamentos();
             this.reset();
         }
@@ -248,6 +254,14 @@ export class ReglamentosMainService {
         await this.files.setContextUploader('show','servicio','reglamentos');
         this.files.resetLocalFiles();
         await this.files.loadDocsWithBinary(this.reglamento)
+    }
+
+    openHistorialActividad(){
+        this.historialActividad.showDialog = true;
+    }
+
+    setOrigen(origen: string){
+        this.historialActividad.setOrigen(origen);
     }
 
 }

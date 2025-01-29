@@ -31,7 +31,11 @@ export type NameComponent = undefined |
                 'tipo-graduacion' |
                 'certificacion-intermedia' |
                 'agregar-plandeestudio' |
-                'ver/editar-plandeestudio';
+                'ver/editar-plandeestudio' |
+                'agregar-asignatura' |
+                'ver/editar-asignatura' |
+                'menciones'
+                ;
 export type CollectionsMongo = 
 undefined | 
 'REXE' | 
@@ -62,7 +66,8 @@ undefined |
 'regimen_pe' |
 'rexe_pe' |
 'cupo_minimo_pe' | 
-'plan_estudio'
+'plan_estudio' |
+'articulaciones'
 ; 
 
 

@@ -18,16 +18,21 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
   ){}
 
   async ngOnInit() {
-    this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => { 
-      action==='agregar' 
-      ? this.main.setModeCrud('create') 
-      : this.main.setModeCrud('delete-selected') 
+    this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => {
+      switch (action) {
+        case 'agregar': this.main.setModeCrud('create');break;
+        case 'eliminar': this.main.setModeCrud('delete-selected');break;
+        case 'historial': this.main.setModeCrud('historial');break;
+      } 
     }));
+    this.main.setOrigen('estados_acred');
+    this.main.setNeedUpdateHistorial(true);
   }
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
     this.main.reset();
+    this.main.setNeedUpdateHistorial(false);
   }
 
   submit() {

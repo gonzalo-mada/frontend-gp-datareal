@@ -95,28 +95,28 @@ export class PlanDeEstudioMainService {
       
   	}
 
-	async getProgramasPorFacultad(){
-		let params = { Cod_facultad: this.cod_facultad_selected }
-		const response = await this.backend.getProgramasPorFacultad(params);
-		if (response) {
-		  this.programas_postgrado = [...response];
-		  if (this.programas_postgrado.length === 0 ) {
-			  this.disabledDropdownPrograma = true;
-			  this.showTable = false
-			  this.showMessageSinResultadosPrograma('m');
-		  }else{
-			  this.messageService.add({
-				key: 'main',
-				severity: 'info',
-				detail: this.programas_postgrado.length > 1
-				  ? `${this.programas_postgrado.length} programas cargados.`
-				  : `${this.programas_postgrado.length} programa cargado.`
-			  });
-			  this.clearMessagesSinResultados('m');
-			  this.disabledDropdownPrograma = false;
-		  }
-		}
-	}
+    async getProgramasPorFacultad(){
+      let params = { Cod_facultad: this.cod_facultad_selected }
+      const response = await this.backend.getProgramasPorFacultad(params);
+      if (response) {
+        this.programas_postgrado = [...response];
+        if (this.programas_postgrado.length === 0 ) {
+          this.disabledDropdownPrograma = true;
+          this.showTable = false
+          this.showMessageSinResultadosPrograma('m');
+        }else{
+          this.messageService.add({
+          key: 'main',
+          severity: 'info',
+          detail: this.programas_postgrado.length > 1
+            ? `${this.programas_postgrado.length} programas cargados.`
+            : `${this.programas_postgrado.length} programa cargado.`
+          });
+          this.clearMessagesSinResultados('m');
+          this.disabledDropdownPrograma = false;
+        }
+      }
+    }
 
 
     reset(){

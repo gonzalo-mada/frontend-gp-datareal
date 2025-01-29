@@ -1,0 +1,161 @@
+<app-dialog [dialogWidth]="'75vw'" [(visible)]="main.dialogForm">
+    <div header>
+        <ng-container *ngIf="main.modeForm === 'create' || main.modeForm === 'insert'">
+            <span class="text-xl">Agregar {{ main.namesCrud.singular }}</span>
+        </ng-container>
+        <ng-container *ngIf="main.modeForm === 'edit' || main.modeForm === 'update'">
+            <span class="text-xl">Actualizar {{ main.namesCrud.singular }}</span>
+        </ng-container>
+        <ng-container *ngIf="main.modeForm === 'show'">
+            <span class="text-xl">Visualizar {{ main.namesCrud.singular }}</span>
+        </ng-container>
+    </div>
+    
+    <div content>  
+        <!-- <p-button 
+            label="test" 
+            icon="pi pi-times" 
+            styleClass="p-button-sm p-button-secondary mr-2" 
+            (click)="test()" [text]="true">
+        </p-button>     -->
+                  
+        <div class="grid" *ngIf="main.modeForm !== 'show'">
+            <div class="col-12">
+                <app-form-isvalid [valid]="form.fbForm.valid"></app-form-isvalid>
+            </div>
+        </div>
+        
+        <div class="mt-2">
+            <p-messages [(value)]="main.messagesFormulario" [enableService]="false" />
+        </div>
+
+        <form [formGroup]="form.fbForm">
+            <div class="formgrid grid">
+
+                <div class="field col-12 md:col-4">
+                    <label><strong>Facultad {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                    
+                    <p-dropdown 
+                        [options]="mainFacultad.facultades"
+                        formControlName="Cod_Facultad_Postgrado_Selected"
+                        optionLabel="Descripcion_facu"
+                        optionValue="Cod_facultad" 
+                        placeholder="Seleccione facultad"
+                        appendTo="body" 
+                        styleClass="w-full p-d-flex p-flex-column" 
+                        (onChange)="changeFacultadPostgrado($event)" 
+                    />
+                </div>
+
+                <div class="field col-12 md:col-4">
+                    <label><strong>Programas {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                    
+                    <p-dropdown 
+                        [options]="main.programas_postgrado"
+                        formControlName="Cod_Programa_Postgrado_Selected"
+                        optionLabel="Nombre_programa_completo"
+                        optionValue="Cod_Programa" 
+                        placeholder="Seleccione programa de postgrado"
+                        appendTo="body" 
+                        styleClass="w-full p-d-flex p-flex-column" 
+                        (onChange)="changeProgramaPostgrado($event)" 
+                    />
+                </div>
+
+                <div class="field col-12 md:col-4">
+                    <label><strong>Plan de estudio {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                    <p-dropdown 
+                        [options]="main.planes"
+                        formControlName="Cod_plan_estudio"
+                        optionLabel="nombre_plan_estudio_completo"
+                        optionValue="cod_plan_estudio" 
+                        placeholder="Seleccione plan de estudio"
+                        appendTo="body" 
+                        styleClass="w-full p-d-flex p-flex-column" 
+                        (onChange)="changePlanDeEstudio($event)" 
+                    />
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label><strong>Nombre {{ main.modeForm === 'show' ? '' : '*' }}</strong></label>
+                    <input type="text" pInputText formControlName="Descripcion_RangoAprobG" maxlength="50"
+                        class="w-full" placeholder="Ingrese nombre del rango de aprobación" />
+                    <app-form-control [control]="form.fbForm.controls['Descripcion_RangoAprobG']"
+                        [validators]="['required', 'num_y_letras']">
+                    </app-form-control>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label><strong>N° REXE {{ main.modeForm !== 'show' ? '*' : '' }}</strong></label>
+                    <input type="text" pInputText formControlName="RexeReglamentoEstudio" maxlength="50"
+                        class="w-full" placeholder="Ingrese el número de REXE del plan de estudio" />
+
+                    <app-form-control [control]="form.fbForm.controls['RexeReglamentoEstudio']"
+                        [validators]="['required']"></app-form-control>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label><strong>Nota mínima {{ main.modeForm === 'show' ? '' : '*' }}</strong></label>
+                    <p-inputNumber 
+                        [allowEmpty]="true"
+                        [style]="{ width: '100%', 'min-width': '100%' }"
+                        [useGrouping]="false"
+                        [minFractionDigits]="1"
+                        [maxFractionDigits]="1"
+                        [min]="4.0"
+                        [max]="6.9"
+                        [showButtons]="true"
+                        [step]="0.1"
+                        formControlName="NotaMinima" 
+                        class="w-full"
+                        placeholder="Ingrese la nota mínima"
+                        locale="en-US"
+                        mode="decimal"
+                        class="w-full p-d-flex p-flex-column"
+                        >
+                    </p-inputNumber>
+                
+                    <app-form-control [control]="form.fbForm.controls['NotaMinima']" [validators]="['required', 'invalidRangeMax']"> </app-form-control>
+                </div>
+                
+                <div class="field col-12 md:col-6">
+                    <label><strong>Nota máxima {{ main.modeForm === 'show' ? '' : '*' }}</strong></label>
+                    <p-inputNumber 
+                        [allowEmpty]="true"
+                        [style]="{ width: '100%', 'min-width': '100%' }"
+                        [useGrouping]="false"
+                        [minFractionDigits]="1"
+                        [maxFractionDigits]="1"
+                        [min]="4.1"
+                        [max]="7.0"
+                        [showButtons]="true"
+                        [step]="0.1"
+                        formControlName="NotaMaxima" 
+                        class="w-full"
+                        placeholder="Ingrese la nota máxima"
+                        locale="en-US"
+                        mode="decimal"
+                        class="w-full p-d-flex p-flex-column"
+                    >
+                    </p-inputNumber>
+                
+                    <app-form-control [control]="form.fbForm.controls['NotaMaxima']" [validators]="['required','invalidRangeMin']"></app-form-control>
+                </div>
+                
+
+            </div>
+        </form>
+    </div>
+
+    <div footer>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" 
+            (click)="main.dialogForm = false" [text]="true">
+        </p-button>
+        
+        <p-button *ngIf="main.modeForm === 'create' || main.modeForm === 'edit'"
+            [label]="main.modeForm === 'edit' ? 'Actualizar' : 'Agregar'" icon="pi pi-check"
+            styleClass="mr-2 p-button-success p-button-sm" [disabled]="form.stateForm === 'INVALID'"
+            (click)="submit()">
+        </p-button>
+    </div>
+</app-dialog>

@@ -43,7 +43,6 @@ export class FormCertificacionesIntermediasPeComponent implements OnInit, OnDest
 		await this.main.getCertificacionIntermedia_Prog(false);
 		await this.main.getAsignaturasPorPlanDeEstudio();
 		this.form.setControlsFormByAgregarPE(this.dataFromAgregarPE);
-		this.main.showDropdowns();
 		this.main.wasFilteredTable = true;
 	}
 
@@ -54,24 +53,20 @@ export class FormCertificacionesIntermediasPeComponent implements OnInit, OnDest
 	async changeFacultadPostgrado(event:any){
 		this.table.resetSelectedRowsTableAsignaturas();
 		this.main.resetArraysWhenChangedDropdownFacultad();
-		this.form.resetFormWhenChangedDropdownFacultad();
+		this.form.resetControlsWhenChangedDropdownFacultadPostgrado();
+		this.form.disabledControlsWhenChangedDropdownFacultadPostgrado();
 		this.form.cod_facultad_selected_postgrado = event.value;
-		if (this.main.showDropdownSelectProgramaPostgrado) this.main.showDropdownSelectProgramaPostgrado = false
-		if (this.main.showDropdownSelectPlanEstudio) this.main.showDropdownSelectPlanEstudio = false
-		if (this.main.showTables) this.main.showTables = false
 		await this.main.getProgramasPostgradoConCertifIntermediaPorFacultad();
 	}
 
 	async changeProgramaPostgrado(event:any){
 		this.table.resetSelectedRowsAllTables();
 		this.main.resetArraysWhenChangedDropdownPrograma();
-		this.form.resetFormWhenChangedDropdownPrograma();
+		this.form.resetControlsWhenChangedDropdownProgramaPostgrado();
+		this.form.disabledControlsWhenChangedDropdownProgramaPostgrado();
 		this.form.cod_programa_postgrado_selected = event.value;
-		if (this.main.showDropdownSelectPlanEstudio) this.main.showDropdownSelectPlanEstudio = false
-		if (this.main.showTables) this.main.showTables = false
 		await this.main.getPlanesDeEstudiosPorPrograma();
 		await this.main.getCertificacionIntermedia_Prog(false);
-		this.main.showDropdownSelectPlanEstudio = true;
 	}
 
 	async changePlanDeEstudio(event:any){
@@ -79,34 +74,33 @@ export class FormCertificacionesIntermediasPeComponent implements OnInit, OnDest
 		this.main.resetArraysWhenChangedDropdownPE();
 		this.form.resetFormWhenChangedDropdownPE();
 		this.form.cod_planestudio_selected = event.value;
-		this.form.fbForm.patchValue({ Cod_plan_estudio: event.value });
 		await this.main.getAsignaturasPorPlanDeEstudio();
 	}
 
 	selectCertificacionIntermedia(event: any){
 		this.resetTableCertifIntermediaAndAsignaturas();
 		this.table.selectedCertifIntermediaRows = {...event};
-		this.form.fbForm.patchValue({ Cod_CertificacionIntermedia: event.Cod_CertificacionIntermedia });
+		this.form.setCertificacionIntermedia(event.Cod_CertificacionIntermedia);
 	}
 
 	selectAsignatura(event: any){
-		this.form.fbForm.patchValue({ Asignaturas: event });
+		this.form.setAsignatura(event);
 	}
 
 	clearTableCertifIntermedia(){
 		this.table.resetSelectedRowsTableCertifIntermedias();
-		this.form.fbForm.patchValue({ Cod_CertificacionIntermedia: '' });
+		this.form.setCertificacionIntermedia('');
 	}
 
 	clearTableAsignatura(){
 		this.table.resetSelectedRowsTableAsignaturas();
-		this.form.fbForm.patchValue({ Asignaturas: '' });
+		this.form.setAsignatura('');
 	}
 
 	resetTableCertifIntermediaAndAsignaturas(){
 		this.table.resetSelectedRowsAllTables();
-		this.form.fbForm.patchValue({ Cod_CertificacionIntermedia: '' });
-		this.form.fbForm.patchValue({ Asignaturas: '' });
+		this.form.setCertificacionIntermedia('');
+		this.form.setAsignatura('');
 	}
 
 	test(){

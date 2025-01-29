@@ -145,6 +145,13 @@
                             <p-sortIcon field="{{col.field}}"></p-sortIcon>
                         </th>
                     </ng-container>
+                    <ng-container *ngSwitchCase="'Centro_costo'">
+                        <th pSortableColumn="{{col.field}}" [ngStyle]="getColStyle(col)"   >
+                            <label class="font-bold text-900 text-sm" >{{col.header}} </label>
+                            
+                            <p-sortIcon field="{{col.field}}"></p-sortIcon>
+                        </th>
+                    </ng-container>
                     <ng-container *ngSwitchDefault>
                         <th pSortableColumn="{{col.field}}" [ngStyle]="getColStyle(col)">
                             {{col.header}} <p-sortIcon field="{{col.field}}"></p-sortIcon>

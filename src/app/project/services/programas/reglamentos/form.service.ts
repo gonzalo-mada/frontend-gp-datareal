@@ -22,7 +22,7 @@ export class FormReglamentosService {
           this.fbForm = this.fb.group({
             Descripcion_regla: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
             anio: ['', Validators.required],
-            vigencia: [false],
+            vigencia: ['NO'],
             files: [[], GPValidator.filesValidator('files',() => this.modeForm)], 
             aux: ['']
           });
@@ -34,7 +34,7 @@ export class FormReglamentosService {
         this.fbForm.reset({
             Descripcion_regla: '',
             anio: '',
-            vigencia: false,
+            vigencia: 'NO',
             files: [],
             aux: ''
         });
