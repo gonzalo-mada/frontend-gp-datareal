@@ -37,7 +37,7 @@
                     
                     <p-dropdown 
                         [options]="mainFacultad.facultades"
-                        formControlName="Cod_Facultad_Postgrado_Selected"
+                        formControlName="cod_facultad"
                         optionLabel="Descripcion_facu"
                         optionValue="Cod_facultad" 
                         placeholder="Seleccione facultad"
@@ -52,7 +52,7 @@
                     
                     <p-dropdown 
                         [options]="main.programas_postgrado"
-                        formControlName="Cod_Programa_Postgrado_Selected"
+                        formControlName="cod_programa"
                         optionLabel="Nombre_programa_completo"
                         optionValue="Cod_Programa" 
                         placeholder="Seleccione programa de postgrado"
@@ -66,7 +66,7 @@
                     <label><strong>Plan de estudio {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
                     <p-dropdown 
                         [options]="main.planes"
-                        formControlName="Cod_plan_estudio"
+                        formControlName="cod_plan_estudio"
                         optionLabel="nombre_plan_estudio_completo"
                         optionValue="cod_plan_estudio" 
                         placeholder="Seleccione plan de estudio"

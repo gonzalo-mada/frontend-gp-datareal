@@ -137,13 +137,21 @@ export class EstadosAcreditacionMainService {
         try {
             const params = await this.setForm('update');
             const response = await this.backend.updateEstadoAcreditacion(params, this.namesCrud);
-            if (response && response.dataWasUpdated) {
-                this.messageService.add({
-                    key: 'main',
-                    severity: 'success',
-                    detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
-                });
-                this.table.emitRefreshTablesEA();
+            if ( response && response.dataWasUpdated && response.dataWasUpdated !== 0 ) {
+                if (response.dataWasUpdated === 1) {
+                    this.messageService.add({
+                        key: 'main',
+                        severity: 'success',
+                        detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
+                    });
+                    this.table.emitRefreshTablesEA();
+                }else{
+                    this.messageService.add({
+                        key: 'main',
+                        severity: 'info',
+                        detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',false,false)
+                    });
+                }
             }
         }catch (error) {
             console.log(error);

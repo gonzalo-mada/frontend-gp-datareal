@@ -307,15 +307,12 @@ export class FormAsignaturasService {
 
     async setSelectPrograma(event: any){
         //recibes: Cod_Programa Nombre_programa Nombre_programa_completo
-        console.log("event setSelectPrograma",event);
-        
         this.selectedPrograma = event.Nombre_programa_completo;
         this.selected_CodigoPrograma = event.Cod_Programa;
         this.fbForm.patchValue({ cod_programa: event });
     }
 
     async setSelectPlanDeEstudio(event: any){
-        console.log("event",event);
         //recibes: cod_plan_estudio - nombre_plan_estudio_completo
         this.selectedPlanDeEstudio = event.nombre_plan_estudio_completo;
         this.selected_CodigoPlanDeEstudio = event.cod_plan_estudio;
@@ -333,6 +330,8 @@ export class FormAsignaturasService {
             cod_programa: this.selected_CodigoPrograma,
             cod_plan_estudio: this.selected_CodigoPlanDeEstudio
         }
+        console.log("this.dataToPendingForm setDataToPendingForm form asign",this.dataToPendingForm);
+        
     }
 
     setSelectRegimen(regimen: any){
@@ -355,18 +354,13 @@ export class FormAsignaturasService {
 
     setSelectMencion(event: any){
         //recibes: cod_mencion cod_mencion_pe cod_plan_estudio descripcion_mencion fecha_creacion mencion_rexe nombre_mencion vigencia
-        console.log("event setSelectMencion",event);
-        
         this.selectedMencion = `${event.nombre_mencion} - ${event.mencion_rexe}`
         this.fbForm.patchValue({ menciones: event });
     }
 
     setSelectSecuencialidad(event: any){
         //recibes: cod_mencion cod_mencion_pe cod_plan_estudio descripcion_mencion fecha_creacion mencion_rexe nombre_mencion vigencia
-        console.log("event setSelectSecuencialidad",event);
         this.fbForm.patchValue({ secuencialidad: event });
-
-        
     }
 
     setParamsForm(): Object {

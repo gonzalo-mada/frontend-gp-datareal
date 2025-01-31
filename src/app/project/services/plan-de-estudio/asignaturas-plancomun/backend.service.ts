@@ -22,7 +22,7 @@ export class BackendAsignaturasPlancomunService {
 
     async getProgramasPostgrado(loading = true) {
         try {
-            return await this.invoker.httpInvoke({service: 'planesDeEstudio/getProgramasPostgrado', loading: loading});
+            return await this.invoker.httpInvoke({service: 'programas/getProgramas', loading: loading});
         } catch (error: any) {
             this.errorTemplateHandler.processError(
                 error, 

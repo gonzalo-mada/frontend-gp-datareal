@@ -119,7 +119,7 @@ export class FormProgramaService {
 			{title: 'Instituciones asociadas' , control: 'Instituciones_Selected' , iconHelp: false, },
 		]
 		},
-		{id:20, col_lg: 12, col_md: 12, isEditable: true, isEditableWithPE: false, haveSecondaryValue: false, modeDialog: 'certificación intermedia' , collection: 'certificacion_intermedia', 
+		{id:20, col_lg: 12, col_md: 12, isEditable: true, isEditableWithPE: true, haveSecondaryValue: false, modeDialog: 'certificación intermedia' , collection: 'certificacion_intermedia', 
 		items: [
 			{title: '¿Tiene certificación intermedia?' , control: 'Certificacion_intermedia_Switch' , iconHelp: false},
 			{title: 'Certificaciones intermedias' , control: 'Certificacion_intermedia_Selected' , iconHelp: false}
@@ -270,16 +270,17 @@ export class FormProgramaService {
 	setEditableInputs(){
 		const editableFields = this.inputs
 		.filter(input => input.isEditableWithPE)
-		.map(input => input.items.map(item => `<b>${item.title}</b>`).join(', '))
+		.map(input => input.items.map(item => `<i>${item.title}</i>`).join(', '))
 		.join(', ');
 
 		this.messages = [
 			{
 				severity: 'info',
-				summary: 'Atención:',
+				summary: 'Atención',
 				detail: `
-							Si el programa está asociado a un plan de estudio, solo será posible actualizar los siguientes campos: ${editableFields}. <br/>
-							No obstante, está habilitada la actualización de documentos para todos los campos.
+							<b>Si el programa está asociado a un plan de estudio:</b> solo se pueden actualizar los siguientes campos: ${editableFields}. No obstante, es posible actualizar documentos asociados a todos los campos. <br/>
+							<b>Si el programa no está asociado a un plan de estudio:</b> todos los campos son actualizables, excepto el <i>Código de programa</i>.
+
 						`
 			}
 		]

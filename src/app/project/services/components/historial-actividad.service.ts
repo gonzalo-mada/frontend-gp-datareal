@@ -114,11 +114,11 @@ export class HistorialActividadService {
         if (this.origen && this.origen_s && this.codigo) {
             this.historial = await this.getHistorialSingularBackend();
             this.groupedData = this.formatData(this.historial);
-            console.log("this.historial singular",this.historial);
+            console.log(`historial de: ${this.origen_s} -->`,this.historial);
         }else{
             this.historial = await this.getHistorialBackend();
             this.groupedData = this.formatData(this.historial);
-            console.log("this.historial",this.historial);
+            console.log(`historial de: ${this.origen} -->`,this.historial);
         }
 
 	}

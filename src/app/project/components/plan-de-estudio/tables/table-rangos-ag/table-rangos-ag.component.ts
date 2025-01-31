@@ -1,6 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Table } from 'primeng/table';
 import { RangoAG } from 'src/app/project/models/plan-de-estudio/RangoAG';
+import { DataExternal } from 'src/app/project/models/shared/DataExternal';
+import { ModeForm } from 'src/app/project/models/shared/ModeForm';
 import { RangosAGMainService } from 'src/app/project/services/plan-de-estudio/rangos-ag/main.service';
 import { TableRangosAGService } from 'src/app/project/services/plan-de-estudio/rangos-ag/table.service';
 
@@ -12,6 +14,10 @@ import { TableRangosAGService } from 'src/app/project/services/plan-de-estudio/r
 })
 
 export class TableRangosAgComponent implements OnInit, OnDestroy {
+
+	@Input() mode: ModeForm;
+	@Input() dataExternal: DataExternal = { data: false };
+
 	searchValue: string | undefined;
 
 	constructor(
@@ -20,15 +26,20 @@ export class TableRangosAgComponent implements OnInit, OnDestroy {
 	){}
 
 	ngOnInit(): void {
-		this.getData(true);
+		this.dataExternal.data ? ( this.setTable() ) : ( this.getData(true) );
 	}
 
 	ngOnDestroy(): void {
 		this.table.resetSelectedRows();
 	}
 
+	async setTable(){
+		this.main.setVarsNotFormByDataExternal(this.dataExternal)
+		await this.getData(true);
+	}
+
 	async getData(showCountTableValues: boolean) {
-		await this.main.getRangosAprobacion(showCountTableValues);
+		if(this.main.rangosAG.length === 0) await this.main.getRangosAprobacion(showCountTableValues);
 	}
 
 	onGlobalFilter(table: Table, event: Event) {

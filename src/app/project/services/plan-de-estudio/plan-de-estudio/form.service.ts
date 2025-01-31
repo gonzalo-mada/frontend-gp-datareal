@@ -124,14 +124,14 @@ export class FormPlanDeEstudioService {
             ]
         },
         {   
-            col_lg: 6, col_md: 12, isEditable: true, haveSecondaryValue: false, modeDialog: 'certificacion', collection: undefined, 
+            col_lg: 6, col_md: 12, isEditable: true, haveSecondaryValue: false, modeDialog: 'certificacion', collection: 'certificacion_intermedia_pe', 
             items: [
                 { title: '¿Tiene certificación intermedia?', control: 'tiene_certificacion', iconHelp: false},
                 { title: 'Número de certificaciones intermedias', control: '', iconHelp: false, principalValue: 'form.selectedCertifIntermedia'}
             ]
         },
         {   
-            col_lg: 6, col_md: 12, isEditable: true, haveSecondaryValue: false, modeDialog: 'rangos', collection: undefined, 
+            col_lg: 6, col_md: 12, isEditable: true, haveSecondaryValue: false, modeDialog: 'rangos', collection: 'rangos', 
             items: [
                 { title: '¿Tiene rangos de aprobación?', control: 'tiene_rango_aprob_g', iconHelp: false},
                 { title: 'Número de rangos de aprobación', control: '', iconHelp: false, principalValue: 'form.selectedRangos'}
@@ -646,6 +646,27 @@ export class FormPlanDeEstudioService {
             case 'articulacion':
                 this.fbFormUpdate = this.fb.group({
                     tiene_articulacion: [plan.tiene_articulacion, [Validators.required]],
+                    files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
+                });
+            break;
+
+            case 'certificacion':
+                this.fbFormUpdate = this.fb.group({
+                    tiene_certificacion: [plan.tiene_certificacion, [Validators.required]],
+                    files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
+                });
+            break;
+
+            case 'rangos':
+                this.fbFormUpdate = this.fb.group({
+                    tiene_rango_aprob_g: [plan.tiene_rango_aprob_g, [Validators.required]],
+                    files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
+                });
+            break;
+
+            case 'menciones':
+                this.fbFormUpdate = this.fb.group({
+                    tiene_mencion: [plan.tiene_mencion, [Validators.required]],
                     files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
                 });
             break;

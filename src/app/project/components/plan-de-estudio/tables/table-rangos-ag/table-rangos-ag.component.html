@@ -16,17 +16,27 @@
 
     <ng-template pTemplate="caption">
         <div class="flex flex-wrap flex-column md:flex-row justify-content-between align-items-center">
-            <div class="flex mb-2 md:mb-0">
-                <span class="p-input-icon-left">
+            <div class="flex flex-row">
+                <p-button
+                    *ngIf="mode !== 'show'"
+                    icon="pi pi-trash"
+                    styleClass="p-button-danger p-button-outlined mr-2"
+                    pTooltip="Eliminar seleccionados"
+                    [disabled]="table.selectedRows.length === 0"
+                    (click)="main.setModeCrud('delete-selected')"
+                ></p-button>
+                <div class="flex mb-2 md:mb-0">
+                  <span class="p-input-icon-left">
                     <i class="pi pi-search"></i>
                     <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)" />
-                </span>
-                <p-button 
+                  </span>
+                  <p-button 
                     styleClass="p-button-text p-button-sm ml-2" 
                     icon="pi pi-filter-slash" 
                     pTooltip="Limpiar filtros" 
                     (click)="clear(dt)">
-                </p-button>
+                  </p-button>
+                </div>
             </div>
 
             <div class="flex">
@@ -35,7 +45,7 @@
                     label="Actualizar" 
                     icon="pi pi-refresh" 
                     styleClass="p-button-info" 
-                    (click)="getData(true)">
+                    (click)="main.getRangosAprobacion()">
                 </p-button>
             </div>
         </div>
@@ -43,7 +53,7 @@
 
     <ng-template pTemplate="header">
         <tr>
-            <th style="width: 3rem">
+            <th *ngIf="mode !== 'show'" style="width: 3rem">
                 <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
             </th>
             <ng-container *ngFor="let col of table.cols">
@@ -61,7 +71,7 @@
 
     <ng-template pTemplate="body" let-data>
         <tr>
-            <td>
+            <td *ngIf="mode !== 'show'">
                 <p-tableCheckbox [value]="data"></p-tableCheckbox>
             </td>
             <td style="width: 40%;">
@@ -78,19 +88,22 @@
             </td>
             <td>
                 <div class="flex">
-                    <p-button 
+                    <p-button
+                        *ngIf="mode !== 'show'" 
                         icon="pi pi-trash" 
                         styleClass="p-button-sm p-button-danger mr-2"
                         pTooltip="Eliminar registro" 
                         (click)="delete(data)">
                     </p-button>
-                    <p-button 
+                    <p-button
+                        *ngIf="mode !== 'show'" 
                         icon="pi pi-pencil" 
                         styleClass="p-button-sm p-button-warning mr-2"
                         pTooltip="Editar registro" 
                         (click)="edit(data)">
                     </p-button>
-                    <p-button 
+                    <p-button
+                        *ngIf="mode !== 'show'" 
                         icon="pi pi-eye" 
                         styleClass="p-button-sm p-button-info mr-2" 
                         pTooltip="Ver registro"

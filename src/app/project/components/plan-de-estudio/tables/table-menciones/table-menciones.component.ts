@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Table } from 'primeng/table';
 import { Mencion } from 'src/app/project/models/plan-de-estudio/Mencion';
+import { DataExternal } from 'src/app/project/models/shared/DataExternal';
+import { ModeForm } from 'src/app/project/models/shared/ModeForm';
 import { MencionesMainService } from 'src/app/project/services/plan-de-estudio/menciones/main.service';
 import { TableMencionesService } from 'src/app/project/services/plan-de-estudio/menciones/table.service';
 
@@ -11,6 +13,10 @@ import { TableMencionesService } from 'src/app/project/services/plan-de-estudio/
   ]
 })
 export class TableMencionesComponent {
+
+	@Input() mode: ModeForm;
+	@Input() dataExternal: DataExternal = { data: false };
+
 	searchValue: string | undefined;
 	expandedRows = {};
 	
@@ -20,15 +26,20 @@ export class TableMencionesComponent {
 	){}
 
 	ngOnInit(): void {
-		this.getData(true);
+		this.dataExternal.data ? ( this.setTable() ) : ( this.getData(true) );
 	}
 	  
 	ngOnDestroy(): void {
 		this.table.resetSelectedRows();
 	}
 
+	async setTable(){
+		this.main.setVarsNotFormByDataExternal(this.dataExternal)
+		await this.getData(true);
+	}
+
 	async getData(showCountTableValues: boolean){
-		await this.main.getMencionesPorPlanDeEstudio(showCountTableValues)
+		if(this.main.menciones.length === 0) await this.main.getMencionesPorPlanDeEstudio(showCountTableValues)
 	}
 
 	onGlobalFilter(table: Table, event: Event) {

@@ -1,6 +1,7 @@
 import { Component, Input, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { Table } from 'primeng/table';
 import { Articulacion } from 'src/app/project/models/plan-de-estudio/Articulacion';
+import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
 import { ArticulacionesMainService } from 'src/app/project/services/plan-de-estudio/articulaciones/main.service';
 import { TableArticulacionesService } from 'src/app/project/services/plan-de-estudio/articulaciones/table.service';
@@ -14,8 +15,7 @@ import { TableArticulacionesService } from 'src/app/project/services/plan-de-est
 export class TableArticulacionesComponent implements OnInit, OnDestroy  {
 
 	@Input() mode: ModeForm;
-	@Input() dataExternal: any = { data: false }
-	@Input() from: string = '';
+	@Input() dataExternal: DataExternal = { data: false };
 	
 	searchValue: string | undefined;
 	expandedRows = {};
@@ -29,31 +29,17 @@ export class TableArticulacionesComponent implements OnInit, OnDestroy  {
 		this.dataExternal.data ? ( this.setTable() ) : ( this.getData(true) );
 	}
 
-	// async ngOnChanges(changes: SimpleChanges) {
-	// 	console.log("changes['dataExternal']",changes['dataExternal']);
-		
-	// 	if ( changes['dataExternal'] && changes['dataExternal'].currentValue.data) {
-	// 		console.log("estoy aca 1 table articulaciones");
-			
-	// 		await this.setTable()
-	// 	}else{
-	// 		console.log("estoy aca 2 table articulaciones");
-
-	// 		await this.getData(true)
-	// 	}
-	// }
-
 	ngOnDestroy(): void {
 		this.table.resetSelectedRows();
 	}
 
 	async setTable(){
-		this.main.cod_plan_estudio_selected_notform = this.dataExternal.cod_plan_estudio;
+		this.main.setVarsNotFormByDataExternal(this.dataExternal)
 		await this.getData(true);
 	}
 
 	async getData(showCountTableValues: boolean){
-		await this.main.getArticulacionesPorPlanDeEstudio(showCountTableValues);
+		if(this.main.articulaciones.length === 0) await this.main.getArticulacionesPorPlanDeEstudio(showCountTableValues);
 	}
 
 	onGlobalFilter(table: Table, event: Event) {

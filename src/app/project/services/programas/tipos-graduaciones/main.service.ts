@@ -29,6 +29,7 @@ export class TiposGraduacionesMainService {
 
     //MODAL
     dialogForm: boolean = false
+    needUpdateHistorial: boolean = false;
 
     private onInsertedData = new Subject<void>();
     onInsertedData$ = this.onInsertedData.asObservable();
@@ -117,7 +118,7 @@ export class TiposGraduacionesMainService {
         }finally{
             this.dialogForm = false;
             this.getTiposGraduaciones(false);
-            this.historialActividad.refreshHistorialActividad();
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset()
         }
     }
@@ -129,19 +130,27 @@ export class TiposGraduacionesMainService {
                 Cod_TipoColaborativa: this.tipo.Cod_TipoColaborativa
             }
             const response = await this.backend.updateTipoGradConjunta(params,this.namesCrud);
-            if ( response && response.dataWasUpdated ) {
-                this.messageService.add({
-                    key: 'main',
-                    severity: 'success',
-                    detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
-                });
+            if ( response && response.dataWasUpdated && response.dataWasUpdated !== 0 ) {
+                if (response.dataWasUpdated === 1) {
+                    this.messageService.add({
+                        key: 'main',
+                        severity: 'success',
+                        detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
+                    });
+                }else{
+                    this.messageService.add({
+                        key: 'main',
+                        severity: 'info',
+                        detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',false,false)
+                    });
+                }
             }
         }catch (error) {
             console.log(error);
         }finally{
             this.dialogForm = false;
             this.getTiposGraduaciones(false);
-            this.historialActividad.refreshHistorialActividad();
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -181,7 +190,7 @@ export class TiposGraduacionesMainService {
             console.log(error);
         }finally{
             this.getTiposGraduaciones(false);
-            this.historialActividad.refreshHistorialActividad();
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -232,6 +241,10 @@ export class TiposGraduacionesMainService {
 
     setOrigen(origen: string){
         this.historialActividad.setOrigen(origen);
+    }
+
+    setNeedUpdateHistorial(need: boolean){
+        this.needUpdateHistorial = need;
     }
 
 

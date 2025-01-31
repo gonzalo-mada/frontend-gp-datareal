@@ -21,13 +21,13 @@ export class CertificacionesIntermediasComponent implements OnInit, OnDestroy {
 	){}
 
 	async ngOnInit() {
+		this.main.resetDropdownsFilterTable();
 		this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => { 
 			action==='agregar' 
 			? this.main.setModeCrud('create') 
 			: this.main.setModeCrud('delete-selected')
 		}));
 		await this.mainFacultad.getFacultades(false);
-		this.main.resetDropdownsFilterTable();
 	}
 
 	ngOnDestroy(): void {
@@ -49,8 +49,7 @@ export class CertificacionesIntermediasComponent implements OnInit, OnDestroy {
 	}
 
 	async changePlanDeEstudio(event:any){
-		this.main.wasFilteredTable = true;
 		this.main.cod_plan_estudio_selected_notform = event.value;
-		await this.main.getCertificacionesIntermediasPorPlanDeEstudio(false,false);
+		this.main.showTable = true;
 	}
 }

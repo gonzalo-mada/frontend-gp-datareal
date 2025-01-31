@@ -27,7 +27,8 @@ export class CategoriasTpMainService {
     categoriaTp: CategoriaTp = {};
 
     //MODAL
-    dialogForm: boolean = false
+    dialogForm: boolean = false;
+    needUpdateHistorial: boolean = false;
 
     constructor(
         private backend: BackendCategoriasTpService,
@@ -112,7 +113,7 @@ export class CategoriasTpMainService {
         }finally{
             this.dialogForm = false;
             this.getCategoriasTp(false);
-            this.historialActividad.refreshHistorialActividad();
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -124,19 +125,27 @@ export class CategoriasTpMainService {
                 Cod_CategoriaTP: this.categoriaTp.Cod_CategoriaTP
             }
             const response = await this.backend.updateCategoriaTp(params,this.namesCrud);
-            if ( response && response.dataWasUpdated ) {
-                this.messageService.add({
-                    key: 'main',
-                    severity: 'success',
-                    detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
-                });
+            if ( response && response.dataWasUpdated && response.dataWasUpdated !== 0 ) {
+                if (response.dataWasUpdated === 1) {
+                    this.messageService.add({
+                        key: 'main',
+                        severity: 'success',
+                        detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
+                    });
+                }else{
+                    this.messageService.add({
+                        key: 'main',
+                        severity: 'info',
+                        detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',false,false)
+                    });
+                }
             }
         }catch (error) {
             console.log(error);
         }finally{
             this.dialogForm = false;
             this.getCategoriasTp(false);
-            this.historialActividad.refreshHistorialActividad();
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -223,6 +232,10 @@ export class CategoriasTpMainService {
 
     setOrigen(origen: string){
         this.historialActividad.setOrigen(origen);
+    }
+
+    setNeedUpdateHistorial(need: boolean){
+        this.needUpdateHistorial = need;
     }
 
 }

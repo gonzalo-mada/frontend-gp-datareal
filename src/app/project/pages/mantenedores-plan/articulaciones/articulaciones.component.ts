@@ -12,46 +12,46 @@ import { FacultadesMainService } from 'src/app/project/services/programas/facult
 })
 export class ArticulacionesComponent implements OnInit, OnDestroy  {
 
-  private subscription: Subscription = new Subscription();
+	private subscription: Subscription = new Subscription();
 
-  constructor(
-    public mainFacultad: FacultadesMainService, 
-    private menuButtonsTableService: MenuButtonsTableService,
-    public main: ArticulacionesMainService,
-  ){}
+	constructor(
+		public mainFacultad: FacultadesMainService, 
+		private menuButtonsTableService: MenuButtonsTableService,
+		public main: ArticulacionesMainService,
+	){}
 
-  async ngOnInit() {
-    this.main.resetDropdownsFilterTable();
-    this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => { 
-      action==='agregar' 
-      ? this.main.setModeCrud('create') 
-      : this.main.setModeCrud('delete-selected')
-    }));
-    await this.mainFacultad.getFacultades(false);
-  }
+	async ngOnInit() {
+		this.main.resetDropdownsFilterTable();
+		this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => { 
+		action==='agregar' 
+		? this.main.setModeCrud('create') 
+		: this.main.setModeCrud('delete-selected')
+		}));
+		await this.mainFacultad.getFacultades(false);
+	}
 
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
-    this.main.reset();
-    this.main.resetDropdownsFilterTable();
-  }
+	ngOnDestroy(): void {
+		this.subscription.unsubscribe();
+		this.main.reset();
+		this.main.resetDropdownsFilterTable();
+	}
 
-  changeFacultad(event: any){
-    this.main.resetWhenChangedDropdownFacultadNotForm();
-    this.main.cod_facultad_selected_notform = event.value;
-    this.main.getProgramasPorFacultadNotForm();
-  }
+	changeFacultad(event: any){
+		this.main.resetWhenChangedDropdownFacultadNotForm();
+		this.main.cod_facultad_selected_notform = event.value;
+		this.main.getProgramasPorFacultadNotForm();
+	}
 
-  async changeProgramaPostgrado(event:any){
-    this.main.resetWhenChangedDropdownProgramaNotForm();
-    this.main.cod_programa_postgrado_selected_notform = event.value;
-    await this.main.getPlanesDeEstudiosPorProgramaNotForm();
-  }
+	async changeProgramaPostgrado(event:any){
+		this.main.resetWhenChangedDropdownProgramaNotForm();
+		this.main.cod_programa_postgrado_selected_notform = event.value;
+		await this.main.getPlanesDeEstudiosPorProgramaNotForm();
+	}
 
-  async changePlanDeEstudio(event:any){
-    this.main.wasFilteredTable = true;
-    this.main.cod_plan_estudio_selected_notform = event.value;
-    await this.main.getArticulacionesPorPlanDeEstudio(false,false);
-  }
+	async changePlanDeEstudio(event:any){
+		this.main.cod_plan_estudio_selected_notform = event.value;
+		this.main.showTable = true
+		// await this.main.getArticulacionesPorPlanDeEstudio(false,false);
+	}
 
 }

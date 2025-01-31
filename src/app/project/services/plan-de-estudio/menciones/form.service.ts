@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Mencion } from 'src/app/project/models/plan-de-estudio/Mencion';
+import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
@@ -13,6 +14,7 @@ export class FormMencionesService {
   	public fbForm!: FormGroup;
 	modeForm: ModeForm = undefined;
 	stateForm: StateValidatorForm = undefined;
+    dataExternal: DataExternal = {data: false};
 
 	cod_facultad_selected: number = 0;
     cod_programa_selected: number = 0;
@@ -63,19 +65,19 @@ export class FormMencionesService {
 		this.fbForm.get('cod_programa')?.disable();
 		this.fbForm.get('cod_plan_estudio')?.disable();
 		this.fbForm.get('asignaturas')?.disable();
-
-		this.resetValuesVarsSelected();
         this.optionDisabled = 'none';
         console.log("resetee form menciones");
     }
 
     resetValuesVarsSelected(){
-        this.cod_facultad_selected= 0;
-        this.cod_programa_selected= 0;
-        this.cod_plan_estudio= 0;
+        if (!this.dataExternal.data){
+            this.cod_facultad_selected= 0;
+            this.cod_programa_selected= 0;
+            this.cod_plan_estudio= 0;
+        }
     }
 
-    setForm(mode: 'show' | 'edit', data: Mencion): void {
+    async setForm(mode: 'show' | 'edit', data: Mencion) {
         this.fbForm.patchValue({...data});
         if (mode === 'show') {
             this.fbForm.disable();
@@ -85,45 +87,59 @@ export class FormMencionesService {
         if (mode === 'edit') {
             this.fbForm.patchValue({aux: data});
         }
+        await this.setVarsForm(data.cod_facultad!, data.cod_programa!, data.cod_plan_estudio!)
     }
 
     setParamsForm(): Object {
+        const cod_facultad = this.fbForm.get('cod_facultad');
+        const cod_programa = this.fbForm.get('cod_programa');
         const cod_plan_estudio = this.fbForm.get('cod_plan_estudio');
         let params = {};
-        if (cod_plan_estudio?.disabled) {
+        if (cod_facultad?.disabled  &&  cod_programa?.disabled && cod_plan_estudio?.disabled) {
             params = {
                 ...this.fbForm.value,
-                cod_plan_estudio: this.cod_plan_estudio
+                cod_facultad: this.cod_facultad_selected, 
+                cod_programa: this.cod_programa_selected,
+                cod_plan_estudio: this.cod_plan_estudio,
             }
-        }else {
+        }else{
             params = {...this.fbForm.value}
         }
         return params
+    }
+
+    setDataExternal(dataExternal: DataExternal){
+        this.dataExternal = {...dataExternal};
+    }
+
+    setValuesVarsByDataExternal(){
+        this.cod_facultad_selected = this.dataExternal.cod_facultad!;
+        this.cod_programa_selected = this.dataExternal.cod_programa!;
+        this.cod_plan_estudio = this.dataExternal.cod_plan_estudio!;
+    }
+
+    setControlsFormByDataExternal(){
+        this.fbForm.get('cod_facultad')?.patchValue(this.dataExternal.cod_facultad);
+        this.fbForm.get('cod_programa')?.patchValue(this.dataExternal.cod_programa);
+        this.fbForm.get('cod_plan_estudio')?.patchValue(this.dataExternal.cod_plan_estudio);
+        this.setDisabledPrincipalControls();
+    }
+
+    setDisabledPrincipalControls(){
+        this.fbForm.get('cod_facultad')?.disable();
+        this.fbForm.get('cod_programa')?.disable();
+        this.fbForm.get('cod_plan_estudio')?.disable();
+    }
+
+    async setVarsForm(cod_facultad: number, cod_programa: number, cod_plan_estudio: number){
+        this.cod_facultad_selected = cod_facultad;
+        this.cod_programa_selected = cod_programa;
+        this.cod_plan_estudio = cod_plan_estudio;
     }
   
     updateFilesForm(files: any): void {
         this.fbForm.patchValue({ files });
         this.fbForm.controls['files'].updateValueAndValidity();
-    }
-
-	setValuesVarsByExternalData(externalData: any){
-		console.log("externalData",externalData);
-		this.cod_facultad_selected = externalData.cod_facultad
-		this.cod_programa_selected = externalData.cod_programa
-		this.cod_plan_estudio = externalData.cod_plan_estudio
-	}
-
-	setControlsFormByExternalData(externalData: any){
-        this.fbForm.get('cod_facultad')?.patchValue(externalData.cod_facultad);
-        this.fbForm.get('cod_programa')?.patchValue(externalData.cod_programa);
-        this.fbForm.get('cod_plan_estudio')?.patchValue(externalData.cod_plan_estudio);
-        this.setDisabledControlsByAgregarPE();
-	}
-
-	setDisabledControlsByAgregarPE(){
-        this.fbForm.get('cod_facultad')?.disable();
-        this.fbForm.get('cod_programa')?.disable();
-        this.fbForm.get('cod_plan_estudio')?.disable();
     }
 
 	//INICIO FUNCIONES PARA DROPDOWN FACULTAD POSTGRADO
@@ -177,18 +193,5 @@ export class FormMencionesService {
     }
 	//FIN FUNCIONES PARA DROPDOWN PLAN DE ESTUDIO POSTGRADO
 
-    async setDropdownsAndVars(dataDropdowns: any){
-		this.fbForm.patchValue({cod_facultad: dataDropdowns.cod_facultad_selected_notform});
-		this.fbForm.patchValue({cod_programa: dataDropdowns.cod_programa_postgrado_selected_notform});
-		this.fbForm.patchValue({cod_plan_estudio: dataDropdowns.cod_plan_estudio_selected_notform});
-		this.cod_facultad_selected = dataDropdowns.cod_facultad_selected_notform;
-		this.cod_programa_selected = dataDropdowns.cod_programa_postgrado_selected_notform;
-		this.cod_plan_estudio = dataDropdowns.cod_plan_estudio_selected_notform;
-	}
 
-	disableDropdowns(){
-		this.fbForm.get('cod_facultad')?.disable();
-		this.fbForm.get('cod_programa')?.disable();
-		this.fbForm.get('cod_plan_estudio')?.disable();
-	}
 }

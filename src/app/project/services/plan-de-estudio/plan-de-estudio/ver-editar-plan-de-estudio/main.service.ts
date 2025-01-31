@@ -21,11 +21,10 @@ export class VerEditarPlanEstudioMainService {
     jornadas: any[] = [];
     regimenes: any[] = [];
     reglamentos: any[] = [];
-    articulaciones: any[] = [];
-    certificaciones: any[] = [];
     asignaturas: any[] = [];
     menciones: any[] = [];
     rangos: any[] = [];
+
 
     constructor(
         private backend: BackendPlanesDeEstudiosService,

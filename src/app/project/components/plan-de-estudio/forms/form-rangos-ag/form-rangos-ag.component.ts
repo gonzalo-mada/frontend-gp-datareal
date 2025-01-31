@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 import { FormRangosAGService } from 'src/app/project/services/plan-de-estudio/rangos-ag/form.service';
 import { RangosAGMainService } from 'src/app/project/services/plan-de-estudio/rangos-ag/main.service';
@@ -11,9 +12,9 @@ import { FacultadesMainService } from 'src/app/project/services/programas/facult
   styles: [
   ]
 })
-export class FormRangosAgComponent implements OnInit, OnChanges, OnDestroy {
+export class FormRangosAgComponent implements OnInit, OnDestroy {
 
-	@Input() dataFromAgregarPE: any = { data: false };
+	@Input() dataExternal: DataExternal = { data: false };
   	@Output() formWasClosed = new EventEmitter<boolean>();
   	private subscription: Subscription = new Subscription();
 
@@ -25,28 +26,27 @@ export class FormRangosAgComponent implements OnInit, OnChanges, OnDestroy {
   
 	async ngOnInit() {
 		this.subscription.add(this.form.fbForm.statusChanges.subscribe(status => { this.form.stateForm = status as StateValidatorForm;}));
-		this.dataFromAgregarPE.data ? await this.setFormByAgregarPE() : this.initForm();
-	}
-
-	async ngOnChanges(changes: SimpleChanges) {
-		if ( changes['dataFromAgregarPE'] && changes['dataFromAgregarPE'].currentValue.data && changes['dataFromAgregarPE'].currentValue.show) {
-		  await this.setFormByAgregarPE()
-		}else{
-		  await this.initForm()
-		}
+		this.dataExternal.data ? await this.setFormByExternalData() : this.initForm();
 	}
 
 	ngOnDestroy(): void {
+		this.main.showTable = false;
 		this.subscription.unsubscribe();
 	}
-
 	
-	async setFormByAgregarPE(){
-		
+	async setFormByExternalData(){
+		this.form.setDataExternal(this.dataExternal);
+		this.form.setValuesVarsByDataExternal();
 	}
 	
 	async initForm(){
 		await this.mainFacultad.getFacultades(false);
+		this.form.setDataExternal(this.dataExternal);
+		await Promise.all([
+			this.mainFacultad.getFacultades(false),
+			this.main.getProgramasPorFacultad(false),
+			this.main.getPlanesDeEstudiosPorPrograma(false),
+		]);
 	}
 	
 	async submit() {

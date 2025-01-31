@@ -156,22 +156,21 @@ export class UnidadesAcadMainService {
                     docsToUpload: responseUploader.docsToUpload,
                     docsToDelete: responseUploader.docsToDelete,
                 };
-                if (!params.aux) {
-                    console.log("entré a este caso.");
-                    params = {
-                        ...params,
-                        aux: this.unidadAcad
-                    }
-                }
-                console.log("params update",params);
                 const response = await this.backend.updateUnidadAcademica(params, this.namesCrud);
-                
-                if (response && response.dataWasUpdated) {
-                    this.messageService.add({
-                        key: 'main',
-                        severity: 'success',
-                        detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
-                    });
+                if ( response && response.dataWasUpdated && response.dataWasUpdated !== 0 ) {
+                    if (response.dataWasUpdated === 1) {
+                        this.messageService.add({
+                            key: 'main',
+                            severity: 'success',
+                            detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
+                        });
+                    }else{
+                        this.messageService.add({
+                            key: 'main',
+                            severity: 'info',
+                            detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',false,false)
+                        });
+                    }
                 }
             }
         }catch (error) {

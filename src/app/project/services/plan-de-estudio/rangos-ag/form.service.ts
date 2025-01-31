@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { RangoAG } from "src/app/project/models/plan-de-estudio/RangoAG";
+import { DataExternal } from "src/app/project/models/shared/DataExternal";
 import { ModeForm } from "src/app/project/models/shared/ModeForm";
 import { StateValidatorForm } from "src/app/project/models/shared/StateValidatorForm";
 import { GPValidator } from "src/app/project/tools/validators/gp.validators";
@@ -12,6 +13,7 @@ export class FormRangosAGService {
 	public fbForm!: FormGroup;
 	modeForm: ModeForm = undefined;
 	stateForm: StateValidatorForm = undefined;
+	dataExternal: DataExternal = {data: false};
 
 	cod_facultad_selected_postgrado: number = 0;
     cod_programa_postgrado_selected: number = 0;
@@ -21,9 +23,9 @@ export class FormRangosAGService {
 
 	async initForm(): Promise<boolean> {
 		this.fbForm = this.fb.group({
-			Cod_Facultad_Postgrado_Selected: ['', [Validators.required]],
-            Cod_Programa_Postgrado_Selected: ['', [Validators.required]],
-            Cod_plan_estudio: ['', [Validators.required]],
+			cod_facultad: ['', [Validators.required]],
+            cod_programa: ['', [Validators.required]],
+            cod_plan_estudio: ['', [Validators.required]],
 
 			Descripcion_RangoAprobG: ["",[Validators.required, GPValidator.regexPattern("num_y_letras")]],
 			NotaMinima: ["4.0",[Validators.required, GPValidator.rangeValidator()]],
@@ -36,9 +38,9 @@ export class FormRangosAGService {
 
 	resetForm(): void {
 		this.fbForm.reset({
-			Cod_Facultad_Postgrado_Selected: '',
-            Cod_Programa_Postgrado_Selected: '',
-            Cod_plan_estudio: '',
+			cod_facultad: '',
+            cod_programa: '',
+            cod_plan_estudio: '',
 
 			Descripcion_RangoAprobG: "",
 			NotaMinima: "4.0",
@@ -47,21 +49,20 @@ export class FormRangosAGService {
 			aux: "",
 		});
 		this.fbForm.enable();
-		this.fbForm.get('Cod_Programa_Postgrado_Selected')?.disable();
-        this.fbForm.get('Cod_plan_estudio')?.disable();
-		this.resetValuesVarsSelected();
+		this.fbForm.get('cod_programa')?.disable();
+        this.fbForm.get('cod_plan_estudio')?.disable();
 		console.log("resetee form rangos");
 	}
 
 	resetValuesVarsSelected(){
-        this.cod_facultad_selected_postgrado = 0;
-        this.cod_programa_postgrado_selected = 0;
-        this.cod_planestudio_selected = 0;
+		if (!this.dataExternal.data){
+			this.cod_facultad_selected_postgrado = 0;
+			this.cod_programa_postgrado_selected = 0;
+			this.cod_planestudio_selected = 0;
+		}
     }
 
-	setForm(mode: "show" | "edit", data: RangoAG): void {
-		console.log("data RangoAG",data);
-		
+	async setForm(mode: "show" | "edit", data: RangoAG) {
 		this.fbForm.patchValue({ ...data });
 		if (mode === "show") {
 			this.fbForm.disable();
@@ -69,53 +70,87 @@ export class FormRangosAGService {
 		if (mode === "edit") {
 			this.fbForm.patchValue({ aux: data });
 		}
+		await this.setVarsForm(data.cod_facultad!, data.cod_programa!, data.cod_plan_estudio!)
 	}
+
+	setParamsForm(): Object {
+        const cod_facultad = this.fbForm.get('cod_facultad');
+        const cod_programa = this.fbForm.get('cod_programa');
+        const cod_plan_estudio = this.fbForm.get('cod_plan_estudio');
+        let params = {};
+        if (cod_facultad?.disabled  &&  cod_programa?.disabled && cod_plan_estudio?.disabled) {
+            params = {
+                ...this.fbForm.value,
+                cod_facultad: this.cod_facultad_selected_postgrado, 
+                cod_programa: this.cod_programa_postgrado_selected,
+                cod_plan_estudio: this.cod_planestudio_selected,
+            }
+        }else{
+            params = {...this.fbForm.value}
+        }
+        return params
+    }
+
+	setDataExternal(dataExternal: DataExternal){
+        this.dataExternal = {...dataExternal};
+    }
+
+	setValuesVarsByDataExternal(){
+        this.cod_facultad_selected_postgrado = this.dataExternal.cod_facultad!;
+        this.cod_programa_postgrado_selected = this.dataExternal.cod_programa!;
+        this.cod_planestudio_selected = this.dataExternal.cod_plan_estudio!;
+    }
+
+	setControlsFormByDataExternal(){
+        this.fbForm.get('cod_facultad')?.patchValue(this.dataExternal.cod_facultad);
+        this.fbForm.get('cod_programa')?.patchValue(this.dataExternal.cod_programa);
+        this.fbForm.get('cod_plan_estudio')?.patchValue(this.dataExternal.cod_plan_estudio);
+        this.setDisabledPrincipalControls();
+    }
+
+    setDisabledPrincipalControls(){
+        this.fbForm.get('cod_facultad')?.disable();
+        this.fbForm.get('cod_programa')?.disable();
+        this.fbForm.get('cod_plan_estudio')?.disable();
+    }
+
+	async setVarsForm(cod_facultad: number, cod_programa: number, cod_plan_estudio: number){
+        this.cod_facultad_selected_postgrado = cod_facultad;
+        this.cod_programa_postgrado_selected = cod_programa;
+        this.cod_planestudio_selected = cod_plan_estudio;
+    }
 
 	//DROPDOWNS POSTGRADO
     //INICIO FUNCIONES PARA DROPDOWN FACULTAD POSTGRADO 
     resetControlsWhenChangedDropdownFacultadPostgrado(){
-		this.fbForm.get('Cod_Programa_Postgrado_Selected')?.reset();
-		this.fbForm.get('Cod_plan_estudio')?.reset();
+		this.fbForm.get('cod_programa')?.reset();
+		this.fbForm.get('cod_plan_estudio')?.reset();
 	}
 
     disabledControlsWhenChangedDropdownFacultadPostgrado(){
-        this.fbForm.get('Cod_Programa_Postgrado_Selected')?.disable();
-		this.fbForm.get('Cod_plan_estudio')?.disable();
+        this.fbForm.get('cod_programa')?.disable();
+		this.fbForm.get('cod_plan_estudio')?.disable();
     }
 
     setStatusControlProgramaPostgrado(status: boolean){
-        const control = this.fbForm.get('Cod_Programa_Postgrado_Selected');
+        const control = this.fbForm.get('cod_programa');
         status ? control?.enable() : control?.disable()
     }
     //FIN FUNCIONES PARA DROPDOWN FACULTAD POSTGRADO 
 
 	//INICIO FUNCIONES PARA DROPDOWN PROGRAMA POSTGRADO
 	resetControlsWhenChangedDropdownProgramaPostgrado(){
-		this.fbForm.get('Cod_plan_estudio')?.reset();
+		this.fbForm.get('cod_plan_estudio')?.reset();
 	}
 
 	disabledControlsWhenChangedDropdownProgramaPostgrado(){
-		this.fbForm.get('Cod_plan_estudio')?.disable();
+		this.fbForm.get('cod_plan_estudio')?.disable();
 	}
 
 	setStatusControlPlanEstudioPostgrado(status: boolean){
-		const control = this.fbForm.get('Cod_plan_estudio');
+		const control = this.fbForm.get('cod_plan_estudio');
 		status ? control?.enable() : control?.disable()
 	}
 	//FIN FUNCIONES PARA DROPDOWN PROGRAMA POSTGRADO
 
-	async setDropdownsAndVars(dataDropdowns: any){
-		this.fbForm.patchValue({Cod_Facultad_Postgrado_Selected: dataDropdowns.cod_facultad_selected_notform});
-		this.fbForm.patchValue({Cod_Programa_Postgrado_Selected: dataDropdowns.cod_programa_postgrado_selected_notform});
-		this.fbForm.patchValue({Cod_plan_estudio: dataDropdowns.cod_plan_estudio_selected_notform});
-		this.cod_facultad_selected_postgrado = dataDropdowns.cod_facultad_selected_notform;
-		this.cod_programa_postgrado_selected = dataDropdowns.cod_programa_postgrado_selected_notform;
-		this.cod_planestudio_selected = dataDropdowns.cod_plan_estudio_selected_notform;
-	}
-
-	disableDropdowns(){
-		this.fbForm.get('Cod_Facultad_Postgrado_Selected')?.disable();
-		this.fbForm.get('Cod_Programa_Postgrado_Selected')?.disable();
-		this.fbForm.get('Cod_plan_estudio')?.disable();
-	}
 }

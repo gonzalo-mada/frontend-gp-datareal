@@ -1,4 +1,6 @@
 export interface Mencion {
+    cod_facultad?: number,
+    cod_programa?: number,
     cod_plan_estudio?: number,
     cod_mencion_pe?: number,
     cod_mencion?: number,

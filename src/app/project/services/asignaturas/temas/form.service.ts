@@ -27,7 +27,6 @@ export class FormTemasService {
 			cod_facultad: [''],
 			cod_programa: [''],
 
-			cod_tema: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
 			nombre_tema: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
 			aux: ['']
 		});
@@ -40,7 +39,6 @@ export class FormTemasService {
 			cod_facultad: '',
 			cod_programa: '',
 
-            cod_tema: '',
             nombre_tema: '',
             aux: ''
         });
@@ -82,7 +80,6 @@ export class FormTemasService {
     }
 
     setValuesVarsByExternalData(externalData: any){
-		console.log("externalData",externalData);
 		this.cod_facultad_selected = externalData.cod_facultad
 		this.cod_programa_selected = externalData.cod_programa
 	}

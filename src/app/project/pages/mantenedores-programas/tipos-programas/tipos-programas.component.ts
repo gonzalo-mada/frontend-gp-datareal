@@ -44,10 +44,4 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
     this.main.modeForm === 'create' ? this.main.setModeCrud('insert') : this.main.setModeCrud('update')
   }
 
-  async formWasClosed(){
-    this.main.setOrigen('tiposProgramas');
-    this.main.showFormCatTP = false;
-    await this.main.refreshHistorialActividad();
-  }
-
 }

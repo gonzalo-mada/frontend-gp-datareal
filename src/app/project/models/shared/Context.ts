@@ -67,7 +67,9 @@ undefined |
 'rexe_pe' |
 'cupo_minimo_pe' | 
 'plan_estudio' |
-'articulaciones'
+'articulaciones' |
+'certificacion_intermedia_pe' |
+'rangos'
 ; 
 
 

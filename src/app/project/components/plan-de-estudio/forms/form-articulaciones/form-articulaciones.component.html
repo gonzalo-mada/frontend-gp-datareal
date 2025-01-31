@@ -39,7 +39,7 @@
                             <label><strong>Facultad {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
                             <p-dropdown 
                                 [options]="mainFacultad.facultades"
-                                formControlName="cod_facultad_postgrado"
+                                formControlName="cod_facultad"
                                 optionLabel="Descripcion_facu"
                                 optionValue="Cod_facultad" 
                                 placeholder="Seleccione facultad"
@@ -57,7 +57,7 @@
                             <label><strong>Programas postgrado {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
                             <p-dropdown 
                                 [options]="main.programas_postgrado"
-                                formControlName="cod_programa_postgrado"
+                                formControlName="cod_programa"
                                 optionLabel="Nombre_programa_completo"
                                 optionValue="Cod_Programa" 
                                 placeholder="Seleccione programa de postgrado"

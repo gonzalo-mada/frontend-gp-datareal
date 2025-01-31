@@ -24,8 +24,8 @@ export function generateMessage(namesCrud: NamesCrud, value: string | null, mode
             `
         }
     }else{
-        //Error. El estado de acreditación no ha sido creado.
-        return `${capitalizeFirstLetter(namesCrud.singular)} no ha sido ${getWordWithGender(mode , namesCrud.genero)}. Intente nuevamente`
+        //Cambio. El estado de acreditación no ha recibido modificaciones.
+        return `${capitalizeFirstLetter(namesCrud.singular)} ${value != null ? value : ''} no ha recibido modificaciones.`
     }
     
 }

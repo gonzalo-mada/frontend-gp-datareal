@@ -107,6 +107,7 @@ export class AgregarAsignaturaComponent implements OnInit, OnDestroy {
 
 	async changePlanDeEstudio(event: any){
 		this.form.resetForm(false,false);
+		this.main.resetFiles();
 		await this.form.setSelectPlanDeEstudio(event.value);
 		await Promise.all([this.getMenciones(), this.getAsignaturas(), this.getAsignaturasSecuenciales()]);
 		this.form.stepOne = true;
@@ -259,11 +260,6 @@ export class AgregarAsignaturaComponent implements OnInit, OnDestroy {
 		this.form.dataToPendingForm = {...actual_values,show: true}
 	}
 	
-	resetDataToPendingForm(){
-		const actual_values = {...this.form.dataToPendingForm}
-		this.form.dataToPendingForm = {...actual_values,show: false}
-	}
-
 	async initCreateFormMenciones(){
 		this.setDataToPendingForm();
 		await this.mainMenciones.setModeCrud('create');

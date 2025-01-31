@@ -30,7 +30,9 @@ export class ReglamentosMainService {
     reglamento: Reglamento = {};
 
     //MODAL
-    dialogForm: boolean = false
+    dialogForm: boolean = false;
+    needUpdateHistorial: boolean = false;
+
 
     constructor(
         private backend: BackendReglamentosService,
@@ -134,7 +136,7 @@ export class ReglamentosMainService {
         }finally{
             this.dialogForm = false;
             this.getReglamentos(false);
-            this.historialActividad.refreshHistorialActividad();
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.table.emitRefreshTablesReglamentos();
             this.reset();
         }
@@ -153,12 +155,20 @@ export class ReglamentosMainService {
                     docsToDelete: responseUploader.docsToDelete  
                 }
                 const response = await this.backend.updateReglamentoBackend(params, this.namesCrud);
-                if (response && response.dataWasUpdated) {
-                    this.messageService.add({
-                        key: 'main',
-                        severity: 'success',
-                        detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
-                    });
+                if (response && response.dataWasUpdated && response.dataWasUpdated !== 0 ) {
+                    if (response.dataWasUpdated === 1) {
+                        this.messageService.add({
+                            key: 'main',
+                            severity: 'success',
+                            detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
+                        });
+                    }else{
+                        this.messageService.add({
+                            key: 'main',
+                            severity: 'info',
+                            detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',false,false)
+                        });
+                    }
                 }
             }
         } catch (error) {
@@ -166,7 +176,7 @@ export class ReglamentosMainService {
         }finally{
             this.dialogForm = false;
             this.getReglamentos(false);
-            this.historialActividad.refreshHistorialActividad();
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.table.emitRefreshTablesReglamentos();
             this.reset();
         }
@@ -208,7 +218,7 @@ export class ReglamentosMainService {
             
         }finally{
             this.getReglamentos(false);
-            this.historialActividad.refreshHistorialActividad();
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.table.emitRefreshTablesReglamentos();
             this.reset();
         }
@@ -262,6 +272,10 @@ export class ReglamentosMainService {
 
     setOrigen(origen: string){
         this.historialActividad.setOrigen(origen);
+    }
+
+    setNeedUpdateHistorial(need: boolean){
+        this.needUpdateHistorial = need;
     }
 
 }

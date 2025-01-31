@@ -55,15 +55,9 @@
                     />
                 </div>
 
-                <div class="field col-12 md:col-6">
-                    <label><strong>Código {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
-                    <input type="text" pInputText formControlName="cod_tema" maxlength="50" class="w-full" placeholder="Ingrese código del tema" />
-                    <app-form-control [control]="form.fbForm.controls['cod_tema']" [validators]="['required', 'num_y_letras']"></app-form-control>
-                </div>
-
-                <div class="field col-12 md:col-6">
+                <div class="field col-12">
                     <label><strong>Nombre {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
-                    <input type="text" pInputText formControlName="nombre_tema" maxlength="50" class="w-full" placeholder="Ingrese nombre del tema" />
+                    <input type="text" pInputText formControlName="nombre_tema" maxlength="200" class="w-full" placeholder="Ingrese nombre del tema" />
                     <app-form-control [control]="form.fbForm.controls['nombre_tema']" [validators]="['required', 'num_y_letras']"></app-form-control>
                 </div>
 

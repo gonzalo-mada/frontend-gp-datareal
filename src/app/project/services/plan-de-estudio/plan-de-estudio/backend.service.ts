@@ -173,7 +173,7 @@ export class BackendPlanesDeEstudiosService {
     async getProgramaPostgrado(params: any, loading = true) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('planesDeEstudio/getProgramaPostgrado', loading),
+                this.serviceUtils.generateServiceMongo('programas/getPrograma', loading),
                 params
             );
         } catch (error: any) {
@@ -186,7 +186,7 @@ export class BackendPlanesDeEstudiosService {
 
     async getProgramasPostgrado(loading = true) {
         try {
-            return await this.invoker.httpInvoke({service: 'planesDeEstudio/getProgramasPostgrado', loading: loading});
+            return await this.invoker.httpInvoke({service: 'programas/getProgramas', loading: loading});
         } catch (error: any) {
             this.errorTemplateHandler.processError(
                 error, 

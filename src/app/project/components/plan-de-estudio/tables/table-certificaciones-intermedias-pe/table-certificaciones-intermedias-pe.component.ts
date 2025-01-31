@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Table } from 'primeng/table';
 import { CertificacionIntermediaPE } from 'src/app/project/models/plan-de-estudio/CertificacionIntermediaPE';
+import { DataExternal } from 'src/app/project/models/shared/DataExternal';
+import { ModeForm } from 'src/app/project/models/shared/ModeForm';
 import { CertifIntermediasPEMainService } from 'src/app/project/services/plan-de-estudio/certificaciones-intermedias-pe/main.service';
 import { TableCertifIntermediasPEService } from 'src/app/project/services/plan-de-estudio/certificaciones-intermedias-pe/table.service';
 
@@ -12,6 +14,9 @@ import { TableCertifIntermediasPEService } from 'src/app/project/services/plan-d
 })
 export class TableCertificacionesIntermediasPeComponent {
 	
+	@Input() mode: ModeForm;
+	@Input() dataExternal: DataExternal = { data: false };
+
 	searchValue: string | undefined;
 	expandedRows = {};
 
@@ -21,15 +26,20 @@ export class TableCertificacionesIntermediasPeComponent {
 	){}
 
 	ngOnInit(): void {
-		this.getData(true);
+		this.dataExternal.data ? ( this.setTable() ) : ( this.getData(true) );
 	}
 	  
 	ngOnDestroy(): void {
 		this.table.resetSelectedRows();
 	}
 
+	async setTable(){
+		this.main.setVarsNotFormByDataExternal(this.dataExternal)
+		await this.getData(true);
+	}
+
 	async getData(showCountTableValues: boolean){
-		await this.main.getCertificacionesIntermediasPorPlanDeEstudio(showCountTableValues)
+		if(this.main.certificaciones.length === 0) await this.main.getCertificacionesIntermediasPorPlanDeEstudio(showCountTableValues)
 	}
 
 	onGlobalFilter(table: Table, event: Event) {

@@ -5,10 +5,13 @@ import { ModeDialogPE, PlanDeEstudio, UpdatePlanEstudio } from 'src/app/project/
 import { CollectionsMongo } from 'src/app/project/models/shared/Context';
 import { LoadinggpService } from 'src/app/project/services/components/loadinggp.service';
 import { ArticulacionesMainService } from 'src/app/project/services/plan-de-estudio/articulaciones/main.service';
+import { CertifIntermediasPEMainService } from 'src/app/project/services/plan-de-estudio/certificaciones-intermedias-pe/main.service';
+import { MencionesMainService } from 'src/app/project/services/plan-de-estudio/menciones/main.service';
 import { BackendPlanesDeEstudiosService } from 'src/app/project/services/plan-de-estudio/plan-de-estudio/backend.service';
 import { FormPlanDeEstudioService } from 'src/app/project/services/plan-de-estudio/plan-de-estudio/form.service';
 import { PlanDeEstudioMainService } from 'src/app/project/services/plan-de-estudio/plan-de-estudio/main.service';
 import { VerEditarPlanEstudioMainService } from 'src/app/project/services/plan-de-estudio/plan-de-estudio/ver-editar-plan-de-estudio/main.service';
+import { RangosAGMainService } from 'src/app/project/services/plan-de-estudio/rangos-ag/main.service';
 
 @Component({
   selector: 'app-form-pe-view-and-edit',
@@ -33,10 +36,16 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 		private systemService: LoadinggpService,
 		public form: FormPlanDeEstudioService,
 		private mainArticulacion: ArticulacionesMainService,
+		private mainCertifIntermediaPE: CertifIntermediasPEMainService,
+		private mainRangosAG: RangosAGMainService,
+		private mainMenciones: MencionesMainService	
 	){}
 
 	async ngOnInit() {
 		this.subscription.add(this.mainArticulacion.onActionToBD$.subscribe(() => this.getArticulacionesPorPlanDeEstudio()));
+		this.subscription.add(this.mainCertifIntermediaPE.onInsertedData$.subscribe(() => this.getCertifIntermediaPorPlanDeEstudio()));
+		this.subscription.add(this.mainRangosAG.onInsertedData$.subscribe(() => this.getRangosPorPlanDeEstudio()));
+		this.subscription.add(this.mainMenciones.onActionToBD$.subscribe(() => this.getMencionesPorPlanDeEstudio()));
 		await this.getPlanDeEstudio();
 		await this.getData();
 	}
@@ -127,17 +136,14 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 
 	async getArticulacionesPorPlanDeEstudio(){
         let params = { cod_plan_estudio: this.mainPE.planDeEstudio.cod_plan_estudio }
-		this.main.articulaciones = await this.backend.getArticulacionesPorPlanDeEstudio(params,false);
-		// console.log("this.main.articulaciones",this.main.articulaciones);
-		this.form.setSelectArticulacion(this.mainPE.planDeEstudio.tiene_articulacion,this.main.articulaciones.length)
-		
+		this.mainArticulacion.articulaciones = await this.backend.getArticulacionesPorPlanDeEstudio(params,false);
+		this.form.setSelectArticulacion(this.mainPE.planDeEstudio.tiene_articulacion,this.mainArticulacion.articulaciones.length)
 	}
 
 	async getCertifIntermediaPorPlanDeEstudio(){
-		//todo: PENDIENTE POR FALTA DE TABLA ASIGNATURA
 		let params = { cod_plan_estudio: this.mainPE.planDeEstudio.cod_plan_estudio };
-		this.main.certificaciones = await this.backend.getCertifIntermediasPorPlanDeEstudio(params,false);
-		this.form.setSelectCertifIntermedia(this.mainPE.planDeEstudio.tiene_certificacion,this.main.certificaciones.length)
+		this.mainCertifIntermediaPE.certificaciones = await this.backend.getCertifIntermediasPorPlanDeEstudio(params,false);
+		this.form.setSelectCertifIntermedia(this.mainPE.planDeEstudio.tiene_certificacion,this.mainCertifIntermediaPE.certificaciones.length)
 	}
 
 	async getAsignaturasPorPlanDeEstudio(){
@@ -150,17 +156,15 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 	}
 
 	async getMencionesPorPlanDeEstudio(){
-		//todo: PENDIENTE POR FALTA DE TABLA ASIGNATURA Y MOVER SERVICIOS
 		let params = { cod_plan_estudio: this.mainPE.planDeEstudio.cod_plan_estudio };
-		this.main.menciones = await this.backend.getMencionesPorPlanDeEstudio(params,false);
-		this.form.setSelectMenciones(this.mainPE.planDeEstudio.tiene_mencion,this.main.menciones.length)
+		this.mainMenciones.menciones = await this.backend.getMencionesPorPlanDeEstudio(params,false);
+		this.form.setSelectMenciones(this.mainPE.planDeEstudio.tiene_mencion,this.mainMenciones.menciones.length)
 	}
 
 	async getRangosPorPlanDeEstudio(){
-		//todo: PENDIENTE MOVER SERVICIOS
 		let params = { cod_plan_estudio: this.mainPE.planDeEstudio.cod_plan_estudio };
-		this.main.rangos = await this.backend.getRangosPorPlanDeEstudio(params,false);
-		this.form.setSelectRangos(this.mainPE.planDeEstudio.tiene_rango_aprob_g,this.main.rangos.length)
+		this.mainRangosAG.rangosAG = await this.backend.getRangosPorPlanDeEstudio(params,false);
+		this.form.setSelectRangos(this.mainPE.planDeEstudio.tiene_rango_aprob_g,this.mainRangosAG.rangosAG.length)
 	}
 
 	async getLogPE(){

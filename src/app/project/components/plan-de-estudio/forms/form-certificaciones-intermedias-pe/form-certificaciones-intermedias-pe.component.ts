@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 import { FormCertifIntermediasPEService } from 'src/app/project/services/plan-de-estudio/certificaciones-intermedias-pe/form.service';
 import { CertifIntermediasPEMainService } from 'src/app/project/services/plan-de-estudio/certificaciones-intermedias-pe/main.service';
@@ -14,7 +15,7 @@ import { FacultadesMainService } from 'src/app/project/services/programas/facult
 })
 export class FormCertificacionesIntermediasPeComponent implements OnInit, OnDestroy {
 
-	@Input() dataFromAgregarPE: any = { data: false };
+	@Input() dataExternal: DataExternal = { data: false };
   	@Output() formWasClosed = new EventEmitter<boolean>();
 	private subscription: Subscription = new Subscription();
 
@@ -27,23 +28,29 @@ export class FormCertificacionesIntermediasPeComponent implements OnInit, OnDest
 	
 	async ngOnInit() {
 		this.subscription.add(this.form.fbForm.statusChanges.subscribe(status => { this.form.stateForm = status as StateValidatorForm }));
-		this.dataFromAgregarPE.data ? await this.setFormByAgregarPE() : await this.mainFacultad.getFacultades(false);
+		this.dataExternal.data ? await this.setFormByExternalData() : this.initForm();
 	}
 
 	ngOnDestroy(): void {
+		this.main.showTable = false;
 		this.subscription.unsubscribe();
 	}
 
-	async setFormByAgregarPE(){
-		this.form.setValuesVarsByAgregarPE(this.dataFromAgregarPE);
-		this.main.cod_plan_estudio_selected_notform = this.dataFromAgregarPE.cod_plan_estudio;
+	async setFormByExternalData(){
+		this.form.setDataExternal(this.dataExternal);
+		this.form.setValuesVarsByDataExternal();
+		await Promise.all([
+			await this.mainFacultad.getFacultades(false),
+			await this.main.getProgramasPostgradoConCertifIntermediaPorFacultad(false),
+			await this.main.getPlanesDeEstudiosPorPrograma(false),
+			await this.main.getCertificacionIntermedia_Prog(false),
+		]);
+		await this.main.getAsignaturasPorPlanDeEstudio(false)
+	}
+
+	async initForm(){
 		await this.mainFacultad.getFacultades(false);
-		await this.main.getProgramasPostgradoConCertifIntermediaPorFacultad(false);
-		await this.main.getPlanesDeEstudiosPorPrograma(false);
-		await this.main.getCertificacionIntermedia_Prog(false);
-		await this.main.getAsignaturasPorPlanDeEstudio();
-		this.form.setControlsFormByAgregarPE(this.dataFromAgregarPE);
-		this.main.wasFilteredTable = true;
+		this.form.setDataExternal(this.dataExternal);
 	}
 
 	async submit(){
@@ -78,13 +85,15 @@ export class FormCertificacionesIntermediasPeComponent implements OnInit, OnDest
 	}
 
 	selectCertificacionIntermedia(event: any){
+		console.log("event",event);
+		
 		this.resetTableCertifIntermediaAndAsignaturas();
 		this.table.selectedCertifIntermediaRows = {...event};
-		this.form.setCertificacionIntermedia(event.Cod_CertificacionIntermedia);
+		this.form.setCertificacionIntermedia(event);
 	}
 
 	selectAsignatura(event: any){
-		this.form.setAsignatura(event);
+		this.form.setAsignaturas(event);
 	}
 
 	clearTableCertifIntermedia(){
@@ -94,13 +103,13 @@ export class FormCertificacionesIntermediasPeComponent implements OnInit, OnDest
 
 	clearTableAsignatura(){
 		this.table.resetSelectedRowsTableAsignaturas();
-		this.form.setAsignatura('');
+		this.form.setAsignaturas('');
 	}
 
 	resetTableCertifIntermediaAndAsignaturas(){
 		this.table.resetSelectedRowsAllTables();
 		this.form.setCertificacionIntermedia('');
-		this.form.setAsignatura('');
+		this.form.setAsignaturas('');
 	}
 
 	test(){

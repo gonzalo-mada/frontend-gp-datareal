@@ -50,7 +50,6 @@
                     </div>
                 </ng-container>
 
-                
                 <ng-container *ngIf="main.dialogUpdateMode === 'jornada' ">
                     <div class="field col-12">
                         <label><strong>Jornada {{ mode === 'edit' ? '*' : ''}}</strong></label>
@@ -137,12 +136,9 @@
                                         <p-messages severity="info">
                                             <ng-template pTemplate>
                                                 <i class="pi pi-info-circle mr-3"></i>
+                                                A continuación se enlistan las articulaciones entre asignaturas del plan de estudio y asignaturas de pregrado. 
                                                 <span *ngIf="mode === 'edit'">
-                                                    A continuación se enlistan las articulaciones entre asignatura(s) del plan de estudio y asignatura(s) de pregrado. 
                                                     Si desea agregar una nueva articulación, presione el botón <strong>Agregar</strong>.
-                                                </span>
-                                                <span *ngIf="mode === 'show'">
-                                                    A continuación se enlistan las articulaciones entre asignatura(s) del plan de estudio y asignatura(s) de pregrado. 
                                                 </span>
                                             </ng-template>
                                         </p-messages>
@@ -157,7 +153,7 @@
                                         ></p-button>
                                     </div>
                                 </div>
-                                <app-form-articulaciones [dataExternal]="form.dataExternal"></app-form-articulaciones>
+                                <app-form-articulaciones [dataExternal]="form.dataExternal" (formWasClosed)="externalFormWasClosed()"></app-form-articulaciones>
                                 <app-table-articulaciones [mode]="mode" [dataExternal]="form.dataExternal"></app-table-articulaciones>
                             </p-accordionTab>
                             <p-accordionTab header="{{ mode === 'show' ? 'Documentos adjuntos' : 'Adjunte documentos *'}}">
@@ -168,7 +164,166 @@
 
                 </ng-container>
 
-                <div class="field col-12"  *ngIf=" main.dialogUpdateMode !== 'articulacion' && main.dialogUpdateMode !== 'reglamento'">
+                <ng-container *ngIf="main.dialogUpdateMode === 'certificacion' ">
+                    <div class="field col-12 lg:col-6 mt-2">
+                        <label><strong>¿Tiene certificación intermedia?</strong></label>
+                        <div class="flex flex-row justify-content-start flex-wrap">
+                            <div class="flex align-items-center justify-content-center">
+                                <span>No</span>
+                            </div>
+                            <div class="flex align-items-center justify-content-center mx-2">
+                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_certificacion"  styleClass="mt-1 mx-1"/>
+                            </div>
+                            <div class="flex align-items-center justify-content-center">
+                                <span>Si</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-2">
+                        <p-accordion [activeIndex]="0">
+                            <p-accordionTab  *ngIf="form.fbFormUpdate.get('tiene_certificacion')!.value === 1" header="Certificaciones intermedias">
+                                <div class="flex justify-content-between align-items-center">
+                                    <div class="flex align-items-center justify-content-center">
+                                        <p-messages severity="info">
+                                            <ng-template pTemplate>
+                                                <i class="pi pi-info-circle mr-3"></i>
+                                                A continuación se enlistan las certificaciones intermedias con sus asignaturas.
+                                                <span *ngIf="mode === 'edit'"> 
+                                                    Si desea agregar una nueva certificación intermedia, presione el botón <strong>Agregar</strong>.
+                                                </span>
+                                            </ng-template>
+                                        </p-messages>
+                                        
+                                    </div>
+                                    <div *ngIf="mode === 'edit'" class="flex align-items-center justify-content-center">
+                                        <p-button
+                                            [disabled]="form.fbFormUpdate.get('tiene_certificacion')!.value === 0"
+                                            label="Agregar"
+                                            icon="pi pi-plus"
+                                            styleClass="p-button-success ml-4"
+                                            (click)="initCreateFormCertifIntermPE()"
+                                        ></p-button>
+                                    </div>
+                                </div>
+                                <app-form-certificaciones-intermedias-pe  [dataExternal]="form.dataExternal" (formWasClosed)="externalFormWasClosed()"></app-form-certificaciones-intermedias-pe>
+                                <app-table-certificaciones-intermedias-pe [mode]="mode" [dataExternal]="form.dataExternal"></app-table-certificaciones-intermedias-pe>
+                            </p-accordionTab>
+                            <p-accordionTab header="{{ mode === 'show' ? 'Documentos adjuntos' : 'Adjunte documentos *'}}">
+                                <app-uploader-files [mode]="mode!"></app-uploader-files>
+                            </p-accordionTab>
+                        </p-accordion>
+                    </div>
+
+                </ng-container>
+
+                <ng-container *ngIf="main.dialogUpdateMode === 'rangos' ">
+                    <div class="field col-12 lg:col-6 mt-2">
+                        <label><strong>¿Tiene rangos de aprobación?</strong></label>
+                        <div class="flex flex-row justify-content-start flex-wrap">
+                            <div class="flex align-items-center justify-content-center">
+                                <span>No</span>
+                            </div>
+                            <div class="flex align-items-center justify-content-center mx-2">
+                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_rango_aprob_g"  styleClass="mt-1 mx-1"/>
+                            </div>
+                            <div class="flex align-items-center justify-content-center">
+                                <span>Si</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-2">
+                        <p-accordion [activeIndex]="0">
+                            <p-accordionTab  *ngIf="form.fbFormUpdate.get('tiene_rango_aprob_g')!.value === 1" header="Rangos de aprobación">
+                                <div class="flex justify-content-between align-items-center">
+                                    <div class="flex align-items-center justify-content-center">
+                                        <p-messages severity="info">
+                                            <ng-template pTemplate>
+                                                <i class="pi pi-info-circle mr-3"></i>
+                                                A continuación se enlistan los rangos de aprobación del plan de estudio.
+                                                <span *ngIf="mode === 'edit'"> 
+                                                    Si desea agregar un nuevo rango de aprobación, presione el botón <strong>Agregar</strong>.
+                                                </span>
+                                            </ng-template>
+                                        </p-messages>
+                                        
+                                    </div>
+                                    <div *ngIf="mode === 'edit'" class="flex align-items-center justify-content-center">
+                                        <p-button
+                                            [disabled]="form.fbFormUpdate.get('tiene_rango_aprob_g')!.value === 0"
+                                            label="Agregar"
+                                            icon="pi pi-plus"
+                                            styleClass="p-button-success ml-4"
+                                            (click)="initCreateFormRangosAG()"
+                                        ></p-button>
+                                    </div>
+                                </div>
+                                <app-form-rangos-ag [dataExternal]="form.dataExternal" (formWasClosed)="externalFormWasClosed()"></app-form-rangos-ag>
+                                <app-table-rangos-ag [mode]="mode" [dataExternal]="form.dataExternal"></app-table-rangos-ag>
+                            </p-accordionTab>
+                            <p-accordionTab header="{{ mode === 'show' ? 'Documentos adjuntos' : 'Adjunte documentos *'}}">
+                                <app-uploader-files [mode]="mode!"></app-uploader-files>
+                            </p-accordionTab>
+                        </p-accordion>
+                    </div>
+
+                </ng-container>
+
+                <ng-container *ngIf="main.dialogUpdateMode === 'menciones' ">
+                    <div class="field col-12 lg:col-6 mt-2">
+                        <label><strong>¿Tiene menciones?</strong></label>
+                        <div class="flex flex-row justify-content-start flex-wrap">
+                            <div class="flex align-items-center justify-content-center">
+                                <span>No</span>
+                            </div>
+                            <div class="flex align-items-center justify-content-center mx-2">
+                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_mencion"  styleClass="mt-1 mx-1"/>
+                            </div>
+                            <div class="flex align-items-center justify-content-center">
+                                <span>Si</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-2">
+                        <p-accordion [activeIndex]="0">
+                            <p-accordionTab  *ngIf="form.fbFormUpdate.get('tiene_mencion')!.value === 1" header="Menciones">
+                                <div class="flex justify-content-between align-items-center">
+                                    <div class="flex align-items-center justify-content-center">
+                                        <p-messages severity="info">
+                                            <ng-template pTemplate>
+                                                <i class="pi pi-info-circle mr-3"></i>
+                                                A continuación se enlistan las menciones con sus asignaturas del plan de estudio.
+                                                <span *ngIf="mode === 'edit'"> 
+                                                    Si desea agregar una nueva mención, presione el botón <strong>Agregar</strong>.
+                                                </span>
+                                            </ng-template>
+                                        </p-messages>
+                                        
+                                    </div>
+                                    <div *ngIf="mode === 'edit'" class="flex align-items-center justify-content-center">
+                                        <p-button
+                                            [disabled]="form.fbFormUpdate.get('tiene_mencion')!.value === 0"
+                                            label="Agregar"
+                                            icon="pi pi-plus"
+                                            styleClass="p-button-success ml-4"
+                                            (click)="initCreateMencion()"
+                                        ></p-button>
+                                    </div>
+                                </div>
+                                <app-form-menciones [dataExternal]="form.dataExternal" (formWasClosed)="externalFormWasClosed()"></app-form-menciones>
+                                <app-table-menciones [mode]="mode" [dataExternal]="form.dataExternal"></app-table-menciones>
+                            </p-accordionTab>
+                            <p-accordionTab header="{{ mode === 'show' ? 'Documentos adjuntos' : 'Adjunte documentos *'}}">
+                                <app-uploader-files [mode]="mode!"></app-uploader-files>
+                            </p-accordionTab>
+                        </p-accordion>
+                    </div>
+
+                </ng-container>
+
+                <div class="field col-12"  *ngIf=" main.dialogUpdateMode !== 'articulacion' && main.dialogUpdateMode !== 'certificacion' && main.dialogUpdateMode !== 'rangos' && main.dialogUpdateMode !== 'reglamento'">
                     <label>
                         <strong> 
                             {{ mode === 'show' ? 'Documentos adjuntos' : 'Adjunte documentos *'}} 

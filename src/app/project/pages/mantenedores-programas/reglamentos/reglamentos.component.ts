@@ -27,11 +27,13 @@ export class ReglamentosComponent implements OnInit, OnDestroy {
       } 
     }));
     this.reglamentosMainService.setOrigen('reglamento');
+    this.reglamentosMainService.setNeedUpdateHistorial(true);
   }
   
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
     this.reglamentosMainService.reset();
+    this.reglamentosMainService.setNeedUpdateHistorial(false);
   }
 
   submit() {

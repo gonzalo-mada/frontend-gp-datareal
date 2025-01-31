@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
 import { NamesCrud } from 'src/app/project/models/shared/NamesCrud';
 import { FormCertifIntermediaService } from './form.service';
-import { FilesCertifIntermediaService } from './files.service';
 import { BackendCertifIntermediaService } from './backend.service';
 import { MessageServiceGP } from '../../components/message-service.service';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
@@ -139,12 +138,20 @@ export class CertifIntermediaMainService {
                 Cod_CertificacionIntermedia: this.certificacion.Cod_CertificacionIntermedia,
             };
             const response = await this.backend.updateCertificacionIntermedia(params, this.namesCrud);
-            if ( response && response.dataWasUpdated ) {
-                this.messageService.add({
-                    key: 'main',
-                    severity: 'success',
-                    detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
-                });
+            if ( response && response.dataWasUpdated && response.dataWasUpdated !== 0 ) {
+                if (response.dataWasUpdated === 1) {
+                    this.messageService.add({
+                        key: 'main',
+                        severity: 'success',
+                        detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
+                    });
+                }else{
+                    this.messageService.add({
+                        key: 'main',
+                        severity: 'info',
+                        detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',false,false)
+                    });
+                }
             }
         }catch (error) {
             console.log(error);

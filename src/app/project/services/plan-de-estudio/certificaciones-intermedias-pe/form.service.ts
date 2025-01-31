@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CertificacionIntermediaPE } from 'src/app/project/models/plan-de-estudio/CertificacionIntermediaPE';
+import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 
@@ -13,6 +14,7 @@ export class FormCertifIntermediasPEService {
     public fbForm!: FormGroup;
     modeForm: ModeForm = undefined;
     stateForm: StateValidatorForm = undefined;
+    dataExternal: DataExternal = {data: false};
 
     cod_facultad_selected_postgrado: number = 0;
     cod_programa_postgrado_selected: number = 0;
@@ -22,10 +24,11 @@ export class FormCertifIntermediasPEService {
 
     async initForm(): Promise<boolean>{
         this.fbForm = this.fb.group({
-            Cod_Facultad_Postgrado_Selected: ['', [Validators.required]],
-            Cod_Programa_Postgrado_Selected: ['', [Validators.required]],
+            cod_facultad: ['', [Validators.required]],
+            cod_programa: ['', [Validators.required]],
             cod_plan_estudio: ['', [Validators.required]],
             cod_certif_intermedia: ['', [Validators.required]],
+            descripcion_certif_intermedia: [''],
             asignaturas: ['', [Validators.required]],
             aux: ['']
         });
@@ -34,29 +37,29 @@ export class FormCertifIntermediasPEService {
 
     resetForm(): void {
         this.fbForm.reset({
-            Cod_Facultad_Postgrado_Selected: '',
-            Cod_Programa_Postgrado_Selected: '',
+            cod_facultad: '',
+            cod_programa: '',
             cod_plan_estudio: '',
             cod_certif_intermedia: '',
+            descripcion_certif_intermedia: '',
             asignaturas: '',
             aux: ''
         });
         this.fbForm.enable();
-        this.fbForm.get('Cod_Programa_Postgrado_Selected')?.disable();
+        this.fbForm.get('cod_programa')?.disable();
         this.fbForm.get('cod_plan_estudio')?.disable();
-        this.resetValuesVarsSelected();
         console.log("resetee form certif intermedia pe");
     }
 
     resetValuesVarsSelected(){
-        this.cod_facultad_selected_postgrado = 0;
-        this.cod_programa_postgrado_selected = 0;
-        this.cod_planestudio_selected = 0;
+        if (this.dataExternal.data){
+            this.cod_facultad_selected_postgrado = 0;
+            this.cod_programa_postgrado_selected = 0;
+            this.cod_planestudio_selected = 0;
+        }
     }
 
-    setForm(mode:'show' | 'edit' ,data: CertificacionIntermediaPE): void {
-        console.log("data--->",data);
-        
+    async setForm(mode:'show' | 'edit' ,data: CertificacionIntermediaPE) {
         this.fbForm.patchValue({...data});
         if (mode === 'show') {
             this.fbForm.disable();
@@ -64,22 +67,71 @@ export class FormCertifIntermediasPEService {
         if (mode === 'edit') {
             this.fbForm.patchValue({aux: data});
         }
+        await this.setVarsForm(data.cod_facultad!, data.cod_programa!, data.cod_plan_estudio!)
+
+    }
+
+    setParamsForm(): Object {
+        const cod_facultad = this.fbForm.get('cod_facultad');
+        const cod_programa = this.fbForm.get('cod_programa');
+        const cod_plan_estudio = this.fbForm.get('cod_plan_estudio');
+        let params = {};
+        if (cod_facultad?.disabled  &&  cod_programa?.disabled && cod_plan_estudio?.disabled) {
+            params = {
+                ...this.fbForm.value,
+                cod_facultad: this.cod_facultad_selected_postgrado, 
+                cod_programa: this.cod_programa_postgrado_selected,
+                cod_plan_estudio: this.cod_planestudio_selected,
+            }
+        }else{
+            params = {...this.fbForm.value}
+        }
+        return params
+    }
+
+    setDataExternal(dataExternal: DataExternal){
+        this.dataExternal = {...dataExternal};
+    }
+
+    setValuesVarsByDataExternal(){
+        this.cod_facultad_selected_postgrado = this.dataExternal.cod_facultad!;
+        this.cod_programa_postgrado_selected = this.dataExternal.cod_programa!;
+        this.cod_planestudio_selected = this.dataExternal.cod_plan_estudio!;
+    }
+
+    setControlsFormByDataExternal(){
+        this.fbForm.get('cod_facultad')?.patchValue(this.dataExternal.cod_facultad);
+        this.fbForm.get('cod_programa')?.patchValue(this.dataExternal.cod_programa);
+        this.fbForm.get('cod_plan_estudio')?.patchValue(this.dataExternal.cod_plan_estudio);
+        this.setDisabledPrincipalControls();
+    }
+
+    setDisabledPrincipalControls(){
+        this.fbForm.get('cod_facultad')?.disable();
+        this.fbForm.get('cod_programa')?.disable();
+        this.fbForm.get('cod_plan_estudio')?.disable();
+    }
+
+    async setVarsForm(cod_facultad: number, cod_programa: number, cod_plan_estudio: number){
+        this.cod_facultad_selected_postgrado = cod_facultad;
+        this.cod_programa_postgrado_selected = cod_programa;
+        this.cod_planestudio_selected = cod_plan_estudio;
     }
 
     //DROPDOWNS POSTGRADO
     //INICIO FUNCIONES PARA DROPDOWN FACULTAD POSTGRADO 
     resetControlsWhenChangedDropdownFacultadPostgrado(){
-		this.fbForm.get('Cod_Programa_Postgrado_Selected')?.reset();
+		this.fbForm.get('cod_programa')?.reset();
 		this.fbForm.get('cod_plan_estudio')?.reset();
 	}
 
     disabledControlsWhenChangedDropdownFacultadPostgrado(){
-        this.fbForm.get('Cod_Programa_Postgrado_Selected')?.disable();
+        this.fbForm.get('cod_programa')?.disable();
 		this.fbForm.get('cod_plan_estudio')?.disable();
     }
 
     setStatusControlProgramaPostgrado(status: boolean){
-        const control = this.fbForm.get('Cod_Programa_Postgrado_Selected');
+        const control = this.fbForm.get('cod_programa');
         status ? control?.enable() : control?.disable()
     }
     //FIN FUNCIONES PARA DROPDOWN FACULTAD POSTGRADO 
@@ -103,43 +155,14 @@ export class FormCertifIntermediasPEService {
 		this.fbForm.patchValue({ asignaturas: '' });
 	}
 
-    setValuesVarsByAgregarPE(dataFromAgregarPE: any){
-        this.cod_facultad_selected_postgrado = dataFromAgregarPE.cod_facultad;
-        this.cod_programa_postgrado_selected = dataFromAgregarPE.cod_programa;
-        this.cod_planestudio_selected = dataFromAgregarPE.cod_plan_estudio;
-    }
-
-    setControlsFormByAgregarPE(dataFromAgregarPE: any){
-        this.fbForm.get('Cod_Facultad_Postgrado_Selected')?.patchValue(dataFromAgregarPE.cod_facultad);
-        this.fbForm.get('Cod_Programa_Postgrado_Selected')?.patchValue(dataFromAgregarPE.cod_programa);
-        this.fbForm.get('cod_plan_estudio')?.patchValue(dataFromAgregarPE.cod_plan_estudio);
-        this.fbForm.get('Cod_Facultad_Postgrado_Selected')?.disable();
-        this.fbForm.get('Cod_Programa_Postgrado_Selected')?.disable();
-        this.fbForm.get('cod_plan_estudio')?.disable();
-    }
-
-    async setDropdownsAndVars(dataDropdowns: any){
-        console.log("dataDropdowns",dataDropdowns);
-		this.cod_facultad_selected_postgrado = dataDropdowns.cod_facultad_selected_notform;
-		this.cod_programa_postgrado_selected = dataDropdowns.cod_programa_postgrado_selected_notform;
-		this.cod_planestudio_selected = dataDropdowns.cod_plan_estudio_selected_notform;
-        this.fbForm.get('Cod_Facultad_Postgrado_Selected')?.patchValue(dataDropdowns.cod_facultad_selected_notform);
-        this.fbForm.get('Cod_Programa_Postgrado_Selected')?.patchValue(dataDropdowns.cod_programa_postgrado_selected_notform);
-        this.fbForm.get('cod_plan_estudio')?.patchValue(dataDropdowns.cod_plan_estudio_selected_notform);
-	}
-
-	disableDropdowns(){
-		this.fbForm.get('Cod_Facultad_Postgrado_Selected')?.disable();
-		this.fbForm.get('Cod_Programa_Postgrado_Selected')?.disable();
-		this.fbForm.get('cod_plan_estudio')?.disable();
-	}
-
     setCertificacionIntermedia(event: any){
-        this.fbForm.patchValue({ cod_certif_intermedia: event });
+        this.fbForm.patchValue({ cod_certif_intermedia: event.Cod_CertificacionIntermedia });
+        this.fbForm.patchValue({ descripcion_certif_intermedia: event.Descripcion_certif_inter });
     }
 
-    setAsignatura(event: any){
+    setAsignaturas(event: any){
 		this.fbForm.patchValue({ asignaturas: event });
     }
+
 
 }

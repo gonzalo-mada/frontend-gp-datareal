@@ -151,7 +151,7 @@
 
                                         <div class="field col-12 md:col-8">
                                             <label><strong>Nombre *</strong></label>
-                                            <input type="text" pInputText formControlName="nombre_asignatura" maxlength="50" class="w-full" placeholder="Ingrese nombre de asignatura"/>
+                                            <input type="text" pInputText formControlName="nombre_asignatura" maxlength="200" class="w-full" placeholder="Ingrese nombre de asignatura"/>
                                             <app-form-control [control]="form.fbForm.controls['nombre_asignatura']" [validators]="['required', 'num_o_letras']"></app-form-control>
                                         </div>
 
@@ -669,13 +669,13 @@
                                                     </div>
                                                 </div>
                                                 <div *ngIf="form.showMessageSinAsignaturas  && form.fbForm.get('tiene_secuencialidad')!.value === 1">
-                                                    <p-messages styleClass="mt-2" severity="warn">
+                                                    <p-messages styleClass="mt-2" severity="info">
                                                         <ng-template pTemplate>
                                                             <div class="flex flex-column justify-content-center align-items-center">
-                                                                <span><i class="pi pi-exclamation-triangle"></i><strong> Atención:</strong></span>
+                                                                <span><i class="pi pi-info-circle"></i><strong> Atención:</strong></span>
                                                                 <span>
-                                                                    Al no tener asignaturas el plan de estudio: <strong>{{form.selectedPlanDeEstudio}}</strong>, debe asociar asignatura(s) actualizando la asignatura una vez agregada.
-                                                                    Considere que las asignaturas que asociará deben estar incluídas en el plan de estudio.
+                                                                    El plan de estudio: <strong>{{form.selectedPlanDeEstudio}}</strong> aún no incluye asignaturas.
+                                                                    La asignatura que está agregando será la primera del plan de estudio y será secuencial.
                                                                 </span>
                                                             </div>
                                                         </ng-template>
@@ -1194,7 +1194,7 @@
 </app-dialog>
 
 <!-- Menciones -->
-<app-form-menciones [from]="'external-form'" [externalData]="form.dataToPendingForm"></app-form-menciones>
+<app-form-menciones [from]="'external-form'" [dataExternal]="form.dataToPendingForm"></app-form-menciones>
 
 <!-- Temas -->
 <app-form-temas [externalData]="form.dataToPendingForm"></app-form-temas>

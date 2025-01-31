@@ -254,7 +254,7 @@ export class BackendProgramasService {
     async getPrograma(params: any, loading = true, namesCrud: NamesCrud) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('programas/getPrograma', loading),
+                this.serviceUtils.generateServiceMongo('programas/getProgramaMerged', loading),
                 params
             );
         } catch (error: any) {
@@ -276,18 +276,7 @@ export class BackendProgramasService {
             });
         }
     }
-    
-    async getProgramas() {
-        try {
-            return await this.invoker.httpInvoke('programas/getProgramas');
-        } catch (error: any) {
-            this.errorTemplateHandler.processError(error, {
-                notifyMethod: 'alert',
-                message: 'Hubo un error al obtener programas. Intente nuevamente.'
-            });
-        }
-    }
-    
+        
     async getProgramasPorFacultad(params: any) {
         try {
             return await this.invoker.httpInvoke('programas/getProgramasPorFacultad', params);

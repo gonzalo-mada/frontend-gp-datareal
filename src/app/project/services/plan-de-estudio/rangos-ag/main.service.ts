@@ -10,6 +10,7 @@ import { FormRangosAGService } from './form.service';
 import { TableRangosAGService } from './table.service';
 import { Subject } from 'rxjs';
 import { LoadinggpService } from '../../components/loadinggp.service';
+import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 
 @Injectable({
   providedIn: 'root'
@@ -44,7 +45,6 @@ export class RangosAGMainService {
     disabledDropdownPlanEstudio: boolean = true
     programas_postgrado_notform: any[] = [];
     planes_notform: any[] = [];
-    wasFilteredTable: boolean = false;
 
     programas_postgrado: any[] = [];
     planes: any[] = [];
@@ -83,11 +83,49 @@ export class RangosAGMainService {
         }
     }
 
-    reset() {
-        this.wasFilteredTable = false;
+    async reset() {
         this.form.resetForm();
         this.table.resetSelectedRows();
         this.clearAllMessages();
+        this.resetArraysData();
+    }
+
+    resetDropdownsFilterTable(){
+        this.disabledDropdownPrograma = true
+        this.disabledDropdownPlanEstudio = true
+        this.cod_facultad_selected_notform = 0;
+        this.cod_programa_postgrado_selected_notform = 0;
+        this.cod_plan_estudio_selected_notform = 0;
+        this.programas_postgrado_notform = [];
+        this.planes_notform = [];
+        this.showTable = false
+    }
+
+    resetWhenChangedDropdownFacultadNotForm(){
+        this.showTable = false
+        this.disabledDropdownPlanEstudio = true;
+        this.disabledDropdownPrograma = true;
+        this.cod_programa_postgrado_selected_notform = 0;
+        this.cod_plan_estudio_selected_notform = 0;
+    }
+
+    resetWhenChangedDropdownProgramaNotForm(){
+        this.showTable = false
+        this.disabledDropdownPlanEstudio = true;
+        this.cod_plan_estudio_selected_notform = 0;
+    }
+
+    resetArraysWhenChangedDropdownPrograma(){
+        this.planes = [];
+    }
+
+    resetArraysWhenChangedDropdownFacultad(){
+        this.programas_postgrado = [];
+        this.planes = [];
+    }
+
+    resetArraysData(){
+        this.programas_postgrado = [];
     }
 
     emitResetExpandedRows() {
@@ -198,7 +236,8 @@ export class RangosAGMainService {
     }
 
     async getRangosAprobacion(showCountTableValues: boolean = true, needShowLoading = true): Promise<RangoAG[]> {
-        let params = { cod_plan_estudio: this.cod_plan_estudio_selected_notform }
+        let valuesPrincipalControls = {cod_facultad: this.cod_facultad_selected_notform, cod_programa: this.cod_programa_postgrado_selected_notform, cod_plan_estudio: this.cod_plan_estudio_selected_notform}
+        let params = { cod_plan_estudio: this.cod_plan_estudio_selected_notform, valuesPrincipalControls }
         this.rangosAG = await this.backend.getRangosAprobacionPorPlanDeEstudio(params,needShowLoading);
         this.rangosAG.length !== 0 ? (this.showTable = true , this.clearMessagesSinResultados('m')) : (this.showTable = false , this.showMessageSinResultados('m'))
         if (showCountTableValues) this.countTableValues();
@@ -208,67 +247,64 @@ export class RangosAGMainService {
     //FIN FUNCIONES PARA TABLA DE MANTENEDOR
 
     async createForm() {
-        this.form.resetForm();
+        await this.reset();
+        await this.setPrincipalsControls();
         this.dialogForm = true;
     }
 
     async showForm() {
         this.form.resetForm();
-        await this.setDropdowns();
         this.form.setForm('show', this.rangoAG);
+        await this.setDropdownsAndTablesForm();
         this.dialogForm = true;
     }
 
     async editForm() {
         this.form.resetForm();
-        await this.setDropdowns();
         this.form.setForm('edit', this.rangoAG);
+        await this.setDropdownsAndTablesForm();
         this.dialogForm = true;
     }
 
     async insertForm() {
         try {
-            let params = { ...this.form.fbForm.value };
-            console.log(params)
+            const params = this.form.setParamsForm();
             const response = await this.backend.insertRangoAprobacion(params, this.namesCrud);
             if (response && response.dataWasInserted) {
                 this.messageService.add({
                     key: 'main',
                     severity: 'success',
-                    detail: generateMessage(this.namesCrud, response.dataInserted, 'creado', true, false)
+                    detail: generateMessage(this.namesCrud, response.dataInserted.grado, 'creado', true, false)
                 });
+                this.emitActionToBD();
+                this.setDropdownsFilterTable(response.dataInserted)
             }
         } catch (error) {
             console.log(error);
         } finally {
             this.dialogForm = false;
-            if ( !this.wasFilteredTable) await this.setDropdownsFilterTable();
-            this.getRangosAprobacion(false);
             this.reset();
         }
     }
 
     async updateForm() {
         try {
-            let params = {
-                ...this.form.fbForm.value,
+            const params = this.form.setParamsForm();
+            let paramsWithCod = {
+                ...params,
                 Cod_RangoAprobG: this.rangoAG.Cod_RangoAprobG
-            };        
-            delete params.aux;
-            console.log(params);
-
-            const response = await this.backend.updateRangoAprobacion(params, this.namesCrud);
-            
+            }
+            const response = await this.backend.updateRangoAprobacion(paramsWithCod, this.namesCrud);
             if (response && response.dataWasUpdated) {
                 this.messageService.add({
                     key: 'main',
                     severity: 'success',
                     detail: generateMessage(this.namesCrud, response.dataUpdated, 'actualizado', true, false)
                 });
+                this.emitActionToBD();
             }
         } catch (error) {
             console.log(error);
-            console.error('Error recibido:', error);
         } finally {
             this.dialogForm = false;
             this.getRangosAprobacion(false);
@@ -306,12 +342,13 @@ export class RangosAGMainService {
                         detail: generateMessage(this.namesCrud, message, 'eliminado', true, false)
                     });
                 }
+                this.emitActionToBD();
             }
         } catch (error) {
             console.log(error);
         } finally {
             this.getRangosAprobacion(false);
-            this.table.resetSelectedRows();
+            this.reset();
         }
     }
 
@@ -351,6 +388,52 @@ export class RangosAGMainService {
         });
     }
 
+    emitActionToBD(){
+        this.onInsertedData.next();
+    }
+
+    async setDropdownsFilterTable(dataInserted: any){
+        //esta funcion permite setear automaticamente los dropdowns que están en la pagina del mantenedor
+        this.disabledDropdownPrograma = false;
+        this.disabledDropdownPlanEstudio = false;
+        this.cod_facultad_selected_notform = dataInserted.cod_facultad;
+        this.cod_programa_postgrado_selected_notform = dataInserted.cod_programa;
+        this.cod_plan_estudio_selected_notform = dataInserted.cod_plan_estudio;
+        await this.getProgramasPorFacultadNotForm(false);
+        await this.getPlanesDeEstudiosPorProgramaNotForm(false);
+        await this.getRangosAprobacion(false);
+    }
+
+    async setDropdownsAndTablesForm(){
+        //funcion para setear automaticamente los dropdowns principales del formulario 
+        this.systemService.loading(true);
+        await this.setPrincipalsControls();
+        this.form.setDisabledPrincipalControls();
+        this.systemService.loading(false);
+    }
+
+    async setPrincipalsControls(){
+        if (this.form.modeForm !== 'create') {
+            await Promise.all([
+                this.getProgramasPorFacultad(false,false),
+                this.getPlanesDeEstudiosPorPrograma(false,false),
+            ]);
+        }else{
+            if (this.form.dataExternal.data === true) {
+                console.log("entre a este caso!");
+                
+                this.form.setDataExternal(this.form.dataExternal);
+                this.form.setValuesVarsByDataExternal();
+                await Promise.all([
+                    this.getProgramasPorFacultad(false,false),
+                    this.getPlanesDeEstudiosPorPrograma(false,false),
+                ]);
+                this.form.setControlsFormByDataExternal();
+            }
+        }
+        
+    }
+
     clearAllMessages(){
         this.messagesMantenedor = [];
         this.messagesFormulario = [];
@@ -386,64 +469,10 @@ export class RangosAGMainService {
         this.showMessagesSinResultados(key, 'certif')
     }
 
-    async setDropdownsFilterTable(){
-        this.disabledDropdownPrograma = false;
-        this.disabledDropdownPlanEstudio = false;
-        this.cod_facultad_selected_notform = this.form.cod_facultad_selected_postgrado;
-        this.cod_programa_postgrado_selected_notform = this.form.cod_programa_postgrado_selected;
-        this.cod_plan_estudio_selected_notform = this.form.cod_planestudio_selected;
-        await this.getProgramasPorFacultadNotForm(false);
-        await this.getPlanesDeEstudiosPorProgramaNotForm(false);
-    }
-
-    resetWhenChangedDropdownFacultadNotForm(){
-        this.showTable = false
-        this.disabledDropdownPlanEstudio = true;
-        this.disabledDropdownPrograma = true;
-        this.cod_programa_postgrado_selected_notform = 0;
-        this.cod_plan_estudio_selected_notform = 0;
-    }
-
-    resetWhenChangedDropdownProgramaNotForm(){
-        this.showTable = false
-        this.disabledDropdownPlanEstudio = true;
-        this.cod_plan_estudio_selected_notform = 0;
-    }
-
-    resetArraysWhenChangedDropdownPrograma(){
-        this.planes = [];
-    }
-
-    resetArraysWhenChangedDropdownFacultad(){
-        this.programas_postgrado = [];
-        this.planes = [];
-    }
-
-    resetDropdownsFilterTable(){
-        this.disabledDropdownPrograma = true
-        this.disabledDropdownPlanEstudio = true
-        this.cod_programa_postgrado_selected_notform = 0;
-        this.cod_plan_estudio_selected_notform = 0;
-        this.programas_postgrado_notform = [];
-        this.planes_notform = [];
-        this.cod_facultad_selected_notform = 0;
-        this.showTable = false
-    }
-
-    async setDropdowns(){
-        this.systemService.loading(true);
-        let dataDropdowns = {
-            cod_facultad_selected_notform: this.cod_facultad_selected_notform,
-            cod_programa_postgrado_selected_notform: this.cod_programa_postgrado_selected_notform,
-            cod_plan_estudio_selected_notform: this.cod_plan_estudio_selected_notform,
-        }
-        await this.form.setDropdownsAndVars(dataDropdowns);
-        await Promise.all([
-            this.getProgramasPorFacultad(false,false),
-            this.getPlanesDeEstudiosPorPrograma(false,false),
-        ]);
-        this.form.disableDropdowns();
-        this.systemService.loading(false);
+    setVarsNotFormByDataExternal(dataExternal: DataExternal){
+        this.cod_facultad_selected_notform = dataExternal.cod_facultad!;
+        this.cod_programa_postgrado_selected_notform = dataExternal.cod_programa!;
+        this.cod_plan_estudio_selected_notform = dataExternal.cod_plan_estudio!;
     }
 
 }

@@ -90,6 +90,8 @@ export class AgregarAsignaturaMainService {
     }
 
     reset(){
+        this.files.resetLocalFiles();
+        this.form.resetForm();
         this.programas = [];
         this.planes = [];
         this.form.loadedProgramas = false;
@@ -137,6 +139,10 @@ export class AgregarAsignaturaMainService {
 
     resetArraysWhenChangedDropdownPrograma(){
         this.planes = [];
+    }
+
+    resetFiles(){
+        this.files.resetLocalFiles();
     }
 
     async insertForm(){

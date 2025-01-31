@@ -31,7 +31,6 @@ export class TiposProgramasMainService {
 
     //MODAL
     dialogForm: boolean = false
-    showFormCatTP: boolean = false
 
     constructor(
         private backend: BackendTiposProgramasService,
@@ -133,12 +132,20 @@ export class TiposProgramasMainService {
                 Cod_tipoPrograma: this.tipoProg.Cod_tipoPrograma
             }
             const response = await this.backend.updateTipoPrograma(params,this.namesCrud);
-            if ( response && response.dataWasUpdated ) {
-                this.messageService.add({
-                    key: 'main',
-                    severity: 'success',
-                    detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
-                });
+            if ( response && response.dataWasUpdated && response.dataWasUpdated !== 0 ) {
+                if (response.dataWasUpdated === 1) {
+                    this.messageService.add({
+                        key: 'main',
+                        severity: 'success',
+                        detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
+                    });
+                }else{
+                    this.messageService.add({
+                        key: 'main',
+                        severity: 'info',
+                        detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',false,false)
+                    });
+                }
             }
         }catch (error) {
             console.log(error);

@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 import { FormMencionesService } from 'src/app/project/services/plan-de-estudio/menciones/form.service';
 import { MencionesMainService } from 'src/app/project/services/plan-de-estudio/menciones/main.service';
@@ -14,7 +15,7 @@ import { FacultadesMainService } from 'src/app/project/services/programas/facult
 })
 export class FormMencionesComponent {
 
-	@Input() externalData: any = { data: false };
+	@Input() dataExternal: DataExternal = { data: false };
 	@Input() from!: 'mantenedor' | 'external-form' ;
 	@Output() formWasClosed = new EventEmitter<boolean>();
 	private subscription: Subscription = new Subscription();
@@ -28,15 +29,13 @@ export class FormMencionesComponent {
 
 	async ngOnInit() {
 		this.subscription.add(this.form.fbForm.statusChanges.subscribe(status => { this.form.stateForm = status as StateValidatorForm }));
-		this.externalData.data ? await this.setFormByExternalData() : this.initForm();
+		this.dataExternal.data ? await this.setFormByExternalData() : this.initForm();
 		this.form.openedFrom = this.from
 	}
 
 	async ngOnChanges(changes: SimpleChanges) {
-		if ( changes['externalData'] && changes['externalData'].currentValue.data && changes['externalData'].currentValue.show) {
-			await this.setFormByExternalData()
-		}else{
-			await this.initForm()
+		if ( changes['dataExternal'] && changes['dataExternal'].currentValue.data ) {
+			this.form.setDataExternal(this.dataExternal);
 		}
 	}
 
@@ -47,19 +46,18 @@ export class FormMencionesComponent {
 	}
 
 	async setFormByExternalData(){
-		this.form.setValuesVarsByExternalData(this.externalData);
-		this.main.cod_plan_estudio_selected_notform = this.externalData.cod_plan_estudio;
+		this.form.setDataExternal(this.dataExternal);
+		this.form.setValuesVarsByDataExternal();
 		await Promise.all([
 			this.mainFacultad.getFacultades(false),
 			this.main.getProgramasPorFacultad(false),
 			this.main.getPlanesDeEstudiosPorPrograma(false),
 		]);
-		this.form.setControlsFormByExternalData(this.externalData);
-
 	}
 
 	async initForm(){
 		await this.mainFacultad.getFacultades(false);
+		this.form.setDataExternal(this.dataExternal);
 	}
 
 	async submit(){

@@ -1,10 +1,11 @@
 export interface Articulacion {
+    cod_facultad?: number,
+    cod_programa?: number,
+    cod_plan_estudio?: number,
     cod_articulacion?: number,
     asignatura_postgrado?: AsignaturaPostgrado,
-    cod_programa_postgrado?: number,
     descripcion_programa_postgrado?: string,
     rexe_programa_postgrado?: string,
-    cod_plan_estudio?: number,
     rexe_plan_estudio?: string,
     asignaturas_pregrado?: AsignaturaPregrado[]
     nombre_plan_estudio_completo?: string,

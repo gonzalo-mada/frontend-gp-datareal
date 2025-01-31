@@ -13,7 +13,7 @@ import { FacultadesMainService } from 'src/app/project/services/programas/facult
   styles: [
   ]
 })
-export class FormArticulacionesComponent implements OnInit, OnChanges, OnDestroy  {
+export class FormArticulacionesComponent implements OnInit, OnDestroy  {
 
 	@Input() dataExternal: DataExternal = { data: false };
 	@Output() formWasClosed = new EventEmitter<boolean>();
@@ -31,37 +31,27 @@ export class FormArticulacionesComponent implements OnInit, OnChanges, OnDestroy
 		this.dataExternal.data ? await this.setFormByExternalData() : this.initForm();
 	}
 
-	async ngOnChanges(changes: SimpleChanges) {
-		// console.log("changes['dataExternal'] form-articulaciones",changes['dataExternal'] );
-		// if ( changes['dataExternal'] && changes['dataExternal'].currentValue.data && changes['dataExternal'].currentValue.show) {
-		// 	console.log("onchanges paso 1");
-		// 	await this.setFormByExternalData()
-		// }
-	}
-
 	ngOnDestroy(): void {
-		this.main.showTable = false
+		this.main.showTable = false;
 		this.subscription.unsubscribe();
 	}
 
 	async setFormByExternalData(){
-		console.log("ENTRE A setFormByExternalData DE FORM ARTICULACIONES");
-		
-		this.form.setValuesVarsByDataExternal(this.dataExternal);
-		this.main.cod_plan_estudio_selected_notform = this.dataExternal.cod_plan_estudio!;
+		this.form.setDataExternal(this.dataExternal);
+		this.form.setValuesVarsByDataExternal();
+		// this.main.cod_plan_estudio_selected_notform = this.dataExternal.cod_plan_estudio!;
 		await Promise.all([
-		this.mainFacultad.getFacultades(false),
-		this.main.getProgramasPostgradoPorFacultad(false),
-		this.main.getPlanesDeEstudiosPorPrograma(false),
+			this.mainFacultad.getFacultades(false),
+			this.main.getProgramasPostgradoPorFacultad(false),
+			this.main.getPlanesDeEstudiosPorPrograma(false),
 		]);
 		await this.main.getAsignaturasPorPlanDeEstudio(false)
-		this.form.setControlsFormByAgregarPE(this.dataExternal);    
-		this.main.wasFilteredTable = true;
+		// this.form.setControlsFormByDataExternal();    
 	}
 
 	async initForm(){
-		console.log("ENTRE A initForm DE FORM ARTICULACIONES");
 		await this.mainFacultad.getFacultades(false);
+		this.form.setDataExternal(this.dataExternal);
 	}
 
 	async submit(){
@@ -104,8 +94,6 @@ export class FormArticulacionesComponent implements OnInit, OnChanges, OnDestroy
 	}
 
 	async changeProgramaPregrado(event:any){
-		console.log("event changeProgramaPregrado", event);
-		
 		this.main.resetArraysWhenChangedDropdownProgramaPregrado();
 		this.form.resetControlsWhenChangedDropdownProgramaPregrado();
 		this.form.resetArrowsColorsWhenChangedDropdownAsignaturasPregrado();
@@ -117,13 +105,11 @@ export class FormArticulacionesComponent implements OnInit, OnChanges, OnDestroy
 	}
 
 	changeAsignaturasPregrado(event: any){
-		console.log("event changeAsignaturasPregrado",event);
 		this.table.pushSelectedAsignaturaPregrado(event.itemValue)
 		this.form.setAsignaturaArticuladas(this.table.selectedAsignaturaPregrado);
 	}
 
 	selectAsignaturaPostgrado(event: any){
-		console.log("event selectAsignaturaPostgrado",event);
 		this.form.setAsignaturaPostgrado(event);
 	}
 

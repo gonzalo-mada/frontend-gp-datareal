@@ -10,27 +10,29 @@ import { CategoriasTpMainService } from 'src/app/project/services/programas/cate
 })
 export class CategoriasTpComponent implements OnInit, OnDestroy {
 
-  private subscription: Subscription = new Subscription();
+	private subscription: Subscription = new Subscription();
 
-  constructor(
-    private menuButtonsTableService: MenuButtonsTableService,
-    public main: CategoriasTpMainService,
-  ){}
+	constructor(
+		private menuButtonsTableService: MenuButtonsTableService,
+		public main: CategoriasTpMainService,
+	){}
 
-  ngOnInit(): void {
-    this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => {
-      switch (action) {
-        case 'agregar': this.main.setModeCrud('create');break;
-        case 'eliminar': this.main.setModeCrud('delete-selected');break;
-        case 'historial': this.main.setModeCrud('historial');break;
-      } 
-    }));
-    this.main.setOrigen('categoria_tp');
-  }
+	ngOnInit(): void {
+		this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => {
+		switch (action) {
+			case 'agregar': this.main.setModeCrud('create');break;
+			case 'eliminar': this.main.setModeCrud('delete-selected');break;
+			case 'historial': this.main.setModeCrud('historial');break;
+		} 
+		}));
+		this.main.setOrigen('categoria_tp');
+		this.main.setNeedUpdateHistorial(true);
+	}
 
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
-    this.main.reset();
-  }
+	ngOnDestroy(): void {
+		this.subscription.unsubscribe();
+		this.main.reset();
+		this.main.setNeedUpdateHistorial(false);
+	}
 
 }

@@ -11,6 +11,7 @@ import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.ut
 import { ConfirmationService, Message } from 'primeng/api';
 import { TableMencionesService } from './table.service';
 import { LoadinggpService } from '../../components/loadinggp.service';
+import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 
 @Injectable({
   providedIn: 'root'
@@ -86,10 +87,58 @@ export class MencionesMainService {
         }
     }
 
-    reset(){
+    async reset(){
         this.files.resetLocalFiles();
         this.form.resetForm();
         this.table.resetSelectedRows();
+        this.clearAllMessages();
+        this.resetArraysData();
+    }
+
+    resetDropdownsFilterTable(){
+        this.disabledDropdownPrograma = true
+        this.disabledDropdownPlanEstudio = true
+        this.cod_facultad_selected_notform = 0;
+        this.cod_programa_postgrado_selected_notform = 0;
+        this.cod_plan_estudio_selected_notform = 0;
+        this.programas_postgrado_notform = [];
+        this.planes_notform = [];
+        this.showTable = false
+    }
+
+    resetArraysData(){
+        this.programas = [];
+        this.planes = [];
+        this.asignaturas = [];
+    }
+
+    resetArraysWhenChangedDropdownFacultad(){
+        this.programas = [];
+        this.planes = [];
+        this.asignaturas = [];
+    }
+
+    resetArraysWhenChangedDropdownPrograma(){
+        this.planes = [];
+        this.asignaturas = [];
+    }
+
+    resetArraysWhenChangedDropdownPlanEstudio(){
+        this.asignaturas = [];
+    }
+
+    resetWhenChangedDropdownFacultadNotForm(){
+        this.showTable = false
+        this.disabledDropdownPlanEstudio = true;
+        this.disabledDropdownPrograma = true;
+        this.cod_programa_postgrado_selected_notform = 0;
+        this.cod_plan_estudio_selected_notform = 0;
+    }
+
+    resetWhenChangedDropdownProgramaNotForm(){
+        this.showTable = false
+        this.disabledDropdownPlanEstudio = true;
+        this.cod_plan_estudio_selected_notform = 0;
     }
 
     emitResetExpandedRows(){
@@ -224,7 +273,8 @@ export class MencionesMainService {
     }
 
     async getMencionesPorPlanDeEstudio(showCountTableValues: boolean = true, needShowLoading = true): Promise<Mencion[]> {
-        let params = { cod_plan_estudio: this.cod_plan_estudio_selected_notform }
+        let valuesPrincipalControls = {cod_facultad: this.cod_facultad_selected_notform, cod_programa: this.cod_programa_postgrado_selected_notform, cod_plan_estudio: this.cod_plan_estudio_selected_notform}
+        let params = { cod_plan_estudio: this.cod_plan_estudio_selected_notform, valuesPrincipalControls }
         this.menciones = await this.backend.getMencionesPorPlanDeEstudio(params, needShowLoading);
         this.menciones.length !== 0 ? (this.showTable = true , this.clearMessagesSinResultados('m')) : (this.showTable = false , this.showMessageSinResultados('m'))
         if (showCountTableValues) this.countTableValues();
@@ -233,9 +283,9 @@ export class MencionesMainService {
     //FIN FUNCIONES PARA PAGINA PRINCIPAL MANTENEDORES
             
     async createForm(){
+        await this.reset();
         await this.files.setContextUploader('create','servicio','menciones');
-        this.table.emitResetExpandedRows();
-        this.form.resetForm();
+        await this.setPrincipalsControls();
         this.dialogForm = true;
     }
 
@@ -243,19 +293,18 @@ export class MencionesMainService {
         await this.files.setContextUploader('show','servicio','menciones');
         this.files.resetLocalFiles();
         this.form.resetForm();
-        await this.setDropdowns();
         this.form.setForm('show',this.mencion);
+        await this.setDropdownsAndTablesForm();
         this.dialogForm = true;
         await this.files.loadDocsWithBinary(this.mencion);
     }
 
     async editForm(){
         await this.files.setContextUploader('edit','servicio','menciones');
-        this.table.emitResetExpandedRows();
         this.files.resetLocalFiles();
         this.form.resetForm();
-        await this.setDropdowns();
         this.form.setForm('edit',this.mencion);
+        await this.setDropdownsAndTablesForm();
         this.dialogForm = true;
         await this.files.loadDocsWithBinary(this.mencion);
     }
@@ -274,20 +323,18 @@ export class MencionesMainService {
                     this.messageService.add({
                         key: 'main',
                         severity: 'success',
-                        detail: generateMessage(this.namesCrud,response.dataInserted,'creado',true,false)
+                        detail: generateMessage(this.namesCrud,response.dataInserted.mencion,'creado',true,false)
                     });
                     this.emitActionToBD();
+                    this.setDropdownsFilterTable(response.dataInserted)
                 }
             }
         } catch (error) {
             console.log(error);
         }finally{
             this.dialogForm = false;
-            if ( !this.wasFilteredTable) await this.setDropdownsFilterTable();
-            this.getMencionesPorPlanDeEstudio(false);
             this.reset();
         }
-
     }
 
     async updateForm(){
@@ -401,14 +448,51 @@ export class MencionesMainService {
         this.onActionToBD.next();
     }
 
-    async setDropdownsFilterTable(){
+    async setDropdownsFilterTable(dataInserted: any){
+        //esta funcion permite setear automaticamente los dropdowns que están en la pagina del mantenedor
         this.disabledDropdownPrograma = false;
         this.disabledDropdownPlanEstudio = false;
-        this.cod_facultad_selected_notform = this.form.cod_facultad_selected;
-        this.cod_programa_postgrado_selected_notform = this.form.cod_programa_selected;
-        this.cod_plan_estudio_selected_notform = this.form.cod_plan_estudio;
+        this.cod_facultad_selected_notform = dataInserted.cod_facultad;
+        this.cod_programa_postgrado_selected_notform = dataInserted.cod_programa;
+        this.cod_plan_estudio_selected_notform = dataInserted.cod_plan_estudio;
         await this.getProgramasPorFacultadNotForm(false);
         await this.getPlanesDeEstudiosPorProgramaNotForm(false);
+        await this.getMencionesPorPlanDeEstudio(false);
+    }
+
+    async setDropdownsAndTablesForm(){
+        //funcion para setear automaticamente los dropdowns principales del formulario 
+        this.systemService.loading(true);
+        await this.setPrincipalsControls();
+        this.form.setDisabledPrincipalControls();
+        this.systemService.loading(false);
+    }
+
+    async setPrincipalsControls(){
+        if (this.form.modeForm !== 'create') {
+            await Promise.all([
+                this.getProgramasPorFacultad(false,false),
+                this.getPlanesDeEstudiosPorPrograma(false,false),
+                this.getAsignaturasPorPlanDeEstudio(false,false),
+            ]);
+        }else{
+            if (this.form.dataExternal.data === true) {
+                this.form.setDataExternal(this.form.dataExternal);
+                this.form.setValuesVarsByDataExternal();
+                await Promise.all([
+                    this.getProgramasPorFacultad(false,false),
+                    this.getPlanesDeEstudiosPorPrograma(false,false),
+                    this.getAsignaturasPorPlanDeEstudio(false,false),
+                ]);
+                this.form.setControlsFormByDataExternal();
+            }
+        }
+        
+    }
+
+    clearAllMessages(){
+        this.messagesMantenedor = [];
+        this.messagesFormulario = [];
     }
 
     clearMessagesSinResultados(key: 'm' | 'f'){
@@ -437,61 +521,10 @@ export class MencionesMainService {
         this.showMessagesSinResultados(key, 'plan')
     }
 
-    resetArraysWhenChangedDropdownFacultad(){
-        this.programas = [];
-        this.planes = [];
-        this.asignaturas = [];
-    }
-
-    resetArraysWhenChangedDropdownPrograma(){
-        this.planes = [];
-        this.asignaturas = [];
-    }
-
-    resetArraysWhenChangedDropdownPlanEstudio(){
-        this.asignaturas = [];
-    }
-
-    resetDropdownsFilterTable(){
-        this.disabledDropdownPrograma = true
-        this.disabledDropdownPlanEstudio = true
-        this.cod_programa_postgrado_selected_notform = 0;
-        this.cod_plan_estudio_selected_notform = 0;
-        this.programas_postgrado_notform = [];
-        this.planes_notform = [];
-        this.cod_facultad_selected_notform = 0;
-        this.showTable = false
-    }
-
-    resetWhenChangedDropdownFacultadNotForm(){
-        this.showTable = false
-        this.disabledDropdownPlanEstudio = true;
-        this.disabledDropdownPrograma = true;
-        this.cod_programa_postgrado_selected_notform = 0;
-        this.cod_plan_estudio_selected_notform = 0;
-    }
-
-    resetWhenChangedDropdownProgramaNotForm(){
-        this.showTable = false
-        this.disabledDropdownPlanEstudio = true;
-        this.cod_plan_estudio_selected_notform = 0;
-    }
-
-    async setDropdowns(){
-        this.systemService.loading(true);
-        let dataDropdowns = {
-            cod_facultad_selected_notform: this.cod_facultad_selected_notform,
-            cod_programa_postgrado_selected_notform: this.cod_programa_postgrado_selected_notform,
-            cod_plan_estudio_selected_notform: this.cod_plan_estudio_selected_notform,
-        }
-        await this.form.setDropdownsAndVars(dataDropdowns);
-        await Promise.all([
-            this.getProgramasPorFacultad(false,false),
-            this.getPlanesDeEstudiosPorPrograma(false,false),
-            this.getAsignaturasPorPlanDeEstudio(false,false),
-        ]);
-        this.form.disableDropdowns();
-        this.systemService.loading(false);
+    setVarsNotFormByDataExternal(dataExternal: DataExternal){
+        this.cod_facultad_selected_notform = dataExternal.cod_facultad!;
+        this.cod_programa_postgrado_selected_notform = dataExternal.cod_programa!;
+        this.cod_plan_estudio_selected_notform = dataExternal.cod_plan_estudio!;
     }
 
 }
