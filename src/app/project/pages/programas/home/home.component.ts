@@ -27,13 +27,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 	private subscription: Subscription = new Subscription();
 
 	async ngOnInit() {
-		await this.mainFacultad.getFacultades(false);
 		this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => {
-		switch (action) {
-			case 'agregar': this.main.setModeCrud('create');break;
-			case 'eliminar': this.main.setModeCrud('delete-selected');break;
-			case 'historial': this.main.setModeCrud('historial');break;
-		} 
+			switch (action) {
+				case 'agregar': this.main.setModeCrud('create');break;
+				case 'eliminar': this.main.setModeCrud('delete-selected');break;
+				case 'historial': this.main.setModeCrud('historial');break;
+			} 
 		}));
 		
 		if (this.main.cod_facultad_selected !== 0) {

@@ -1,0 +1,284 @@
+<app-dialog [dialogWidth]="'85vw'" [(visible)]="main.dialogForm">
+    <div header>
+        <ng-container *ngIf="main.modeForm === 'create' || main.modeForm === 'insert'">
+            <span class="text-xl">Agregar {{ main.namesCrud.singular }}</span>
+        </ng-container>
+        <ng-container *ngIf="main.modeForm === 'edit' || main.modeForm === 'update'">
+            <span class="text-xl">Actualizar {{ main.namesCrud.singular }}</span>
+        </ng-container>
+        <ng-container *ngIf="main.modeForm === 'show'">
+            <span class="text-xl">Visualizar {{ main.namesCrud.singular }}</span>
+        </ng-container>
+    </div>
+
+    <div content>
+        <p-button 
+            label="test" 
+            icon="pi pi-times" 
+            styleClass="p-button-sm p-button-secondary mr-2" 
+            (click)="test()" [text]="true">
+        </p-button>
+        
+        <div class="grid" *ngIf="main.modeForm !== 'show'">
+            <div class="col-12">
+                <app-form-isvalid [valid]="form.fbForm.valid"></app-form-isvalid>
+            </div>
+        </div>
+
+        <div class="mt-2">
+            <p-messages [(value)]="main.messagesFormulario" [enableService]="false" />
+        </div>
+
+        <form [formGroup]="form.fbForm">
+            <div class="formgrid grid">
+
+                <div class="field col-12 {{ from === 'crud_asign' ? 'md:col-4' : 'md:col-3' }} ">
+                    <label><strong>Facultad {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                    
+                    <p-dropdown 
+                        [options]="mainFacultad.facultades"
+                        formControlName="cod_facultad"
+                        optionLabel="Descripcion_facu"
+                        optionValue="Cod_facultad" 
+                        placeholder="Seleccione facultad"
+                        appendTo="body" 
+                        styleClass="w-full p-d-flex p-flex-column" 
+                        (onChange)="changeFacultadPostgrado($event)" 
+                    />
+                </div>
+
+                <div class="field col-12 {{ from === 'crud_asign' ? 'md:col-4' : 'md:col-3' }}">
+                    <label><strong>Programas {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                    
+                    <p-dropdown 
+                        [options]="main.programas_postgrado"
+                        formControlName="cod_programa"
+                        optionLabel="Nombre_programa_completo"
+                        optionValue="Cod_Programa" 
+                        placeholder="Seleccione programa de postgrado"
+                        appendTo="body" 
+                        styleClass="w-full p-d-flex p-flex-column" 
+                        (onChange)="changeProgramaPostgrado($event)" 
+                    />
+                </div>
+
+                <div class="field col-12 {{ from === 'crud_asign' ? 'md:col-4' : 'md:col-3' }}">
+                    <label><strong>Plan de estudio {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                    <p-dropdown 
+                        [options]="main.planes"
+                        formControlName="cod_plan_estudio"
+                        optionLabel="nombre_plan_estudio_completo"
+                        optionValue="cod_plan_estudio" 
+                        placeholder="Seleccione plan de estudio"
+                        appendTo="body" 
+                        styleClass="w-full p-d-flex p-flex-column" 
+                        (onChange)="changePlanDeEstudio($event)" 
+                    />
+                </div>
+
+                <div class="field col-12 md:col-3">
+                    <label><strong>Paralela / Secuencial {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                    <p-dropdown 
+                        [options]="main.opt_secuencial_paralela"
+                        formControlName="cod_paralela_secuencial"
+                        optionLabel="label"
+                        optionValue="value" 
+                        placeholder="Seleccione paralela o secuencial"
+                        appendTo="body" 
+                        styleClass="w-full p-d-flex p-flex-column" 
+                        (onChange)="changeParalelaSecuencial($event)" 
+                    />
+                </div>
+
+            </div>
+
+            <div class="formgrid grid">
+                <div class="field col-12 md:col-6" *ngIf="form.showTableAsignatura">
+                    <!-- <div class="flex flex-column sm:flex-row align-items-center justify-content-center border-round" *ngIf="main.modeForm !== 'show' ">
+                        <div class="w-full sm:w-auto">
+                            <p-messages  [(value)]="form.messages" [enableService]="false" [escape]="false" />
+                        </div>
+                    </div> -->
+                    <label><strong>{{ main.modeForm === 'show' ? 'Asignaturas seleccionadas' : 'Seleccione asignatura *'}}</strong></label>
+                    <p-treeTable
+                        #dt1
+                        [value]="main.asignaturas_grouped"
+                        [columns]="table.cols_asignatura"
+                        [scrollable]="true"
+                        [(selectionKeys)]="table.selectedAsignaturaRows"
+                        [rowHover]="true"
+                        [globalFilterFields]="table.globalFiltros"
+                        scrollHeight="350px"
+                        selectionMode="checkbox"
+                        dataKey="key"
+                        (selectionKeysChange)="selectAsignatura($event)"
+                    >
+                        <ng-template pTemplate="caption">
+                            <div class="flex flex-wrap flex-column md:flex-row justify-content-between align-items-center">
+                                <div class="flex flex-row align-items-center">
+                                    <p-button
+                                        *ngIf="form.fbForm.get('asignaturas')?.value.length !== 0 && main.modeForm !== 'show'"
+                                        label="Deseleccionar ({{ form.fbForm.get('asignaturas')?.value.length }})"
+                                        icon="pi pi-times"
+                                        styleClass="p-button-danger p-button-outlined"
+                                        (click)=" clearTableAsignatura(); dt1.toggleNodesWithCheckbox($event, false)"
+                                    ></p-button>
+                                    <div class="flex m-1">
+                                        <span class="p-input-icon-left">
+                                        <i class="pi pi-search"></i>
+                                        <input #inputAsignatura pInputText type="text" placeholder="Buscar..." (input)="dt1.filterGlobal($any($event.target).value, 'contains')" />
+                                        </span>
+                                    </div>
+                                    <p-button 
+                                        styleClass="p-button-text p-button-sm " 
+                                        icon="pi pi-filter-slash" 
+                                        pTooltip="Limpiar filtros" 
+                                        (click)="inputAsignatura.value = ''; dt1.filterGlobal('', 'contains') ">
+                                    </p-button>
+                                </div>
+                                <div class="flex estado-badge-doc icon-leyenda" pTooltip="Leyenda de iconos" tooltipPosition="bottom">
+                                    <span class="icon-badge"><i class="pi pi-chevron-right"></i></span>
+                                    <span class="mx-1 font-light">ver temas</span>
+                                </div>
+                            </div>
+                        </ng-template>
+
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th style="width: 2rem"></th>
+                                <th style="width: 2rem"></th>
+                                <ng-container *ngFor="let col of columns">
+                                    <th [style.width]="col.width">
+                                        {{ col.header }}
+                                      </th>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+                            <tr [ttRow]="rowNode" [ttSelectableRow]="rowNode">
+                                <ng-container *ngFor="let col of columns; let i = index">
+                                    <td [style.width]="col.width" [ngClass]="{ 'text-center': col.text_center }">
+                                        <p-treeTableToggler [rowNode]="rowNode" *ngIf="i === 0" />
+                                        <p-treeTableCheckbox [disabled]="main.modeForm === 'show'" [value]="rowNode" *ngIf="i === 0" />
+                                        <span class="truncate" style="font-size: 0.8rem;">
+                                            {{ rowData[col.field] }}
+                                        </span>
+                                    </td>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td [attr.colspan]="3">Sin registros</td>
+                            </tr>
+                        </ng-template>
+
+                    </p-treeTable>
+                </div>
+                <div class="field col-12 md:col-6" *ngIf="form.showTableParalelaSecuencial">
+                    <!-- <div class="flex flex-column sm:flex-row align-items-center justify-content-center border-round" *ngIf="main.modeForm !== 'show' ">
+                        <div class="w-full sm:w-auto">
+                            <p-messages  [(value)]="form.messages" [enableService]="false" [escape]="false" />
+                        </div>
+                    </div> -->
+                    <ng-container *ngIf="form.fbForm.get('cod_paralela_secuencial')!.value === 0 else secuencialLabel">
+                        <label><strong>{{ main.modeForm === 'show' ? 'Asignaturas paralelas seleccionadas' : 'Seleccione asignaturas paralelas*'}}</strong></label>
+                    </ng-container>
+                    <ng-template #secuencialLabel>
+                        <label><strong>{{ main.modeForm === 'show' ? 'Asignaturas secuenciales seleccionadas' : 'Seleccione asignaturas secuenciales*'}}</strong></label>
+                    </ng-template>
+                    <p-treeTable
+                        #dt2
+                        [value]="main.asign_sec_par"
+                        [columns]="table.cols_asignatura"
+                        [scrollable]="true"
+                        [(selectionKeys)]="table.selectedParalelaSecuencialRows"
+                        [rowHover]="true"
+                        [globalFilterFields]="table.globalFiltros"
+                        scrollHeight="350px"
+                        selectionMode="checkbox"
+                        dataKey="key"
+                        (selectionKeysChange)="selectParalelaSecuencial($event)"
+                    >
+                        <ng-template pTemplate="caption">
+                            <div class="flex flex-wrap flex-column md:flex-row justify-content-between align-items-center">
+                                <div class="flex flex-row align-items-center">
+                                    <p-button
+                                        *ngIf="form.fbForm.get('paralelasecuencial')?.value.length !== 0 && main.modeForm !== 'show'"
+                                        label="Deseleccionar ({{ form.fbForm.get('paralelasecuencial')?.value.length }})"
+                                        icon="pi pi-times"
+                                        styleClass="p-button-danger p-button-outlined"
+                                        (click)=" clearTableParalelaSecuencial(); dt2.toggleNodesWithCheckbox($event, false)"
+                                    ></p-button>
+                                    <div class="flex m-1">
+                                        <span class="p-input-icon-left">
+                                        <i class="pi pi-search"></i>
+                                        <input #inputAsignatura pInputText type="text" placeholder="Buscar..." (input)="dt2.filterGlobal($any($event.target).value, 'contains')" />
+                                        </span>
+                                    </div>
+                                    <p-button 
+                                        styleClass="p-button-text p-button-sm " 
+                                        icon="pi pi-filter-slash" 
+                                        pTooltip="Limpiar filtros" 
+                                        (click)="inputAsignatura.value = ''; dt2.filterGlobal('', 'contains') ">
+                                    </p-button>
+                                </div>
+                                <div class="flex estado-badge-doc icon-leyenda" pTooltip="Leyenda de iconos" tooltipPosition="bottom">
+                                    <span class="icon-badge"><i class="pi pi-chevron-right"></i></span>
+                                    <span class="mx-1 font-light">ver temas</span>
+                                </div>
+                            </div>
+                        </ng-template>
+
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th style="width: 2rem"></th>
+                                <th style="width: 2rem"></th>
+                                <ng-container *ngFor="let col of columns">
+                                    <th [style.width]="col.width">
+                                        {{ col.header }}
+                                      </th>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+                            <tr [ttRow]="rowNode" [ttSelectableRow]="rowNode">
+                                <ng-container *ngFor="let col of columns; let i = index">
+                                    <td [style.width]="col.width" [ngClass]="{ 'text-center': col.text_center }">
+                                        <p-treeTableToggler [rowNode]="rowNode" *ngIf="i === 0" />
+                                        <p-treeTableCheckbox [disabled]="main.modeForm === 'show'" [value]="rowNode" *ngIf="i === 0" />
+                                        <span class="truncate" style="font-size: 0.8rem;">
+                                            {{ rowData[col.field] }}
+                                        </span>
+                                    </td>
+                                </ng-container>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td [attr.colspan]="3">Sin registros</td>
+                            </tr>
+                        </ng-template>
+
+                    </p-treeTable>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div footer>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" 
+            (click)="main.dialogForm = false" [text]="true">
+        </p-button>
+        
+        <p-button *ngIf="main.modeForm === 'create' || main.modeForm === 'edit'"
+            [label]="main.modeForm === 'edit' ? 'Actualizar' : 'Agregar'" icon="pi pi-check"
+            styleClass="mr-2 p-button-success p-button-sm" [disabled]="form.stateForm === 'INVALID'"
+            (click)="submit()">
+        </p-button>
+    </div>
+</app-dialog>

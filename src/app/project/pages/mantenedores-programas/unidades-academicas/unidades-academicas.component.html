@@ -49,7 +49,9 @@
                                                 placeholder="Seleccione facultad"
                                                 appendTo="body" 
                                                 class="flex-grow-1"
-                                                formControlName="Cod_facultad">
+                                                formControlName="Cod_facultad"
+                                                (onChange)="changeFacultad($event)"
+                                                >
                                             </p-dropdown>
                                         </div>
                                         <div class="flex align-items-center">

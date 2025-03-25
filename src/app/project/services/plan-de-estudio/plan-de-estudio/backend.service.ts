@@ -102,6 +102,23 @@ export class BackendPlanesDeEstudiosService {
         }
     }
 
+    async getAsignaturasPCPorPlanDeEstudio(params: any,  loading = true) {
+        try {
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('asign-plancomun/getAsignaturasPorPlanDeEstudio', loading),
+                params
+            );
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(
+                error, 
+                {
+                    notifyMethod: 'alert',
+                   message: 'Hubo un error al obtener asignaturas de plan común. Intente nuevamente.'
+                }
+            );
+        }
+    }
+
     async getCertifIntermediasPorPlanDeEstudio(params: any,  loading = true) {
         try {
             return await this.invoker.httpInvoke(
@@ -122,7 +139,7 @@ export class BackendPlanesDeEstudiosService {
     async getAsignaturasPorPlanDeEstudio(params: any,  loading = true) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('asignaturas/getAsignaturasSimplificatedPorPlanDeEstudio', loading),
+                this.serviceUtils.generateServiceMongo('asignaturas/getAsignaturasMergedPorPlanDeEstudio', loading),
                 params
             );
         } catch (error: any) {
@@ -153,10 +170,10 @@ export class BackendPlanesDeEstudiosService {
         }
     }
 
-    async getMencionesPorPlanDeEstudio(params: any,  loading = true) {
+    async getMencionesConAsignaturasPorPlanDeEstudio(params: any,  loading = true) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('menciones/getMencionesPorPlanDeEstudio', loading),
+                this.serviceUtils.generateServiceMongo('menciones/getMencionesConAsignaturasPorPlanDeEstudio', loading),
                 params
             );
         } catch (error: any) {

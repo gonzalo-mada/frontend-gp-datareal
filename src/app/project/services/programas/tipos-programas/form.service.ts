@@ -20,7 +20,8 @@ export class FormTiposProgramasService {
         this.fbForm = this.fb.group({
             Descripcion_tp: ['', [Validators.required , GPValidator.regexPattern('num_y_letras')]],
             Categoria: this.fb.group({
-              Cod_CategoriaTP: ['', [Validators.required , GPValidator.notMinusOneCategory()]]
+              Cod_CategoriaTP: ['', [Validators.required]],
+              Descripcion_categoria: [''],
             }),
             aux: ['']
         });
@@ -31,7 +32,8 @@ export class FormTiposProgramasService {
         this.fbForm.reset({
             Descripcion_tp: '',
             Categoria: {
-                Cod_CategoriaTP: ''
+                Cod_CategoriaTP: '',
+                Descripcion_categoria: '',
             },
             aux: ''
         });

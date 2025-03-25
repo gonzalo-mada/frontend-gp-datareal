@@ -2,13 +2,12 @@
     <ng-template pTemplate>
         <div class="flex flex-row flex-wrap">
             <div class="flex align-items-center justify-content-center">
-                <span>
-                    <i class="pi pi-chevron-right" style="color:#6c757d"></i> 
-                    <!-- <i class="pi pi-eye" style="color:#6c757d"></i>  -->
+                <span class="icon-badge">
+                    <i class="pi pi-chevron-right"></i> 
                 </span>
             </div>
             <div class="flex align-items-center justify-content-center">
-                <span class="mx-1" style="font-weight: 100;">Permite ver asignaturas articuladas</span>
+                <span class="mx-1" style="font-weight: 100;">Ver asignaturas</span>
             </div>
         </div>
     </ng-template>
@@ -19,14 +18,14 @@
     [paginator]="true" 
     [rowsPerPageOptions]="[10,25,50]" 
     [showCurrentPageReport]="true"
-    currentPageReportTemplate="{first} hasta {last} de {totalRecords} planes de estudios." 
+    currentPageReportTemplate="{first} hasta {last} de {totalRecords} menciones." 
     selectionMode="multiple"
     [rowHover]="true" 
     [value]="main.menciones" 
     [columns]="table.cols" 
     [globalFilterFields]="table.globalFiltros"
     [(selection)]="table.selectedRows" 
-    [dataKey]="table.dataKeyTable" 
+    [dataKey]="from !== 'crud_asign' ? 'cod_mencion_pe' : 'cod_mencion_asignatura'" 
     (selectionChange)="table.setSelectedRows()"
     [expandedRowKeys]="expandedRows"
     rowExpandMode="multiple" 
@@ -56,13 +55,14 @@
                 </div>
             </div>
 
-            <div class="hidden md:flex align-items-center">
-                <span><i class="pi pi-chevron-right" style="color:#6c757d"></i></span>
-                <span class="mx-1 font-light">Permite ver asignaturas articuladas</span>
+            <div *ngIf="from !== 'crud_asign'" class="hidden md:flex estado-badge-doc icon-leyenda" pTooltip="Leyenda de iconos" tooltipPosition="bottom">
+                <span class="icon-badge"><i class="pi pi-chevron-right"></i></span>
+                <span class="mx-1 font-light">Ver asignaturas</span>
             </div>
                               
             <div class="flex">
-                <p-button 
+                <p-button
+                    *ngIf="from !== 'crud_asign'" 
                     pTooltip="Muestra la leyenda de iconos" 
                     icon="pi pi-question-circle"
                     styleClass="p-button-warning mr-2 md:hidden" 
@@ -73,7 +73,7 @@
                     label="Actualizar" 
                     icon="pi pi-refresh" 
                     styleClass="p-button-info" 
-                    (click)="main.getMencionesPorPlanDeEstudio()">
+                    (click)="getData(true)">
                 </p-button>
             </div>
           </div>
@@ -84,17 +84,12 @@
             <th *ngIf="mode !== 'show'" style="width: 1rem">
                 <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
             </th>
-            <th style="min-width: 1rem"></th>
-            <ng-container *ngFor="let col of table.cols">
-                <ng-container *ngIf="col.field !== 'accion'; else actionsColumn">
-                    <th pSortableColumn="{{col.field}}">
-                        {{col.header}} <p-sortIcon field="{{col.field}}"></p-sortIcon>
-                    </th>
-                </ng-container>
-                <ng-template #actionsColumn>
-                    <th style="min-width: 10rem; ">{{ col.header }}</th>
-                </ng-template>
-            </ng-container>
+            <th *ngIf="from !== 'crud_asign'" style="min-width: 1rem"></th>
+            <th pSortableColumn="nombre_mencion">Nombre <p-sortIcon field="nombre_mencion"></p-sortIcon></th>
+            <th pSortableColumn="descripcion_mencion">Descripción <p-sortIcon field="descripcion_mencion"></p-sortIcon></th>
+            <th *ngIf="from ==='crud_asign'" pSortableColumn="nombre_mencion">Asignatura <p-sortIcon field="nombre_mencion"></p-sortIcon></th>
+            <th *ngIf="from !== 'crud_asign'" pSortableColumn="asignaturas">Núm. de asignaturas <p-sortIcon field="asignaturas"></p-sortIcon></th>
+            <th pSortableColumn="Acciones">Acciones <p-sortIcon field="Acciones"></p-sortIcon></th>
         </tr>
     </ng-template>
 
@@ -103,21 +98,25 @@
             <td *ngIf="mode !== 'show'">
                 <p-tableCheckbox [value]="data"></p-tableCheckbox>
             </td>
-            <td> <p-button type="button" pRipple [pRowToggler]="data" [text]="true" [rounded]="true" [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" /> </td>
+            <td *ngIf="from !=='crud_asign'"> <p-button type="button" pRipple [pRowToggler]="data" [text]="true" [rounded]="true" [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" /> </td>
             <td style="width:25%;">
                 <span> {{data.nombre_mencion}} </span> <br>
                 <span style="font-size: 0.8rem;">
                     <strong>REXE:</strong> {{data.mencion_rexe}} <br>
-                    <strong>ESTADO:</strong> {{data.vigencia ? 'Vigente' : 'No vigente'}}
+                    <strong>ESTADO:</strong> {{data.vigencia ? 'Vigente' : 'No vigente'}} <br>
+                    <strong>FECHA CREACIÓN:</strong> {{data.fecha_creacion}} 
                 </span>
             </td>
             <td style="width:25%;">
                 {{data.descripcion_mencion}}
             </td>
-            <td style="width:25%;">
-                {{data.fecha_creacion}}
+            <td *ngIf="from ==='crud_asign'" style="width:45%;">
+                <span> {{data.asignaturas[0].codigo_externo}} - {{data.asignaturas[0].nombre_asignatura}} </span> <br>
+                <span style="font-size: 0.8rem;">
+                    <strong>TEMA:</strong> {{ data.asignaturas[0].nombre_tema === '' ? '-' : data.asignaturas[0].nombre_tema }} 
+                </span>
             </td>
-            <td style="width:25%;">
+            <td *ngIf="showRowExpandAsignaturas" style="width:25%;">
                 {{data.asignaturas.length === 0 ? 'Pendiente de asignación' : data.asignaturas.length+' asignatura(s)' }} 
             </td>
             <td>
@@ -130,14 +129,13 @@
                         (click)="delete(data)">
                     </p-button>
                     <p-button 
-                        *ngIf="mode !== 'show'"
+                        *ngIf="mode !== 'show' && from !== 'crud_asign'"
                         icon="pi pi-pencil" 
                         styleClass="p-button-sm p-button-warning mr-2"
                         pTooltip="Editar registro" 
                         (click)="edit(data)">
                     </p-button>
                     <p-button 
-                        *ngIf="mode !== 'show'"
                         icon="pi pi-eye" 
                         styleClass="p-button-sm p-button-info mr-2" 
                         pTooltip="Ver registro"
@@ -149,7 +147,7 @@
         </tr>
     </ng-template>
 
-    <ng-template pTemplate="rowexpansion" let-data>
+    <ng-template *ngIf="from !== 'crud_asign'" pTemplate="rowexpansion" let-data>
         <tr>
             <td [attr.colspan]="table.cols.length + 2">
                 <div class="p-3">

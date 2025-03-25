@@ -1,0 +1,447 @@
+<p-overlayPanel #op>
+    <ng-template pTemplate>
+        <p-multiSelect 
+            [options]="table.cols" 
+            [(ngModel)]="table.selectedColumns" 
+            optionLabel="header"
+            selectedItemsLabel="{0} columnas seleccionadas"
+            [displaySelectedLabel]="false"
+            [style]="{'min-width': '10rem', 'max-width': '14rem'}" 
+            placeholder="Filtrar columnas"
+            styleClass="ml-4 mr-4" 
+        />
+    </ng-template>
+</p-overlayPanel>
+<p-overlayPanel #op1>
+    <ng-template pTemplate>
+        <div class="flex flex-row flex-wrap">
+            <div class="flex align-items-center justify-content-center icon-badge">
+                <span *ngIf="colFrozen" class="icon-badge"><i class="fa fa-thumbtack-slash"></i></span>
+                <span *ngIf="!colFrozen" class="icon-badge"><i class="fa fa-thumbtack"></i></span>
+            </div>
+            <div class="flex align-items-center justify-content-center">
+                <span class="ml-1 font-light">{{ colFrozen ? 'Desfijar columna' : 'Fijar columna'}}</span>
+            </div>
+        </div>
+
+    </ng-template>
+</p-overlayPanel>
+<p-overlayPanel #op_asign [style]="{ width: '550px' }" [showCloseIcon]="true" (onShow)="getAsignaturasToOverlay()">
+    <ng-template pTemplate="content">
+        <p-table 
+            [value]="main.op_asign" 
+            [rows]="5" 
+            responsiveLayout="scroll"
+            styleClass="p-datatable-sm"
+        >
+            <ng-template pTemplate="caption">
+                <span *ngIf="mode_asign_op === 'secuenciales'">Asignaturas secuenciales</span>
+                <span *ngIf="mode_asign_op === 'paralelas'">Asignaturas paralelas</span>
+                <span *ngIf="mode_asign_op === 'pre_req'">Prerrequisitos</span>
+                <span *ngIf="mode_asign_op === 'articulaciones'">Articulaciones</span>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Asignaturas ({{main.op_asign.length}}) </th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-asign>
+                <tr>
+                    <td>
+                        <span *ngIf="mode_asign_op === 'articulaciones'" style="font-size: 0.9rem;"> {{asign.descripcion_programa_pregrado}} <br/> </span> 
+                        <span style="font-size: 0.9rem;"> {{asign.nombre_asignatura}} </span> <br>
+                        <span style="font-size: 0.8rem;">
+                            <strong>CÓDIGO:</strong> {{asign.codigo_externo}} <br/>
+                            <strong>TEMA:</strong> {{ asign.nombre_tema === '' ? '-' : asign.nombre_tema }}
+                        </span>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td>Pendiente de asignar</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </ng-template>
+</p-overlayPanel>
+<p-overlayPanel #op_menciones [style]="{ width: '550px' }" [showCloseIcon]="true" (onShow)="getMencionesPorAsignatura()" >
+    <ng-template pTemplate="content">
+        <p-table 
+            [value]="main.menciones_asign" 
+            [rows]="5" 
+            responsiveLayout="scroll"
+            styleClass="p-datatable-sm"
+        >
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Menciones ({{main.menciones_asign.length}}) </th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-mencion>
+                <tr>
+                    <td>
+                        <span style="font-size: 0.9rem;"> {{mencion.nombre_mencion}} </span> <br>
+                        <span style="font-size: 0.8rem;">
+                            <strong>REXE:</strong> {{mencion.mencion_rexe}} <br/>
+                            <strong>FECHA CREACIÓN:</strong> {{mencion.fecha_creacion}}
+                        </span>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td>Pendiente de asignar</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </ng-template>
+</p-overlayPanel>
+<p-overlayPanel #op_temas [style]="{ width: '550px' }" [showCloseIcon]="true" (onShow)="getTemasPorAsignatura()" >
+    <ng-template pTemplate="content">
+        <p-table 
+            [value]="main.temas_asign" 
+            [rows]="5" 
+            responsiveLayout="scroll"
+            styleClass="p-datatable-sm"
+        >
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Temas ({{main.temas_asign.length}}) </th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-tema>
+                <tr>
+                    <td>
+                        <span style="font-size: 0.9rem;"> {{tema.nombre_tema}} </span> <br>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td>Sin temas asociados</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </ng-template>
+</p-overlayPanel>
+
+<p-table 
+    #dt 
+    [rows]="10" 
+    [paginator]="true" 
+    [rowsPerPageOptions]="[10,25,50]" 
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="{first} hasta {last} de {totalRecords} asignaturas." 
+    selectionMode="multiple"
+    [rowHover]="true" 
+    [value]="main.asignaturas" 
+    [columns]="table.selectedColumns"
+    [globalFilterFields]="table.globalFiltros"
+    [(selection)]="table.selectedRows" 
+    [dataKey]="table.dataKeyTable" 
+    [scrollable]="true"
+    (selectionChange)="table.setSelectedRows()"
+    scrollDirection="horizontal"
+    autoLayout="true"
+    [customSort]="true"
+    (sortFunction)="customSortAccreditation($event)"
+    >
+
+    <ng-template pTemplate="caption">
+        <div class="flex flex-wrap flex-column md:flex-row justify-content-between align-items-center">
+            <div class="flex mb-2 md:mb-0">
+              <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)" />
+              </span>
+              <p-button 
+                styleClass="p-button-text ml-2" 
+                icon="pi pi-filter-slash" 
+                pTooltip="Limpiar filtros" 
+                (click)="clear(dt)">
+              </p-button>
+            </div>
+
+            <div class="hidden md:flex flex-row align-items-center estado-badge-doc icon-leyenda" pTooltip="Leyenda de iconos" tooltipPosition="bottom">
+                <span *ngIf="colFrozen" class="icon-badge"><i class="fa fa-thumbtack-slash"></i></span>
+                <span *ngIf="!colFrozen" class="icon-badge"><i class="fa fa-thumbtack"></i></span>
+                <span class="ml-1 font-light">{{ colFrozen ? 'desfijar columna' : 'fijar columna'}}</span>
+            </div>
+                        
+            <div class="flex">
+                <div class="hidden lg:flex flex-row flex-wrap">
+                    <p-multiSelect 
+                        [options]="table.cols" 
+                        [(ngModel)]="table.selectedColumns" 
+                        optionLabel="header"
+                        selectedItemsLabel="{0} columnas seleccionadas"
+                        [displaySelectedLabel]="false"
+                        [style]="{'min-width': '10rem', 'max-width': '14rem'}" 
+                        placeholder="Filtrar columnas"
+                        styleClass="ml-4 mr-4" 
+                    />
+                </div>
+                <p-button 
+                    pTooltip="Muestra la leyenda de iconos" 
+                    icon="pi pi-question-circle"
+                    styleClass="p-button-warning md:hidden" 
+                    (click)="op1.toggle($event)">
+                </p-button> 
+                <p-button 
+                    pTooltip="Muestra las configuraciones de la tabla" 
+                    icon="pi pi-cog"
+                    styleClass="p-button-warning mx-2 lg:hidden" 
+                    (click)="op.toggle($event)">
+                </p-button> 
+                <p-button 
+                        pRipple 
+                        label="Actualizar" 
+                        icon="pi pi-refresh" 
+                        styleClass="p-button-info" 
+                        (click)="main.getAsignaturasMergedPorPlanDeEstudio()">
+                </p-button>
+            </div>
+          </div>
+    </ng-template>
+
+    <ng-template pTemplate="header" let-columns>
+        <tr>
+            <th style="width: 2rem" pFrozenColumn>
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th 
+                [ngStyle]="{'width': table.selectedColumns.length === 0 ? '100%' : 'auto'}" 
+                pFrozenColumn 
+                [frozen]="colFrozen"
+                pSortableColumn="cod_asignatura"
+            >
+                <div class="flex align-items-center">
+                    Asignatura 
+                    <p-sortIcon field="cod_asignatura" />
+                    <p-button
+                        *ngIf="colFrozen"
+                        (click)="colFrozen = !colFrozen; $event.stopPropagation()" 
+                        [text]="true"
+                        [rounded]="true"
+                        pTooltip="Desfijar columna" 
+                        severity="secondary"
+                    >
+                        <i class="fa fa-thumbtack-slash" style="font-size: 1.2rem; margin-bottom: 0.3rem"></i>
+                    </p-button>
+                    <p-button
+                        *ngIf="!colFrozen"
+                        (click)="colFrozen = !colFrozen; $event.stopPropagation()" 
+                        [text]="true"
+                        [rounded]="true"
+                        pTooltip="Fijar columna" 
+                        severity="secondary"
+                    >
+                        <i class="fa fa-thumbtack" style="font-size: 1.2rem; margin-bottom: 0.3rem"></i>
+                    </p-button>
+                </div>
+            </th>
+            <ng-container *ngFor="let col of columns">
+                <ng-container [ngSwitch]="col.field">
+                    <ng-container *ngSwitchCase="'case_horas_directas'">
+                        <th pSortableColumn="{{col.field}}" >
+                            {{col.header}} 
+                        </th>
+                    </ng-container>
+
+                    <ng-container *ngSwitchDefault>
+                        <th pSortableColumn="{{col.field}}">
+                            {{col.header}} <p-sortIcon field="{{col.field}}"></p-sortIcon>
+                        </th>
+                    </ng-container>
+                </ng-container>
+            </ng-container>
+            <th alignFrozen="right" pFrozenColumn>
+                Acciones
+            </th>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-data let-columns="columns">
+        <tr>
+            <td pFrozenColumn>
+                <p-tableCheckbox [value]="data"></p-tableCheckbox>
+            </td>
+            <td style="min-width:400px" pFrozenColumn [frozen]="colFrozen">
+                <span> {{data.nombre_asignatura}} </span> <br>
+                <span style="font-size: 0.8rem;">
+                    <strong>CÓDIGO:</strong> {{data.codigo_externo}} <br/>
+                </span>
+            </td>
+            <ng-container *ngFor="let col of columns">
+                <ng-container [ngSwitch]="col.field">
+
+                    <ng-container *ngSwitchCase="'duracion'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span *ngIf="data.duracion === 0"> {{ data.duracion }} semanas </span>
+                            <span *ngIf="data.duracion !== 0"> {{ data.duracion }} {{ data.duracion > 1 ? 'semanas' : 'semana' }} </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'max_duracion'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span *ngIf="data.max_duracion === 0"> {{ data.max_duracion }} semestres </span>
+                            <span *ngIf="data.max_duracion !== 0"> {{ data.max_duracion }} {{ data.max_duracion > 1 ? 'semestres' : 'semestre' }} </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'num_creditos'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span *ngIf="data.num_creditos === 0"> {{ data.num_creditos }} créditos </span>
+                            <span *ngIf="data.num_creditos !== 0"> {{ data.num_creditos }} {{ data.num_creditos > 1 ? 'créditos' : 'crédito' }} </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'total_horas'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span *ngIf="data.total_horas === 0"> {{ data.total_horas }} horas </span>
+                            <span *ngIf="data.total_horas !== 0"> {{ data.total_horas }} {{ data.total_horas > 1 ? 'horas' : 'hora' }} </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'case_horas_directas'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span style="font-size: 0.8rem;">
+                                <strong>SÍNCRONAS:</strong>
+                                    <span *ngIf="data.horas_sincronas === 0"> {{ data.horas_sincronas }} horas </span>
+                                    <span *ngIf="data.horas_sincronas !== 0"> {{ data.horas_sincronas }} {{ data.horas_sincronas > 1 ? 'horas' : 'hora' }} </span>
+                                    <br/>
+                                <strong>ASÍNCRONAS:</strong>
+                                    <span *ngIf="data.horas_asincronas === 0"> {{ data.horas_asincronas }} horas </span>
+                                    <span *ngIf="data.horas_asincronas !== 0"> {{ data.horas_asincronas }} {{ data.horas_asincronas > 1 ? 'horas' : 'hora' }} </span>
+                                    <br/>
+                                <strong>PRESENCIALES:</strong>
+                                    <span *ngIf="data.horas_presenciales === 0"> {{ data.horas_presenciales }} horas </span>
+                                    <span *ngIf="data.horas_presenciales !== 0"> {{ data.horas_presenciales }} {{ data.horas_presenciales > 1 ? 'horas' : 'hora' }} </span>
+                            </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'horas_indirectas'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span *ngIf="data.horas_indirectas === 0"> {{ data.horas_indirectas }} horas </span>
+                            <span *ngIf="data.horas_indirectas !== 0"> {{ data.horas_indirectas }} {{ data.horas_indirectas > 1 ? 'horas' : 'hora' }} </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'case_menciones'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span *ngIf="data.tiene_mencion === 0"> NO APLICA </span>
+                            <span *ngIf="data.tiene_mencion === 1">
+                                <a (click)="set_menciones($event, op_menciones, data)" class="cursor-pointer underline">Mostrar menciones</a>
+                            </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'case_evaluacion_intermedia'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span *ngIf="data.tiene_evaluacionintermedia === 0"> NO APLICA </span>
+                            <span *ngIf="data.tiene_evaluacionintermedia === 1"> TIENE </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'case_pre_requisitos'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span *ngIf="data.tiene_prerequisitos === 0"> NO APLICA </span>
+                            <span *ngIf="data.tiene_prerequisitos === 1"> 
+                                <a (click)="set_op_asign($event, op_asign, data, 'pre_req')" class="cursor-pointer underline">Mostrar prerrequisitos</a> 
+                            </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'case_articulaciones'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span *ngIf="data.tiene_articulacion === 0"> NO APLICA </span>
+                            <span *ngIf="data.tiene_articulacion === 1">
+                                <a (click)="set_op_asign($event, op_asign, data, 'articulaciones')" class="cursor-pointer underline">Mostrar articulaciones</a> 
+                            </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'case_secuencial'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span *ngIf="data.tiene_secuencialidad === 1"> 
+                                <a (click)="set_op_asign($event, op_asign, data, 'secuenciales')" class="cursor-pointer underline">Mostrar asign. secuenciales</a>
+                            </span>
+                            <span *ngIf="data.tiene_paralelidad === 1"> NO APLICA </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'case_paralela'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span *ngIf="data.tiene_paralelidad === 1"> 
+                                <a (click)="set_op_asign($event, op_asign, data, 'paralelas')" class="cursor-pointer underline">Mostrar asign. paralelas</a>
+                            </span>
+                            <span *ngIf="data.tiene_secuencialidad === 1"> NO APLICA </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'case_temas'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span *ngIf="data.tiene_tema === 0"> NO APLICA </span>
+                            <span *ngIf="data.tiene_tema === 1">
+                                <a (click)="set_temas($event, op_temas, data)" class="cursor-pointer underline">Mostrar temas</a> 
+                            </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'obligatoria_electiva'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span *ngIf="data.obligatoria_electiva === 0"> OBLIGATORIA </span>
+                            <span *ngIf="data.obligatoria_electiva === 1"> ELECTIVA </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'case_tipo_colegiada'">
+                        <td [ngStyle]="table.getColStyle(col)">
+                            <span *ngIf="data.tipo_colegiada === 0"> NO APLICA </span>
+                            <span *ngIf="data.tipo_colegiada !== 0"> {{ data.tipo_colegiada?.descripcion_tipo_colegiada }}  </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container *ngSwitchDefault>
+                        <td [ngStyle]="table.getColStyle(col)">
+                            {{ col.getValue(data) }}
+                        </td>
+                    </ng-container>
+                </ng-container>
+
+            </ng-container>
+            <td alignFrozen="right" pFrozenColumn>
+                <div class="flex">
+                    <p-button 
+                        icon="pi pi-trash" 
+                        styleClass="p-button-sm p-button-danger mr-2"
+                        pTooltip="Eliminar registro" 
+                        (click)="delete(data)">
+                    </p-button>
+                    <p-button 
+                        icon="pi pi-pencil" 
+                        styleClass="p-button-sm p-button-warning mr-2"
+                        pTooltip="Editar registro" 
+                        (click)="edit(data)">
+                    </p-button>
+                    <p-button 
+                        icon="pi pi-eye" 
+                        styleClass="p-button-sm p-button-info mr-2" 
+                        pTooltip="Ver registro"
+                        (click)="show(data)" 
+                        tooltipPosition="left">
+                    </p-button>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+
+</p-table>

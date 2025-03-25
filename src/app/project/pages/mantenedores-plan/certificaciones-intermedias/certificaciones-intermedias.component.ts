@@ -22,18 +22,22 @@ export class CertificacionesIntermediasComponent implements OnInit, OnDestroy {
 
 	async ngOnInit() {
 		this.main.resetDropdownsFilterTable();
-		this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => { 
-			action==='agregar' 
-			? this.main.setModeCrud('create') 
-			: this.main.setModeCrud('delete-selected')
+		this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => {
+			switch (action) {
+			  case 'agregar': this.main.setModeCrud('create');break;
+			  case 'eliminar': this.main.setModeCrud('delete-selected');break;
+			  case 'historial': this.main.setModeCrud('historial');break;
+			} 
 		}));
-		await this.mainFacultad.getFacultades(false);
+		this.main.setOrigen('certificacionIntermediaPE');
+		this.main.setNeedUpdateHistorial(true);
 	}
 
 	ngOnDestroy(): void {
 		this.subscription.unsubscribe();
 		this.main.reset();
 		this.main.resetDropdownsFilterTable();
+		this.main.setNeedUpdateHistorial(false);
 	}
 
 	changeFacultad(event: any){
@@ -50,6 +54,6 @@ export class CertificacionesIntermediasComponent implements OnInit, OnDestroy {
 
 	async changePlanDeEstudio(event:any){
 		this.main.cod_plan_estudio_selected_notform = event.value;
-		this.main.showTable = true;
+		await this.main.getCertificacionesIntermediasPorPlanDeEstudio();
 	}
 }

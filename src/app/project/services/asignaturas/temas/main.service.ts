@@ -9,6 +9,10 @@ import { TableTemasService } from './table.service';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
 import { Tema } from 'src/app/project/models/asignaturas/Tema';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
+import { HistorialActividadService } from '../../components/historial-actividad.service';
+import { LoadinggpService } from '../../components/loadinggp.service';
+import { FacultadesMainService } from '../../programas/facultad/main.service';
+import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 
 @Injectable({
     providedIn: 'root'
@@ -32,16 +36,22 @@ export class TemasMainService {
     messagesMantenedor: Message[] = [];
     messagesFormulario: Message[] = [];
 
-    programas: any[] = [];
+    programas_postgrado: any[] = [];
     temas: Tema[] = [];
     tema: Tema = {};
 
-    //VARS ELEMENTS MANTENEDOR (DROPDOWNS FILTER TABLE / SHOWTABLE)
+    //VARS PARA FILTROS DE TABLA
+    cod_facultad_selected_notform: number = 0;
+    cod_programa_postgrado_selected_notform: number = 0;
+    disabledDropdownPrograma: boolean = true
+    programas_postgrado_notform: any[] = [];
+
     cod_programa_selected : number = 0;
     showTable: boolean = false
 
     //MODAL
     dialogForm: boolean = false
+    needUpdateHistorial: boolean = false;
 
     private onActionToBD = new Subject<void>();
     onActionToBD$ = this.onActionToBD.asObservable();
@@ -51,7 +61,10 @@ export class TemasMainService {
         private confirmationService: ConfirmationService,
         private form: FormTemasService,
         private messageService: MessageServiceGP,
-        private table: TableTemasService
+        private table: TableTemasService,
+        private systemService: LoadinggpService,
+        private historialActividad: HistorialActividadService,
+        private mainFacultad: FacultadesMainService
     ){
         this.form.initForm();
     }
@@ -71,13 +84,33 @@ export class TemasMainService {
             case 'update': await this.updateForm(); break;
             case 'delete': await this.openConfirmationDelete(); break;
             case 'delete-selected': await this.openConfirmationDeleteSelected(); break;
+            case 'historial': await this.openHistorialActividad(); break;
             // case 'rowExpandClick': await this.clickRowExpandTablePrograma(); break;
         }
     }
 
-    reset(){
+    async reset(){
         this.form.resetForm();
         this.table.resetSelectedRows();
+        this.clearAllMessages();
+    }
+
+    resetDropdownsFilterTable(){
+        this.disabledDropdownPrograma = true
+        this.cod_facultad_selected_notform = 0;
+        this.cod_programa_postgrado_selected_notform = 0;
+        this.programas_postgrado_notform = [];
+        this.showTable = false
+    }
+
+    resetWhenChangedDropdownFacultadNotForm(){
+        this.showTable = false
+        this.disabledDropdownPrograma = true;
+        this.cod_programa_postgrado_selected_notform = 0;
+    }
+
+    resetArraysWhenChangedDropdownFacultad(){
+        this.programas_postgrado = [];
     }
 
     countTableValues(value?: number){
@@ -88,20 +121,12 @@ export class TemasMainService {
         this.onActionToBD.next();
     }
 
-    async getTemasPorPrograma(showCountTableValues: boolean = true): Promise<Tema[]> {
-        let params = { cod_programa: this.cod_programa_selected }
-        this.temas = await this.backend.getTemasPorPrograma(params, this.namesCrud);
-        this.temas.length !== 0 ? (this.showTable = true , this.clearMessagesSinResultados('m')) : (this.showTable = false , this.showMessageSinResultados('m'))
-        if (showCountTableValues) this.countTableValues();
-        return this.temas;
-    }
-
     async getProgramasPorFacultad(showCountTableValues: boolean = true, needShowLoading = true){
 		let params = { Cod_facultad: this.form.cod_facultad_selected }
 		const response = await this.backend.getProgramasPorFacultad(params,needShowLoading);
 		if (response) {
-		  this.programas = [...response];
-		  if (this.programas.length === 0 ) {
+		  this.programas_postgrado = [...response];
+		  if (this.programas_postgrado.length === 0 ) {
             this.form.setStatusControlPrograma(false);
             this.showMessageSinResultadosPrograma('f');
 		  }else{
@@ -109,9 +134,9 @@ export class TemasMainService {
                 this.messageService.add({
                   key: 'main',
                   severity: 'info',
-                  detail: this.programas.length > 1
-                    ? `${this.programas.length} programas cargados.`
-                    : `${this.programas.length} programa cargado.`
+                  detail: this.programas_postgrado.length > 1
+                    ? `${this.programas_postgrado.length} programas cargados.`
+                    : `${this.programas_postgrado.length} programa cargado.`
                 });
             }
             this.form.setStatusControlPrograma(true);
@@ -120,83 +145,135 @@ export class TemasMainService {
 		}
 	}
 
+    //INICIO FUNCIONES PARA TABLA DE MANTENEDOR
+    async getProgramasPorFacultadNotForm(showCountTableValues: boolean = true, needShowLoading = true){
+        let params = { Cod_facultad: this.cod_facultad_selected_notform }
+        const response = await this.backend.getProgramasPorFacultad(params,needShowLoading);
+        if (response) {
+            this.programas_postgrado_notform = [...response];
+            if (this.programas_postgrado_notform.length === 0 ) {
+                this.disabledDropdownPrograma = true;
+                this.showTable = false
+                this.showMessageSinResultadosPrograma('m');
+            }else{
+            if (showCountTableValues){
+                this.messageService.add({
+                    key: 'main',
+                    severity: 'info',
+                    detail: this.programas_postgrado_notform.length > 1
+                    ? `${this.programas_postgrado_notform.length} programas cargados.`
+                    : `${this.programas_postgrado_notform.length} programa cargado.`
+                });
+            }
+            this.clearMessagesSinResultados('m');
+            this.disabledDropdownPrograma = false;
+            }
+        }
+    }
+
+    async getTemasPorProgramaNotForm(showCountTableValues: boolean = true): Promise<Tema[]> {
+        let valuesPrincipalControls = {cod_facultad: this.cod_facultad_selected_notform, cod_programa: this.cod_programa_postgrado_selected_notform}
+        let params = { cod_programa: this.cod_programa_postgrado_selected_notform, valuesPrincipalControls }
+        this.temas = await this.backend.getTemasPorPrograma(params, this.namesCrud);
+        this.temas.length !== 0 ? (this.showTable = true , this.clearMessagesSinResultados('m')) : (this.showTable = false , this.showMessageSinResultados('m'))
+        if (showCountTableValues && this.temas.length !== 0) this.countTableValues();
+        return this.temas;
+    }
+    //FIN FUNCIONES PARA TABLA DE MANTENEDOR
+
+
     async createForm(){
-        this.form.resetForm();
+        await this.reset();
+        await this.setPrincipalsControls();
         this.dialogForm = true;
     }
 
     async showForm(){
         this.form.resetForm();
         this.form.setForm('show',this.tema);
+        await this.setDropdownsAndTablesForm();
         this.dialogForm = true;
     }
 
     async editForm(){
         this.form.resetForm();
         this.form.setForm('edit',this.tema);
+        await this.setDropdownsAndTablesForm();
         this.dialogForm = true;
     }
 
     async insertForm(){
         try {
-            const params = this.form.setParamsForm();
+            const data_log = await this.setDataToLog();
+            const data_params = this.form.setParamsForm();
+            let params = { ...data_params, data_log }
             const response = await this.backend.insertTema(params, this.namesCrud);
             if (response && response.dataWasInserted) {
                 this.messageService.add({
                     key: 'main',
                     severity: 'success',
-                    detail: generateMessage(this.namesCrud,response.dataInserted,'creado',true,false)
+                    detail: generateMessage(this.namesCrud,response.dataInserted.nombre_tema,'creado',true,false)
                 });
                 this.emitActionToBD();
+                this.setDropdownsFilterTable(response.dataInserted)
+
             }
         }catch (error) {
             console.log(error);
         }finally{
             this.dialogForm = false;
-            // if ( !this.wasFilteredTable) await this.setDropdownsFilterTable();
-            this.getTemasPorPrograma(false);
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset()
         }
     }
 
     async updateForm(){
         try {
+            const data_log = await this.setDataToLog(true);
             const params = this.form.setParamsForm();
             let paramsWithCod = { 
                 ...params,
+                data_log,
                 cod_tema: this.tema.cod_tema
             }
             const response = await this.backend.updateTema(paramsWithCod,this.namesCrud);
-            if ( response && response.dataWasUpdated ) {
-                this.messageService.add({
-                    key: 'main',
-                    severity: 'success',
-                    detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
-                });
-                this.emitActionToBD();
+            if ( response && response.dataWasUpdated && response.dataWasUpdated !== 0) {
+                if (response.dataWasUpdated === 1) {
+                    this.messageService.add({
+                        key: 'main',
+                        severity: 'success',
+                        detail: generateMessage(this.namesCrud, response.dataUpdated, 'actualizado', true, false)
+                    });
+                    this.emitActionToBD();
+                }else{
+                    this.messageService.add({
+                        key: 'main',
+                        severity: 'info',
+                        detail: generateMessage(this.namesCrud, response.dataUpdated, 'actualizado', false, false)
+                    });
+                }
             }
         }catch (error) {
             console.log(error);
         }finally{
             this.dialogForm = false;
-            // if ( !this.wasFilteredTable) await this.setDropdownsFilterTable();
-            this.getTemasPorPrograma(false);
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
 
-    async deleteMenciones(dataToDelete: Tema[]){
+    async deleteRegisters(dataToDelete: Tema[]){
         try {
             const response = await this.backend.deleteTema(dataToDelete,this.namesCrud);
             if (response && response.notDeleted.length !== 0) {
                 for (let i = 0; i < response.notDeleted.length; i++) {
                     const element = response.notDeleted[i];
                     this.messageService.add({
-                    key: 'main',
-                    severity: 'warn',
-                    summary:  `Error al eliminar ${this.namesCrud.singular}`,
-                    detail: element.messageError,
-                    sticky: true
+                        key: 'main',
+                        severity: 'warn',
+                        summary:  `Error al eliminar ${this.namesCrud.singular}`,
+                        detail: element.messageError,
+                        sticky: true
                     });
                 }
             }
@@ -220,7 +297,7 @@ export class TemasMainService {
         } catch (error) {
             console.log(error);
         }finally{
-            this.getTemasPorPrograma(false);
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -238,7 +315,7 @@ export class TemasMainService {
             accept: async () => {
                 let mencionToDelete = []
                 mencionToDelete.push(this.tema);
-                await this.deleteMenciones(mencionToDelete);
+                await this.deleteRegisters(mencionToDelete);
             }
         })
     }
@@ -256,9 +333,56 @@ export class TemasMainService {
             acceptButtonStyleClass: 'p-button-danger p-button-sm',
             rejectButtonStyleClass: 'p-button-secondary p-button-text p-button-sm',
             accept: async () => {
-                await this.deleteMenciones(data);
+                await this.deleteRegisters(data);
             }
         }) 
+    }
+
+    async setDropdownsFilterTable(dataInserted: any){
+        //esta funcion permite setear automaticamente los dropdowns que están en la pagina del mantenedor
+        this.disabledDropdownPrograma = false;
+        this.cod_facultad_selected_notform = dataInserted.cod_facultad;
+        this.cod_programa_postgrado_selected_notform = dataInserted.cod_programa;
+        await this.getProgramasPorFacultadNotForm(false);
+        await this.getTemasPorProgramaNotForm();
+    }
+
+    async setDropdownsAndTablesForm(){
+        //funcion para setear automaticamente los dropdowns principales del formulario 
+        this.systemService.loading(true);
+        await this.setPrincipalsControls();
+        this.form.setDisabledPrincipalControls();
+        this.systemService.loading(false);
+    }
+
+    async setPrincipalsControls(){
+        console.log("this.form.dataExternal",this.form.dataExternal);
+        
+        if (this.form.modeForm !== 'create') {
+            console.log("if setPrincipalsControls");
+            
+            await Promise.all([
+                this.getProgramasPorFacultad(false,false),
+            ]);
+
+        }else{
+            console.log("else setPrincipalsControls");
+
+            if (this.form.dataExternal.data === true) {
+                this.form.setDataExternal(this.form.dataExternal);
+                this.form.setValuesVarsByDataExternal();
+                await Promise.all([
+                    this.getProgramasPorFacultad(false,false),
+                    
+                ]);
+                this.form.setControlsFormByDataExternal();
+            }
+        }
+    }
+
+    clearAllMessages(){
+        this.messagesMantenedor = [];
+        this.messagesFormulario = [];
     }
 
     clearMessagesSinResultados(key: 'm' | 'f'){
@@ -283,7 +407,40 @@ export class TemasMainService {
         this.showMessagesSinResultados(key, 'programa')
     }
 
-    resetArraysWhenChangedDropdownFacultad(){
-        this.programas = [];
+    setVarsNotFormByDataExternal(dataExternal: DataExternal){
+        this.cod_facultad_selected_notform = dataExternal.cod_facultad!;
+        this.cod_programa_postgrado_selected_notform = dataExternal.cod_programa!;
+    }
+
+    async openHistorialActividad(){
+        this.historialActividad.showDialog = true;
+    }
+
+    setOrigen(origen: string){
+        this.historialActividad.setOrigen(origen);
+    }
+
+    setNeedUpdateHistorial(need: boolean){
+        this.needUpdateHistorial = need;
+    }
+
+    async setDataToLog(needAux = false){
+        const dataPrincipalControls = await this.form.getDataPrincipalControls();
+        let dataToLog_aux ;
+        if (needAux) {
+            //se necesita obtener valores anteriores para el log
+            let facultadSelected_aux = this.mainFacultad.facultades.find( f => f.Cod_facultad === this.tema.cod_facultad);
+            let programaSelected_aux = this.programas_postgrado.find( f => f.Cod_Programa === this.tema.cod_programa);
+            dataToLog_aux = { facultadSelected_aux: facultadSelected_aux!.Descripcion_facu, programaSelected_aux: programaSelected_aux!.Nombre_programa_completo }
+        }
+        let facultadSelected = this.mainFacultad.facultades.find( f => f.Cod_facultad === dataPrincipalControls.cod_facultad);
+        let programaSelected = this.programas_postgrado.find( f => f.Cod_Programa === dataPrincipalControls.cod_programa);
+        let dataToLog = { facultadSelected: facultadSelected!.Descripcion_facu, programaSelected: programaSelected!.Nombre_programa_completo }
+
+        if (needAux) {
+            return { ...dataToLog_aux , ...dataToLog}
+        }else{
+            return dataToLog
+        }
     }
 }

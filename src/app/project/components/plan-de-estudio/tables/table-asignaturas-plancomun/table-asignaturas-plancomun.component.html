@@ -1,3 +1,17 @@
+<p-overlayPanel #op>
+    <ng-template pTemplate>
+        <div class="flex flex-row flex-wrap">
+            <div class="flex align-items-center justify-content-center">
+                <span class="icon-badge">
+                    <i class="pi pi-chevron-right"></i> 
+                </span>
+            </div>
+            <div class="flex align-items-center justify-content-center">
+                <span class="mx-1" style="font-weight: 100;">Ver asignaturas</span>
+            </div>
+        </div>
+    </ng-template>
+</p-overlayPanel>
 <p-table 
     #dt 
     [rows]="10" 
@@ -18,34 +32,55 @@
     >
     <ng-template pTemplate="caption">
         <div class="flex flex-wrap flex-column md:flex-row justify-content-between align-items-center">
-            <div class="flex mb-2 md:mb-0">
-              <span class="p-input-icon-left">
-                <i class="pi pi-search"></i>
-                <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)" />
-              </span>
-              <p-button 
-                styleClass="p-button-text p-button-sm ml-2" 
-                icon="pi pi-filter-slash" 
-                pTooltip="Limpiar filtros" 
-                (click)="clear(dt)">
-              </p-button>
+            <div class="flex flex-row">
+                <p-button
+                    *ngIf="mode !== 'show'"
+                    icon="pi pi-trash"
+                    styleClass="p-button-danger p-button-outlined mr-2"
+                    pTooltip="Eliminar seleccionados"
+                    [disabled]="table.selectedRows.length === 0"
+                    (click)="main.setModeCrud('delete-selected')"
+                ></p-button>
+                <div class="flex mb-2 md:mb-0">
+                  <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)" />
+                  </span>
+                  <p-button 
+                    styleClass="p-button-text p-button-sm ml-2" 
+                    icon="pi pi-filter-slash" 
+                    pTooltip="Limpiar filtros" 
+                    (click)="clear(dt)">
+                  </p-button>
+                </div>
+            </div>
+
+            <div class="hidden md:flex estado-badge-doc icon-leyenda" pTooltip="Leyenda de iconos" tooltipPosition="bottom">
+                <span class="icon-badge"><i class="pi pi-chevron-right"></i></span>
+                <span class="mx-1 font-light">Ver asignaturas</span>
             </div>
                               
             <div class="flex">
-              <p-button 
-                pRipple 
-                label="Actualizar" 
-                icon="pi pi-refresh" 
-                styleClass="p-button-info" 
-                (click)="main.getPlanesDeEstudiosConPlanComun()">
-              </p-button>
+                <p-button 
+                    pTooltip="Muestra la leyenda de iconos" 
+                    icon="pi pi-question-circle"
+                    styleClass="p-button-warning mr-2 md:hidden" 
+                    (click)="op.toggle($event)">
+                </p-button>
+                <p-button 
+                    pRipple 
+                    label="Actualizar" 
+                    icon="pi pi-refresh" 
+                    styleClass="p-button-info" 
+                    (click)="main.getAsignaturasPCPorPlanDeEstudio()">
+                </p-button>
             </div>
           </div>
     </ng-template>
 
     <ng-template pTemplate="header">
         <tr>
-            <th style="width: 1rem">
+            <th *ngIf="mode !== 'show'" style="width: 1rem">
                 <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
             </th>
             <th style="min-width: 1rem"></th>
@@ -64,31 +99,34 @@
 
     <ng-template pTemplate="body" let-data let-expanded="expanded">
         <tr>
-            <td>
+            <td *ngIf="mode !== 'show'">
                 <p-tableCheckbox [value]="data"></p-tableCheckbox>
             </td>
             <td> <p-button type="button" pRipple [pRowToggler]="data" [text]="true" [rounded]="true" [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" /> </td>
             <td style="width:50%;">
-                {{data.nombre_plan_estudio_completo}}
+                {{data.nombre_plan_comun_completo}}
             </td>
             <td style="width:50%;">
                 {{data.asignaturas.length}} asignatura(s)
             </td>
             <td>
                 <div class="flex">
-                    <p-button 
+                    <p-button
+                        *ngIf="mode !== 'show'" 
                         icon="pi pi-trash" 
                         styleClass="p-button-sm p-button-danger mr-2"
                         pTooltip="Eliminar registro" 
                         (click)="delete(data)">
                     </p-button>
-                    <p-button 
+                    <p-button
+                        *ngIf="mode !== 'show'" 
                         icon="pi pi-pencil" 
                         styleClass="p-button-sm p-button-warning mr-2"
                         pTooltip="Editar registro" 
                         (click)="edit(data)">
                     </p-button>
-                    <p-button 
+                    <p-button
+                        *ngIf="mode !== 'show'" 
                         icon="pi pi-eye" 
                         styleClass="p-button-sm p-button-info mr-2" 
                         pTooltip="Ver registro"
@@ -102,7 +140,7 @@
 
     <ng-template pTemplate="rowexpansion" let-data>
         <tr>
-            <td colspan="5">
+            <td [attr.colspan]="table.cols.length + 2">
                 <div class="p-3">
                     <p-table [value]="data.asignaturas" dataKey="cod_tema">
                         <ng-template pTemplate="header">
@@ -121,7 +159,7 @@
                         </ng-template>
                         <ng-template pTemplate="emptymessage">
                             <tr>
-                                <td colspan="7">Sin asignaturas</td>
+                                <td [attr.colspan]="table.cols.length + 1">Sin asignaturas</td>
                             </tr>
                         </ng-template>
                     </p-table>
@@ -132,7 +170,7 @@
 
     <ng-template pTemplate="emptymessage">
         <tr>
-            <td [attr.colspan]="table.cols.length + 1">Sin registros</td>
+            <td [attr.colspan]="table.cols.length + 2">Sin registros</td>
         </tr>
     </ng-template>
 </p-table>

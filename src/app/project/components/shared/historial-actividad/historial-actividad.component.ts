@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { Table } from 'primeng/table';
+import { Subscription } from 'rxjs';
 import { HistorialActividadService } from 'src/app/project/services/components/historial-actividad.service';
+import { MenuButtonsTableService } from 'src/app/project/services/components/menu-buttons-table.service';
 
 @Component({
   selector: 'app-historial-actividad',
@@ -9,11 +11,22 @@ import { HistorialActividadService } from 'src/app/project/services/components/h
   ]
 })
 export class HistorialActividadComponent {
-
-	constructor(public main: HistorialActividadService){}
+	private subscription: Subscription = new Subscription();
+	constructor(
+		public main: HistorialActividadService,
+		private menuButtonsTableService: MenuButtonsTableService,
+	){}
 
 	async ngOnInit() {
-		await this.main.getHistorial();
+		this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( async action => {
+			switch (action) {
+			  case 'historial': await this.main.getHistorial(); break;
+			} 
+		}));
+	}
+
+	ngOnDestroy(): void {
+		this.subscription.unsubscribe();
 	}
 
 	onGlobalFilter(table: Table, event: Event) {

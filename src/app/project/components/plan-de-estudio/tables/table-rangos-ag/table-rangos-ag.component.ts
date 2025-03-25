@@ -1,5 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Table } from 'primeng/table';
+import { Subscription } from 'rxjs';
 import { RangoAG } from 'src/app/project/models/plan-de-estudio/RangoAG';
 import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
@@ -17,6 +18,7 @@ export class TableRangosAgComponent implements OnInit, OnDestroy {
 
 	@Input() mode: ModeForm;
 	@Input() dataExternal: DataExternal = { data: false };
+	private subscription: Subscription = new Subscription();
 
 	searchValue: string | undefined;
 
@@ -26,7 +28,8 @@ export class TableRangosAgComponent implements OnInit, OnDestroy {
 	){}
 
 	ngOnInit(): void {
-		this.dataExternal.data ? ( this.setTable() ) : ( this.getData(true) );
+		this.subscription.add(this.main.onInsertedData$.subscribe( () => this.getData(false)))
+		this.dataExternal.data ? ( this.setTable() ) : ( this.getData(false) );
 	}
 
 	ngOnDestroy(): void {
@@ -39,7 +42,7 @@ export class TableRangosAgComponent implements OnInit, OnDestroy {
 	}
 
 	async getData(showCountTableValues: boolean) {
-		if(this.main.rangosAG.length === 0) await this.main.getRangosAprobacion(showCountTableValues);
+		await this.main.getRangosAprobacion(showCountTableValues);
 	}
 
 	onGlobalFilter(table: Table, event: Event) {

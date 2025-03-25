@@ -44,4 +44,10 @@ export class TiposProgramasComponent implements OnInit, OnDestroy {
     this.main.modeForm === 'create' ? this.main.setModeCrud('insert') : this.main.setModeCrud('update')
   }
 
+  changeCategoriaTp(event: any){
+    let dataSelected = this.mainCategoriasTp.categoriasTp.find( c => c.Cod_CategoriaTP === event.value );
+		this.form.fbForm.get('Categoria.Descripcion_categoria')?.patchValue(dataSelected?.Descripcion_categoria);
+  }
+
+
 }

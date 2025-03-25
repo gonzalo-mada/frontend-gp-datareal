@@ -107,8 +107,8 @@
                                 <ng-template pTemplate="caption">
                                     <div class="flex flex-wrap flex-column sm:flex-row justify-content-center align-items-center">
                                         <p-button
-                                            *ngIf="table.selectedAsignaturasPostgrado.length !== 0 && main.modeForm === 'create'"
-                                            label="Limpiar seleccionada(s)"
+                                            *ngIf=" table.selectedAsignaturasPostgrado.length !== 0 && main.modeForm === 'create' && !form.openedFromMantenedorAsignatura && !form.asignaturaHaveTemas"
+                                            label="Deseleccionar"
                                             icon="pi pi-times"
                                             styleClass="p-button-danger p-button-outlined"
                                             (click)="clearTableAsignaturaPostgrado(); "
@@ -137,7 +137,7 @@
         
                                 <ng-template pTemplate="body" let-asignatura>
                                     <tr>
-                                        <td><p-tableRadioButton [disabled]="main.modeForm !== 'create'" [value]="asignatura" /></td>
+                                        <td><p-tableRadioButton [disabled]="main.modeForm !== 'create' || ( form.openedFromMantenedorAsignatura && !form.asignaturaHaveTemas )" [value]="asignatura" /></td>
                                         <td>
                                             <span>
                                                 <strong>Asignatura: </strong> {{ asignatura.codigo_externo }} - {{ asignatura.nombre_asignatura }} <br/>
@@ -248,7 +248,7 @@
                                     <div class="flex flex-wrap flex-column sm:flex-row justify-content-center align-items-center">
                                         <p-button
                                             *ngIf="table.selectedAsignaturaPregrado.length !== 0 && main.modeForm !== 'show'"
-                                            label="Limpiar seleccionada(s)"
+                                            label="Deseleccionar"
                                             icon="pi pi-times"
                                             styleClass="p-button-danger p-button-outlined"
                                             (click)="clearTableAsignaturaPregrado(); "

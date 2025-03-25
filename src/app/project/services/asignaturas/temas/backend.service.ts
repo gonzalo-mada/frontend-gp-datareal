@@ -21,10 +21,7 @@ export class BackendTemasService {
 
     async getProgramasPorFacultad(params: any, loading = true) {
         try {
-            return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('programas/getProgramasPorFacultad', loading),
-                params
-            );
+            return await this.invoker.httpInvoke({service: 'programas/getProgramasPorFacultad' , loading},params);
         } catch (error: any) {
             this.errorTemplateHandler.processError(error, {
                 notifyMethod: 'alert',
@@ -35,10 +32,7 @@ export class BackendTemasService {
 
     async getTemasPorPrograma(params: any, namesCrud: NamesCrud, loading = true){
         try {
-            return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('temas/getTemasPorPrograma', loading),
-                params
-            );
+            return await this.invoker.httpInvoke({service: 'temas/getTemasPorPrograma' , loading},params);
         } catch (error: any) {
             this.errorTemplateHandler.processError(
                 error, 
@@ -54,10 +48,7 @@ export class BackendTemasService {
     async insertTema(params: any, namesCrud: NamesCrud) {
         try {
             return this.serviceUtils.checkResponse(
-                await this.invoker.httpInvoke(
-                    this.serviceUtils.generateServiceMongo('temas/insertTema'),
-                    params
-                ),
+                await this.invoker.httpInvoke('temas/insertTema',params),
                 namesCrud
             );
         } catch (error: any) {
@@ -72,10 +63,7 @@ export class BackendTemasService {
     async updateTema(params: any, namesCrud: NamesCrud) {
         try {
             return this.serviceUtils.checkResponse(
-                await this.invoker.httpInvoke(
-                    this.serviceUtils.generateServiceMongo('temas/updateTema'),
-                    params
-                ),
+                await this.invoker.httpInvoke('temas/updateTema',params),
                 namesCrud
             );
         } catch (error: any) {

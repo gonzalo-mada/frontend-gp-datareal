@@ -210,6 +210,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
       item.checkDisabled = true;
       return item; 
     });
+    this.form.setSelectUnidadAcademica(event.value);
     this.form.fbForm.get('Unidades_academicas_Selected')?.patchValue(updatedValues);
   }
   
@@ -219,6 +220,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
   }
 
   changeInstituciones(event:any){
+    this.form.setSelectInstituciones(event.value);
     this.form.fbForm.get('Instituciones_Selected')?.patchValue(event.value);
   }
 
@@ -267,6 +269,7 @@ export class AgregarProgramaComponent implements OnInit, OnDestroy {
   }
 
   changeCertifIntermedias(event:any){
+    this.form.setSelectCertifIntermedias(event.value);
     this.form.fbForm.get('Certificacion_intermedia_Selected')?.patchValue(event.value);
   }
 

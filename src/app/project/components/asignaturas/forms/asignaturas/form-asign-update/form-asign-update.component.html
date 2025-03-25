@@ -1,0 +1,693 @@
+<app-dialog [dialogWidth]="'80vw'" [(visible)]="main.dialogUpdate" (visibleChange)="closeDialog()">
+    <div header>
+        <ng-container [ngSwitch]="main.dialogUpdateMode">
+            <span *ngSwitchDefault class="text-xl" >{{mode === 'show' ? 'Ver' : 'Actualizar'}} {{ main.dialogUpdateMode }}</span>
+        </ng-container>
+    </div>
+
+    <div content>
+        <p-button 
+            label="test" 
+            icon="pi pi-times" 
+            styleClass="p-button-sm p-button-secondary mr-2" 
+            (click)="test()" [text]="true">
+        </p-button>
+        <form *ngIf="main.dialogUpdate" [formGroup]="form.fbFormUpdate">
+            <div class="formgrid grid">
+
+                <div class="col-12" *ngIf="mode !== 'show' && main.dialogUpdateMode !== 'tiene_articulacion' && main.dialogUpdateMode !== 'tiene_mencion'">
+                    <app-form-isvalid [valid]="form.fbFormUpdate.valid"></app-form-isvalid>
+                </div>
+    
+                <ng-container *ngIf="main.dialogUpdateMode === 'modalidad' ">
+                    <div class="field col-12">
+                        <label><strong>Modalidad {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                        <p-dropdown
+                            [options]="main.modalidades"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
+                            formControlName="cod_modalidad"
+                            placeholder="Seleccione modalidad"
+                            optionLabel="Descripcion_modalidad"
+                            optionValue="Cod_modalidad"
+                            (onChange)="changeModalidad($event)"
+                        />
+                        <app-form-control [control]="form.fbFormUpdate.controls['cod_modalidad']" [validators]="['required']"></app-form-control>
+                    </div>
+                </ng-container>
+    
+                <ng-container *ngIf="main.dialogUpdateMode === 'regimen' ">
+                    <div class="field col-12">
+                        <label><strong>Régimen {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                        <p-dropdown
+                            [options]="main.regimenes"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
+                            formControlName="cod_regimen"
+                            placeholder="Seleccione régimen"
+                            optionLabel="Descripcion_regimen"
+                            optionValue="Cod_regimen"
+                            (onChange)="changeRegimen($event)"
+                        />
+                        <app-form-control [control]="form.fbFormUpdate.controls['cod_jornada']" [validators]="['required']"></app-form-control>
+                    </div>
+                </ng-container>
+    
+                <ng-container *ngIf="main.dialogUpdateMode === 'codigo_externo' ">
+                    <div class="field col-12">
+                        <label><strong>Código {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                        <input type="text" pInputText formControlName="codigo_externo" maxlength="50" class="w-full" placeholder="Ingrese código de la asignatura"/>
+                        <app-form-control [control]="form.fbFormUpdate.controls['codigo_externo']" [validators]="['required', 'num_o_letras']"></app-form-control>
+                    </div>
+                </ng-container>
+    
+                <ng-container *ngIf="main.dialogUpdateMode === 'nombre_asignatura' ">
+                    <div class="field col-12">
+                        <label><strong>Nombre asignatura {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                        <input type="text" pInputText formControlName="nombre_asignatura" maxlength="200" class="w-full" placeholder="Ingrese nombre de la asignatura"/>
+                        <app-form-control [control]="form.fbFormUpdate.controls['nombre_asignatura']" [validators]="['required', 'num_o_letras']"></app-form-control>
+                    </div>
+                </ng-container>
+    
+                <ng-container *ngIf="main.dialogUpdateMode === 'num_creditos' ">
+                    <div class="field col-12">
+                        <label><strong>Créditos {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                        <p-inputNumber 
+                            [allowEmpty]="true"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
+                            formControlName="num_creditos"
+                            format="false"
+                            maxlength="5"
+                            placeholder="Ingrese número de créditos"
+                            class="w-full p-d-flex p-flex-column"
+                        />
+                        <app-form-control [control]="form.fbFormUpdate.controls['num_creditos']" [validators]="['required', 'solo_num']"></app-form-control>
+                    </div>
+                </ng-container>
+    
+                <ng-container *ngIf="main.dialogUpdateMode === 'horas' ">
+                    <div class="formgrid grid mt-2">
+                        <div class="field col-12">
+                            <div class="surface-card shadow-2 p-3 border-round w-full">
+                                <div class="font-medium text-800 mb-2">Horas directas </div>
+                                <div class="formgrid grid">
+                                    <div class="field col-12 md:col-8">
+                                        <div class="surface-card shadow-2 p-3 border-round w-full">
+                                            <div class="font-medium text-800 mb-2">Horas virtuales</div>
+                                            <div class="formgrid grid">
+                                                <div class="field col-12 md:col-6">
+                                                    <label><strong>Síncronas {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                                                    <p-inputNumber 
+                                                        [allowEmpty]="true"
+                                                        [style]="{ width: '100%', 'min-width': '100%' }"
+                                                        [useGrouping]="false"
+                                                        [minFractionDigits]="1"
+                                                        [maxFractionDigits]="1"
+                                                        [min]="0"
+                                                        locale="en-US"
+                                                        mode="decimal"
+                                                        formControlName="horas_sincronas"
+                                                        placeholder="Ingrese número de horas síncronas"
+                                                        class="w-full p-d-flex p-flex-column"
+                                                    />
+                                                    <small>Ejemplo: 10.5</small>
+                                                    <app-form-control [control]="form.fbFormUpdate.controls['horas_sincronas']" [validators]="['required' , 'solo_num_and_decimals']"></app-form-control>
+                                                </div>
+                                                <div class="field col-12 md:col-6">
+                                                    <label><strong>Asíncronas {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                                                    <p-inputNumber 
+                                                        [allowEmpty]="true"
+                                                        [style]="{ width: '100%', 'min-width': '100%' }"
+                                                        [useGrouping]="false"
+                                                        [minFractionDigits]="1"
+                                                        [maxFractionDigits]="1"
+                                                        [min]="0"
+                                                        locale="en-US"
+                                                        mode="decimal"
+                                                        formControlName="horas_asincronas"
+                                                        placeholder="Ingrese número de horas asíncronas"
+                                                        class="w-full p-d-flex p-flex-column"
+                                                    />
+                                                    <small>Ejemplo: 10.5</small>
+                                                    <app-form-control [control]="form.fbFormUpdate.controls['horas_asincronas']" [validators]="['required' , 'solo_num_and_decimals']"></app-form-control>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field col-12 md:col-4">
+                                        <div class="surface-card shadow-2 p-3 border-round w-full">
+                                            <div class="font-medium text-800 mb-2">Horas presenciales</div>
+                                            <div class="formgrid grid">
+                                                <div class="field col-12">
+                                                    <label><strong>Presenciales {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                                                    <p-inputNumber 
+                                                        [allowEmpty]="true"
+                                                        [style]="{ width: '100%', 'min-width': '100%' }"
+                                                        [useGrouping]="false"
+                                                        [minFractionDigits]="1"
+                                                        [maxFractionDigits]="1"
+                                                        [min]="0"
+                                                        locale="en-US"
+                                                        mode="decimal"
+                                                        formControlName="horas_presenciales"
+                                                        placeholder="Ingrese número de horas presenciales"
+                                                        class="w-full p-d-flex p-flex-column"
+                                                    />
+                                                    <small>Ejemplo: 10.5</small>
+                                                    <app-form-control [control]="form.fbFormUpdate.controls['horas_presenciales']" [validators]="['required' , 'solo_num_and_decimals']"></app-form-control>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="field col-12 md:col-6">
+                            <div class="surface-card shadow-2 p-3 border-round w-full">
+                                <div class="font-medium text-800 mb-2">Horas indirectas</div>
+                                <div class="formgrid grid">
+                                    <div class="field col-12">
+                                        <label><strong>Indirectas {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                                        <p-inputNumber 
+                                            [allowEmpty]="true"
+                                            [style]="{ width: '100%', 'min-width': '100%' }"
+                                            [useGrouping]="false"
+                                            [minFractionDigits]="1"
+                                            [maxFractionDigits]="1"
+                                            [min]="0"
+                                            locale="en-US"
+                                            mode="decimal"
+                                            formControlName="horas_indirectas"
+                                            placeholder="Ingrese número de horas indirectas"
+                                            class="w-full p-d-flex p-flex-column"
+                                        />
+                                        <small>Ejemplo: 10.5</small>
+                                        <app-form-control [control]="form.fbFormUpdate.controls['horas_indirectas']" [validators]="['required' , 'solo_num_and_decimals']"></app-form-control>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="field col-12 md:col-6">
+                            <div class="surface-card shadow-2 p-3 border-round w-full">
+                                <div class="flex flex-column">
+                                    <span class="text-900 mb-2"> <strong>Total horas</strong> </span>
+                                    <span class="text-700"> {{ form.total_horas_update || 0 }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+    
+                <ng-container *ngIf="main.dialogUpdateMode === 'semestre' ">
+                    <div class="field col-12">
+                        <label><strong>Semestre {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                        <p-inputNumber 
+                            [allowEmpty]="true"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
+                            formControlName="semestre"
+                            format="false"
+                            maxlength="2"
+                            placeholder="Ingrese número del semestre"
+                            class="w-full p-d-flex p-flex-column"
+                        />
+                        <app-form-control [control]="form.fbFormUpdate.controls['semestre']" [validators]="['required', 'solo_num']"></app-form-control>
+                    </div>
+                </ng-container>
+    
+                <ng-container *ngIf="main.dialogUpdateMode === 'duracion' ">
+                    <div class="field col-12">
+                        <label><strong>Duración {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                        <p-inputNumber 
+                            [allowEmpty]="true"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
+                            formControlName="duracion"
+                            format="false"
+                            maxlength="5"
+                            placeholder="Ingrese número de duración en semanas"
+                            class="w-full p-d-flex p-flex-column"
+                        />
+                        <app-form-control [control]="form.fbFormUpdate.controls['duracion']" [validators]="['required', 'solo_num']"></app-form-control>
+                    </div>
+                </ng-container>
+    
+                <ng-container *ngIf="main.dialogUpdateMode === 'max_duracion' ">
+                    <div class="field col-12">
+                        <div class="flex flex-row flex-wrap mb-2">
+                            <div class="align-items-center">
+                                <label><strong>Máximo de duración de semestres {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                            </div>
+                            <div class="align-items-center ml-1" [style]="{'margin-top': '0.1rem !important'}">
+                                <i class="pi pi-question-circle" [pTooltip]='tooltipTp' tooltipPosition="top"></i>
+                                <ng-template #tooltipTp>
+                                    <small>Corresponde a la cantidad máxima de semestres para rendir asignatura</small>
+                                </ng-template>
+                            </div>
+                        </div>
+                        <p-inputNumber 
+                            [allowEmpty]="true"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
+                            formControlName="max_duracion"
+                            format="false"
+                            maxlength="5"
+                            placeholder="Ingrese número máximo de duración de semestre"
+                            class="w-full p-d-flex p-flex-column"
+                        />
+                        <app-form-control [control]="form.fbFormUpdate.controls['max_duracion']" [validators]="['required', 'solo_num']"></app-form-control>
+                    </div>
+                </ng-container>
+    
+                <ng-container *ngIf="main.dialogUpdateMode === 'cod_tipo_evaluacion' ">
+                    <div class="field col-12">
+                        <label><strong>Tipo de evaluación {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                        <p-dropdown
+                            [options]="main.tipos_evaluaciones"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
+                            formControlName="cod_tipo_evaluacion"
+                            placeholder="Seleccione tipo de evaluación"
+                            optionLabel="descripcion_tipo"
+                            optionValue="cod_tipo"
+                            (onChange)="changeTipoEvaluacion($event)"
+                        />
+                        <app-form-control [control]="form.fbFormUpdate.controls['cod_tipo_evaluacion']" [validators]="['required']"></app-form-control>
+                    </div>
+                </ng-container>
+    
+                <ng-container *ngIf="main.dialogUpdateMode === 'cod_tipo_colegiada' ">
+                    <div class="field col-12 lg:col-6 mt-2">
+                        <label><strong>¿Es colegiada?</strong></label>
+                        <div class="flex flex-row justify-content-start flex-wrap">
+                            <div class="flex align-items-center justify-content-center">
+                                <span>No</span>
+                            </div>
+                            <div class="flex align-items-center justify-content-center mx-2">
+                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_colegiada" styleClass="mt-1 mx-1" (onChange)="changeSwitchTieneColegiada($event)"/>
+                            </div>
+                            <div class="flex align-items-center justify-content-center">
+                                <span>Si</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field col-12 lg:col-6 mt-2">
+                        <label><strong>Tipo de colegiada {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                        <p-dropdown
+                            [options]="main.tipos_colegiadas"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
+                            formControlName="cod_tipo_colegiada"
+                            placeholder="Seleccione tipo de colegiada"
+                            optionLabel="descripcion_tipo"
+                            optionValue="cod_tipo"
+                            (onChange)="changeTipoColegiada($event)"
+                        />
+                        <app-form-control [control]="form.fbFormUpdate.controls['cod_tipo_colegiada']" [validators]="['required']"></app-form-control>
+                    </div>
+                </ng-container>
+    
+                <ng-container *ngIf="main.dialogUpdateMode === 'tiene_evaluacionintermedia' ">
+                    <div class="field col-12 lg:col-6 mt-2">
+                        <label><strong>¿Tiene evaluaciones intermedias?</strong></label>
+                        <div class="flex flex-row justify-content-start flex-wrap">
+                            <div class="flex align-items-center justify-content-center">
+                                <span>No</span>
+                            </div>
+                            <div class="flex align-items-center justify-content-center mx-2">
+                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_evaluacionintermedia"  styleClass="mt-1 mx-1"/>
+                            </div>
+                            <div class="flex align-items-center justify-content-center">
+                                <span>Si</span>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+    
+                <ng-container *ngIf="main.dialogUpdateMode === 'tiene_prerequisitos' ">
+                    <div class="field col-12 mt-2">
+                        <p-accordion [activeIndex]="form.fbForm.get('tiene_prerequisitos')!.value === 1 ? 1 : 0">
+                            
+                            <p-accordionTab header="{{ form.fbForm.get('tiene_prerequisitos')!.value === 1 ? 'Deshabilitar' : 'Habilitar'}} prerrequisitos">
+                                <div class="formgrid grid">
+                                    <div class="field col-12 mt-2">
+                                        <label><strong>¿Tiene prerrequisitos?</strong></label>
+                                        <div class="flex flex-row justify-content-start flex-wrap">
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>No</span>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_prerequisitos"  styleClass="mt-1 mx-1" (onChange)="changeSwitchTienePreRequisitos($event)"/>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>Si</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field col-12 mt-2">
+                                        <app-uploader-files [mode]="mode!"></app-uploader-files>
+                                    </div>
+                                    <div class="field col-12 mt-2">
+                                        <div class="flex justify-content-end">
+                                            <p-button 
+                                                *ngIf="form.showButtonSubmitUpdate && mode === 'edit'"
+                                                label="Actualizar" 
+                                                icon="pi pi-check"
+                                                styleClass="mr-2 p-button-success p-button-sm" 
+                                                [disabled]="form.stateFormUpdate === 'INVALID' || form.stateFormUpdate === undefined "
+                                                (click)="openConfirmationDelete(form.fbFormUpdate.get('tiene_prerequisitos')!.value, 'tiene_prerequisitos')">
+                                            </p-button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </p-accordionTab>
+                            <p-accordionTab  [disabled]="form.fbForm.get('tiene_prerequisitos')!.value === 0" header="Prerrequisitos">
+                                <div class="flex justify-content-between align-items-center">
+                                    <div class="flex align-items-center justify-content-center">
+                                        <p-messages severity="info">
+                                            <ng-template pTemplate>
+                                                <i class="pi pi-info-circle mr-3"></i>
+                                                <span>
+                                                    A continuación se enlistan las asignaturas con sus prerrequisitos. 
+                                                    <span *ngIf="mode === 'edit'">
+                                                        Si desea agregar un nuevo prerrequisito, presione el botón <strong>Agregar</strong>.
+                                                    </span>
+                                                </span>
+                                            </ng-template>
+                                        </p-messages>
+                                    </div>
+                                    <div *ngIf="mode === 'edit'" class="flex align-items-center justify-content-center">
+                                        <p-button
+                                            label="Agregar"
+                                            icon="pi pi-plus"
+                                            styleClass="p-button-success ml-4"
+                                            (click)="initCreateFormPrerrequisito()"
+                                        ></p-button>
+                                    </div>
+                                </div>
+                                <ng-container *ngIf="form.fbForm.get('tiene_prerequisitos')!.value === 1">
+                                    <app-form-prerrequisitos [dataExternal]="form.dataExternal"></app-form-prerrequisitos>
+                                    <app-table-prerrequisitos [mode]="mode" [dataExternal]="form.dataExternal"></app-table-prerrequisitos>
+                                </ng-container>
+                            </p-accordionTab>
+                        </p-accordion>
+                    </div>
+                </ng-container>
+    
+                <ng-container *ngIf="main.dialogUpdateMode === 'tiene_articulacion' ">
+                    <div class="field col-12 mt-2">
+                        <p-accordion [activeIndex]="form.fbForm.get('tiene_articulacion')!.value === 1 ? 1 : 0">
+                            <p-accordionTab header="{{ form.fbForm.get('tiene_articulacion')!.value === 1 ? 'Deshabilitar' : 'Habilitar'}} articulaciones">
+                                <div class="formgrid grid">
+                                    <div class="field col-12 mt-2">
+                                        <label><strong>¿Es articulable?</strong></label>
+                                        <div class="flex flex-row justify-content-start flex-wrap">
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>No</span>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_articulacion"  styleClass="mt-1 mx-1" (onChange)="changeSwitchTieneArticulacion($event)"/>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>Si</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field col-12 mt-2">
+                                        <app-uploader-files [mode]="mode!"></app-uploader-files>
+                                    </div>
+                                    <div class="field col-12 mt-2">
+                                        <div class="flex justify-content-end">
+                                            <p-button 
+                                                *ngIf="form.showButtonSubmitUpdate && mode === 'edit'"
+                                                label="Actualizar" 
+                                                icon="pi pi-check"
+                                                styleClass="mr-2 p-button-success p-button-sm" 
+                                                [disabled]="form.stateFormUpdate === 'INVALID' || form.stateFormUpdate === undefined "
+                                                (click)="openConfirmationDelete(form.fbFormUpdate.get('tiene_articulacion')!.value, 'tiene_articulacion')">
+                                            </p-button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </p-accordionTab>
+                            <p-accordionTab  [disabled]="form.fbForm.get('tiene_articulacion')!.value === 0" header="Articulaciones">
+                                <div class="flex justify-content-between align-items-center">
+                                    <div class="flex align-items-center justify-content-center">
+                                        <p-messages severity="info">
+                                            <ng-template pTemplate>
+                                                <i class="pi pi-info-circle mr-3"></i>
+                                                <span>
+                                                    A continuación se enlistan las articulaciones entre asignaturas del plan de estudio y asignaturas de pregrado. 
+                                                    <span *ngIf="mode === 'edit'">
+                                                        Si desea agregar una nueva articulación, presione el botón <strong>Agregar</strong>.
+                                                    </span>
+                                                </span>
+                                            </ng-template>
+                                        </p-messages>
+                                    </div>
+                                    <div *ngIf="mode === 'edit'" class="flex align-items-center justify-content-center">
+                                        <p-button
+                                            label="Agregar"
+                                            icon="pi pi-plus"
+                                            styleClass="p-button-success ml-4"
+                                            (click)="initCreateFormArticulacion()"
+                                        ></p-button>
+                                    </div>
+                                </div>
+                                <ng-container *ngIf="form.fbForm.get('tiene_articulacion')!.value === 1">
+                                    <app-form-articulaciones [dataExternal]="form.dataExternal"></app-form-articulaciones>
+                                    <app-table-articulaciones [mode]="mode" [dataExternal]="form.dataExternal"></app-table-articulaciones>
+                                </ng-container>
+                            </p-accordionTab>
+
+                        </p-accordion>
+
+                    </div>
+                </ng-container>
+    
+                <ng-container *ngIf="main.dialogUpdateMode === 'tiene_mencion' ">
+                    <div class="field col-12 mt-2">
+                        <p-accordion [activeIndex]="form.fbForm.get('tiene_mencion')!.value === 1 ? 1 : 0">
+                            <p-accordionTab header="{{ form.fbForm.get('tiene_mencion')!.value === 1 ? 'Deshabilitar' : 'Habilitar'}} menciones">
+                                <div class="formgrid grid">
+                                    <div class="field col-12 mt-2">
+                                        <label><strong>¿Incluida en mención?</strong></label>
+                                        <div class="flex flex-row justify-content-start flex-wrap">
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>No</span>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_mencion"  styleClass="mt-1 mx-1" (onChange)="changeSwitchTieneMencion($event)"/>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>Si</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field col-12 mt-2">
+                                        <app-uploader-files [mode]="mode!"></app-uploader-files>
+                                    </div>
+                                    <div class="field col-12 mt-2">
+                                        <div class="flex justify-content-end">
+                                            <p-button 
+                                                *ngIf="form.showButtonSubmitUpdate && mode === 'edit'"
+                                                label="Actualizar" 
+                                                icon="pi pi-check"
+                                                styleClass="mr-2 p-button-success p-button-sm" 
+                                                [disabled]="form.stateFormUpdate === 'INVALID' || form.stateFormUpdate === undefined "
+                                                (click)="openConfirmationDelete(form.fbFormUpdate.get('tiene_mencion')!.value, 'tiene_mencion')">
+                                            </p-button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </p-accordionTab>
+                            <p-accordionTab [disabled]="form.fbForm.get('tiene_mencion')!.value === 0" header="Menciones">
+                                <div class="flex justify-content-between align-items-center">
+                                    <div class="flex align-items-center justify-content-center">
+                                        <p-messages severity="info">
+                                            <ng-template pTemplate>
+                                                <i class="pi pi-info-circle mr-3"></i>
+                                                <span>
+                                                    A continuación se enlistan las menciones donde se encuentra incluida la asignatura. 
+                                                    <span *ngIf="mode === 'edit'">
+                                                        Si desea incluir asignatura(s) a una mención, presione el botón <strong>Incluir</strong>.
+                                                    </span>
+                                                </span>
+                                            </ng-template>
+                                        </p-messages>
+                                    </div>
+                                    <div *ngIf="mode === 'edit'" class="flex align-items-center justify-content-center">
+                                        <p-button
+                                            label="Incluir"
+                                            icon="pi pi-plus"
+                                            styleClass="p-button-success ml-4"
+                                            (click)="initCreateFormMencion()"
+                                        ></p-button>
+                                    </div>
+                                </div>
+                                <ng-container *ngIf="form.fbForm.get('tiene_mencion')!.value === 1">
+                                    <app-form-menciones [needShowAsignaturas]="true" [dataExternal]="form.dataExternal"></app-form-menciones>
+                                    <app-table-menciones [from]="'crud_asign'" [mode]="mode" [dataExternal]="form.dataExternal"></app-table-menciones>
+                                </ng-container>
+                            </p-accordionTab>
+                        </p-accordion>
+                    </div>
+                </ng-container>
+    
+                <ng-container *ngIf="main.dialogUpdateMode === 'tiene_secuencialidad' ">
+                    <div class="field col-12 mt-2">
+                        <p-accordion [activeIndex]="form.fbForm.get('tiene_secuencialidad')!.value === 1 ? 1 : 0">
+                            <p-accordionTab header="Actualizar paralelidad / secuencialidad ">
+                                <div class="formgrid grid">
+                                    <div class="field col-12 mt-2">
+                                        <label><strong>¿Es paralela o secuencial?</strong></label>
+                                        <div class="flex flex-row justify-content-start flex-wrap">
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>No</span>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_secuencialidad"  styleClass="mt-1 mx-1" />
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>Si</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field col-12 mt-2">
+                                        <app-uploader-files [mode]="mode!"></app-uploader-files>
+                                    </div>
+                                    <div class="field col-12 mt-2">
+                                        <div class="flex justify-content-end">
+                                            <p-button 
+                                                *ngIf="form.showButtonSubmitUpdate && mode === 'edit'"
+                                                label="Actualizar" 
+                                                icon="pi pi-check"
+                                                styleClass="mr-2 p-button-success p-button-sm" 
+                                                [disabled]="form.stateFormUpdate === 'INVALID' || form.stateFormUpdate === undefined "
+                                                (click)="openConfirmationDelete(form.fbFormUpdate.get('tiene_secuencialidad')!.value, 'tiene_secuencialidad')">
+                                            </p-button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </p-accordionTab>
+
+                            <p-accordionTab header="{{ form.fbForm.get('tiene_secuencialidad')!.value === 1 ? 'Asignaturas secuenciales' : 'Asignaturas paralelas'}} ">
+                                <div class="flex justify-content-between align-items-center">
+                                    <div class="flex align-items-center justify-content-center">
+                                        <p-messages severity="info">
+                                            <ng-template pTemplate>
+                                                <i class="pi pi-info-circle mr-3"></i>
+                                                <span>
+                                                    A continuación se enlista la asignatura con sus {{ form.fbForm.get('tiene_secuencialidad')!.value === 1 ? 'asignaturas secuenciales' : 'asignaturas paralelas'}}. 
+                                                    <span *ngIf="mode === 'edit'">
+                                                        Si desea agregar una nueva {{ form.fbForm.get('tiene_secuencialidad')!.value === 1 ? 'asignatura secuencial' : 'asignatura paralela'}}, presione el botón <strong>Agregar</strong>.
+                                                    </span>
+                                                </span>
+                                            </ng-template>
+                                        </p-messages>
+                                    </div>
+                                    <div *ngIf="mode === 'edit'" class="flex align-items-center justify-content-center">
+                                        <p-button
+                                            label="Agregar"
+                                            icon="pi pi-plus"
+                                            styleClass="p-button-success ml-4"
+                                            (click)="initCreateFormSecuencialidadParalelidad()"
+                                        ></p-button>
+                                    </div>
+                                </div>
+                                <ng-container>
+                                    <app-form-paralela-secuencial [dataExternal]="form.dataExternal"></app-form-paralela-secuencial>
+                                    <app-table-paralela-secuencial [mode]="mode" [dataExternal]="form.dataExternal"></app-table-paralela-secuencial>
+                                </ng-container>
+                            </p-accordionTab>
+                        </p-accordion>
+                    </div>
+                </ng-container>
+    
+                <ng-container *ngIf="main.dialogUpdateMode === 'obligatoria_electiva' ">
+                    <div class="field col-12 lg:col-6 mt-2">
+                        <label><strong>¿Es obligatoria o electiva?</strong></label>
+                        <div class="flex flex-row justify-content-start flex-wrap">
+                            <div class="flex align-items-center justify-content-center">
+                                <span>Obligatoria</span>
+                            </div>
+                            <div class="flex align-items-center justify-content-center mx-2">
+                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="obligatoria_electiva"  styleClass="mt-1 mx-1"/>
+                            </div>
+                            <div class="flex align-items-center justify-content-center">
+                                <span>Electiva</span>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+    
+                <ng-container *ngIf="main.dialogUpdateMode === 'tiene_tema' ">
+                    <div class="field col-12 lg:col-6 mt-2">
+                        <label><strong>¿Tiene tema?</strong></label>
+                        <div class="flex flex-row justify-content-start flex-wrap">
+                            <div class="flex align-items-center justify-content-center">
+                                <span>No</span>
+                            </div>
+                            <div class="flex align-items-center justify-content-center mx-2">
+                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_tema"  styleClass="mt-1 mx-1" (onChange)="changeSwitchTieneTema($event)"/>
+                            </div>
+                            <div class="flex align-items-center justify-content-center">
+                                <span>Si</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field col-12 lg:col-6 mt-2">
+                        <label><strong>Temas {{ mode === 'edit' ? '*' : ''}}</strong></label>
+                        <p-multiSelect
+                            [options]="main.temas"
+                            [style]="{ width: '100%', 'min-width': '100%' }"
+                            [virtualScroll]="true"
+                            [virtualScrollItemSize]="55"
+                            [filterFields]="['nombre_tema']"
+                            [maxSelectedLabels]="0"
+                            [optionDisabled]="mode === 'show' ? 'checkDisabled' : 'none'"
+                            formControlName="temas"
+                            placeholder="Seleccione tema(s)"
+                            appendTo="body"
+                            selectedItemsLabel="{0} tema(s) seleccionado(s)"
+                            filterPlaceHolder="Buscar tema..."
+                            optionLabel="nombre_tema"
+                        />
+                        <app-form-control [control]="form.fbFormUpdate.controls['temas']" [validators]="['required']"></app-form-control>
+                    </div>
+                </ng-container>
+    
+                <div class="field col-12"
+                    *ngIf="
+                            main.dialogUpdateMode !== 'tiene_articulacion' &&
+                            main.dialogUpdateMode !== 'tiene_prerequisitos' &&
+                            main.dialogUpdateMode !== 'tiene_secuencialidad' &&
+                            main.dialogUpdateMode !== 'tiene_mencion' 
+                        "
+                >
+                    <label>
+                        <strong> 
+                            {{ mode === 'show' ? 'Documentos adjuntos' : 'Adjunte documentos *'}} 
+                        </strong>
+                    </label>
+                    <app-uploader-files [mode]="mode!"></app-uploader-files>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <div footer>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2"
+            (click)="main.dialogUpdate = false" [text]="true">
+        </p-button>
+        <p-button 
+            *ngIf="form.showButtonSubmitUpdate && 
+                    mode === 'edit' &&
+                    main.dialogUpdateMode !== 'tiene_secuencialidad' &&
+                    main.dialogUpdateMode !== 'tiene_mencion' &&
+                    main.dialogUpdateMode !== 'tiene_prerequisitos' &&
+                    main.dialogUpdateMode !== 'tiene_articulacion' "
+            label="Actualizar" 
+            icon="pi pi-check"
+            styleClass="mr-2 p-button-success p-button-sm" 
+            [disabled]="form.stateFormUpdate === 'INVALID' || form.stateFormUpdate === undefined "
+            (click)="submit()">
+        </p-button>
+    </div>
+</app-dialog>

@@ -14,7 +14,7 @@ export class TableArticulacionesService {
         { field: 'Asignaturas', header: 'Núm. de asignaturas articuladas' },
         { field: 'accion', header: 'Acciones' }
     ];
-    globalFiltros : any[] = ['asignatura_postgrado.nombre_asignatura_completo' ];
+    globalFiltros : any[] = ['asignatura_postgrado.nombre_asignatura_completa' ];
     globalFiltrosAsignatura : any[] = [ 'codigo_externo' , 'nombre_asignatura' , 'nombre_tema' ];
     dataKeyTable : string = 'cod_articulacion';
     selectedRows: Articulacion[] = [];

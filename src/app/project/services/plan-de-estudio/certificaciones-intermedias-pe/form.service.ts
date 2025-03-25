@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Message } from 'primeng/api';
 import { CertificacionIntermediaPE } from 'src/app/project/models/plan-de-estudio/CertificacionIntermediaPE';
 import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
+import { PrincipalControls } from 'src/app/project/models/shared/PrincipalControls';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 
 @Injectable({
@@ -20,6 +22,19 @@ export class FormCertifIntermediasPEService {
     cod_programa_postgrado_selected: number = 0;
     cod_planestudio_selected: number = 0;
 
+	showTableAsignatura: boolean = false;
+
+
+    messages: Message[] = [
+        {
+            severity: 'info',
+            detail: `
+                        Se cargan solo programas que cuentan con la opción de <b> ¿Tiene certificación intermedia? </b> habilitada.
+                        Si el programa que desea seleccionar no aparece en la lista, diríjase al Mantenedor de programas, habilite la opción y actualice el programa.
+                    `
+        }
+    ];
+
     constructor(private fb: FormBuilder){}
 
     async initForm(): Promise<boolean>{
@@ -29,7 +44,8 @@ export class FormCertifIntermediasPEService {
             cod_plan_estudio: ['', [Validators.required]],
             cod_certif_intermedia: ['', [Validators.required]],
             descripcion_certif_intermedia: [''],
-            asignaturas: ['', [Validators.required]],
+            asignaturas: [[], [Validators.required]],
+            data_asignaturas: [[]],
             aux: ['']
         });
         return true;
@@ -42,12 +58,14 @@ export class FormCertifIntermediasPEService {
             cod_plan_estudio: '',
             cod_certif_intermedia: '',
             descripcion_certif_intermedia: '',
-            asignaturas: '',
+            asignaturas: [],
+            data_asignaturas: [],
             aux: ''
         });
         this.fbForm.enable();
         this.fbForm.get('cod_programa')?.disable();
         this.fbForm.get('cod_plan_estudio')?.disable();
+        this.showTableAsignatura = false;
         console.log("resetee form certif intermedia pe");
     }
 
@@ -60,6 +78,8 @@ export class FormCertifIntermediasPEService {
     }
 
     async setForm(mode:'show' | 'edit' ,data: CertificacionIntermediaPE) {
+        console.log("data",data);
+        
         this.fbForm.patchValue({...data});
         if (mode === 'show') {
             this.fbForm.disable();
@@ -87,6 +107,27 @@ export class FormCertifIntermediasPEService {
             params = {...this.fbForm.value}
         }
         return params
+    }
+
+    async getDataPrincipalControls(): Promise<PrincipalControls> {
+        const cod_facultad = this.fbForm.get('cod_facultad');
+        const cod_programa = this.fbForm.get('cod_programa');
+        const cod_plan_estudio = this.fbForm.get('cod_plan_estudio');
+        let dataToLog: PrincipalControls = {};
+        if (cod_facultad?.disabled  &&  cod_programa?.disabled && cod_plan_estudio?.disabled) {
+            dataToLog = {
+                cod_facultad: this.cod_facultad_selected_postgrado, 
+                cod_programa: this.cod_programa_postgrado_selected,
+                cod_plan_estudio: this.cod_planestudio_selected,
+            }
+        }else{
+            dataToLog = {
+                cod_facultad: cod_facultad!.value, 
+                cod_programa: cod_programa!.value,
+                cod_plan_estudio: cod_plan_estudio!.value
+            }
+        }
+        return dataToLog
     }
 
     setDataExternal(dataExternal: DataExternal){
@@ -152,7 +193,7 @@ export class FormCertifIntermediasPEService {
     //FIN FUNCIONES PARA DROPDOWN PROGRAMA POSTGRADO
 
 	resetFormWhenChangedDropdownPE(){
-		this.fbForm.patchValue({ asignaturas: '' });
+		this.fbForm.patchValue({ asignaturas: [] });
 	}
 
     setCertificacionIntermedia(event: any){
@@ -161,7 +202,10 @@ export class FormCertifIntermediasPEService {
     }
 
     setAsignaturas(event: any){
-		this.fbForm.patchValue({ asignaturas: event });
+        console.log("evevnenvenvne",event);
+        
+		this.fbForm.patchValue({ asignaturas: event.filteredResult });
+		this.fbForm.patchValue({ data_asignaturas: event.selectedData });
     }
 
 

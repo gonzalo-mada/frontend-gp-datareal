@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Table } from 'primeng/table';
+import { Subscription } from 'rxjs';
 import { CertificacionIntermediaPE } from 'src/app/project/models/plan-de-estudio/CertificacionIntermediaPE';
 import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
@@ -16,6 +17,7 @@ export class TableCertificacionesIntermediasPeComponent {
 	
 	@Input() mode: ModeForm;
 	@Input() dataExternal: DataExternal = { data: false };
+	private subscription: Subscription = new Subscription();
 
 	searchValue: string | undefined;
 	expandedRows = {};
@@ -26,7 +28,8 @@ export class TableCertificacionesIntermediasPeComponent {
 	){}
 
 	ngOnInit(): void {
-		this.dataExternal.data ? ( this.setTable() ) : ( this.getData(true) );
+		this.subscription.add(this.main.onInsertedData$.subscribe( () => this.getData(false)))
+		this.dataExternal.data ? ( this.setTable() ) : ( this.getData(false) );
 	}
 	  
 	ngOnDestroy(): void {
@@ -39,7 +42,7 @@ export class TableCertificacionesIntermediasPeComponent {
 	}
 
 	async getData(showCountTableValues: boolean){
-		if(this.main.certificaciones.length === 0) await this.main.getCertificacionesIntermediasPorPlanDeEstudio(showCountTableValues)
+		await this.main.getCertificacionesIntermediasPorPlanDeEstudio(showCountTableValues)
 	}
 
 	onGlobalFilter(table: Table, event: Event) {

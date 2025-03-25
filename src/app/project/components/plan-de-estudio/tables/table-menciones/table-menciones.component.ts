@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Table } from 'primeng/table';
+import { Subscription } from 'rxjs';
 import { Mencion } from 'src/app/project/models/plan-de-estudio/Mencion';
 import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
@@ -16,17 +17,22 @@ export class TableMencionesComponent {
 
 	@Input() mode: ModeForm;
 	@Input() dataExternal: DataExternal = { data: false };
+	@Input() from!: 'crud_asign' | 'crud_pe' | 'mantenedor' ;
+	private subscription: Subscription = new Subscription();
 
 	searchValue: string | undefined;
 	expandedRows = {};
+	showRowExpandAsignaturas: boolean = false;
 	
 	constructor(
 		public main: MencionesMainService,
 		public table: TableMencionesService
 	){}
 
-	ngOnInit(): void {
-		this.dataExternal.data ? ( this.setTable() ) : ( this.getData(true) );
+	async ngOnInit() {
+		this.subscription.add(this.main.onActionToBD$.subscribe( () => this.getData(false)))
+		this.main.openedFrom = this.from;
+		this.dataExternal.data ? ( await this.setTable() ) : ( await this.getData(false) );
 	}
 	  
 	ngOnDestroy(): void {
@@ -39,7 +45,15 @@ export class TableMencionesComponent {
 	}
 
 	async getData(showCountTableValues: boolean){
-		if(this.main.menciones.length === 0) await this.main.getMencionesPorPlanDeEstudio(showCountTableValues)
+		if (this.from !== 'crud_asign') {
+			await this.main.getMencionesPorPlanDeEstudio(showCountTableValues);
+			this.showRowExpandAsignaturas = true;
+		}else{
+			await this.main.getMencionesPorAsignatura(showCountTableValues);
+			this.showRowExpandAsignaturas = false;
+
+		}
+		
 	}
 
 	onGlobalFilter(table: Table, event: Event) {

@@ -1,6 +1,9 @@
-<app-dialog [dialogWidth]="'65vw'" [(visible)]="main.dialogUpdate" (visibleChange)="closeDialog()">
+<app-dialog [dialogWidth]="'80vw'" [(visible)]="main.dialogUpdate" (visibleChange)="closeDialog()">
     <div header>
         <ng-container [ngSwitch]="main.dialogUpdateMode">
+            <span *ngSwitchCase="'articulacion'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} articulación</span>
+            <span *ngSwitchCase="'asign-pc'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} asignaturas para plan común</span>
+            <span *ngSwitchCase="'docs_maestros_plan_estudio'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} documentos maestros</span>
             <span *ngSwitchDefault class="text-xl" >{{mode === 'show' ? 'Ver' : 'Actualizar'}} {{ main.dialogUpdateMode }}</span>
         </ng-container>
     </div>
@@ -14,6 +17,7 @@
         </p-button> 
         <form *ngIf="main.dialogUpdate" [formGroup]="form.fbFormUpdate">
             <div class="formgrid grid">
+
                 <div class="col-12" *ngIf="mode !== 'show' && main.dialogUpdateMode !== 'reglamento' && main.dialogUpdateMode !== 'articulacion' ">
                     <app-form-isvalid [valid]="form.fbFormUpdate.valid"></app-form-isvalid>
                 </div>
@@ -78,7 +82,7 @@
                             optionValue="Cod_regimen"
                             (onChange)="changeRegimen($event)"
                         />
-                        <app-form-control [control]="form.fbFormUpdate.controls['cod_jornada']" [validators]="['required']"></app-form-control>
+                        <app-form-control [control]="form.fbFormUpdate.controls['cod_regimen']" [validators]="['required']"></app-form-control>
                     </div>
                 </ng-container>
 
@@ -113,39 +117,58 @@
                 </ng-container>
 
                 <ng-container *ngIf="main.dialogUpdateMode === 'articulacion' ">
-                    <div class="field col-12 lg:col-6 mt-2">
-                        <label><strong>¿Tiene articulación con programas de Pregrado?</strong></label>
-                        <div class="flex flex-row justify-content-start flex-wrap">
-                            <div class="flex align-items-center justify-content-center">
-                                <span>No</span>
-                            </div>
-                            <div class="flex align-items-center justify-content-center mx-2">
-                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_articulacion"  styleClass="mt-1 mx-1"/>
-                            </div>
-                            <div class="flex align-items-center justify-content-center">
-                                <span>Si</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 mt-2">
-                        <p-accordion [activeIndex]="0">
-                            <p-accordionTab  *ngIf="form.fbFormUpdate.get('tiene_articulacion')!.value === 1" header="Articulaciones">
+                    <div class="field col-12 mt-2">
+                        <p-accordion [activeIndex]="form.fbForm.get('tiene_articulacion')!.value === 1 ? 1 : 0" >
+                            <p-accordionTab header="{{ form.fbForm.get('tiene_articulacion')!.value === 1 ? 'Deshabilitar' : 'Habilitar'}} articulaciones">
+                                <div class="formgrid grid">
+                                    <div class="field col-12 mt-2">
+                                        <label><strong>¿Tiene articulación con programas de Pregrado?</strong></label>
+                                        <div class="flex flex-row justify-content-start flex-wrap">
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>No</span>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_articulacion"  styleClass="mt-1 mx-1" (onChange)="changeSwitchTieneArticulacion($event)"/>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>Si</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field col-12 mt-2">
+                                        <app-uploader-files [mode]="mode!"></app-uploader-files>
+                                    </div>
+                                    <div class="field col-12 mt-2">
+                                        <div class="flex justify-content-end">
+                                            <p-button 
+                                                *ngIf="form.showButtonSubmitUpdate && mode === 'edit'"
+                                                label="Actualizar" 
+                                                icon="pi pi-check"
+                                                styleClass="mr-2 p-button-success p-button-sm" 
+                                                [disabled]="form.stateFormUpdate === 'INVALID' || form.stateFormUpdate === undefined "
+                                                (click)="openConfirmationDelete(form.fbFormUpdate.get('tiene_articulacion')!.value, 'articulacion')">
+                                            </p-button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </p-accordionTab>
+                            <p-accordionTab  [disabled]="form.fbForm.get('tiene_articulacion')!.value === 0" header="Articulaciones">
                                 <div class="flex justify-content-between align-items-center">
                                     <div class="flex align-items-center justify-content-center">
                                         <p-messages severity="info">
                                             <ng-template pTemplate>
                                                 <i class="pi pi-info-circle mr-3"></i>
-                                                A continuación se enlistan las articulaciones entre asignaturas del plan de estudio y asignaturas de pregrado. 
-                                                <span *ngIf="mode === 'edit'">
-                                                    Si desea agregar una nueva articulación, presione el botón <strong>Agregar</strong>.
+                                                <span>
+                                                    A continuación se enlistan las articulaciones entre asignaturas del plan de estudio y asignaturas de pregrado. 
+                                                    <span *ngIf="mode === 'edit'">
+                                                        Si desea agregar una nueva articulación, presione el botón <strong>Agregar</strong>.
+                                                    </span>
                                                 </span>
                                             </ng-template>
                                         </p-messages>
                                     </div>
                                     <div *ngIf="mode === 'edit'" class="flex align-items-center justify-content-center">
                                         <p-button
-                                            [disabled]="form.fbFormUpdate.get('tiene_articulacion')!.value === 0"
                                             label="Agregar"
                                             icon="pi pi-plus"
                                             styleClass="p-button-success ml-4"
@@ -153,44 +176,63 @@
                                         ></p-button>
                                     </div>
                                 </div>
-                                <app-form-articulaciones [dataExternal]="form.dataExternal" (formWasClosed)="externalFormWasClosed()"></app-form-articulaciones>
-                                <app-table-articulaciones [mode]="mode" [dataExternal]="form.dataExternal"></app-table-articulaciones>
-                            </p-accordionTab>
-                            <p-accordionTab header="{{ mode === 'show' ? 'Documentos adjuntos' : 'Adjunte documentos *'}}">
-                                <app-uploader-files [mode]="mode!"></app-uploader-files>
+                                <ng-container *ngIf="form.fbForm.get('tiene_articulacion')!.value === 1">
+                                    <app-form-articulaciones [dataExternal]="form.dataExternal" ></app-form-articulaciones>
+                                    <app-table-articulaciones [mode]="mode" [dataExternal]="form.dataExternal"></app-table-articulaciones>
+                                </ng-container>
                             </p-accordionTab>
                         </p-accordion>
-                    </div>
 
+                    </div>
                 </ng-container>
 
                 <ng-container *ngIf="main.dialogUpdateMode === 'certificacion' ">
-                    <div class="field col-12 lg:col-6 mt-2">
-                        <label><strong>¿Tiene certificación intermedia?</strong></label>
-                        <div class="flex flex-row justify-content-start flex-wrap">
-                            <div class="flex align-items-center justify-content-center">
-                                <span>No</span>
-                            </div>
-                            <div class="flex align-items-center justify-content-center mx-2">
-                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_certificacion"  styleClass="mt-1 mx-1"/>
-                            </div>
-                            <div class="flex align-items-center justify-content-center">
-                                <span>Si</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 mt-2">
-                        <p-accordion [activeIndex]="0">
-                            <p-accordionTab  *ngIf="form.fbFormUpdate.get('tiene_certificacion')!.value === 1" header="Certificaciones intermedias">
+                    <div class="field col-12 mt-2">
+                        <p-accordion [activeIndex]="form.fbForm.get('tiene_certificacion')!.value === 1 ? 1 : 0">
+                            <p-accordionTab header="{{ form.fbForm.get('tiene_certificacion')!.value === 1 ? 'Deshabilitar' : 'Habilitar'}} certificación intermedia">
+                                <div class="formgrid grid">
+                                    <div class="field col-12 mt-2">
+                                        <label><strong>¿Tiene certificación intermedia?</strong></label>
+                                        <div class="flex flex-row justify-content-start flex-wrap">
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>No</span>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_certificacion"  styleClass="mt-1 mx-1" (onChange)="changeSwitchTieneCertificacion($event)"/>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>Si</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field col-12 mt-2">
+                                        <app-uploader-files [mode]="mode!"></app-uploader-files>
+                                    </div>
+                                    <div class="field col-12 mt-2">
+                                        <div class="flex justify-content-end">
+                                            <p-button 
+                                                *ngIf="form.showButtonSubmitUpdate && mode === 'edit'"
+                                                label="Actualizar" 
+                                                icon="pi pi-check"
+                                                styleClass="mr-2 p-button-success p-button-sm" 
+                                                [disabled]="form.stateFormUpdate === 'INVALID' || form.stateFormUpdate === undefined "
+                                                (click)="openConfirmationDelete(form.fbFormUpdate.get('tiene_certificacion')!.value, 'certificacion')">
+                                            </p-button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </p-accordionTab>
+                            <p-accordionTab  [disabled]="form.fbForm.get('tiene_certificacion')!.value === 0" header="Certificación intermedia">
                                 <div class="flex justify-content-between align-items-center">
                                     <div class="flex align-items-center justify-content-center">
                                         <p-messages severity="info">
                                             <ng-template pTemplate>
                                                 <i class="pi pi-info-circle mr-3"></i>
-                                                A continuación se enlistan las certificaciones intermedias con sus asignaturas.
-                                                <span *ngIf="mode === 'edit'"> 
-                                                    Si desea agregar una nueva certificación intermedia, presione el botón <strong>Agregar</strong>.
+                                                <span>
+                                                    A continuación se enlistan las certificaciones intermedias con sus asignaturas.
+                                                    <span *ngIf="mode === 'edit'"> 
+                                                        Si desea agregar una nueva certificación intermedia, presione el botón <strong>Agregar</strong>.
+                                                    </span>
                                                 </span>
                                             </ng-template>
                                         </p-messages>
@@ -198,7 +240,6 @@
                                     </div>
                                     <div *ngIf="mode === 'edit'" class="flex align-items-center justify-content-center">
                                         <p-button
-                                            [disabled]="form.fbFormUpdate.get('tiene_certificacion')!.value === 0"
                                             label="Agregar"
                                             icon="pi pi-plus"
                                             styleClass="p-button-success ml-4"
@@ -206,52 +247,68 @@
                                         ></p-button>
                                     </div>
                                 </div>
-                                <app-form-certificaciones-intermedias-pe  [dataExternal]="form.dataExternal" (formWasClosed)="externalFormWasClosed()"></app-form-certificaciones-intermedias-pe>
-                                <app-table-certificaciones-intermedias-pe [mode]="mode" [dataExternal]="form.dataExternal"></app-table-certificaciones-intermedias-pe>
-                            </p-accordionTab>
-                            <p-accordionTab header="{{ mode === 'show' ? 'Documentos adjuntos' : 'Adjunte documentos *'}}">
-                                <app-uploader-files [mode]="mode!"></app-uploader-files>
+                                <ng-container *ngIf="form.fbForm.get('tiene_certificacion')!.value === 1">
+                                    <app-form-certificaciones-intermedias-pe  [dataExternal]="form.dataExternal" ></app-form-certificaciones-intermedias-pe>
+                                    <app-table-certificaciones-intermedias-pe [mode]="mode" [dataExternal]="form.dataExternal"></app-table-certificaciones-intermedias-pe>
+                                </ng-container>
                             </p-accordionTab>
                         </p-accordion>
                     </div>
-
                 </ng-container>
 
                 <ng-container *ngIf="main.dialogUpdateMode === 'rangos' ">
-                    <div class="field col-12 lg:col-6 mt-2">
-                        <label><strong>¿Tiene rangos de aprobación?</strong></label>
-                        <div class="flex flex-row justify-content-start flex-wrap">
-                            <div class="flex align-items-center justify-content-center">
-                                <span>No</span>
-                            </div>
-                            <div class="flex align-items-center justify-content-center mx-2">
-                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_rango_aprob_g"  styleClass="mt-1 mx-1"/>
-                            </div>
-                            <div class="flex align-items-center justify-content-center">
-                                <span>Si</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 mt-2">
-                        <p-accordion [activeIndex]="0">
-                            <p-accordionTab  *ngIf="form.fbFormUpdate.get('tiene_rango_aprob_g')!.value === 1" header="Rangos de aprobación">
+                    <div class="field col-12 mt-2">
+                        <p-accordion [activeIndex]="form.fbForm.get('tiene_rango_aprob_g')!.value === 1 ? 1 : 0">
+                            <p-accordionTab header="{{ form.fbForm.get('tiene_rango_aprob_g')!.value === 1 ? 'Deshabilitar' : 'Habilitar'}} rangos de aprobación">
+                                <div class="formgrid grid">
+                                    <div class="field col-12 mt-2">
+                                        <label><strong>¿Tiene rangos de aprobación?</strong></label>
+                                        <div class="flex flex-row justify-content-start flex-wrap">
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>No</span>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_rango_aprob_g"  styleClass="mt-1 mx-1" (onChange)="changeSwitchTieneRangos($event)"/>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>Si</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field col-12 mt-2">
+                                        <app-uploader-files [mode]="mode!"></app-uploader-files>
+                                    </div>
+                                    <div class="field col-12 mt-2">
+                                        <div class="flex justify-content-end">
+                                            <p-button 
+                                                *ngIf="form.showButtonSubmitUpdate && mode === 'edit'"
+                                                label="Actualizar" 
+                                                icon="pi pi-check"
+                                                styleClass="mr-2 p-button-success p-button-sm" 
+                                                [disabled]="form.stateFormUpdate === 'INVALID' || form.stateFormUpdate === undefined "
+                                                (click)="openConfirmationDelete(form.fbFormUpdate.get('tiene_rango_aprob_g')!.value, 'rangos')">
+                                            </p-button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </p-accordionTab>
+                            <p-accordionTab  [disabled]="form.fbForm.get('tiene_rango_aprob_g')!.value === 0" header="Rangos de aprobación">
                                 <div class="flex justify-content-between align-items-center">
                                     <div class="flex align-items-center justify-content-center">
                                         <p-messages severity="info">
                                             <ng-template pTemplate>
                                                 <i class="pi pi-info-circle mr-3"></i>
-                                                A continuación se enlistan los rangos de aprobación del plan de estudio.
-                                                <span *ngIf="mode === 'edit'"> 
-                                                    Si desea agregar un nuevo rango de aprobación, presione el botón <strong>Agregar</strong>.
+                                                <span>
+                                                    A continuación se enlistan los rangos de aprobación del plan de estudio.
+                                                    <span *ngIf="mode === 'edit'"> 
+                                                        Si desea agregar un nuevo rango de aprobación, presione el botón <strong>Agregar</strong>.
+                                                    </span>
                                                 </span>
                                             </ng-template>
                                         </p-messages>
-                                        
                                     </div>
                                     <div *ngIf="mode === 'edit'" class="flex align-items-center justify-content-center">
                                         <p-button
-                                            [disabled]="form.fbFormUpdate.get('tiene_rango_aprob_g')!.value === 0"
                                             label="Agregar"
                                             icon="pi pi-plus"
                                             styleClass="p-button-success ml-4"
@@ -259,52 +316,68 @@
                                         ></p-button>
                                     </div>
                                 </div>
-                                <app-form-rangos-ag [dataExternal]="form.dataExternal" (formWasClosed)="externalFormWasClosed()"></app-form-rangos-ag>
-                                <app-table-rangos-ag [mode]="mode" [dataExternal]="form.dataExternal"></app-table-rangos-ag>
-                            </p-accordionTab>
-                            <p-accordionTab header="{{ mode === 'show' ? 'Documentos adjuntos' : 'Adjunte documentos *'}}">
-                                <app-uploader-files [mode]="mode!"></app-uploader-files>
+                                <ng-container *ngIf="form.fbForm.get('tiene_rango_aprob_g')!.value === 1">
+                                    <app-form-rangos-ag [dataExternal]="form.dataExternal" ></app-form-rangos-ag>
+                                    <app-table-rangos-ag [mode]="mode" [dataExternal]="form.dataExternal"></app-table-rangos-ag>
+                                </ng-container>
                             </p-accordionTab>
                         </p-accordion>
                     </div>
-
                 </ng-container>
 
                 <ng-container *ngIf="main.dialogUpdateMode === 'menciones' ">
-                    <div class="field col-12 lg:col-6 mt-2">
-                        <label><strong>¿Tiene menciones?</strong></label>
-                        <div class="flex flex-row justify-content-start flex-wrap">
-                            <div class="flex align-items-center justify-content-center">
-                                <span>No</span>
-                            </div>
-                            <div class="flex align-items-center justify-content-center mx-2">
-                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_mencion"  styleClass="mt-1 mx-1"/>
-                            </div>
-                            <div class="flex align-items-center justify-content-center">
-                                <span>Si</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 mt-2">
-                        <p-accordion [activeIndex]="0">
-                            <p-accordionTab  *ngIf="form.fbFormUpdate.get('tiene_mencion')!.value === 1" header="Menciones">
+                    <div class="field col-12 mt-2">
+                        <p-accordion [activeIndex]="form.fbForm.get('tiene_mencion')!.value === 1 ? 1 : 0">
+                            <p-accordionTab header="{{ form.fbForm.get('tiene_mencion')!.value === 1 ? 'Deshabilitar' : 'Habilitar'}} menciones">
+                                <div class="formgrid grid">
+                                    <div class="field col-12 mt-2">
+                                        <label><strong>¿Tiene menciones?</strong></label>
+                                        <div class="flex flex-row justify-content-start flex-wrap">
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>No</span>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_mencion"  styleClass="mt-1 mx-1" (onChange)="changeSwitchTieneMenciones($event)"/>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>Si</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field col-12 mt-2">
+                                        <app-uploader-files [mode]="mode!"></app-uploader-files>
+                                    </div>
+                                    <div class="field col-12 mt-2">
+                                        <div class="flex justify-content-end">
+                                            <p-button 
+                                                *ngIf="form.showButtonSubmitUpdate && mode === 'edit'"
+                                                label="Actualizar" 
+                                                icon="pi pi-check"
+                                                styleClass="mr-2 p-button-success p-button-sm" 
+                                                [disabled]="form.stateFormUpdate === 'INVALID' || form.stateFormUpdate === undefined "
+                                                (click)="openConfirmationDelete(form.fbFormUpdate.get('tiene_mencion')!.value, 'menciones')">
+                                            </p-button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </p-accordionTab>
+                            <p-accordionTab  [disabled]="form.fbForm.get('tiene_mencion')!.value === 0" header="Menciones">
                                 <div class="flex justify-content-between align-items-center">
                                     <div class="flex align-items-center justify-content-center">
                                         <p-messages severity="info">
                                             <ng-template pTemplate>
                                                 <i class="pi pi-info-circle mr-3"></i>
-                                                A continuación se enlistan las menciones con sus asignaturas del plan de estudio.
-                                                <span *ngIf="mode === 'edit'"> 
-                                                    Si desea agregar una nueva mención, presione el botón <strong>Agregar</strong>.
+                                                <span>
+                                                    A continuación se enlistan las menciones con sus asignaturas del plan de estudio.
+                                                    <span *ngIf="mode === 'edit'"> 
+                                                        Si desea agregar una nueva mención, presione el botón <strong>Agregar</strong>.
+                                                    </span>
                                                 </span>
                                             </ng-template>
                                         </p-messages>
-                                        
                                     </div>
                                     <div *ngIf="mode === 'edit'" class="flex align-items-center justify-content-center">
                                         <p-button
-                                            [disabled]="form.fbFormUpdate.get('tiene_mencion')!.value === 0"
                                             label="Agregar"
                                             icon="pi pi-plus"
                                             styleClass="p-button-success ml-4"
@@ -312,18 +385,252 @@
                                         ></p-button>
                                     </div>
                                 </div>
-                                <app-form-menciones [dataExternal]="form.dataExternal" (formWasClosed)="externalFormWasClosed()"></app-form-menciones>
-                                <app-table-menciones [mode]="mode" [dataExternal]="form.dataExternal"></app-table-menciones>
+                                <ng-container *ngIf="form.fbForm.get('tiene_mencion')!.value === 1">
+                                    <app-form-menciones [dataExternal]="form.dataExternal" ></app-form-menciones>
+                                    <app-table-menciones [mode]="mode" [dataExternal]="form.dataExternal" [from]="'crud_pe'"></app-table-menciones>
+                                </ng-container>
                             </p-accordionTab>
+                        </p-accordion>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngIf="main.dialogUpdateMode === 'asign-pc' ">
+                    <div class="field col-12 mt-2">
+                        <p-accordion [activeIndex]="form.fbForm.get('tiene_plan_comun')!.value === 1 ? 1 : 0">
+                            <p-accordionTab header="{{ form.fbForm.get('tiene_plan_comun')!.value === 1 ? 'Deshabilitar' : 'Habilitar'}} asignaturas para plan común">
+                                <div class="formgrid grid">
+                                    <div class="field col-12 mt-2">
+                                        <label><strong>¿Comparte asign. con plan común?</strong></label>
+                                        <div class="flex flex-row justify-content-start flex-wrap">
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>No</span>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_plan_comun"  styleClass="mt-1 mx-1" (onChange)="changeSwitchTienePlanComun($event)"/>
+                                            </div>
+                                            <div class="flex align-items-center justify-content-center">
+                                                <span>Si</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field col-12 mt-2">
+                                        <app-uploader-files [mode]="mode!"></app-uploader-files>
+                                    </div>
+                                    <div class="field col-12 mt-2">
+                                        <div class="flex justify-content-end">
+                                            <p-button 
+                                                *ngIf="form.showButtonSubmitUpdate && mode === 'edit'"
+                                                label="Actualizar" 
+                                                icon="pi pi-check"
+                                                styleClass="mr-2 p-button-success p-button-sm" 
+                                                [disabled]="form.stateFormUpdate === 'INVALID' || form.stateFormUpdate === undefined "
+                                                (click)="openConfirmationDelete(form.fbFormUpdate.get('tiene_plan_comun')!.value, 'asign-pc')">
+                                            </p-button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </p-accordionTab>
+                            <p-accordionTab  [disabled]="form.fbForm.get('tiene_plan_comun')!.value === 0" header="Asignaturas para plan común">
+                                <div class="flex justify-content-between align-items-center">
+                                    <div class="flex align-items-center justify-content-center">
+                                        <p-messages severity="info">
+                                            <ng-template pTemplate>
+                                                <i class="pi pi-info-circle mr-3"></i>
+                                                <span>
+                                                    A continuación se enlistan los planes comunes con los cuales comparte asignaturas el plan de estudio.
+                                                    <span *ngIf="mode === 'edit'"> 
+                                                        Si desea compartir asignaturas del plan de estudio con un plan común, presione el botón <strong>Agregar</strong>.
+                                                    </span>
+                                                </span>
+                                            </ng-template>
+                                        </p-messages>
+                                    </div>
+                                    <div *ngIf="mode === 'edit'" class="flex align-items-center justify-content-center">
+                                        <p-button
+                                            label="Agregar"
+                                            icon="pi pi-plus"
+                                            styleClass="p-button-success ml-4"
+                                            (click)="initCreateAsignPC()"
+                                        ></p-button>
+                                    </div>
+                                </div>
+                                <ng-container *ngIf="form.fbForm.get('tiene_plan_comun')!.value === 1">
+                                    <app-form-asignaturas-plancomun [dataExternal]="form.dataExternal" ></app-form-asignaturas-plancomun>
+                                    <app-table-asignaturas-plancomun [mode]="mode" [dataExternal]="form.dataExternal"></app-table-asignaturas-plancomun>
+                                </ng-container>
+                            </p-accordionTab>
+                        </p-accordion>
+                    </div>
+
+
+
+                </ng-container>
+
+                <ng-container *ngIf="main.dialogUpdateMode === 'asignaturas' ">
+                    <div class="field col-12 mt-2">
+                        <p-accordion [activeIndex]="0" >
+
+                            <p-accordionTab header="Asignaturas del plan de estudio">
+                                <div class="grid">
+                                    <div class="col-12 {{ main.asignaturasToDelete.length !== 0 ? 'md:col-6' : '' }}">
+                                        <div class="flex align-items-center justify-content-center mb-2">
+                                            <p-messages severity="info">
+                                                <ng-template pTemplate>
+                                                    <i class="pi pi-info-circle mr-3"></i>
+                                                    <span>
+                                                        A continuación, se enlistan las asignaturas del plan de estudio. Si desea eliminar una asignatura, presione el botón ( <i class="pi pi-trash" style="font-size: 0.8rem; font-weight:1000;"></i> ). 
+                                                    </span>
+                                                </ng-template>
+                                            </p-messages>
+                                        </div>
+                                        <p-table
+                                            #dt3    
+                                            [value]="main.asignaturas"
+                                            [globalFilterFields]="['nombre_asignatura_completa']"
+                                            [scrollable]="true"
+                                            scrollHeight="350px"
+                                            dataKey="cod_tema"
+                                        >
+                                            <ng-template pTemplate="caption">
+                                                <div class="flex flex-wrap flex-column sm:flex-row justify-content-center align-items-center">
+                                                    <div class="flex mb-2 md:mb-0">
+                                                        <span class="p-input-icon-left">
+                                                        <i class="pi pi-search"></i>
+                                                        <input #inputAsignaturaSelected pInputText type="text" placeholder="Buscar..." (input)="dt3.filterGlobal($any($event.target).value, 'contains')" />
+                                                        </span>
+                                                    </div>
+                                                    <p-button 
+                                                        styleClass="p-button-text p-button-sm " 
+                                                        icon="pi pi-filter-slash" 
+                                                        pTooltip="Limpiar filtros" 
+                                                        (click)="inputAsignaturaSelected.value = ''; dt3.filterGlobal('', 'contains') ">
+                                                    </p-button>
+                                                </div>
+                                            </ng-template>
+                
+                                            <ng-template pTemplate="header">
+                                                <tr>
+                                                    <th>Asignatura</th>
+                                                    <th *ngIf="mode !== 'show'">Acción</th>
+                                                </tr>
+                                            </ng-template>
+                
+                                            <ng-template pTemplate="body" let-asign>
+                                                <tr>
+                                                    <td>
+                                                        <span> {{ asign.codigo_externo }} - {{ asign.nombre_asignatura }}</span>
+                                                    </td>
+                                                    <td *ngIf="mode !== 'show'">
+                                                        <button 
+                                                            pButton class="p-button-sm p-button-outlined p-button-danger"
+                                                            pTooltip="Eliminar asignatura" 
+                                                            icon="pi pi-trash"
+                                                            (click)="main.removeAsignatura(asign)">
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </ng-template>
+                
+                                            <ng-template pTemplate="emptymessage">
+                                                <tr>
+                                                    <td [attr.colspan]="2">Sin asignaturas</td>
+                                                </tr>
+                                            </ng-template>
+                                            
+                                        </p-table>
+                                    </div>
+                                    <div *ngIf="main.asignaturasToDelete.length !== 0" class="col-12 {{ main.asignaturasToDelete.length !== 0 ? 'md:col-6' : '' }}">
+                                        <div class="flex align-items-center justify-content-center mb-2">
+                                            <p-messages severity="info">
+                                                <ng-template pTemplate>
+                                                    <i class="pi pi-info-circle mr-3"></i>
+                                                    <span>
+                                                        A continuación, se enlistan las asignaturas que serán eliminadas del plan de estudio. Si desea cancelar la eliminación, presione el botón ( <i class="pi pi-times" style="font-size: 0.8rem; font-weight:1000;"></i> ). 
+                                                    </span>
+                                                </ng-template>
+                                            </p-messages>
+                                        </div>
+                                        <p-table
+                                            #dt3    
+                                            [value]="main.asignaturasToDelete"
+                                            [globalFilterFields]="['nombre_asignatura_completa']"
+                                            [scrollable]="true"
+                                            scrollHeight="350px"
+                                            dataKey="cod_tema"
+                                        >
+                                            <ng-template pTemplate="caption">
+                                                <div class="flex flex-wrap flex-column sm:flex-row justify-content-between align-items-center">
+                                                    <div>
+                                                        Asignaturas por eliminar
+                                                    </div>
+                                                    <div class="flex flex-row">
+                                                        <div class="flex mb-2 md:mb-0">
+                                                            <span class="p-input-icon-left">
+                                                            <i class="pi pi-search"></i>
+                                                            <input #inputAsignaturaSelected pInputText type="text" placeholder="Buscar..." (input)="dt3.filterGlobal($any($event.target).value, 'contains')" />
+                                                            </span>
+                                                        </div>
+                                                        <p-button 
+                                                            styleClass="p-button-text p-button-sm " 
+                                                            icon="pi pi-filter-slash" 
+                                                            pTooltip="Limpiar filtros" 
+                                                            (click)="inputAsignaturaSelected.value = ''; dt3.filterGlobal('', 'contains') ">
+                                                        </p-button>
+                                                    </div>
+                                                </div>
+                                            </ng-template>
+                
+                                            <ng-template pTemplate="header">
+                                                <tr>
+                                                    <th pSortableColumn="codigo_externo">Asignatura <p-sortIcon field="codigo_externo" /></th>
+                                                    <th *ngIf="mode !== 'show'">Acción</th>
+                                                </tr>
+                                            </ng-template>
+                
+                                            <ng-template pTemplate="body" let-asign let-i="rowIndex">
+                                                <tr>
+                                                    <td>
+                                                        <span> {{ asign.codigo_externo }} - {{ asign.nombre_asignatura }}</span>
+                                                    </td>
+                                                    <td *ngIf="mode !== 'show'">
+                                                        <button 
+                                                            pButton class="p-button-sm p-button-outlined p-button-secondary"
+                                                            pTooltip="Cancelar eliminación" 
+                                                            icon="pi pi-times"
+                                                            (click)="main.cancelRemoveAsignatura(i)">
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </ng-template>
+                
+                                            <ng-template pTemplate="emptymessage">
+                                                <tr>
+                                                    <td [attr.colspan]="4">Sin asignaturas</td>
+                                                </tr>
+                                            </ng-template>
+                                            
+                                        </p-table>
+                                    </div>
+                                </div>
+
+                            </p-accordionTab>
+
                             <p-accordionTab header="{{ mode === 'show' ? 'Documentos adjuntos' : 'Adjunte documentos *'}}">
                                 <app-uploader-files [mode]="mode!"></app-uploader-files>
                             </p-accordionTab>
                         </p-accordion>
                     </div>
-
                 </ng-container>
 
-                <div class="field col-12"  *ngIf=" main.dialogUpdateMode !== 'articulacion' && main.dialogUpdateMode !== 'certificacion' && main.dialogUpdateMode !== 'rangos' && main.dialogUpdateMode !== 'reglamento'">
+                <div class="field col-12" 
+                    *ngIf=" main.dialogUpdateMode !== 'articulacion' && 
+                            main.dialogUpdateMode !== 'certificacion' && 
+                            main.dialogUpdateMode !== 'rangos' && 
+                            main.dialogUpdateMode !== 'reglamento' && 
+                            main.dialogUpdateMode !== 'menciones' && 
+                            main.dialogUpdateMode !== 'asignaturas' && 
+                            main.dialogUpdateMode !== 'asign-pc'"
+                    >
                     <label>
                         <strong> 
                             {{ mode === 'show' ? 'Documentos adjuntos' : 'Adjunte documentos *'}} 
@@ -340,7 +647,13 @@
             (click)="main.dialogUpdate = false" [text]="true">
         </p-button>
         <p-button 
-            *ngIf="form.showButtonSubmitUpdate && mode === 'edit' "
+            *ngIf="form.showButtonSubmitUpdate && 
+                    mode === 'edit' &&  
+                    main.dialogUpdateMode !== 'articulacion' &&
+                    main.dialogUpdateMode !== 'certificacion' &&
+                    main.dialogUpdateMode !== 'rangos' &&
+                    main.dialogUpdateMode !== 'menciones' &&
+                    main.dialogUpdateMode !== 'asign-pc' "
             label="Actualizar" 
             icon="pi pi-check"
             styleClass="mr-2 p-button-success p-button-sm" 

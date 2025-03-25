@@ -19,11 +19,11 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => {
-		switch (action) {
-			case 'agregar': this.main.setModeCrud('create');break;
-			case 'eliminar': this.main.setModeCrud('delete-selected');break;
-			case 'historial': this.main.setModeCrud('historial');break;
-		} 
+			switch (action) {
+				case 'agregar': this.main.setModeCrud('create');break;
+				case 'eliminar': this.main.setModeCrud('delete-selected');break;
+				case 'historial': this.main.setModeCrud('historial');break;
+			} 
 		}));
 		this.main.setOrigen('categoria_tp');
 		this.main.setNeedUpdateHistorial(true);

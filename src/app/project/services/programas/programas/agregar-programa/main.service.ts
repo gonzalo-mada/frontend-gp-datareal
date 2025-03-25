@@ -63,11 +63,13 @@ export class AgregarProgramaMainService {
 
     async insertForm(){
         try {
+            const valuesSelected = this.form.getValuesSelected();
             const responseUploader = await this.files.setActionUploader('upload');
             if (responseUploader) {
                 const { files, ...formData } =  this.form.fbForm.value;
                 let params = {
                     ...formData,
+                    valuesSelected,
                     docsToUpload: responseUploader.docsToUpload
                 };
                 const response = await this.backend.insertProgramaBackend(params, this.namesCrud);

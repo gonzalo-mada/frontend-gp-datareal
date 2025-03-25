@@ -62,6 +62,14 @@ import { FormRegimenesComponent } from '../components/plan-de-estudio/forms/form
 import { FormRangosAgComponent } from '../components/plan-de-estudio/forms/form-rangos-ag/form-rangos-ag.component';
 import { TableRangosAgComponent } from '../components/plan-de-estudio/tables/table-rangos-ag/table-rangos-ag.component';
 import { HistorialActividadComponent } from '../components/shared/historial-actividad/historial-actividad.component';
+import { TableAsignaturasComponent } from '../components/asignaturas/tables/table-asignaturas/table-asignaturas.component';
+import { FormAsignViewAndEditComponent } from '../components/asignaturas/forms/asignaturas/form-asign-view-and-edit/form-asign-view-and-edit.component';
+import { FormAsignUpdateComponent } from '../components/asignaturas/forms/asignaturas/form-asign-update/form-asign-update.component';
+import { FormPrerrequisitosComponent } from '../components/asignaturas/forms/form-prerrequisitos/form-prerrequisitos.component';
+import { TablePrerrequisitosComponent } from '../components/asignaturas/tables/table-prerrequisitos/table-prerrequisitos.component';
+import { TableParalelaSecuencialComponent } from '../components/asignaturas/tables/table-paralela-secuencial/table-paralela-secuencial.component';
+import { FormParalelaSecuencialComponent } from '../components/asignaturas/forms/form-paralela-secuencial/form-paralela-secuencial.component';
+import { TableTemasComponent } from '../components/asignaturas/tables/table-temas/table-temas.component';
 
 const componentsGp = [
   BreadcrumbgpComponent,
@@ -115,6 +123,14 @@ const componentsGp = [
   FormRangosAgComponent,
   TableRangosAgComponent,
   HistorialActividadComponent,
+  TableAsignaturasComponent,
+  FormAsignViewAndEditComponent,
+  FormAsignUpdateComponent,
+  FormPrerrequisitosComponent,
+  TablePrerrequisitosComponent,
+  TableParalelaSecuencialComponent,
+  FormParalelaSecuencialComponent,
+  TableTemasComponent,
 ]
 
 @NgModule({

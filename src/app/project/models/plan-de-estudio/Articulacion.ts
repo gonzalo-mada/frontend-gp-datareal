@@ -30,5 +30,5 @@ interface AsignaturaPostgrado {
     nombre_asignatura?: string,
     cod_tema?: string,
     nombre_tema?: string,
-    nombre_asignatura_completo?: string,
+    nombre_asignatura_completa?: string,
 }

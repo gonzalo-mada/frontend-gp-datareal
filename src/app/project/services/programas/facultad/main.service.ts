@@ -43,6 +43,7 @@ export class FacultadesMainService {
     ){
         this.form.initForm();
         this.files.initFiles();
+        this.getFacultades(false);
     }
 
     get modeForm(){

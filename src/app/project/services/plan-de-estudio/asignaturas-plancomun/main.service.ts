@@ -11,6 +11,9 @@ import { TableAsignaturasPlancomunService } from './table.service';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
 import { generateMessage, mergeNames } from 'src/app/project/tools/utils/form.utils';
 import { LoadinggpService } from '../../components/loadinggp.service';
+import { DataExternal } from 'src/app/project/models/shared/DataExternal';
+import { HistorialActividadService } from '../../components/historial-actividad.service';
+import { FacultadesMainService } from '../../programas/facultad/main.service';
 
 @Injectable({
     providedIn: 'root'
@@ -29,7 +32,7 @@ export class AsignaturasPlancomunMainService {
     message: any = {
         'facultad'  : 'No se encontraron programas para la facultad seleccionada.',
         'programa'  : 'No se encontraron planes de estudios para el programa seleccionado.',
-        'plan'      : 'No se encontraron asignaturas para el plan de estudio seleccionado.',
+        'plan'      : 'No se encontraron asignaturas compartidas con plan común para el plan de estudio seleccionado.',
     }
     messagesMantenedor: Message[] = [];
     messagesFormulario: Message[] = [];
@@ -43,7 +46,6 @@ export class AsignaturasPlancomunMainService {
     disabledDropdownPlanEstudio: boolean = true
     programas_postgrado_notform: any[] = [];
     planes_notform: any[] = [];
-    wasFilteredTable: boolean = false;
 
     asignaturas_plancomun: AsignaturasPlancomun[] = [];
     asignatura_plancomun: AsignaturasPlancomun = {};
@@ -60,6 +62,7 @@ export class AsignaturasPlancomunMainService {
 
     //MODAL
     dialogForm: boolean = false
+    needUpdateHistorial: boolean = false;
 
     private onInsertedData = new Subject<void>();
     onInsertedData$ = this.onInsertedData.asObservable();
@@ -70,7 +73,9 @@ export class AsignaturasPlancomunMainService {
         private form: FormAsignaturasPlancomunService,
         private messageService: MessageServiceGP,
         private table: TableAsignaturasPlancomunService,
-        private systemService: LoadinggpService
+        private systemService: LoadinggpService,
+        private historialActividad: HistorialActividadService,
+        private mainFacultad: FacultadesMainService
     ){
         this.form.initForm();
     }
@@ -91,28 +96,72 @@ export class AsignaturasPlancomunMainService {
             case 'update': await this.updateForm(); break;
             case 'delete': await this.openConfirmationDelete(); break;
             case 'delete-selected': await this.openConfirmationDeleteSelected(); break;
+            case 'historial': await this.openHistorialActividad(); break;
         }
     }
 
     async reset(){
-        this.wasFilteredTable = false;
         this.form.resetForm();
-        this.table.emitResetExpandedRows();
         this.table.resetSelectedRows();
-        this.form.resetValuesVarsSelected();
         this.clearAllMessages();
-        this.asignaturas_plancomun = [];
+        this.resetArraysData();
     }
 
     resetDropdownsFilterTable(){
         this.disabledDropdownPrograma = true
         this.disabledDropdownPlanEstudio = true
+        this.cod_facultad_selected_notform = 0;
         this.cod_programa_postgrado_selected_notform = 0;
         this.cod_plan_estudio_selected_notform = 0;
         this.programas_postgrado_notform = [];
         this.planes_notform = [];
-        this.cod_facultad_selected_notform = 0;
         this.showTable = false
+    }
+
+    resetArraysWhenChangedDropdownFacultadOrigen(){
+        this.programas_origen = [];
+        this.planes_origen = [];
+        this.asignaturas_plancomun = [];
+    }
+
+    resetArraysWhenChangedDropdownProgramaOrigen(){
+        this.planes_origen = [];
+        this.asignaturas_plancomun = [];
+    }
+
+    resetArraysWhenChangedDropdownFacultadDestino(){
+        this.programas_destino = [];
+        this.planes_destino = [];
+    }
+
+    resetArraysWhenChangedDropdownProgramaDestino(){
+        this.planes_destino = [];
+    }
+
+    resetArraysWhenChangedDropdownPE(){
+        this.asignaturas_plancomun = [];
+    }
+
+    resetWhenChangedDropdownFacultadNotForm(){
+        this.showTable = false
+        this.disabledDropdownPlanEstudio = true;
+        this.disabledDropdownPrograma = true;
+        this.cod_programa_postgrado_selected_notform = 0;
+        this.cod_plan_estudio_selected_notform = 0;
+    }
+
+    resetWhenChangedDropdownProgramaNotForm(){
+        this.showTable = false
+        this.disabledDropdownPlanEstudio = true;
+        this.cod_plan_estudio_selected_notform = 0;
+    }
+
+    resetArraysData(){
+        this.programas_origen = [];
+        this.programas_destino = [];
+        this.planes_origen = [];
+        this.planes_destino = [];
+        this.asignaturas_plancomun = [];
     }
 
     emitResetExpandedRows(){
@@ -301,42 +350,74 @@ export class AsignaturasPlancomunMainService {
         }
     }
 
-    async getPlanesDeEstudiosConPlanComun(showCountTableValues: boolean = true, needShowLoading = true): Promise<AsignaturasPlancomun[]>{
+    async getAsignaturasPCPorPlanDeEstudio(showCountTableValues: boolean = true, needShowLoading = true): Promise<AsignaturasPlancomun[]>{
         let params = { cod_plan_estudio: this.cod_plan_estudio_selected_notform }
-        this.planes_pc = await this.backend.getPlanesDeEstudiosConPlanComun(params,needShowLoading);
+        this.planes_pc = await this.backend.getAsignaturasPorPlanDeEstudio(params,needShowLoading);
         this.planes_pc.length !== 0 ? (this.showTable = true , this.clearMessagesSinResultados('m')) : (this.showTable = false , this.showMessageSinResultados('m'))
-        if (showCountTableValues) this.countTableValues();
+        if (showCountTableValues && this.planes_pc.length !== 0) this.countTableValues();
         return this.planes_pc
     }
 
     async createForm(){
         await this.reset();
+        await this.setPrincipalsControls();
         this.dialogForm = true;
     }
 
     async showForm(){
         this.form.resetForm();
-        await this.setDropdowns();
         this.form.setForm('show',this.asignatura_plancomun);
+        await this.setDropdownsAndTablesForm();
         this.dialogForm = true;
     }
 
     async editForm(){
         this.form.resetForm();
-        await this.setDropdowns();
         this.form.setForm('edit',this.asignatura_plancomun);
+        await this.setDropdownsAndTablesForm();
         this.dialogForm = true;
     }
 
     async insertForm(){
         try {
-            let params = { ...this.form.fbForm.value };
+            const data_log = await this.setDataToLog();
+            const data_params = this.form.setParamsForm();
+            let params = { ...data_params, data_log }
             const response = await this.backend.insertAsignaturasPlanComun(params, this.namesCrud);
             if (response && response.dataWasInserted) {
                 this.messageService.add({
                     key: 'main',
                     severity: 'success',
-                    detail: generateMessage(this.namesCrud,response.dataInserted,'creado',true,true)
+                    detail: generateMessage(this.namesCrud,null,'creado',true,true)
+                });
+                this.emitInsertedData();
+                this.setDropdownsFilterTable(response.dataInserted)
+            }
+        }catch (error) {
+            console.log(error);
+        }finally{
+            this.dialogForm = false;
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
+            this.reset()
+        }
+    }
+
+    async updateForm(){
+        try {
+            const data_log = await this.setDataToLog(true);
+            const set_params = this.form.setParamsForm();
+            let params = { 
+                ...set_params,
+                data_log,
+                cod_plan_estudio_plan_comun: this.asignatura_plancomun.cod_plan_estudio_plan_comun,
+                cod_facultad_pc: this.asignatura_plancomun.cod_facultad_pc
+            }
+            const response = await this.backend.updateAsignaturasPlanComun(params,this.namesCrud);
+            if ( response && response.dataWasUpdated ) {
+                this.messageService.add({
+                    key: 'main',
+                    severity: 'success',
+                    detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,true)
                 });
                 this.emitInsertedData();
             }
@@ -344,35 +425,7 @@ export class AsignaturasPlancomunMainService {
             console.log(error);
         }finally{
             this.dialogForm = false;
-            if ( !this.wasFilteredTable) await this.setDropdownsFilterTable();
-            this.getPlanesDeEstudiosConPlanComun(false);
-            this.reset()
-        }
-    }
-
-    async updateForm(){
-        try {
-            let params = { 
-                ...this.form.fbForm.value,
-                cod_plan_estudio_plan_comun: this.asignatura_plancomun.cod_plan_estudio_plan_comun,
-                cod_facultad_pc: this.asignatura_plancomun.cod_facultad_pc
-            }
-
-            const response = await this.backend.updateAsignaturasPlanComun(params,this.namesCrud);
-            
-            if ( response && response.dataWasUpdated ) {
-                this.messageService.add({
-                    key: 'main',
-                    severity: 'success',
-                    detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,true)
-                });
-            }
-        }catch (error) {
-            console.log(error);
-        }finally{
-            this.dialogForm = false;
-            if ( !this.wasFilteredTable) await this.setDropdownsFilterTable();
-            this.getPlanesDeEstudiosConPlanComun(false);
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -407,11 +460,12 @@ export class AsignaturasPlancomunMainService {
                     detail: generateMessage(this.namesCrud,message,'eliminado',true, false)
                   });
                 }
+                this.emitInsertedData();
             }
         } catch (error) {
             console.log(error);
         }finally{
-            this.getPlanesDeEstudiosConPlanComun(false);
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -419,7 +473,7 @@ export class AsignaturasPlancomunMainService {
     async openConfirmationDelete(){
         this.confirmationService.confirm({
             header: 'Confirmar',
-            message: `Es necesario confirmar la acción para eliminar las asignaturas del plan de estudio: <b>${this.asignatura_plancomun.nombre_plan_estudio_completo}</b>. ¿Desea confirmar?`,
+            message: `Es necesario confirmar la acción para eliminar las asignaturas del plan de estudio: <b>${this.asignatura_plancomun.nombre_plan_comun_completo}</b>. ¿Desea confirmar?`,
             acceptLabel: 'Si',
             rejectLabel: 'No',
             icon: 'pi pi-exclamation-triangle',
@@ -436,10 +490,10 @@ export class AsignaturasPlancomunMainService {
 
     async openConfirmationDeleteSelected(){
         const data = this.table.selectedRows;
-        const message = mergeNames(null,data,true,'nombre_plan_estudio_completo');
+        const message = mergeNames(null,data,true,'nombre_plan_comun_completo');
         this.confirmationService.confirm({
             header: "Confirmar",
-            message: `Es necesario confirmar la acción para eliminar las asignaturas de los planes de estudios${message}. ¿Desea confirmar?`,
+            message: `Es necesario confirmar la acción para eliminar las asignaturas de los planes de estudios ${message}. ¿Desea confirmar?`,
             acceptLabel: 'Si',
             rejectLabel: 'No',
             icon: 'pi pi-exclamation-triangle',
@@ -456,57 +510,50 @@ export class AsignaturasPlancomunMainService {
         this.onInsertedData.next();
     }
 
-
-    async setTables(){
-
-    }
-
-    resetArraysWhenChangedDropdownFacultadOrigen(){
-        this.programas_origen = [];
-        this.planes_origen = [];
-        this.asignaturas_plancomun = [];
-    }
-
-    resetArraysWhenChangedDropdownProgramaOrigen(){
-        this.planes_origen = [];
-        this.asignaturas_plancomun = [];
-    }
-
-    resetArraysWhenChangedDropdownFacultadDestino(){
-        this.programas_destino = [];
-        this.planes_destino = [];
-    }
-
-    resetArraysWhenChangedDropdownProgramaDestino(){
-        this.planes_destino = [];
-    }
-
-    resetArraysWhenChangedDropdownPE(){
-        this.asignaturas_plancomun = [];
-    }
-
-    resetWhenChangedDropdownFacultadNotForm(){
-        this.showTable = false
-        this.disabledDropdownPlanEstudio = true;
-        this.disabledDropdownPrograma = true;
-        this.cod_programa_postgrado_selected_notform = 0;
-        this.cod_plan_estudio_selected_notform = 0;
-    }
-
-    resetWhenChangedDropdownProgramaNotForm(){
-        this.showTable = false
-        this.disabledDropdownPlanEstudio = true;
-        this.cod_plan_estudio_selected_notform = 0;
-    }
-
-    async setDropdownsFilterTable(){
+    async setDropdownsFilterTable(dataInserted: any){
+        //esta funcion permite setear automaticamente los dropdowns que están en la pagina del mantenedor
         this.disabledDropdownPrograma = false;
         this.disabledDropdownPlanEstudio = false;
-        this.cod_facultad_selected_notform = this.form.cod_facultad_selected_destino;
-        this.cod_programa_postgrado_selected_notform = this.form.cod_programa_selected_destino;
-        this.cod_plan_estudio_selected_notform = this.form.cod_planestudio_selected_destino;
+        this.cod_facultad_selected_notform = dataInserted.cod_facultad;
+        this.cod_programa_postgrado_selected_notform = dataInserted.cod_programa;
+        this.cod_plan_estudio_selected_notform = dataInserted.cod_plan_estudio;
         await this.getProgramasPorFacultadNotForm(false);
         await this.getPlanesDeEstudiosPorProgramaNotForm(false);
+        await this.getAsignaturasPCPorPlanDeEstudio(false);
+    }
+
+    async setDropdownsAndTablesForm(){
+        //funcion para setear automaticamente los dropdowns principales del formulario 
+        this.systemService.loading(true);
+        await this.setPrincipalsControls();
+        this.table.selectedAsignaturaRows = [...this.asignatura_plancomun.asignaturas!]
+        this.systemService.loading(false);
+    }
+
+    async setPrincipalsControls(){
+        if (this.form.modeForm !== 'create') {
+            await Promise.all([
+                this.getProgramasPorFacultadOrigen(false,false),
+                this.getPlanesDeEstudiosPorProgramaOrigen(false,false),
+                this.getAsignaturasPorPlanDeEstudioOrigen(false,false),
+                this.getProgramasPorFacultadDestino(false,false),
+                this.getPlanesDeEstudiosPorProgramaDestino(false,false)
+            ]);
+            this.form.setDisabledAllControls();
+        }else{
+            if (this.form.dataExternal.data === true) {
+                this.form.setDataExternal(this.form.dataExternal);
+                this.form.setValuesVarsByDataExternal();
+                await Promise.all([
+                    this.getProgramasPorFacultadOrigen(false,false),
+                    this.getPlanesDeEstudiosPorProgramaOrigen(false,false),
+                    this.getAsignaturasPorPlanDeEstudioOrigen(false,false),
+                ]);
+                this.form.setControlsFormByDataExternal();
+                this.form.setDisabledPrincipalControls();
+            }
+        }
+        
     }
 
     clearAllMessages(){
@@ -540,29 +587,64 @@ export class AsignaturasPlancomunMainService {
         this.showMessagesSinResultados(key, 'plan')
     }
 
-    async setDropdowns(){
-        this.systemService.loading(true);
-        let dataDropdowns = {
-            cod_facultad_selected_origen: this.asignatura_plancomun.cod_facultad_pe,
-            cod_programa_selected_origen: this.asignatura_plancomun.cod_programa_pe,
-            cod_planestudio_selected_origen: this.asignatura_plancomun.cod_plan_estudio,
+    setVarsNotFormByDataExternal(dataExternal: DataExternal){
+        this.cod_facultad_selected_notform = dataExternal.cod_facultad!;
+        this.cod_programa_postgrado_selected_notform = dataExternal.cod_programa!;
+        this.cod_plan_estudio_selected_notform = dataExternal.cod_plan_estudio!;
+    }
 
-            cod_facultad_selected_destino: this.asignatura_plancomun.cod_facultad_pc,
-            cod_programa_selected_destino: this.asignatura_plancomun.cod_programa_pc,
-            cod_planestudio_selected_destino: this.asignatura_plancomun.cod_plan_estudio_plan_comun,
+    async openHistorialActividad(){
+        this.historialActividad.showDialog = true;
+    }
 
+    setOrigen(origen: string){
+        this.historialActividad.setOrigen(origen);
+    }
+
+    setNeedUpdateHistorial(need: boolean){
+        this.needUpdateHistorial = need;
+    }
+
+    async setDataToLog(needAux = false){
+        const dataPrincipalControls = await this.form.getDataPrincipalControls();
+        let dataToLog_aux ;
+        if (needAux) {
+            //se necesita obtener valores anteriores para el log
+            let facultadSelected_aux = this.mainFacultad.facultades.find( f => f.Cod_facultad === this.asignatura_plancomun.cod_facultad);
+            let facultadPCSelected_aux = this.mainFacultad.facultades.find( f => f.Cod_facultad === this.asignatura_plancomun.cod_facultad_pc);
+            let programaSelected_aux = this.programas_origen.find( f => f.Cod_Programa === this.asignatura_plancomun.cod_programa);
+            let programaPCSelected_aux = this.programas_destino.find( f => f.Cod_Programa === this.asignatura_plancomun.cod_programa_pc);
+            let planSelected_aux = this.planes_origen.find( f => f.cod_plan_estudio === this.asignatura_plancomun.cod_plan_estudio);
+            let planPCSelected_aux = this.planes_destino.find( f => f.cod_plan_estudio === this.asignatura_plancomun.cod_plan_estudio_plan_comun);
+            dataToLog_aux = { 
+                facultadSelected_aux: facultadSelected_aux!.Descripcion_facu, 
+                programaSelected_aux: programaSelected_aux!.Nombre_programa_completo, 
+                planSelected_aux: planSelected_aux!.nombre_plan_estudio_completo,
+                facultadPCSelected_aux: facultadPCSelected_aux!.Descripcion_facu, 
+                programaPCSelected_aux: programaPCSelected_aux!.Nombre_programa_completo, 
+                planPCSelected_aux: planPCSelected_aux!.nombre_plan_estudio_completo
+            }
         }
-        this.table.selectedAsignaturaRows = [...this.asignatura_plancomun.asignaturas!]
-        await this.form.setDropdownsAndVars(dataDropdowns);
-        await Promise.all([
-            this.getProgramasPorFacultadOrigen(false,false),
-            this.getPlanesDeEstudiosPorProgramaOrigen(false,false),
-            this.getAsignaturasPorPlanDeEstudioOrigen(false,false),
-            this.getProgramasPorFacultadDestino(false,false),
-            this.getPlanesDeEstudiosPorProgramaDestino(false,false),
-        ]);
-        this.form.disableDropdowns();
-        this.systemService.loading(false);
+        let facultadSelected = this.mainFacultad.facultades.find( f => f.Cod_facultad === dataPrincipalControls.cod_facultad);
+        let facultadPCSelected = this.mainFacultad.facultades.find( f => f.Cod_facultad === dataPrincipalControls.cod_facultad_pc);
+        let programaSelected = this.programas_origen.find( f => f.Cod_Programa === dataPrincipalControls.cod_programa);
+        let programaPCSelected = this.programas_destino.find( f => f.Cod_Programa === dataPrincipalControls.cod_programa_pc);
+        let planSelected = this.planes_origen.find( f => f.cod_plan_estudio === dataPrincipalControls.cod_plan_estudio);
+        let planPCSelected = this.planes_destino.find( f => f.cod_plan_estudio === dataPrincipalControls.cod_plan_estudio_plan_comun);
+        let dataToLog = { 
+            facultadSelected: facultadSelected!.Descripcion_facu, 
+            programaSelected: programaSelected!.Nombre_programa_completo, 
+            planSelected: planSelected!.nombre_plan_estudio_completo, 
+            facultadPCSelected: facultadPCSelected!.Descripcion_facu, 
+            programaPCSelected: programaPCSelected!.Nombre_programa_completo, 
+            planPCSelected: planPCSelected!.nombre_plan_estudio_completo 
+        }
+
+        if (needAux) {
+            return { ...dataToLog_aux , ...dataToLog}
+        }else{
+            return dataToLog
+        }
     }
 
     

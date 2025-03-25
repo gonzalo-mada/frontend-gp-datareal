@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Tema } from 'src/app/project/models/asignaturas/Tema';
+import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
+import { PrincipalControls } from 'src/app/project/models/shared/PrincipalControls';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
 
@@ -14,7 +16,7 @@ export class FormTemasService {
     public fbFormUpdate!: FormGroup;
     modeForm: ModeForm = undefined;
     stateForm: StateValidatorForm = undefined;
-    stateFormUpdate: StateValidatorForm = undefined;
+    dataExternal: DataExternal = {data: false};
 
     //ELEMENTS FORM
     cod_facultad_selected: number = 0;
@@ -30,7 +32,6 @@ export class FormTemasService {
 			nombre_tema: ['', [Validators.required, GPValidator.regexPattern('num_y_letras')]],
 			aux: ['']
 		});
-		console.log("inicie form tema");
         return true;
     }
 
@@ -46,16 +47,17 @@ export class FormTemasService {
 		this.fbForm.get('cod_programa')?.disable();
 		this.fbForm.get('cod_plan_estudio')?.disable();
 
-		this.resetValuesVarsSelected();
         console.log("resetee form tema");
     }
 
     resetValuesVarsSelected(){
-        this.cod_facultad_selected = 0;
-        this.cod_programa_selected = 0;
+		if (!this.dataExternal.data){
+			this.cod_facultad_selected = 0;
+			this.cod_programa_selected = 0;
+		}
     }
 
-    setForm(mode: 'show' | 'edit', data: Tema): void {
+    async setForm(mode: 'show' | 'edit', data: Tema) {
         this.fbForm.patchValue({...data});
         if (mode === 'show') {
             this.fbForm.disable();
@@ -63,6 +65,8 @@ export class FormTemasService {
         if (mode === 'edit') {
             this.fbForm.patchValue({aux: data});
         }
+		await this.setVarsForm(data.cod_facultad!, data.cod_programa!)
+
     }
 
     setParamsForm(): Object {
@@ -79,21 +83,49 @@ export class FormTemasService {
         return params
     }
 
-    setValuesVarsByExternalData(externalData: any){
-		this.cod_facultad_selected = externalData.cod_facultad
-		this.cod_programa_selected = externalData.cod_programa
-	}
+    async getDataPrincipalControls(): Promise<PrincipalControls> {
+        const cod_facultad = this.fbForm.get('cod_facultad');
+        const cod_programa = this.fbForm.get('cod_programa');
+        let dataToLog: PrincipalControls = {};
+        if (cod_facultad?.disabled  &&  cod_programa?.disabled) {
+            dataToLog = {
+                cod_facultad: this.cod_facultad_selected, 
+                cod_programa: this.cod_programa_selected,
+            }
+        }else{
+            dataToLog = {
+                cod_facultad: cod_facultad!.value, 
+                cod_programa: cod_programa!.value,
+            }
+        }
+        return dataToLog
+    }
 
-    setControlsFormByExternalData(externalData: any){
-        this.fbForm.get('cod_facultad')?.patchValue(externalData.cod_facultad);
-        this.fbForm.get('cod_programa')?.patchValue(externalData.cod_programa);
-        this.setDisabledControlsByAgregarPE();
-	}
+    setDataExternal(dataExternal: DataExternal){
+        this.dataExternal = {...dataExternal};
+    }
 
-    setDisabledControlsByAgregarPE(){
+	setValuesVarsByDataExternal(){
+        this.cod_facultad_selected = this.dataExternal.cod_facultad!;
+        this.cod_programa_selected = this.dataExternal.cod_programa!;
+    }
+
+    setControlsFormByDataExternal(){
+        this.fbForm.get('cod_facultad')?.patchValue(this.dataExternal.cod_facultad);
+        this.fbForm.get('cod_programa')?.patchValue(this.dataExternal.cod_programa);
+        this.setDisabledPrincipalControls();
+    }
+
+    setDisabledPrincipalControls(){
         this.fbForm.get('cod_facultad')?.disable();
         this.fbForm.get('cod_programa')?.disable();
     }
+
+	async setVarsForm(cod_facultad: number, cod_programa: number){
+        this.cod_facultad_selected = cod_facultad;
+        this.cod_programa_selected = cod_programa;
+    }
+
 
     //INICIO FUNCIONES PARA DROPDOWN FACULTAD POSTGRADO
 	resetControlsWhenChangedDropdownFacultad(){

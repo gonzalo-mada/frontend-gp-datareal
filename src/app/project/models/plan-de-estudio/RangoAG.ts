@@ -8,5 +8,7 @@ export interface RangoAG {
     NotaMaxima?: number;
     RexeReglamentoEstudio?: string;
     BadgeClass?: string,
-    isSelected?: boolean
+    isSelected?: boolean,
+    nombre_plan_estudio_completo?: string,
+    nombre_programa_completo?: string,
 }

@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Articulacion } from 'src/app/project/models/plan-de-estudio/Articulacion';
 import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
+import { PrincipalControls } from 'src/app/project/models/shared/PrincipalControls';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 
 interface ArrowsColors {
@@ -43,6 +44,9 @@ export class FormArticulacionesService{
         programas_to_asignaturas_right: 'gray',
         asignaturas_to_table_right: 'gray'
     };
+
+    openedFromMantenedorAsignatura: boolean = false
+    asignaturaHaveTemas: boolean = false
 
     constructor(private fb: FormBuilder){}
 
@@ -88,6 +92,7 @@ export class FormArticulacionesService{
         this.fbForm.get('asignaturas_pregrado_dropdown')?.disable();
 
         this.resetArrowsColors();
+        this.resetVarsMantenedorAsignatura();
         console.log("resetee form articulaciones");
         
     }
@@ -102,6 +107,11 @@ export class FormArticulacionesService{
             this.nombre_programa_selected_pregrado= '';
             console.log("resetee vars selected de form-articulaciones");
         }
+    }
+
+    resetVarsMantenedorAsignatura(){
+        this.openedFromMantenedorAsignatura = false; 
+        this.asignaturaHaveTemas = false;
     }
 
 
@@ -134,6 +144,27 @@ export class FormArticulacionesService{
             params = {...this.fbForm.value}
         }
         return params
+    }
+
+    async getDataPrincipalControls(): Promise<PrincipalControls> {
+        const cod_facultad = this.fbForm.get('cod_facultad');
+        const cod_programa = this.fbForm.get('cod_programa');
+        const cod_plan_estudio = this.fbForm.get('cod_plan_estudio');
+        let dataToLog: PrincipalControls = {};
+        if (cod_facultad?.disabled  &&  cod_programa?.disabled && cod_plan_estudio?.disabled) {
+            dataToLog = {
+                cod_facultad: this.cod_facultad_selected_postgrado, 
+                cod_programa: this.cod_programa_selected_postgrado,
+                cod_plan_estudio: this.cod_plan_estudio_selected,
+            }
+        }else{
+            dataToLog = {
+                cod_facultad: cod_facultad!.value, 
+                cod_programa: cod_programa!.value,
+                cod_plan_estudio: cod_plan_estudio!.value
+            }
+        }
+        return dataToLog
     }
 
     setDataExternal(dataExternal: DataExternal){

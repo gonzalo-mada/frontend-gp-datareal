@@ -29,6 +29,7 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { MessagesModule } from 'primeng/messages';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { PanelModule } from 'primeng/panel';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { SidebarModule } from 'primeng/sidebar';
@@ -38,6 +39,8 @@ import { StepsModule } from 'primeng/steps';
 import { TabViewModule } from 'primeng/tabview';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { TreeTableModule } from 'primeng/treetable';
+import { TreeSelectModule } from 'primeng/treeselect';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 
@@ -63,6 +66,7 @@ const primeGp = [
   MessagesModule,
   MultiSelectModule,
   OverlayPanelModule,
+  PanelModule,
   RadioButtonModule,
   SelectButtonModule,
   SidebarModule,
@@ -72,6 +76,8 @@ const primeGp = [
   TableModule,
   TabViewModule,
   TagModule,
+  TreeTableModule,
+  TreeSelectModule,
   ToastModule,
   ToolbarModule
 ]

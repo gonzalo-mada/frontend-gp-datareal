@@ -236,21 +236,7 @@ export class BackendProgramasService {
             });
         }
     }
-    
-    async getLogPrograma(params: any, loading = true) {
-        try {
-            return await this.invoker.httpInvoke(
-                { service: 'programas/getLogPrograma', loading: loading },
-                params
-            );
-        } catch (error: any) {
-            this.errorTemplateHandler.processError(error, {
-                notifyMethod: 'alert',
-                message: 'Hubo un error al obtener historial de actividades. Intente nuevamente.'
-            });
-        }
-    }
-    
+        
     async getPrograma(params: any, loading = true, namesCrud: NamesCrud) {
         try {
             return await this.invoker.httpInvoke(

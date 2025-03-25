@@ -8,6 +8,7 @@ import { Regimen } from 'src/app/project/models/plan-de-estudio/Regimen';
 import { BackendRegimenService } from './backend.service';
 import { FormRegimenService } from './form.service';
 import { TableRegimenService } from './table.service';
+import { HistorialActividadService } from '../../components/historial-actividad.service';
 
 @Injectable({
     providedIn: 'root'
@@ -33,7 +34,8 @@ export class RegimenMainService {
         private confirmationService: ConfirmationService,
         private form: FormRegimenService,
         private messageService: MessageServiceGP,
-        private table: TableRegimenService
+        private table: TableRegimenService,
+        private historialActividad: HistorialActividadService
     ) {
         this.form.initForm();
     }
@@ -53,6 +55,7 @@ export class RegimenMainService {
             case 'update': await this.updateForm(); break;
             case 'delete': await this.openConfirmationDelete(); break;
             case 'delete-selected': await this.openConfirmationDeleteSelected(); break;
+            case 'historial': this.openHistorialActividad(); break;
         }
     }
 
@@ -105,6 +108,7 @@ export class RegimenMainService {
         } finally {
             this.dialogForm = false;
             this.getRegimenes(false);
+            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -116,18 +120,27 @@ export class RegimenMainService {
                 Cod_regimen: this.regimen.Cod_regimen
             };
             const response = await this.backend.updateRegimen(params, this.namesCrud);
-            if (response && response.dataWasUpdated) {
-                this.messageService.add({
-                    key: 'main',
-                    severity: 'success',
-                    detail: generateMessage(this.namesCrud, response.dataUpdated, 'actualizado', true, false)
-                });
+            if (response && response.dataWasUpdated && response.dataWasUpdated !== 0) {
+                if (response.dataWasUpdated === 1) {
+                    this.messageService.add({
+                        key: 'main',
+                        severity: 'success',
+                        detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
+                    });
+                }else{
+                    this.messageService.add({
+                        key: 'main',
+                        severity: 'info',
+                        detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',false,false)
+                    });
+                }
             }
         } catch (error) {
             console.log(error);
         } finally {
             this.dialogForm = false;
             this.getRegimenes(false);
+            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -167,6 +180,7 @@ export class RegimenMainService {
             console.log(error);
         } finally {
             this.getRegimenes(false);
+            this.historialActividad.refreshHistorialActividad();
             this.table.resetSelectedRows();
         }
     }
@@ -205,5 +219,13 @@ export class RegimenMainService {
                 await this.deleteRegisters(data);
             }
         });
+    }
+    
+    openHistorialActividad(){
+        this.historialActividad.showDialog = true;
+    }
+
+    setOrigen(origen: string){
+        this.historialActividad.setOrigen(origen);
     }
 }

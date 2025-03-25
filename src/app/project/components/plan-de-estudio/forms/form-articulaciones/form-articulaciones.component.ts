@@ -41,7 +41,6 @@ export class FormArticulacionesComponent implements OnInit, OnDestroy  {
 		this.form.setValuesVarsByDataExternal();
 		// this.main.cod_plan_estudio_selected_notform = this.dataExternal.cod_plan_estudio!;
 		await Promise.all([
-			this.mainFacultad.getFacultades(false),
 			this.main.getProgramasPostgradoPorFacultad(false),
 			this.main.getPlanesDeEstudiosPorPrograma(false),
 		]);
@@ -50,7 +49,6 @@ export class FormArticulacionesComponent implements OnInit, OnDestroy  {
 	}
 
 	async initForm(){
-		await this.mainFacultad.getFacultades(false);
 		this.form.setDataExternal(this.dataExternal);
 	}
 

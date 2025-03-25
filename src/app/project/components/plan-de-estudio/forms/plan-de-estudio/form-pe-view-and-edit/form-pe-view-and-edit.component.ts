@@ -5,6 +5,7 @@ import { ModeDialogPE, PlanDeEstudio, UpdatePlanEstudio } from 'src/app/project/
 import { CollectionsMongo } from 'src/app/project/models/shared/Context';
 import { LoadinggpService } from 'src/app/project/services/components/loadinggp.service';
 import { ArticulacionesMainService } from 'src/app/project/services/plan-de-estudio/articulaciones/main.service';
+import { AsignaturasPlancomunMainService } from 'src/app/project/services/plan-de-estudio/asignaturas-plancomun/main.service';
 import { CertifIntermediasPEMainService } from 'src/app/project/services/plan-de-estudio/certificaciones-intermedias-pe/main.service';
 import { MencionesMainService } from 'src/app/project/services/plan-de-estudio/menciones/main.service';
 import { BackendPlanesDeEstudiosService } from 'src/app/project/services/plan-de-estudio/plan-de-estudio/backend.service';
@@ -26,7 +27,6 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 	planDeEstudio: PlanDeEstudio = {};
 	updatePE!: UpdatePlanEstudio | undefined; 
 	onClickRefreshPE: boolean = false;
-	logsPE: any[] = [];
 
 	constructor(
 		private backend: BackendPlanesDeEstudiosService,
@@ -38,7 +38,8 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 		private mainArticulacion: ArticulacionesMainService,
 		private mainCertifIntermediaPE: CertifIntermediasPEMainService,
 		private mainRangosAG: RangosAGMainService,
-		private mainMenciones: MencionesMainService	
+		private mainMenciones: MencionesMainService,
+		private mainAsignPC: AsignaturasPlancomunMainService	
 	){}
 
 	async ngOnInit() {
@@ -46,6 +47,8 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 		this.subscription.add(this.mainCertifIntermediaPE.onInsertedData$.subscribe(() => this.getCertifIntermediaPorPlanDeEstudio()));
 		this.subscription.add(this.mainRangosAG.onInsertedData$.subscribe(() => this.getRangosPorPlanDeEstudio()));
 		this.subscription.add(this.mainMenciones.onActionToBD$.subscribe(() => this.getMencionesPorPlanDeEstudio()));
+		this.subscription.add(this.mainAsignPC.onInsertedData$.subscribe(() => this.getAsignaturasPlanComunPorPlanDeEstudio()));
+		this.main.setOrigen('planDeEstudio','planDeEstudio_s',this.mainPE.cod_plan_estudio);
 		await this.getPlanDeEstudio();
 		await this.getData();
 	}
@@ -59,6 +62,7 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 	}
 
 	async refreshPlanDeEstudio(){
+		await this.main.refreshHistorialActividad();
 		await this.getPlanDeEstudio();
 		await this.getData();
 		this.onClickRefreshPE = true;
@@ -91,7 +95,7 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 				this.getAsignaturasPorPlanDeEstudio(),
 				this.getMencionesPorPlanDeEstudio(),
 				this.getRangosPorPlanDeEstudio(),
-				this.getLogPE(),
+				this.getAsignaturasPlanComunPorPlanDeEstudio()
 			]);
 		} catch (error) {
 			this.errorTemplateHandler.processError(error, {
@@ -136,48 +140,47 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 
 	async getArticulacionesPorPlanDeEstudio(){
         let params = { cod_plan_estudio: this.mainPE.planDeEstudio.cod_plan_estudio }
-		this.mainArticulacion.articulaciones = await this.backend.getArticulacionesPorPlanDeEstudio(params,false);
-		this.form.setSelectArticulacion(this.mainPE.planDeEstudio.tiene_articulacion,this.mainArticulacion.articulaciones.length)
+		this.main.articulaciones = await this.backend.getArticulacionesPorPlanDeEstudio(params,false);
+		this.form.setSelectArticulacion(this.mainPE.planDeEstudio.tiene_articulacion,this.main.articulaciones)
+	}
+
+	async getAsignaturasPlanComunPorPlanDeEstudio(){
+        let params = { cod_plan_estudio: this.mainPE.planDeEstudio.cod_plan_estudio }
+		this.main.asign_pc = await this.backend.getAsignaturasPCPorPlanDeEstudio(params,false);
+		this.form.setSelectAsignPC(this.mainPE.planDeEstudio.tiene_plan_comun,this.main.asign_pc)
 	}
 
 	async getCertifIntermediaPorPlanDeEstudio(){
 		let params = { cod_plan_estudio: this.mainPE.planDeEstudio.cod_plan_estudio };
-		this.mainCertifIntermediaPE.certificaciones = await this.backend.getCertifIntermediasPorPlanDeEstudio(params,false);
-		this.form.setSelectCertifIntermedia(this.mainPE.planDeEstudio.tiene_certificacion,this.mainCertifIntermediaPE.certificaciones.length)
+		this.main.certificaciones = await this.backend.getCertifIntermediasPorPlanDeEstudio(params,false);
+		this.form.setSelectCertifIntermedia(this.mainPE.planDeEstudio.tiene_certificacion,this.main.certificaciones)
 	}
 
 	async getAsignaturasPorPlanDeEstudio(){
-		//todo: PENDIENTE POR FALTA DE TABLA ASIGNATURA
 		let params = { cod_plan_estudio: this.mainPE.planDeEstudio.cod_plan_estudio };
 		this.main.asignaturas = await this.backend.getAsignaturasPorPlanDeEstudio(params,false);
-		// console.log("this.main.asignaturas",this.main.asignaturas);
-		
-		this.form.setSelectAsignaturas(this.main.asignaturas.length)
+		this.form.setSelectAsignaturas(this.main.asignaturas.length, this.main.asignaturas)
 	}
 
 	async getMencionesPorPlanDeEstudio(){
 		let params = { cod_plan_estudio: this.mainPE.planDeEstudio.cod_plan_estudio };
-		this.mainMenciones.menciones = await this.backend.getMencionesPorPlanDeEstudio(params,false);
-		this.form.setSelectMenciones(this.mainPE.planDeEstudio.tiene_mencion,this.mainMenciones.menciones.length)
+		this.main.menciones = await this.backend.getMencionesConAsignaturasPorPlanDeEstudio(params,false);
+		this.form.setSelectMenciones(this.mainPE.planDeEstudio.tiene_mencion,this.main.menciones)
 	}
 
 	async getRangosPorPlanDeEstudio(){
 		let params = { cod_plan_estudio: this.mainPE.planDeEstudio.cod_plan_estudio };
-		this.mainRangosAG.rangosAG = await this.backend.getRangosPorPlanDeEstudio(params,false);
-		this.form.setSelectRangos(this.mainPE.planDeEstudio.tiene_rango_aprob_g,this.mainRangosAG.rangosAG.length)
-	}
-
-	async getLogPE(){
-		this.logsPE = await this.backend.getLogPE({cod_plan_estudio: this.mainPE.planDeEstudio.cod_plan_estudio},false);
+		this.main.rangos = await this.backend.getRangosPorPlanDeEstudio(params,false);
+		this.form.setSelectRangos(this.mainPE.planDeEstudio.tiene_rango_aprob_g,this.main.rangos)
 	}
 
 	async setNames(){
 		this.form.setNames(this.mainPE.planDeEstudio)
 	}
 
-	async openDialog(modeDialog: ModeDialogPE, collection: CollectionsMongo){
+	async openDialog(modeDialog: ModeDialogPE, collection: CollectionsMongo, isEditableBy: boolean){
 		try {
-		  this.updatePE = {modeDialog , collection};
+		  this.updatePE = {modeDialog , collection, isEditableBy};
 		} catch (error) {
 		  console.log("error en openDialog()",error);
 		  this.errorTemplateHandler.processError(error, {
@@ -243,6 +246,7 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 	async formUpdated(){
 		try {
 			await this.getPlanDeEstudio();
+			await this.main.refreshHistorialActividad();
 			this.loading = true;
 			await this.getData();
 		} catch (error) {
@@ -258,5 +262,6 @@ export class FormPeViewAndEditComponent implements OnInit, OnDestroy {
 
 	resetDialog(){
 		this.updatePE = undefined;
+		this.main.resetTableAsignatura();
 	}
 }

@@ -1,5 +1,6 @@
 import { Component, Input, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { Table } from 'primeng/table';
+import { Subscription } from 'rxjs';
 import { Articulacion } from 'src/app/project/models/plan-de-estudio/Articulacion';
 import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
@@ -16,6 +17,7 @@ export class TableArticulacionesComponent implements OnInit, OnDestroy  {
 
 	@Input() mode: ModeForm;
 	@Input() dataExternal: DataExternal = { data: false };
+	private subscription: Subscription = new Subscription();
 	
 	searchValue: string | undefined;
 	expandedRows = {};
@@ -26,7 +28,8 @@ export class TableArticulacionesComponent implements OnInit, OnDestroy  {
 	){}
 
 	ngOnInit(): void {
-		this.dataExternal.data ? ( this.setTable() ) : ( this.getData(true) );
+		this.subscription.add(this.main.onActionToBD$.subscribe( () => this.getData(false)))
+		this.dataExternal.data ? ( this.setTable() ) : ( this.getData(false) );
 	}
 
 	ngOnDestroy(): void {
@@ -39,7 +42,7 @@ export class TableArticulacionesComponent implements OnInit, OnDestroy  {
 	}
 
 	async getData(showCountTableValues: boolean){
-		if(this.main.articulaciones.length === 0) await this.main.getArticulacionesPorPlanDeEstudio(showCountTableValues);
+		await this.main.getArticulacionesPorPlanDeEstudio(showCountTableValues);
 	}
 
 	onGlobalFilter(table: Table, event: Event) {

@@ -44,7 +44,7 @@ export class ServiceUtils {
   }
   
   public countTableValues(value: number, namesCrud: NamesCrud){
-    this.messageService.clear();
+    // this.messageService.clear();
     this.messageService.add({
       key: 'main',
       severity: 'info',

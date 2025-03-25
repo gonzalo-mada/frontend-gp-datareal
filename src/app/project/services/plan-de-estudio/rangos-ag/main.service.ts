@@ -11,6 +11,8 @@ import { TableRangosAGService } from './table.service';
 import { Subject } from 'rxjs';
 import { LoadinggpService } from '../../components/loadinggp.service';
 import { DataExternal } from 'src/app/project/models/shared/DataExternal';
+import { HistorialActividadService } from '../../components/historial-actividad.service';
+import { FacultadesMainService } from '../../programas/facultad/main.service';
 
 @Injectable({
   providedIn: 'root'
@@ -50,6 +52,8 @@ export class RangosAGMainService {
     planes: any[] = [];
 
     dialogForm: boolean = false;
+    needUpdateHistorial: boolean = false;
+
 
     private onInsertedData = new Subject<void>();
     onInsertedData$ = this.onInsertedData.asObservable();
@@ -61,6 +65,8 @@ export class RangosAGMainService {
         private messageService: MessageServiceGP,
         private table: TableRangosAGService,
         private systemService: LoadinggpService,
+        private historialActividad: HistorialActividadService,
+        private mainFacultad: FacultadesMainService
     ) { 
         this.form.initForm();
     }
@@ -80,6 +86,7 @@ export class RangosAGMainService {
             case 'update': await this.updateForm(); break;
             case 'delete': await this.openConfirmationDelete(); break;
             case 'delete-selected': await this.openConfirmationDeleteSelected(); break;
+            case 'historial': await this.openHistorialActividad(); break;
         }
     }
 
@@ -240,7 +247,7 @@ export class RangosAGMainService {
         let params = { cod_plan_estudio: this.cod_plan_estudio_selected_notform, valuesPrincipalControls }
         this.rangosAG = await this.backend.getRangosAprobacionPorPlanDeEstudio(params,needShowLoading);
         this.rangosAG.length !== 0 ? (this.showTable = true , this.clearMessagesSinResultados('m')) : (this.showTable = false , this.showMessageSinResultados('m'))
-        if (showCountTableValues) this.countTableValues();
+        if (showCountTableValues && this.rangosAG.length !== 0) this.countTableValues();
         return this.rangosAG
     }
 
@@ -268,7 +275,9 @@ export class RangosAGMainService {
 
     async insertForm() {
         try {
-            const params = this.form.setParamsForm();
+            const data_log = await this.setDataToLog();
+            const data_params = this.form.setParamsForm();
+            let params = { ...data_params, data_log }
             const response = await this.backend.insertRangoAprobacion(params, this.namesCrud);
             if (response && response.dataWasInserted) {
                 this.messageService.add({
@@ -283,15 +292,18 @@ export class RangosAGMainService {
             console.log(error);
         } finally {
             this.dialogForm = false;
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
 
     async updateForm() {
         try {
+            const data_log = await this.setDataToLog(true);
             const params = this.form.setParamsForm();
             let paramsWithCod = {
                 ...params,
+                data_log,
                 Cod_RangoAprobG: this.rangoAG.Cod_RangoAprobG
             }
             const response = await this.backend.updateRangoAprobacion(paramsWithCod, this.namesCrud);
@@ -307,7 +319,7 @@ export class RangosAGMainService {
             console.log(error);
         } finally {
             this.dialogForm = false;
-            this.getRangosAprobacion(false);
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -347,7 +359,7 @@ export class RangosAGMainService {
         } catch (error) {
             console.log(error);
         } finally {
-            this.getRangosAprobacion(false);
+            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -473,6 +485,40 @@ export class RangosAGMainService {
         this.cod_facultad_selected_notform = dataExternal.cod_facultad!;
         this.cod_programa_postgrado_selected_notform = dataExternal.cod_programa!;
         this.cod_plan_estudio_selected_notform = dataExternal.cod_plan_estudio!;
+    }
+
+    async openHistorialActividad(){
+        this.historialActividad.showDialog = true;
+    }
+
+    setOrigen(origen: string){
+        this.historialActividad.setOrigen(origen);
+    }
+
+    setNeedUpdateHistorial(need: boolean){
+        this.needUpdateHistorial = need;
+    }
+
+    async setDataToLog(needAux = false){
+        const dataPrincipalControls = await this.form.getDataPrincipalControls();
+        let dataToLog_aux ;
+        if (needAux) {
+            //se necesita obtener valores anteriores para el log
+            let facultadSelected_aux = this.mainFacultad.facultades.find( f => f.Cod_facultad === this.rangoAG.cod_facultad);
+            let programaSelected_aux = this.programas_postgrado.find( f => f.Cod_Programa === this.rangoAG.cod_programa);
+            let planSelected_aux = this.planes.find( f => f.cod_plan_estudio === this.rangoAG.cod_plan_estudio);
+            dataToLog_aux = { facultadSelected_aux: facultadSelected_aux!.Descripcion_facu, programaSelected_aux: programaSelected_aux!.Nombre_programa_completo, planSelected_aux: planSelected_aux!.nombre_plan_estudio_completo }
+        }
+        let facultadSelected = this.mainFacultad.facultades.find( f => f.Cod_facultad === dataPrincipalControls.cod_facultad);
+        let programaSelected = this.programas_postgrado.find( f => f.Cod_Programa === dataPrincipalControls.cod_programa);
+        let planSelected = this.planes.find( f => f.cod_plan_estudio === dataPrincipalControls.cod_plan_estudio);
+        let dataToLog = { facultadSelected: facultadSelected!.Descripcion_facu, programaSelected: programaSelected!.Nombre_programa_completo, planSelected: planSelected!.nombre_plan_estudio_completo }
+
+        if (needAux) {
+            return { ...dataToLog_aux , ...dataToLog}
+        }else{
+            return dataToLog
+        }
     }
 
 }

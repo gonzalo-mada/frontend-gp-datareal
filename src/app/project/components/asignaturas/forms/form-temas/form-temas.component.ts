@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 import { FormTemasService } from 'src/app/project/services/asignaturas/temas/form.service';
 import { TemasMainService } from 'src/app/project/services/asignaturas/temas/main.service';
@@ -12,27 +13,23 @@ import { FacultadesMainService } from 'src/app/project/services/programas/facult
   ]
 })
 export class FormTemasComponent {
-
-	@Input() externalData: any = { data: false };
+  	@Input() dataExternal: DataExternal = { data: false };
 	@Output() formWasClosed = new EventEmitter<boolean>();
 	private subscription: Subscription = new Subscription();
 
 	constructor(
 		public form: FormTemasService,
 		public main: TemasMainService,
-		public mainFacultad: FacultadesMainService
+		public mainFacultades: FacultadesMainService
 	){}
 
 	async ngOnInit() {
 		this.subscription.add(this.form.fbForm.statusChanges.subscribe(status => { this.form.stateForm = status as StateValidatorForm }));
-		this.externalData.data ? await this.setFormByExternalData() : this.initForm();
 	}
 
 	async ngOnChanges(changes: SimpleChanges) {
-		if ( changes['externalData'] && changes['externalData'].currentValue.data && changes['externalData'].currentValue.show) {
-			await this.setFormByExternalData()
-		}else{
-			await this.initForm()
+		if ( changes['externalData'] && changes['externalData'].currentValue.data ) {
+			this.form.setDataExternal(this.dataExternal);
 		}
 	}
 
@@ -42,17 +39,15 @@ export class FormTemasComponent {
 	}
 
 	async setFormByExternalData(){
-		this.form.setValuesVarsByExternalData(this.externalData);
-		this.main.cod_programa_selected = this.externalData.cod_programa;
+		this.form.setDataExternal(this.dataExternal);
+		this.form.setValuesVarsByDataExternal();
 		await Promise.all([
-			this.mainFacultad.getFacultades(false),
-			this.main.getProgramasPorFacultad(false),
+		  this.main.getProgramasPorFacultad(false),
 		]);
-		this.form.setControlsFormByExternalData(this.externalData);
 	}
 
 	async initForm(){
-		await this.mainFacultad.getFacultades(false);
+		this.form.setDataExternal(this.dataExternal);
 	}
 
 	async submit(){
@@ -69,5 +64,15 @@ export class FormTemasComponent {
 
 	async changeProgramaPostgrado(event:any){
 		this.form.cod_programa_selected = event.value;
+	}
+
+	test(){
+		Object.keys(this.form.fbForm.controls).forEach(key => {
+		  const control = this.form.fbForm.get(key);
+		  if (control?.invalid) {
+		  console.log(`Errores en ${key}:`, control.errors);
+		  }
+		});
+		console.log("VALORES FORMULARIO:",this.form.fbForm.value);
 	}
 }

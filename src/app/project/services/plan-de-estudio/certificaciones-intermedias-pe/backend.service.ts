@@ -68,10 +68,10 @@ export class BackendCertifIntermediasPEService {
         }
     }
     
-    async getAsignaturasPorPlanDeEstudio(params: any, loading = true) {
+    async getAsignaturasConTemaAgrupado(params: any, loading = true) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('asignaturas/getAsignaturasSimplificatedPorPlanDeEstudio', loading),
+                this.serviceUtils.generateServiceMongo('asignaturas/getAsignaturasConTemaAgrupado', loading),
                 params
             );
         } catch (error: any) {

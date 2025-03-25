@@ -8,15 +8,12 @@ import { TableCrudService } from '../../components/table-crud.service';
 
 export class TableTemasService {
 
-
     cols : any[] = [
-        { field: 'nombre_mencion', header: 'Nombre' },
-        { field: 'descripcion_mencion', header: 'Título' },
-        { field: 'vigencia', header: 'Vigencia' },
-        { field: 'Acciones', header: 'Acciones' },
+        { field: 'nombre_tema', header: 'Nombre' },
+        { field: 'accion', header: 'Acciones' },
     ];
-    globalFiltros : any[] = [ 'nombre_mencion', 'descripcion_mencion' ];
-    dataKeyTable : string = 'cod_mencion';
+    globalFiltros : any[] = [ 'nombre_tema' ];
+    dataKeyTable : string = 'cod_tema';
     selectedRows: Tema[] = [];
 
     constructor(private tableCrudService: TableCrudService){}

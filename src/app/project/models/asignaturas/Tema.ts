@@ -1,6 +1,8 @@
 export interface Tema {
+    cod_facultad?: number,
+    cod_programa?: number,
     cod_tema?: number,
     nombre_tema?: string,
-    cod_programa?: number,
-    cod_asignatura?: number
+    nombre_programa_completo?: string,
+    nombre_tema_completo?: string,
 }

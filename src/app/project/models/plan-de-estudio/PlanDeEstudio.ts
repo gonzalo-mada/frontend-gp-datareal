@@ -39,11 +39,13 @@ export type ModeDialogPE =
     'certificacion' |
     'rangos' |
     'menciones' |
-    'asignaturas'
+    'asignaturas' |
+    'asign-pc'
 ;
 
 export interface UpdatePlanEstudio {
     modeDialog: ModeDialogPE,
-    collection: CollectionsMongo
+    collection: CollectionsMongo,
+    isEditableBy: boolean
 }
 

@@ -1,0 +1,71 @@
+<div class="grid">
+    <div class="col-12">
+        <app-card 
+            header="Mantenedor de {{ main.namesCrud.plural }}" 
+            subheader="Permite visualizar, agregar, actualizar y eliminar {{ main.namesCrud.plural }}.">
+            
+            <div class="surface-card shadow-2 p-3 border-round mb-4">
+                <div class="flex flex-column lg:flex-row align-items-center justify-content-between gap-3 w-full lg:w-auto">
+                    
+                    <div class="w-full">
+                        <div class="mb-2">
+                            <label><strong>Facultad</strong></label>
+                        </div>
+                        <p-dropdown
+                            [options]="mainFacultad.facultades"
+                            [(ngModel)]="main.cod_facultad_selected_notform"
+                            optionLabel="Descripcion_facu"
+                            optionValue="Cod_facultad" 
+                            placeholder="Seleccione facultad"
+                            appendTo="body" 
+                            styleClass="w-full p-d-flex p-flex-column"
+                            (onChange)="changeFacultad($event)" 
+                        ></p-dropdown>
+                    </div>
+    
+                    <div class="w-full">
+                        <div class="mb-2">
+                            <label><strong>Programa </strong></label>
+                        </div>
+                        <p-dropdown 
+                            [options]="main.programas_postgrado_notform"
+                            [(ngModel)]="main.cod_programa_postgrado_selected_notform"
+                            [disabled]="main.disabledDropdownPrograma" 
+                            optionLabel="Nombre_programa_completo"
+                            optionValue="Cod_Programa" 
+                            placeholder="Seleccione programa de postgrado"
+                            appendTo="body" 
+                            styleClass="w-full p-d-flex p-flex-column" 
+                            (onChange)="changeProgramaPostgrado($event)" 
+                        />
+                    </div>
+    
+                    <div class="w-full">
+                        <div class="mb-2">
+                            <label><strong>Plan de estudio</strong></label>
+                        </div>
+                        <p-dropdown 
+                            [options]="main.planes_notform"
+                            [(ngModel)]="main.cod_plan_estudio_selected_notform"
+                            [disabled]="main.disabledDropdownPlanEstudio" 
+                            optionLabel="nombre_plan_estudio_completo"
+                            optionValue="cod_plan_estudio" 
+                            placeholder="Seleccione plan de estudio"
+                            appendTo="body" 
+                            styleClass="w-full p-d-flex p-flex-column" 
+                            (onChange)="changePlanDeEstudio($event)" 
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="main.showTable">
+                <app-table-prerrequisitos></app-table-prerrequisitos>
+            </div>
+
+            <p-messages [(value)]="main.messagesMantenedor" [enableService]="false" />
+        </app-card>
+    </div>
+</div>
+<app-form-prerrequisitos></app-form-prerrequisitos>
+<app-historial-actividad></app-historial-actividad>

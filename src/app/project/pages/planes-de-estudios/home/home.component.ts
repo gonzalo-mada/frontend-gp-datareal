@@ -18,17 +18,20 @@ export class HomeComponent implements OnInit, OnDestroy {
     private menuButtonsTableService: MenuButtonsTableService,
     private tableCrudService: TableCrudService,
     public main: PlanDeEstudioMainService
-  ){}
+  ){
+		this.main.setOrigen('planDeEstudio');
+  }
 
   private subscription: Subscription = new Subscription();
 
   async ngOnInit() {
-    await this.mainFacultad.getFacultades(false);
-    this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => { 
-      action==='agregar' 
-      ? this.main.setModeCrud('create') 
-      : this.main.setModeCrud('delete-selected')
-    }));
+		this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => {
+			switch (action) {
+				case 'agregar': this.main.setModeCrud('create');break;
+				case 'eliminar': this.main.setModeCrud('delete-selected');break;
+				case 'historial': this.main.setModeCrud('historial');break;
+			} 
+		}));
   }
 
   ngOnDestroy(): void {
@@ -45,7 +48,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   async changeProgramaPostgrado(event:any){
     this.main.cod_programa_postgrado_selected = event.value;
-    await this.main.getPlanesDeEstudiosMergedPorPrograma(false);
+    await this.main.getPlanesDeEstudiosMergedPorPrograma();
   }
 
 }

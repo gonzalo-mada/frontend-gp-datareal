@@ -20,19 +20,23 @@ export class AsignaturasPlancomunComponent implements OnInit, OnDestroy {
 	){}
 
 	async ngOnInit() {
-		this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => { 
-		action==='agregar' 
-		? this.main.setModeCrud('create') 
-		: this.main.setModeCrud('delete-selected')
-		}));
-		await this.mainFacultad.getFacultades(false);
 		this.main.resetDropdownsFilterTable();
+		this.subscription.add(this.menuButtonsTableService.actionClickButton$.subscribe( action => {
+			switch (action) {
+			  case 'agregar': this.main.setModeCrud('create');break;
+			  case 'eliminar': this.main.setModeCrud('delete-selected');break;
+			  case 'historial': this.main.setModeCrud('historial');break;
+			} 
+		}));
+		this.main.setOrigen('asign_plancomun');
+		this.main.setNeedUpdateHistorial(true);
 	}
 
 	ngOnDestroy(): void {
 		this.subscription.unsubscribe();
 		this.main.reset();
 		this.main.resetDropdownsFilterTable();
+		this.main.setNeedUpdateHistorial(false);
 	}
 
 	changeFacultad(event: any){
@@ -48,9 +52,8 @@ export class AsignaturasPlancomunComponent implements OnInit, OnDestroy {
 	}
 
 	async changePlanDeEstudio(event:any){
-		this.main.wasFilteredTable = true;
 		this.main.cod_plan_estudio_selected_notform = event.value;
-		await this.main.getPlanesDeEstudiosConPlanComun(false,false);
+		await this.main.getAsignaturasPCPorPlanDeEstudio();
 	}
 	
 }

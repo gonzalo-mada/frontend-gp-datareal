@@ -2,13 +2,12 @@
     <ng-template pTemplate>
         <div class="flex flex-row flex-wrap">
             <div class="flex align-items-center justify-content-center">
-                <span>
-                    <i class="pi pi-chevron-right" style="color:#6c757d"></i> 
-                    <!-- <i class="pi pi-eye" style="color:#6c757d"></i>  -->
+                <span class="icon-badge">
+                    <i class="pi pi-chevron-right"></i> 
                 </span>
             </div>
             <div class="flex align-items-center justify-content-center">
-                <span class="mx-1" style="font-weight: 100;">Permite ver asignaturas articuladas</span>
+                <span class="mx-1" style="font-weight: 100;">Ver asignaturas articuladas</span>
             </div>
         </div>
     </ng-template>
@@ -56,9 +55,9 @@
                 </div>
             </div>
 
-            <div class="hidden md:flex align-items-center">
-                <span><i class="pi pi-chevron-right" style="color:#6c757d"></i></span>
-                <span class="mx-1 font-light">Permite ver asignaturas articuladas</span>
+            <div class="hidden md:flex estado-badge-doc icon-leyenda" pTooltip="Leyenda de iconos" tooltipPosition="bottom">
+                <span class="icon-badge"><i class="pi pi-chevron-right"></i></span>
+                <span class="mx-1 font-light">Ver asignaturas articuladas</span>
             </div>
                               
             <div class="flex">
@@ -105,7 +104,7 @@
             </td>
             <td> <p-button type="button" pRipple [pRowToggler]="data" [text]="true" [rounded]="true" [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" /> </td>
             <td style="width:70%;">
-                <span> {{data.asignatura_postgrado.nombre_asignatura_completo}} </span> <br>
+                <span> {{data.asignatura_postgrado.nombre_asignatura_completa}} </span> <br>
                 <span style="font-size: 0.8rem;">
                     <strong>TEMA:</strong> {{data.asignatura_postgrado.nombre_tema === '' ? '-' : data.asignatura_postgrado.nombre_tema}} 
                 </span>
@@ -152,7 +151,7 @@
         <tr>
             <td [attr.colspan]="table.cols.length + 2">
                 <div class="p-3">
-                    <p-table [value]="data.asignaturas_pregrado" dataKey="cod_Tema">
+                    <p-table [value]="data.asignaturas_pregrado" dataKey="cod_tema">
                         <ng-template pTemplate="caption">
                             <span>Asignaturas articulables pregrado</span>
                         </ng-template>

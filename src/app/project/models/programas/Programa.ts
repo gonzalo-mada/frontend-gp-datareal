@@ -7,7 +7,7 @@ export type ModeDialog =
 undefined | 
 'título' | 
 'grado académico' | 
-'REXE' | 
+'REXE / DEXE' | 
 'estado maestro' | 
 'director' | 
 'director alterno' | 

@@ -204,7 +204,7 @@ export class GPValidator {
             const modeForm = getModeForm();
             
             if (modeForm === 'create' || modeForm === 'edit') {
-                if (!files || ( files.length === 0 && state === true )) {
+                if (!files || ( files.length === 0 && (state === true || state === 1) )) {
                     return { required: true };
                 }
             }
@@ -213,16 +213,33 @@ export class GPValidator {
         };
     }
 
-    static needAsignaturas(getFrom: () => any ): ValidatorFn {
+    static needAsignaturas(needShowAsignaturas: () => any ): ValidatorFn {
         return (control: AbstractControl): { [key: string]: boolean } | null => {
             const formGroup = control.parent as FormGroup;
             if (!formGroup) return null;
     
-            const from = getFrom();
+            const from = needShowAsignaturas();
             const asignaturas = formGroup.get('asignaturas')?.value;
             
-            if (from === 'mantenedor'){
+            if (from){
                 if (!asignaturas || ( asignaturas.length === 0 )) {
+                    return { required: true };
+                }
+            } 
+            return null;
+        };
+    }
+
+    static needMenciones(needShowMenciones: () => any ): ValidatorFn {
+        return (control: AbstractControl): { [key: string]: boolean } | null => {
+            const formGroup = control.parent as FormGroup;
+            if (!formGroup) return null;
+    
+            const needMenciones = needShowMenciones();
+            const menciones = formGroup.get('menciones')?.value;
+            
+            if (needMenciones){
+                if (!menciones || ( menciones.length === 0 )) {
                     return { required: true };
                 }
             } 

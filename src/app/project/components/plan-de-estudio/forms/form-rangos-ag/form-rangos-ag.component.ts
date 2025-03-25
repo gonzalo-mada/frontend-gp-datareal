@@ -37,16 +37,14 @@ export class FormRangosAgComponent implements OnInit, OnDestroy {
 	async setFormByExternalData(){
 		this.form.setDataExternal(this.dataExternal);
 		this.form.setValuesVarsByDataExternal();
-	}
-	
-	async initForm(){
-		await this.mainFacultad.getFacultades(false);
-		this.form.setDataExternal(this.dataExternal);
 		await Promise.all([
-			this.mainFacultad.getFacultades(false),
 			this.main.getProgramasPorFacultad(false),
 			this.main.getPlanesDeEstudiosPorPrograma(false),
 		]);
+	}
+	
+	async initForm(){
+		this.form.setDataExternal(this.dataExternal);
 	}
 	
 	async submit() {

@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 import { FormAsignaturasPlancomunService } from 'src/app/project/services/plan-de-estudio/asignaturas-plancomun/form.service';
 import { AsignaturasPlancomunMainService } from 'src/app/project/services/plan-de-estudio/asignaturas-plancomun/main.service';
@@ -13,7 +14,7 @@ import { FacultadesMainService } from 'src/app/project/services/programas/facult
   ]
 })
 export class FormAsignaturasPlancomunComponent implements OnInit, OnDestroy {
-	@Input() dataFromAgregarPE: any = { data: false };
+	@Input() dataExternal: DataExternal = { data: false };
   	@Output() formWasClosed = new EventEmitter<boolean>();
 	private subscription: Subscription = new Subscription();
 
@@ -26,22 +27,25 @@ export class FormAsignaturasPlancomunComponent implements OnInit, OnDestroy {
 	
 	async ngOnInit() {
 		this.subscription.add(this.form.fbForm.statusChanges.subscribe(status => { this.form.stateForm = status as StateValidatorForm }));
-		this.dataFromAgregarPE.data ? await this.setFormByAgregarPE() : await this.mainFacultad.getFacultades(false);		
+		this.dataExternal.data ? await this.setFormByExternalData() : this.initForm();		
 	}
 
 	ngOnDestroy(): void {
 		this.subscription.unsubscribe();
 	}
 
-	async setFormByAgregarPE(){
-		this.form.setValuesVarsByAgregarPE(this.dataFromAgregarPE);
-		this.main.cod_plan_estudio_selected_notform = this.dataFromAgregarPE.cod_plan_estudio;
-		await this.main.getProgramasPorFacultadOrigen(false);
-		await this.main.getPlanesDeEstudiosPorProgramaOrigen(false);
+	async setFormByExternalData(){
+		this.form.setDataExternal(this.dataExternal);
+		this.form.setValuesVarsByDataExternal();
+		await Promise.all([
+			this.main.getProgramasPorFacultadOrigen(false),
+			this.main.getPlanesDeEstudiosPorProgramaOrigen(false)
+		]);
 		await this.main.getAsignaturasPorPlanDeEstudioOrigen(false);
-		await this.mainFacultad.getFacultades(false);
-		this.form.setControlsFormByAgregarPE(this.dataFromAgregarPE);
-		this.main.wasFilteredTable = true;
+	}
+
+	async initForm(){
+		this.form.setDataExternal(this.dataExternal);
 	}
 
 	async submit(){

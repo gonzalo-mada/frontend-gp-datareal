@@ -34,7 +34,7 @@ export class HistorialActividadService {
 
     origen : string = '';
     origen_s : string | undefined = '';
-    codigo : number | undefined  = 0;
+    codigo : number | string | undefined  = 0;
     showDialog: boolean = false;
     showDialogVerActividad: boolean = false
 
@@ -51,16 +51,18 @@ export class HistorialActividadService {
         'descripcion.titulo'
     ];
     fromMultiSelect: boolean = false;
+    haveValorUnico: boolean = false;
+    haveDocumentos: boolean = false;
 
 
 
-    setOrigen(origen: string, origen_s?: string, codigo?: number){
+    setOrigen(origen: string, origen_s?: string, codigo?: number | string){
         this.origen = origen;
         this.origen_s = origen_s;
         this.codigo = codigo;
-        console.log("this.origen",this.origen);
-        console.log("this.origen_s",this.origen_s);
-        console.log("this.codigo",this.codigo);
+        // console.log("this.origen",this.origen);
+        // console.log("this.origen_s",this.origen_s);
+        // console.log("this.codigo",this.codigo);
         
     }
 
@@ -69,7 +71,7 @@ export class HistorialActividadService {
             let params = { origen: this.origen }
             const response = await this.serviceUtils.checkResponse(
                 await this.invoker.httpInvoke(
-                    this.serviceUtils.generateServiceMongo('logPostgrado/getHistorial'),
+                    this.serviceUtils.generateServiceMongo('logPostgrado/getHistorial', true),
                     params
                 ),
                 this.namesCrud
@@ -92,7 +94,7 @@ export class HistorialActividadService {
             let params = { origen: this.origen, origen_s: this.origen_s, cod_registro: this.codigo }
             const response = await this.serviceUtils.checkResponse(
                 await this.invoker.httpInvoke(
-                    this.serviceUtils.generateServiceMongo('logPostgrado/getHistorialSingular'),
+                    this.serviceUtils.generateServiceMongo('logPostgrado/getHistorialSingular', true),
                     params
                 ),
                 this.namesCrud
@@ -387,12 +389,20 @@ export class HistorialActividadService {
 		return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute), parseInt(seconds));
 	}
 
-    show(data: HistorialActividad){
+    resetVars(){
+        this.haveDocumentos = false;
+        this.haveValorUnico = false;
         this.fromMultiSelect = false;
+    }
+
+    show(data: HistorialActividad){
+        this.resetVars();
         this.actividad = {...data};
+
         if (this.actividad.descripcion?.necesita_tabla && this.actividad.descripcion!.titulo!.includes('DOCUMENTOS')) {
             const data = this.actividad.descripcion?.valor_docs.split('|').map((name: any) => name.trim())
-            this.actividad = { ...this.actividad,  data_tabla: data}
+            this.actividad = { ...this.actividad,  data_tabla: data};
+            this.haveDocumentos = true;
         }
         if (this.actividad.descripcion?.necesita_tabla && !this.actividad.descripcion!.titulo!.includes('DOCUMENTOS')) {
             const data_antes = this.actividad.descripcion?.valor_antes || {};
@@ -400,6 +410,12 @@ export class HistorialActividadService {
             const dataArray = this.generateArrayByObj(data_antes,data_despues);
             this.actividad = { ...this.actividad,  data_tabla: dataArray}
             this.fromMultiSelect = true;
+        }
+        if (this.actividad.descripcion?.necesita_tabla && this.actividad.descripcion!.valor_unico !== null) {
+            const valor_unico = this.actividad.descripcion?.valor_unico || {};
+            const dataArray = this.generateArrayByValorUnico(valor_unico);
+            this.actividad = { ...this.actividad,  data_tabla: dataArray}
+            this.haveValorUnico = true
         }
         this.showDialogVerActividad = true ;
     }
@@ -422,12 +438,59 @@ export class HistorialActividadService {
         const keys = new Set([...Object.keys(objAntes), ...Object.keys(objDespues)]);
     
         keys.forEach(key => {
-            const antes = objAntes[key] !== undefined ? `${key}: ${objAntes[key]}` : '';
-            const despues = objDespues[key] !== undefined ? `${key}: ${objDespues[key]}` : '';
+            // Verificar si el valor en `objAntes` es un objeto
+            let antes;
+            if (typeof objAntes[key] === 'object' && objAntes[key] !== null) {
+                // Si es un objeto, convertirlo a una cadena legible
+                antes = `${key}: ${Object.entries(objAntes[key])
+                    .map(([subKey, subValue]) => `${subKey}: ${subValue}`)
+                    .join(', ')}`;
+            } else {
+                // Si no es un objeto, usarlo directamente
+                antes = objAntes[key] !== undefined ? `${key}: ${objAntes[key]}` : '';
+            }
+    
+            // Verificar si el valor en `objDespues` es un objeto
+            let despues;
+            if (typeof objDespues[key] === 'object' && objDespues[key] !== null) {
+                // Si es un objeto, convertirlo a una cadena legible
+                despues = `${key}: ${Object.entries(objDespues[key])
+                    .map(([subKey, subValue]) => `${subKey}: ${subValue}`)
+                    .join(', ')}`;
+            } else {
+                // Si no es un objeto, usarlo directamente
+                despues = objDespues[key] !== undefined ? `${key}: ${objDespues[key]}` : '';
+            }
+    
+            // Agregar el par { antes, despues } al array
             newArray.push({ antes, despues });
         });
     
-        return newArray
+        return newArray;
     }
+    
+
+    generateArrayByValorUnico(objValorUnico: Record<string, any>) {
+        const newArray: { valor_unico: string; }[] = [];
+        const keys = new Set([...Object.keys(objValorUnico)]);
+        
+        keys.forEach(key => {
+            // Verificar si el valor es un objeto
+            let valor_unico;
+            if (typeof objValorUnico[key] === 'object' && objValorUnico[key] !== null) {
+                // Si es un objeto, convertirlo a una cadena legible
+                valor_unico = `${key}: ${Object.entries(objValorUnico[key])
+                    .map(([subKey, subValue]) => `${subKey}: ${subValue}`)
+                    .join(', ')}`; // Formatear las claves y valores del objeto anidado
+            } else {
+                // Si no es un objeto, usarlo directamente
+                valor_unico = objValorUnico[key] !== undefined ? `${key}: ${objValorUnico[key]}` : '';
+            }
+            newArray.push({ valor_unico });
+        });
+    
+        return newArray;
+    }
+    
 
 }

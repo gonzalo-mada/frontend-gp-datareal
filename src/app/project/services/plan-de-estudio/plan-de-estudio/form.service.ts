@@ -15,6 +15,7 @@ interface CardPlanEstudio {
     col_lg: number,
     col_md: number,
     isEditable: boolean,
+    isEditableBy: boolean,
     haveSecondaryValue: boolean,
     modeDialog: ModeDialogPE,
     collection: CollectionsMongo,
@@ -57,91 +58,98 @@ export class FormPlanDeEstudioService {
 
     inputs: CardPlanEstudio[] = [
         {   
-            col_lg: 4, col_md: 6, isEditable: false, haveSecondaryValue: true, modeDialog: undefined, collection: undefined, 
+            col_lg: 4, col_md: 6, isEditable: false, isEditableBy: false, haveSecondaryValue: true, modeDialog: undefined, collection: undefined, 
             items: [
                 { title: 'Plan de estudio', control: '', iconHelp: false, principalValue: 'form.selectedNombrePlanEstudio', secondaryName: 'Código', secondaryValue: 'form.selected_CodigoPlanEstudio'}
             ]
         },
         {   
-            col_lg: 4, col_md: 6, isEditable: false, haveSecondaryValue: true, modeDialog: undefined, collection: undefined, 
+            col_lg: 4, col_md: 6, isEditable: false, isEditableBy: false, haveSecondaryValue: true, modeDialog: undefined, collection: undefined, 
             items: [
                 { title: 'Programa', control: '', iconHelp: false, principalValue: 'form.selectedPrograma', secondaryName: 'Código', secondaryValue: 'form.selected_CodigoPrograma'}
             ]
         },
         {   
-            col_lg: 4, col_md: 6, isEditable: true, haveSecondaryValue: false, modeDialog: 'asignaturas', collection: undefined, 
+            col_lg: 4, col_md: 6, isEditable: true, isEditableBy: true, haveSecondaryValue: false, modeDialog: 'asignaturas', collection: 'asignaturas_pe', 
             items: [
                 { title: 'Asignaturas', control: '', iconHelp: false, principalValue: 'form.selectedAsignaturas'}
             ]
         },
         {   
-            col_lg: 4, col_md: 6, isEditable: true, haveSecondaryValue: false, modeDialog: 'estado', collection: 'estado_pe', 
+            col_lg: 4, col_md: 6, isEditable: true, isEditableBy: true, haveSecondaryValue: false, modeDialog: 'estado', collection: 'estado_pe', 
             items: [
                 { title: 'Estado', control: '', iconHelp: false, principalValue: 'form.selectedEstadoPlanEstudio'}
             ]
         },
         {   
-            col_lg: 4, col_md: 6, isEditable: true, haveSecondaryValue: false, modeDialog: 'modalidad', collection: 'modalidad_pe', 
+            col_lg: 4, col_md: 6, isEditable: true, isEditableBy: true, haveSecondaryValue: false, modeDialog: 'modalidad', collection: 'modalidad_pe', 
             items: [
                 { title: 'Modalidad', control: '', iconHelp: false, principalValue: 'form.selectedModalidad'}
             ]
         },
         {   
-            col_lg: 4, col_md: 6, isEditable: true, haveSecondaryValue: false, modeDialog: 'jornada', collection: 'jornada_pe', 
+            col_lg: 4, col_md: 6, isEditable: true, isEditableBy: true, haveSecondaryValue: false, modeDialog: 'jornada', collection: 'jornada_pe', 
             items: [
                 { title: 'Jornada', control: '', iconHelp: false, principalValue: 'form.selectedJornada'}
             ]
         },
         {   
-            col_lg: 4, col_md: 6, isEditable: true, haveSecondaryValue: false, modeDialog: 'regimen', collection: 'regimen_pe', 
+            col_lg: 4, col_md: 6, isEditable: true, isEditableBy: true, haveSecondaryValue: false, modeDialog: 'regimen', collection: 'regimen_pe', 
             items: [
                 { title: 'Régimen', control: '', iconHelp: false, principalValue: 'form.selectedRegimen'}
             ]
         },
         {   
-            col_lg: 4, col_md: 6, isEditable: true, haveSecondaryValue: false, modeDialog: 'reglamento', collection: undefined, 
+            col_lg: 4, col_md: 6, isEditable: true, isEditableBy: true, haveSecondaryValue: false, modeDialog: 'reglamento', collection: undefined, 
             items: [
                 { title: 'Reglamento', control: '', iconHelp: false, principalValue: 'form.selectedReglamento'}
             ]
         },
         {   
-            col_lg: 2, col_md: 6, isEditable: true, haveSecondaryValue: false, modeDialog: 'rexe', collection: 'rexe_pe', 
+            col_lg: 2, col_md: 6, isEditable: true, isEditableBy: true, haveSecondaryValue: false, modeDialog: 'rexe', collection: 'rexe_pe', 
             items: [
                 { title: 'REXE', control: 'rexe', iconHelp: false}
             ]
         },
         {   
-            col_lg: 2, col_md: 6, isEditable: true, haveSecondaryValue: false, modeDialog: 'cupo_minimo', collection: 'cupo_minimo_pe', 
+            col_lg: 2, col_md: 6, isEditable: true, isEditableBy: true, haveSecondaryValue: false, modeDialog: 'cupo_minimo', collection: 'cupo_minimo_pe', 
             items: [
                 { title: 'Cupo mínimo', control: 'cupo_minimo', iconHelp: false}
             ]
         },
         {   
-            col_lg: 6, col_md: 12, isEditable: true, haveSecondaryValue: false, modeDialog: 'articulacion', collection: 'articulaciones', 
+            col_lg: 6, col_md: 12, isEditable: true, isEditableBy: true, haveSecondaryValue: false, modeDialog: 'articulacion', collection: 'articulaciones', 
             items: [
                 { title: '¿Tiene articulación con programas de Pregrado?', control: 'tiene_articulacion', iconHelp: false},
                 { title: 'Número de articulaciones', control: '', iconHelp: false, principalValue: 'form.selectedArticulacion'}
             ]
         },
         {   
-            col_lg: 6, col_md: 12, isEditable: true, haveSecondaryValue: false, modeDialog: 'certificacion', collection: 'certificacion_intermedia_pe', 
+            col_lg: 6, col_md: 12, isEditable: true, isEditableBy: true, haveSecondaryValue: false, modeDialog: 'certificacion', collection: 'certificacion_intermedia_pe', 
             items: [
                 { title: '¿Tiene certificación intermedia?', control: 'tiene_certificacion', iconHelp: false},
                 { title: 'Número de certificaciones intermedias', control: '', iconHelp: false, principalValue: 'form.selectedCertifIntermedia'}
             ]
         },
         {   
-            col_lg: 6, col_md: 12, isEditable: true, haveSecondaryValue: false, modeDialog: 'rangos', collection: 'rangos', 
+            col_lg: 6, col_md: 12, isEditable: true, isEditableBy: true, haveSecondaryValue: false, modeDialog: 'rangos', collection: 'rangos', 
             items: [
                 { title: '¿Tiene rangos de aprobación?', control: 'tiene_rango_aprob_g', iconHelp: false},
                 { title: 'Número de rangos de aprobación', control: '', iconHelp: false, principalValue: 'form.selectedRangos'}
             ]
         },
         {   
-            col_lg: 6, col_md: 12, isEditable: true, haveSecondaryValue: false, modeDialog: 'menciones', collection: undefined, 
+            col_lg: 6, col_md: 12, isEditable: true, isEditableBy: true, haveSecondaryValue: false, modeDialog: 'menciones', collection: 'menciones_pe', 
             items: [
                 { title: '¿Tiene menciones?', control: 'tiene_mencion', iconHelp: false},
                 { title: 'Número de menciones', control: '', iconHelp: false, principalValue: 'form.selectedMenciones'}
+            ]
+        },
+        {   
+            col_lg: 6, col_md: 12, isEditable: true, isEditableBy: true, haveSecondaryValue: false, modeDialog: 'asign-pc', collection: 'asign-pc', 
+            items: [
+                { title: '¿Comparte asign. con plan común?', control: 'tiene_plan_comun', iconHelp: false},
+                { title: 'Número de planes comunes', control: '', iconHelp: false, principalValue: 'form.selectedAsignPC'}
             ]
         }
     ];
@@ -161,13 +169,20 @@ export class FormPlanDeEstudioService {
     selectedJornada: string = '';
     selectedRegimen: string = '';
     selectedArticulacion: string = '';
+    selectedArrayArticulaciones: any[] = [];
+    selectedAsignPC: string = '';
+    selectedArrayAsignPC: any[] = [];
     selectedReglamento: string = '';
     selectedPrograma: string = '';
     selectedNombrePlanEstudio: string = '';
     selectedCertifIntermedia: string = '';
+    selectedArrayCertifIntermedia: any[] = [];
     selectedRangos: string = '';
+    selectedArrayRangos: any[] = [];
     selectedMenciones: string = '';
+    selectedArrayMenciones: any[] = [];
     selectedAsignaturas: string = '';
+    asignaturasArray: any[] = [];
 
     selected_CodigoPrograma: number = 0;
     selected_CodigoPlanEstudio: number = 0;
@@ -330,13 +345,19 @@ export class FormPlanDeEstudioService {
         this.selectedJornada = '';
         this.selectedRegimen = '';
         this.selectedArticulacion = '';
+        this.selectedArrayArticulaciones = [];
+        this.selectedAsignPC = '';
+        this.selectedArrayAsignPC = [];
         this.selectedReglamento = '';
         this.selectedPrograma = '';
         this.selectedCertifIntermedia = '';
+        this.selectedArrayCertifIntermedia = [];
         this.selectedRangos = '';
+        this.selectedArrayRangos = [];
         this.selectedMenciones = '';
+        this.selectedArrayMenciones = [];
         this.selectedAsignaturas = '';
-        
+        this.asignaturasArray = [];
         this.selectedNombrePlanEstudio = '';
 
         this.selected_CodigoPrograma = 0;
@@ -435,51 +456,69 @@ export class FormPlanDeEstudioService {
         this.fbForm.patchValue({ cod_regimen: regimen });
     }
 
-    setSelectArticulacion(tiene_articulacion: any, num_articulacion: any){
+    setSelectArticulacion(tiene_articulacion: any, array_articulaciones: any[]){
         if (tiene_articulacion === 0) {
             this.selectedArticulacion = 'NO APLICA'
-        }else if(tiene_articulacion === 1 && num_articulacion === 0){
+        }else if(tiene_articulacion === 1 && array_articulaciones.length === 0){
             this.selectedArticulacion = 'PENDIENTE DE ASIGNAR'
         }else{
-            this.selectedArticulacion = `${num_articulacion} ${num_articulacion > 1 ? 'articulaciones' : 'articulación'}`
+            this.selectedArticulacion = `${array_articulaciones.length} ${array_articulaciones.length > 1 ? 'articulaciones' : 'articulación'}`
+            this.selectedArrayArticulaciones = [...array_articulaciones];
         }
     }
 
-    setSelectCertifIntermedia(tiene_certificacion: any, num_certif: any){
+    setSelectAsignPC(tiene_plan_comun: any, array_asign_pc: any[]){
+        if (tiene_plan_comun === 0) {
+            this.selectedAsignPC = 'NO APLICA'
+        }else if(tiene_plan_comun === 1 && array_asign_pc.length === 0){
+            this.selectedAsignPC = 'PENDIENTE DE ASIGNAR'
+        }else{
+            this.selectedAsignPC = `${array_asign_pc.length} ${array_asign_pc.length > 1 ? 'planes comunes' : 'plan común'}`
+            this.selectedArrayAsignPC = [...array_asign_pc];
+        }
+    }
+
+    setSelectCertifIntermedia(tiene_certificacion: any, array_certif: any[]){
         if (tiene_certificacion === 0) {
             this.selectedCertifIntermedia = 'NO APLICA'
-        }else if(tiene_certificacion === 1 && num_certif === 0){
+        }else if(tiene_certificacion === 1 && array_certif.length === 0){
             this.selectedCertifIntermedia = 'PENDIENTE DE ASIGNAR'
         }else{
-            this.selectedCertifIntermedia = `${num_certif} ${num_certif > 1 ? 'certificaciones' : 'certificación'}`
+            this.selectedCertifIntermedia = `${array_certif.length} ${array_certif.length > 1 ? 'certificaciones' : 'certificación'}`
+            this.selectedArrayCertifIntermedia = [...array_certif];
+
         }
     }
 
-    setSelectAsignaturas(num_asignaturas: any){
+    setSelectAsignaturas(num_asignaturas: any, asignaturas: any){
         if (num_asignaturas === 0) {
             this.selectedAsignaturas = 'Sin asignaturas'
         }else{
             this.selectedAsignaturas = `${num_asignaturas} ${num_asignaturas > 1 ? 'asignaturas' : 'asignatura'}`
+            this.asignaturasArray = [...asignaturas];
         }
     }
 
-    setSelectMenciones(tiene_mencion: any, num_menciones: any){
+    setSelectMenciones(tiene_mencion: any, array_menciones: any[]){
         if (tiene_mencion === 0) {
             this.selectedMenciones = 'NO APLICA'
-        }else if(tiene_mencion === 1 && num_menciones === 0){
+        }else if(tiene_mencion === 1 && array_menciones.length === 0){
             this.selectedMenciones = 'PENDIENTE DE ASIGNAR'
         }else{
-            this.selectedMenciones = `${num_menciones} ${num_menciones > 1 ? 'menciones' : 'mención'}`
+            this.selectedMenciones = `${array_menciones.length} ${array_menciones.length > 1 ? 'menciones' : 'mención'}`
+            this.selectedArrayMenciones = [...array_menciones];
         }
     }
 
-    setSelectRangos(tiene_rango_aprob_g: any, num_rangos: any){
+    setSelectRangos(tiene_rango_aprob_g: any, array_rangos: any[]){
         if (tiene_rango_aprob_g === 0) {
             this.selectedRangos = 'NO APLICA'
-        }else if(tiene_rango_aprob_g === 1 && num_rangos === 0){
+        }else if(tiene_rango_aprob_g === 1 && array_rangos.length === 0){
             this.selectedRangos = 'PENDIENTE DE ASIGNAR'
         }else{
-            this.selectedRangos = `${num_rangos} ${num_rangos > 1 ? 'rangos de aprobación' : 'rango de aprobación'}`
+            this.selectedRangos = `${array_rangos.length} ${array_rangos.length > 1 ? 'rangos de aprobación' : 'rango de aprobación'}`
+            this.selectedArrayRangos = [...array_rangos];
+
         }
     }
 
@@ -569,16 +608,16 @@ export class FormPlanDeEstudioService {
             params = {
                 ...this.fbForm.value,
                 tiene_certificacion: 0, 
+                descripcion_reglamento: this.selectedReglamento
             }
         }else{
-            params = {...this.fbForm.value}
+            params = {...this.fbForm.value , descripcion_reglamento: this.selectedReglamento}
         }
         return params
     }
 
-    async setFormUpdate(modeDialog: ModeDialogPE, plan: PlanDeEstudio): Promise<boolean> {
+    async setFormUpdate(modeDialog: ModeDialogPE, plan: PlanDeEstudio, isEditableBy: boolean): Promise<boolean> {
         switch (modeDialog) {
-
             case 'docs_maestros_plan_estudio':
                 this.fbFormUpdate = this.fb.group({
                     files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
@@ -590,6 +629,7 @@ export class FormPlanDeEstudioService {
                     cod_estado: [plan.cod_estado, [Validators.required]],
                     description_old: [this.selectedEstadoPlanEstudio],
                     description_new: [],
+                    isEditableBy: [isEditableBy],
                     files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
                 })
             break;
@@ -599,6 +639,7 @@ export class FormPlanDeEstudioService {
                     cod_modalidad: [plan.cod_modalidad, [Validators.required]],
                     description_old: [this.selectedModalidad],
                     description_new: [],
+                    isEditableBy: [isEditableBy],
                     files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
                 })
             break;
@@ -608,6 +649,7 @@ export class FormPlanDeEstudioService {
                     cod_jornada: [plan.cod_jornada, [Validators.required]],
                     description_old: [this.selectedJornada],
                     description_new: [],
+                    isEditableBy: [isEditableBy],
                     files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
                 })
             break;
@@ -615,8 +657,9 @@ export class FormPlanDeEstudioService {
             case 'regimen':
                 this.fbFormUpdate = this.fb.group({
                     cod_regimen: [plan.cod_regimen, [Validators.required]],
-                    description_old: [this.selectedJornada],
+                    description_old: [this.selectedRegimen],
                     description_new: [],
+                    isEditableBy: [isEditableBy],
                     files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
                 })
             break;
@@ -625,13 +668,15 @@ export class FormPlanDeEstudioService {
                 this.fbFormUpdate = this.fb.group({
                     cod_reglamento: [plan.cod_reglamento, [Validators.required]],
                     description_old: [this.selectedReglamento],
-                    description_new: []
+                    description_new: [],
+                    isEditableBy: [isEditableBy]
                 });  
             break;
 
             case 'rexe': 
                 this.fbFormUpdate = this.fb.group({
                     rexe: [plan.rexe, [Validators.required]],
+                    isEditableBy: [isEditableBy],
                     files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
                 });  
             break;
@@ -639,6 +684,7 @@ export class FormPlanDeEstudioService {
             case 'cupo_minimo': 
                 this.fbFormUpdate = this.fb.group({
                     cupo_minimo: [plan.cupo_minimo, [Validators.required]],
+                    isEditableBy: [isEditableBy],
                     files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
                 });  
             break;
@@ -646,6 +692,8 @@ export class FormPlanDeEstudioService {
             case 'articulacion':
                 this.fbFormUpdate = this.fb.group({
                     tiene_articulacion: [plan.tiene_articulacion, [Validators.required]],
+                    articulacionesToDelete : [this.selectedArrayArticulaciones],
+                    isEditableBy: [isEditableBy],
                     files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
                 });
             break;
@@ -653,6 +701,8 @@ export class FormPlanDeEstudioService {
             case 'certificacion':
                 this.fbFormUpdate = this.fb.group({
                     tiene_certificacion: [plan.tiene_certificacion, [Validators.required]],
+                    asignCiToDelete : [this.selectedArrayCertifIntermedia],
+                    isEditableBy: [isEditableBy],
                     files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
                 });
             break;
@@ -660,6 +710,8 @@ export class FormPlanDeEstudioService {
             case 'rangos':
                 this.fbFormUpdate = this.fb.group({
                     tiene_rango_aprob_g: [plan.tiene_rango_aprob_g, [Validators.required]],
+                    rangoToDelete: [this.selectedArrayRangos],
+                    isEditableBy: [isEditableBy],
                     files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
                 });
             break;
@@ -667,6 +719,26 @@ export class FormPlanDeEstudioService {
             case 'menciones':
                 this.fbFormUpdate = this.fb.group({
                     tiene_mencion: [plan.tiene_mencion, [Validators.required]],
+                    mencionToDelete: [this.selectedArrayMenciones],
+                    isEditableBy: [isEditableBy],
+                    files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
+                });
+            break;
+
+            case 'asign-pc':
+                this.fbFormUpdate = this.fb.group({
+                    tiene_plan_comun: [plan.tiene_plan_comun, [Validators.required]],
+                    asignPCToDelete : [this.selectedArrayAsignPC],
+                    isEditableBy: [isEditableBy],
+                    files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
+                });
+            break;
+
+            case 'asignaturas':
+                this.fbFormUpdate = this.fb.group({
+                    asignaturas: [this.asignaturasArray, [Validators.required]],
+                    asignaturasToDelete: [[]],
+                    isEditableBy: [isEditableBy],
                     files: [[], GPValidator.filesValidator('files',() => this.modeForm)]
                 });
             break;
@@ -678,5 +750,7 @@ export class FormPlanDeEstudioService {
         return true
     }
 
-    
+    setAsignaturasToDelete(asignaturasToDelete: any){
+        this.fbFormUpdate.patchValue({ asignaturasToDelete: [...asignaturasToDelete] });
+    }
 }

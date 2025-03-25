@@ -15,8 +15,20 @@
   padding: 0.25em 0.5rem;
   text-transform: uppercase;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: 0.3px;
+}
+
+.icon-badge {
+  color: #6c757d; 
+  font-size: 1rem; 
+  display: flex;
+  align-items: center;
+}
+
+.estado-badge-doc.icon-leyenda {
+  background: #d6d6d6;
+  color: black;
 }
 
 .estado-badge.estado-activo {
@@ -108,3 +120,10 @@
   vertical-align: unset !important;
 }
 
+.truncate {
+  display: inline-block; 
+  max-width: 80%; 
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

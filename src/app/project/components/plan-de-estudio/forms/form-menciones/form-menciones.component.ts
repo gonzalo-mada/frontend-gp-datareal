@@ -6,6 +6,7 @@ import { FormMencionesService } from 'src/app/project/services/plan-de-estudio/m
 import { MencionesMainService } from 'src/app/project/services/plan-de-estudio/menciones/main.service';
 import { TableMencionesService } from 'src/app/project/services/plan-de-estudio/menciones/table.service';
 import { FacultadesMainService } from 'src/app/project/services/programas/facultad/main.service';
+import { parseAsignaturas } from 'src/app/project/tools/utils/form.utils';
 
 @Component({
   selector: 'app-form-menciones',
@@ -16,21 +17,20 @@ import { FacultadesMainService } from 'src/app/project/services/programas/facult
 export class FormMencionesComponent {
 
 	@Input() dataExternal: DataExternal = { data: false };
-	@Input() from!: 'mantenedor' | 'external-form' ;
+	@Input() needShowAsignaturas: boolean = true;
 	@Output() formWasClosed = new EventEmitter<boolean>();
 	private subscription: Subscription = new Subscription();
-
 	constructor(
 		public form: FormMencionesService,
 		public main: MencionesMainService,
 		public table: TableMencionesService,
-		public mainFacultad: FacultadesMainService
+		public mainFacultades: FacultadesMainService
 	){}
-
+    
 	async ngOnInit() {
 		this.subscription.add(this.form.fbForm.statusChanges.subscribe(status => { this.form.stateForm = status as StateValidatorForm }));
+		this.form.needShowAsignaturas = this.needShowAsignaturas;
 		this.dataExternal.data ? await this.setFormByExternalData() : this.initForm();
-		this.form.openedFrom = this.from
 	}
 
 	async ngOnChanges(changes: SimpleChanges) {
@@ -40,7 +40,7 @@ export class FormMencionesComponent {
 	}
 
 	ngOnDestroy(): void {
-		this.form.openedFrom = '';
+		this.form.needShowAsignaturas = true;
 		this.main.showTable = false
 		this.subscription.unsubscribe();
 	}
@@ -49,14 +49,12 @@ export class FormMencionesComponent {
 		this.form.setDataExternal(this.dataExternal);
 		this.form.setValuesVarsByDataExternal();
 		await Promise.all([
-			this.mainFacultad.getFacultades(false),
 			this.main.getProgramasPorFacultad(false),
 			this.main.getPlanesDeEstudiosPorPrograma(false),
 		]);
 	}
 
 	async initForm(){
-		await this.mainFacultad.getFacultades(false);
 		this.form.setDataExternal(this.dataExternal);
 	}
 
@@ -84,8 +82,9 @@ export class FormMencionesComponent {
 		this.main.resetArraysWhenChangedDropdownPlanEstudio();
 		this.form.resetControlsWhenChangedDropdownPlanEstudio();
 		this.form.disabledControlsWhenChangedDropdownPlanEstudio();
+		this.clearTableAsignatura();
 		this.form.cod_plan_estudio = event.value;
-		await this.main.getAsignaturasPorPlanDeEstudio();
+		await this.main.getAsignaturasMencionHabilitada();
 	}
 
 	test(){
@@ -102,5 +101,50 @@ export class FormMencionesComponent {
 		// this.form.getValuesSelected();
 		// this.form.getValuesIndex();
 	}
+
+	selectAsignatura(event: any){
+		const parsedAsignaturas = parseAsignaturas(event, this.main.asignaturas)
+		this.form.setAsignatura(parsedAsignaturas);
+	}
+
+	selectMenciones(event: any){
+		this.form.setMenciones(event);
+	}
+
+	clearTableAsignatura(){
+		this.table.resetSelectedRowsTableAsignaturas();
+		this.form.setAsignatura([]);
+	}
+
+	clearTableMenciones(){
+		this.table.resetSelectedRowsTableMenciones();
+		this.form.setMenciones('');
+	}
+
+	nextStep() {
+		switch (this.form.activeTab) {
+			case 0:
+				!this.needShowAsignaturas  ? (this.form.activeTab = 2) : (this.form.activeTab = 1)
+			break;
+
+			case 1:
+				this.form.activeTab = 2
+			break;
+		}
+	  }
+	
+	prevStep() {
+		switch (this.form.activeTab) {
+			case 2:
+				!this.needShowAsignaturas ? (this.form.activeTab = 0) : (this.form.activeTab = 1)
+			break;
+	
+			case 1:
+				this.form.activeTab = 0
+			break;	
+		}
+	}
+
+
 
 }

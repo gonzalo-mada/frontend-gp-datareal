@@ -7,6 +7,8 @@ import { AgregarAsignaturaComponent } from './agregar-asignatura/agregar-asignat
 import { HomeComponent } from './home/home.component';
 import { PrimengModule } from '../../modules/primeng.module';
 import { SharedModule } from '../../modules/shared.module';
+import { VerAsignaturaComponent } from './ver-asignatura/ver-asignatura.component';
+import { EditarAsignaturaComponent } from './editar-asignatura/editar-asignatura.component';
 
 
 @NgModule({
@@ -14,6 +16,8 @@ import { SharedModule } from '../../modules/shared.module';
     AsignaturasComponent,
     HomeComponent,
     AgregarAsignaturaComponent,
+    VerAsignaturaComponent,
+    EditarAsignaturaComponent,
   ],
   imports: [
     CommonModule,

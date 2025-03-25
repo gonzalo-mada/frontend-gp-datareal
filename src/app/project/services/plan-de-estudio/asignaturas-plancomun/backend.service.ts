@@ -79,10 +79,10 @@ export class BackendAsignaturasPlancomunService {
         }
     }
 
-    async getPlanesDeEstudiosConPlanComun(params: any, loading = true) {
+    async getAsignaturasPorPlanDeEstudio(params: any, loading = true) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('asign-plancomun/getPlanesDeEstudiosConPlanComun', loading),
+                this.serviceUtils.generateServiceMongo('asign-plancomun/getAsignaturasPorPlanDeEstudio', loading),
                 params
             );
         } catch (error: any) {

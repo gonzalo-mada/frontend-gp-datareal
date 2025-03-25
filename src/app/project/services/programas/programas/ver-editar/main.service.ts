@@ -195,7 +195,8 @@ export class VerEditarProgramaMainService {
         this.files.setFiles();
     }
 
-    openHistorialActividad(){
+    async openHistorialActividad(){
+        await this.historialActividad.refreshHistorialActividad();
         this.historialActividad.showDialog = true;
     }
 

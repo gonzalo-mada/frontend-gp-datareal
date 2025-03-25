@@ -15,11 +15,12 @@
 <p-overlayPanel #op1>
     <ng-template pTemplate>
         <div class="flex flex-row flex-wrap">
-            <div class="flex align-items-center justify-content-center">
-                <i class="fa fa-thumbtack" style="color:#6c757d"></i>
+            <div class="flex align-items-center justify-content-center icon-badge">
+                <span *ngIf="programaFrozen" class="icon-badge"><i class="fa fa-thumbtack-slash"></i></span>
+                <span *ngIf="!programaFrozen" class="icon-badge"><i class="fa fa-thumbtack"></i></span>
             </div>
             <div class="flex align-items-center justify-content-center">
-                <span class="mx-1" style="font-weight: 100;">Permite fijar columna</span>
+                <span class="ml-1 font-light">{{ programaFrozen ? 'Desfijar columna' : 'Fijar columna'}}</span>
             </div>
         </div>
     </ng-template>
@@ -60,12 +61,14 @@
                 (click)="clear(dt)">
               </p-button>
             </div>
+            
+            <div class="hidden md:flex flex-row align-items-center estado-badge-doc icon-leyenda" pTooltip="Leyenda de iconos" tooltipPosition="bottom">
+                <span *ngIf="programaFrozen" class="icon-badge"><i class="fa fa-thumbtack-slash"></i></span>
+                <span *ngIf="!programaFrozen" class="icon-badge"><i class="fa fa-thumbtack"></i></span>
+                <span class="ml-1 font-light">{{ programaFrozen ? 'desfijar columna' : 'fijar columna'}}</span>
+            </div>
                               
             <div class="flex">
-                <div class="hidden md:flex flex-row align-items-center estado-badge-doc" pTooltip="Leyenda de iconos" tooltipPosition="bottom">
-                    <i class="fa fa-thumbtack ml-1" style="color:#6c757d"></i>
-                    <span class="ml-1 font-light">Permite fijar columna</span>
-                </div>
                 <div class="hidden lg:flex flex-row flex-wrap">
                     <p-multiSelect 
                         [options]="cols" 

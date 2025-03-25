@@ -9,7 +9,10 @@ export interface Mencion {
     vigencia?: boolean,
     nombre_mencion?: string,
     descripcion_mencion?: string,
-    asignaturas?: Asignatura[]
+    asignaturas?: Asignatura[],
+    nombre_mencion_completo?: string,
+    nombre_plan_estudio_completo?: string,
+    nombre_programa_completo?: string,
 }
 
 interface Asignatura {

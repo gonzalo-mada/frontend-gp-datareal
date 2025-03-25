@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { RangoAG } from "src/app/project/models/plan-de-estudio/RangoAG";
 import { DataExternal } from "src/app/project/models/shared/DataExternal";
 import { ModeForm } from "src/app/project/models/shared/ModeForm";
+import { PrincipalControls } from "src/app/project/models/shared/PrincipalControls";
 import { StateValidatorForm } from "src/app/project/models/shared/StateValidatorForm";
 import { GPValidator } from "src/app/project/tools/validators/gp.validators";
 
@@ -90,6 +91,27 @@ export class FormRangosAGService {
         }
         return params
     }
+
+		async getDataPrincipalControls(): Promise<PrincipalControls> {
+			const cod_facultad = this.fbForm.get('cod_facultad');
+			const cod_programa = this.fbForm.get('cod_programa');
+			const cod_plan_estudio = this.fbForm.get('cod_plan_estudio');
+			let dataToLog: PrincipalControls = {};
+			if (cod_facultad?.disabled  &&  cod_programa?.disabled && cod_plan_estudio?.disabled) {
+				dataToLog = {
+					cod_facultad: this.cod_facultad_selected_postgrado, 
+					cod_programa: this.cod_programa_postgrado_selected,
+					cod_plan_estudio: this.cod_planestudio_selected,
+				}
+			}else{
+				dataToLog = {
+					cod_facultad: cod_facultad!.value, 
+					cod_programa: cod_programa!.value,
+					cod_plan_estudio: cod_plan_estudio!.value
+				}
+			}
+			return dataToLog
+		}
 
 	setDataExternal(dataExternal: DataExternal){
         this.dataExternal = {...dataExternal};

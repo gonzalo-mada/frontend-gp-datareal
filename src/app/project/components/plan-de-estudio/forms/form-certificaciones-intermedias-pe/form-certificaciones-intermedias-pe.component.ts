@@ -6,6 +6,7 @@ import { FormCertifIntermediasPEService } from 'src/app/project/services/plan-de
 import { CertifIntermediasPEMainService } from 'src/app/project/services/plan-de-estudio/certificaciones-intermedias-pe/main.service';
 import { TableCertifIntermediasPEService } from 'src/app/project/services/plan-de-estudio/certificaciones-intermedias-pe/table.service';
 import { FacultadesMainService } from 'src/app/project/services/programas/facultad/main.service';
+import { parseAsignaturas } from 'src/app/project/tools/utils/form.utils';
 
 @Component({
   selector: 'app-form-certificaciones-intermedias-pe',
@@ -40,16 +41,14 @@ export class FormCertificacionesIntermediasPeComponent implements OnInit, OnDest
 		this.form.setDataExternal(this.dataExternal);
 		this.form.setValuesVarsByDataExternal();
 		await Promise.all([
-			await this.mainFacultad.getFacultades(false),
 			await this.main.getProgramasPostgradoConCertifIntermediaPorFacultad(false),
 			await this.main.getPlanesDeEstudiosPorPrograma(false),
 			await this.main.getCertificacionIntermedia_Prog(false),
 		]);
-		await this.main.getAsignaturasPorPlanDeEstudio(false)
+		await this.main.getAsignaturasConTemaAgrupado(false)
 	}
 
 	async initForm(){
-		await this.mainFacultad.getFacultades(false);
 		this.form.setDataExternal(this.dataExternal);
 	}
 
@@ -81,19 +80,18 @@ export class FormCertificacionesIntermediasPeComponent implements OnInit, OnDest
 		this.main.resetArraysWhenChangedDropdownPE();
 		this.form.resetFormWhenChangedDropdownPE();
 		this.form.cod_planestudio_selected = event.value;
-		await this.main.getAsignaturasPorPlanDeEstudio();
+		await this.main.getAsignaturasConTemaAgrupado();
 	}
 
 	selectCertificacionIntermedia(event: any){
-		console.log("event",event);
-		
 		this.resetTableCertifIntermediaAndAsignaturas();
 		this.table.selectedCertifIntermediaRows = {...event};
 		this.form.setCertificacionIntermedia(event);
 	}
 
 	selectAsignatura(event: any){
-		this.form.setAsignaturas(event);
+		const parsedAsignaturas = parseAsignaturas(event, this.main.asignaturas)
+		this.form.setAsignaturas(parsedAsignaturas);
 	}
 
 	clearTableCertifIntermedia(){
@@ -103,13 +101,12 @@ export class FormCertificacionesIntermediasPeComponent implements OnInit, OnDest
 
 	clearTableAsignatura(){
 		this.table.resetSelectedRowsTableAsignaturas();
-		this.form.setAsignaturas('');
+		this.form.setAsignaturas([]);
 	}
 
 	resetTableCertifIntermediaAndAsignaturas(){
-		this.table.resetSelectedRowsAllTables();
+		this.table.resetSelectedRowsTableCertifIntermedias();
 		this.form.setCertificacionIntermedia('');
-		this.form.setAsignaturas('');
 	}
 
 	test(){

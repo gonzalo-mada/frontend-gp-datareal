@@ -62,10 +62,10 @@ export class BackendMencionesService {
         }
     }
 
-    async getAsignaturasPorPlanDeEstudio(params: any, loading = true) {
+    async getAsignaturasMencionHabilitada(params: any, loading = true) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('asignaturas/getAsignaturasSimplificatedPorPlanDeEstudio', loading),
+                this.serviceUtils.generateServiceMongo('menciones/getAsignaturasMencionHabilitada', loading),
                 params
             );
         } catch (error: any) {
@@ -76,10 +76,10 @@ export class BackendMencionesService {
         }
     }
 
-    async getMencionesPorPlanDeEstudio(params: any, loading = true) {
+    async getMencionesConAsignaturasPorPlanDeEstudio(params: any, loading = true) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('menciones/getMencionesPorPlanDeEstudio', loading),
+                this.serviceUtils.generateServiceMongo('menciones/getMencionesConAsignaturasPorPlanDeEstudio', loading),
                 params
             );
         } catch (error: any) {
@@ -93,13 +93,64 @@ export class BackendMencionesService {
         }
     }
 
+    async getMencionesPorPlanDeEstudioSinAsign(params: any, loading = true) {
+        try {
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('menciones/getMencionesPorPlanDeEstudio', loading),
+                params
+            );
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(
+                error, 
+                {
+                    notifyMethod: 'alert',
+                    message: `Hubo un error al obtener menciones sin asignaturas por plan de estudio seleccionado. Intente nuevamente.`,
+                }
+            );
+        }
+    }
+
+    async getMencionesPorAsignatura(params: any, loading = true) {
+        try {
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('menciones/getMencionesPorAsignatura', loading),
+                params
+            );
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(
+                error, 
+                {
+                    notifyMethod: 'alert',
+                    message: `Hubo un error al obtener menciones por asignatura seleccionada. Intente nuevamente.`,
+                }
+            );
+        }
+    }
+
     async insertMencion(params: any, namesCrud: NamesCrud) {
+        try {
+            return this.serviceUtils.checkResponse(
+                await this.invoker.httpInvoke(
+                    this.serviceUtils.generateServiceMongo('menciones/insertMencion'),
+                    params
+                ),
+                namesCrud
+            );
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(error, {
+                notifyMethod: 'alert',
+                summary: `Error al agregar ${namesCrud.articulo_singular}.`,
+                message: error?.message || error.detail.error.message.message
+            });
+        }
+    }
+    async insertMencionPorAsignatura(params: any, namesCrud: NamesCrud) {
         try {
             console.log(params);
             
             return this.serviceUtils.checkResponse(
                 await this.invoker.httpInvoke(
-                    this.serviceUtils.generateServiceMongo('menciones/insertMencion'),
+                    this.serviceUtils.generateServiceMongo('menciones/insertMencionAsign'),
                     params
                 ),
                 namesCrud
@@ -129,11 +180,23 @@ export class BackendMencionesService {
                 message: error?.message || error.detail.error.message.message
             });
         }
-      }
+    }
       
     async deleteMencion(params: any, namesCrud: NamesCrud) {
         try {
             return await this.invoker.httpInvoke('menciones/deleteMencion', {mencionToDelete: params});
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(error, {
+                notifyMethod: 'alert',
+                summary: `Error al eliminar ${namesCrud.singular}`,
+                message: error?.message || error.detail.error.message.message
+            });
+        }
+    }
+
+    async deleteMencionAsign(params: any, namesCrud: NamesCrud) {
+        try {
+            return await this.invoker.httpInvoke('menciones/deleteMencionAsign', {mencionToDelete: params});
         } catch (error: any) {
             this.errorTemplateHandler.processError(error, {
                 notifyMethod: 'alert',

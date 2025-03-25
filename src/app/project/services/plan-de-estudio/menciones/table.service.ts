@@ -15,9 +15,14 @@ export class TableMencionesService {
         { field: 'asignaturas', header: 'Núm. de asignaturas' },
         { field: 'Acciones', header: 'Acciones' },
     ];
+    cols_asignatura: any[] = [
+		{ field: 'nombre_asignatura_completa', header: 'Asignatura' }
+	]
     globalFiltros : any[] = [ 'nombre_mencion', 'descripcion_mencion', 'mencion_rexe', 'fecha_creacion' ];
     dataKeyTable : string = 'cod_mencion_pe';
     selectedRows: Mencion[] = [];
+	selectedAsignaturaRows: any = {};
+    selectedMencionesRows: any[] = [];
 
     constructor(private tableCrudService: TableCrudService){}
 
@@ -33,4 +38,18 @@ export class TableMencionesService {
     emitResetExpandedRows(){
         this.tableCrudService.emitResetExpandedRowsTable();
     }
+
+    resetSelectedRowsTableAsignaturas(){
+        this.selectedAsignaturaRows = {};
+    }
+
+    resetSelectedRowsTableMenciones(){
+        this.selectedMencionesRows = [];
+    }
+
+    resetTables(){
+        this.resetSelectedRowsTableAsignaturas();
+        this.resetSelectedRowsTableMenciones();
+    }
+    
 }

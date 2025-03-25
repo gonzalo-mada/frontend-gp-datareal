@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AsignaturasPlancomun } from 'src/app/project/models/plan-de-estudio/AsignaturasPlancomun';
+import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
+import { PrincipalControls } from 'src/app/project/models/shared/PrincipalControls';
 import { StateValidatorForm } from 'src/app/project/models/shared/StateValidatorForm';
 
 interface ArrowsColors {
@@ -23,6 +25,7 @@ export class FormAsignaturasPlancomunService {
     public fbForm!: FormGroup;
     modeForm: ModeForm = undefined;
     stateForm: StateValidatorForm = undefined;
+    dataExternal: DataExternal = {data: false};
 
     //vars origen
     cod_facultad_selected_origen: number = 0;
@@ -49,13 +52,14 @@ export class FormAsignaturasPlancomunService {
 
     async initForm(): Promise<boolean>{
         this.fbForm = this.fb.group({
-            cod_facultad_pe: ['', [Validators.required]],
-            cod_programa_pe: ['', [Validators.required]],
+            cod_facultad: ['', [Validators.required]],
+            cod_programa: ['', [Validators.required]],
             cod_plan_estudio: ['', [Validators.required]],
 
             cod_facultad_pc: ['', [Validators.required]],
             cod_programa_pc: ['', [Validators.required]],
             cod_plan_estudio_plan_comun: ['', [Validators.required]],
+            nombre_plan_comun_completo: [''],
 
             asignaturas: ['', [Validators.required]],
             aux: ['']
@@ -67,8 +71,8 @@ export class FormAsignaturasPlancomunService {
 
     resetForm(): void {
         this.fbForm.reset({
-            cod_facultad_pe: '',
-            cod_programa_pe: '',
+            cod_facultad: '',
+            cod_programa: '',
             cod_plan_estudio: '',
 
             cod_facultad_pc: '',
@@ -80,7 +84,7 @@ export class FormAsignaturasPlancomunService {
         });
         this.fbForm.enable();
 
-        this.fbForm.get('cod_programa_pe')?.disable();
+        this.fbForm.get('cod_programa')?.disable();
 		this.fbForm.get('cod_plan_estudio')?.disable();
 
         this.fbForm.get('cod_programa_pc')?.disable();
@@ -90,26 +94,29 @@ export class FormAsignaturasPlancomunService {
 
     }
 
-    setControlsFormByAgregarPE(dataFromAgregarPE: any){
-        this.fbForm.get('cod_facultad_pe')?.patchValue(dataFromAgregarPE.cod_facultad);
-        this.fbForm.get('cod_programa_pe')?.patchValue(dataFromAgregarPE.cod_programa);
-        this.fbForm.get('cod_plan_estudio')?.patchValue(dataFromAgregarPE.cod_plan_estudio);
-        this.fbForm.get('cod_facultad_pe')?.disable();
-        this.fbForm.get('cod_programa_pe')?.disable();
-        this.fbForm.get('cod_plan_estudio')?.disable();
+    async setForm(mode:'show' | 'edit' ,data: AsignaturasPlancomun){
+        this.fbForm.patchValue({...data});
+        if (mode === 'show') {
+            this.fbForm.disable();
+        }
+        if (mode === 'edit') {
+            this.fbForm.patchValue({aux: data});
+            this.setDisabledAllControls();
+        }
+        await this.setVarsForm(data.cod_facultad!, data.cod_programa!, data.cod_plan_estudio!, data.cod_facultad_pc!, data.cod_programa_pc!, data.cod_plan_estudio_plan_comun!)
     }
 
     setParamsForm(): Object {
-        const cod_facultad_pc = this.fbForm.get('cod_facultad_pc');
-        const cod_programa_pc = this.fbForm.get('cod_programa_pc');
-        const cod_plan_estudio_plan_comun = this.fbForm.get('cod_plan_estudio_plan_comun');
+        const cod_facultad = this.fbForm.get('cod_facultad');
+        const cod_programa = this.fbForm.get('cod_programa');
+        const cod_plan_estudio = this.fbForm.get('cod_plan_estudio');
         let params = {};
-        if (cod_facultad_pc?.disabled  &&  cod_programa_pc?.disabled && cod_plan_estudio_plan_comun?.disabled) {
+        if (cod_facultad?.disabled  &&  cod_programa?.disabled && cod_plan_estudio?.disabled) {
             params = {
                 ...this.fbForm.value,
-                cod_facultad_pc: this.cod_facultad_selected_destino, 
-                cod_programa_pc: this.cod_programa_selected_destino,
-                cod_plan_estudio_plan_comun: this.cod_planestudio_selected_destino
+                cod_facultad: this.cod_facultad_selected_origen, 
+                cod_programa: this.cod_programa_selected_origen,
+                cod_plan_estudio: this.cod_planestudio_selected_origen
             }
         }else{
             params = {...this.fbForm.value}
@@ -117,48 +124,92 @@ export class FormAsignaturasPlancomunService {
         return params
     }
 
-    resetValuesVarsSelected(){
-        //vars origen
-        this.cod_facultad_selected_origen = 0;
-        this.cod_programa_selected_origen = 0;
-        this.cod_planestudio_selected_origen = 0;
-        //vars destino
-        this.cod_facultad_selected_destino = 0;
-        this.cod_programa_selected_destino = 0;
-        this.cod_planestudio_selected_destino = 0;
+    async getDataPrincipalControls(): Promise<PrincipalControls> {
+        const cod_facultad = this.fbForm.get('cod_facultad');
+        const cod_programa = this.fbForm.get('cod_programa');
+        const cod_plan_estudio = this.fbForm.get('cod_plan_estudio');
+        const cod_facultad_pc = this.fbForm.get('cod_facultad_pc');
+        const cod_programa_pc = this.fbForm.get('cod_programa_pc');
+        const cod_plan_estudio_plan_comun = this.fbForm.get('cod_plan_estudio_plan_comun');
+        let dataToLog: PrincipalControls = {};
+        if (cod_facultad?.disabled && cod_programa?.disabled && cod_plan_estudio?.disabled && cod_facultad_pc?.disabled && cod_programa_pc?.disabled && cod_plan_estudio_plan_comun?.disabled ) {
+            dataToLog = {
+                cod_facultad: this.cod_facultad_selected_origen, 
+                cod_programa: this.cod_programa_selected_origen,
+                cod_plan_estudio: this.cod_planestudio_selected_origen,
+                cod_facultad_pc: this.cod_facultad_selected_destino,
+                cod_programa_pc: this.cod_programa_selected_destino,
+                cod_plan_estudio_plan_comun: this.cod_planestudio_selected_destino,
+            }
+        }else{
+            dataToLog = {
+                cod_facultad: cod_facultad!.value, 
+                cod_programa: cod_programa!.value,
+                cod_plan_estudio: cod_plan_estudio!.value,
+                cod_facultad_pc: cod_facultad_pc!.value,
+                cod_programa_pc: cod_programa_pc!.value,
+                cod_plan_estudio_plan_comun: cod_plan_estudio_plan_comun!.value,
+            }
+        }
+        return dataToLog
     }
 
-    setValuesVarsByAgregarPE(dataFromAgregarPE: any){
-        this.cod_facultad_selected_origen = dataFromAgregarPE.cod_facultad;
-        this.cod_programa_selected_origen = dataFromAgregarPE.cod_programa;
-        this.cod_planestudio_selected_origen = dataFromAgregarPE.cod_plan_estudio;
+    setDataExternal(dataExternal: DataExternal){
+        this.dataExternal = {...dataExternal};
     }
 
-    setForm(mode:'show' | 'edit' ,data: AsignaturasPlancomun): void{
-        this.fbForm.patchValue({...data});
-        if (mode === 'show') {
-            this.fbForm.disable();
-        }
-        if (mode === 'edit') {
-            this.fbForm.patchValue({aux: data});
-        }
+    setValuesVarsByDataExternal(){
+        this.cod_facultad_selected_origen = this.dataExternal.cod_facultad!;
+        this.cod_programa_selected_origen = this.dataExternal.cod_programa!;
+        this.cod_planestudio_selected_origen = this.dataExternal.cod_plan_estudio!;
+    }
+
+    setControlsFormByDataExternal(){
+        this.fbForm.get('cod_facultad')?.patchValue(this.dataExternal.cod_facultad);
+        this.fbForm.get('cod_programa')?.patchValue(this.dataExternal.cod_programa);
+        this.fbForm.get('cod_plan_estudio')?.patchValue(this.dataExternal.cod_plan_estudio);
+        this.setDisabledPrincipalControls();
+    }
+
+    setDisabledPrincipalControls(){
+        this.fbForm.get('cod_facultad')?.disable();
+        this.fbForm.get('cod_programa')?.disable();
+        this.fbForm.get('cod_plan_estudio')?.disable();
+    }
+
+    setDisabledAllControls(){
+        this.fbForm.get('cod_facultad')?.disable();
+        this.fbForm.get('cod_programa')?.disable();
+        this.fbForm.get('cod_plan_estudio')?.disable();
+        this.fbForm.get('cod_facultad_pc')?.disable();
+        this.fbForm.get('cod_programa_pc')?.disable();
+        this.fbForm.get('cod_plan_estudio_plan_comun')?.disable();
+    }
+
+    async setVarsForm(cod_facultad: number, cod_programa: number, cod_plan_estudio: number, cod_facultad_pc: number, cod_programa_pc: number, cod_plan_estudio_pc: number){
+        this.cod_facultad_selected_origen = cod_facultad;
+        this.cod_programa_selected_origen = cod_programa;
+        this.cod_planestudio_selected_origen = cod_plan_estudio;
+        this.cod_facultad_selected_destino = cod_facultad_pc;
+        this.cod_programa_selected_destino = cod_programa_pc;
+        this.cod_planestudio_selected_destino = cod_plan_estudio_pc;
     }
 
     //DROPDOWNS ORIGEN
     //INICIO FUNCIONES PARA DROPDOWN FACULTAD ORIGEN
     resetControlsWhenChangedDropdownFacultadOrigen(){
-		this.fbForm.get('cod_programa_pe')?.reset();
+		this.fbForm.get('cod_programa')?.reset();
 		this.fbForm.get('cod_plan_estudio')?.reset();
 		this.fbForm.get('asignaturas')?.reset();
 	}
 
     disabledControlsWhenChangedDropdownFacultadOrigen(){
-        this.fbForm.get('cod_programa_pe')?.disable();
+        this.fbForm.get('cod_programa')?.disable();
 		this.fbForm.get('cod_plan_estudio')?.disable();
     }
 
     setStatusControlProgramaOrigen(status: boolean){
-        const control = this.fbForm.get('cod_programa_pe');
+        const control = this.fbForm.get('cod_programa');
         status ? control?.enable() : control?.disable()
     }
 
@@ -288,21 +339,5 @@ export class FormAsignaturasPlancomunService {
     setAsignatura(event: any){
 		this.fbForm.patchValue({ asignaturas: event });
     }
-
-    async setDropdownsAndVars(dataDropdowns: any){
-        this.cod_facultad_selected_origen = dataDropdowns.cod_facultad_selected_origen;
-        this.cod_programa_selected_origen = dataDropdowns.cod_programa_selected_origen;
-        this.cod_planestudio_selected_origen = dataDropdowns.cod_planestudio_selected_origen;
-
-        this.cod_facultad_selected_destino = dataDropdowns.cod_facultad_selected_destino;
-        this.cod_programa_selected_destino = dataDropdowns.cod_programa_selected_destino;
-        this.cod_planestudio_selected_destino = dataDropdowns.cod_planestudio_selected_destino;
-    }
-
-    disableDropdowns(){
-		this.fbForm.get('cod_facultad_pc')?.disable();
-		this.fbForm.get('cod_programa_pc')?.disable();
-		this.fbForm.get('cod_plan_estudio_plan_comun')?.disable();
-	}
 
 }

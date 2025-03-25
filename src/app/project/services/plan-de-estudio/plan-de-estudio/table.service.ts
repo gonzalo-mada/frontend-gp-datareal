@@ -3,7 +3,7 @@ import { TableCrudService } from '../../components/table-crud.service';
 import { PlanDeEstudio } from 'src/app/project/models/plan-de-estudio/PlanDeEstudio';
 import { WindowService } from 'src/app/base/services/window.service';
 
-interface Column {
+export interface Column {
     field: string;
     header: string;
     width: string;

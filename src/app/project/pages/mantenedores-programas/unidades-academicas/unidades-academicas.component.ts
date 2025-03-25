@@ -40,4 +40,9 @@ export class UnidadesAcademicasComponent implements OnInit, OnDestroy {
   submit() {
     this.main.modeForm === 'create' ? this.main.setModeCrud('insert') : this.main.setModeCrud('update')
   }
+
+  changeFacultad(event: any){
+    let dataSelected = this.main.facultades.find( f => f.Cod_facultad === event.value );
+		this.form.fbForm.get('Facultad.Descripcion_facu')?.patchValue(dataSelected?.Descripcion_facu);
+  }
 }

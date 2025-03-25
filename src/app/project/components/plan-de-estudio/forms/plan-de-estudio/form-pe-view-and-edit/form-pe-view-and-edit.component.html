@@ -20,12 +20,12 @@
     
             <div class="flex flex-column sm:flex-row align-items-center gap-3 w-full sm:w-auto ">
                 <div class="w-full sm:w-auto">
-                    <p-button 
+                    <!-- <p-button 
                         label="test" 
                         icon="pi pi-times" 
                         styleClass="p-button-sm p-button-secondary mr-2" 
                         (click)="test()" [text]="true"
-                    ></p-button>
+                    ></p-button> -->
                     <p-button
                         *ngIf="mode === 'show'" 
                         pRipple 
@@ -55,10 +55,10 @@
 
                     <p-button 
                         pRipple 
-                        label="Ver historial de actividad" 
-                        icon="pi pi-eye" 
+                        label="Historial de actividad" 
+                        icon="pi pi-history" 
                         styleClass="p-button w-full mt-1 sm:mt-0 sm:w-auto" 
-                        (click)="main.dialogHistorialActividades = true">
+                        (click)="main.openHistorialActividad()">
                     </p-button>
                 </div>
             </div>
@@ -92,7 +92,7 @@
                         [label]=" mode === 'show' ?  'Documentos maestros' : 'Documentos maestros' " 
                         [icon]=" mode === 'show' ? 'pi pi-paperclip' : 'pi pi-paperclip' " 
                         [styleClass]=" mode === 'show' ? 'p-button w-full sm:w-auto' : 'p-button-warning w-full sm:w-auto' " 
-                        (click)="openDialog('docs_maestros_plan_estudio', 'plan_estudio')">
+                        (click)="openDialog('docs_maestros_plan_estudio', 'plan_estudio', true)">
                     </p-button>
                 </div>
             </div>
@@ -170,6 +170,19 @@
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    <div *ngSwitchCase="'tiene_plan_comun'" >
+                                                        <div class="flex flex-row justify-content-start flex-wrap">
+                                                            <div class="flex align-items-center justify-content-center">
+                                                                <span>No</span>
+                                                            </div>
+                                                            <div class="flex align-items-center justify-content-center mx-2">
+                                                                <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_plan_comun"  styleClass="mt-1 mx-1"/>
+                                                            </div>
+                                                            <div class="flex align-items-center justify-content-center">
+                                                                <span>Si</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                     <div *ngSwitchCase="'cupo_minimo'" >
                                                         <div [class]=" form.fbForm.get(item.control)!.value.length > 20 ? 'text-700 font-medium text-sm sm:text-base' : 'text-700 font-medium text-base' ">
                                                             {{ form.fbForm.get(item.control)!.value }} {{ form.fbForm.get(item.control)!.value > 1 ? 'estudiantes' : 'estudiante' }} 
@@ -189,7 +202,7 @@
                                         <p-button 
                                             pButton  
                                             [disabled]="!input.isEditable" 
-                                            (click)="openDialog(input.modeDialog , input.collection)" 
+                                            (click)="openDialog(input.modeDialog , input.collection, input.isEditableBy)" 
                                             [plain]="true" [text]="true" type="button"  
                                             [icon]="mode === 'edit' ? 'pi pi-pencil' : 'pi pi-eye'" 
                                             iconPos="right" class="p-button-secondary w-full" 
@@ -218,22 +231,4 @@
 
 <app-form-reglamentos></app-form-reglamentos>
 
-<app-dialog [dialogWidth]="'80vw'" [(visible)]="main.dialogHistorialActividades">
-    <div header>
-        <span class="text-xl">Historial de actividades</span>
-    </div>
-    <div content>
-        <p-messages severity="info">
-            <ng-template pTemplate>
-                <i class="pi pi-info-circle mr-3"></i>
-                <span>
-                    Muestra un historial de las actividades realizadas en el plan de estudio, incluyendo creación, actualización y eliminación, la información anterior y actual, la fecha de cada actividad y quien la realizó.
-                </span>
-            </ng-template>
-        </p-messages>
-        <app-table-programas-historial-actividad *ngIf="main.dialogHistorialActividades" [data]="logsPE" [mode]="mode" [form]="'plan de estudio'"></app-table-programas-historial-actividad>
-    </div>
-    <div footer>
-        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" (click)="main.dialogHistorialActividades = false" [text]="true"></p-button>
-    </div>
-</app-dialog>
+<app-historial-actividad></app-historial-actividad>

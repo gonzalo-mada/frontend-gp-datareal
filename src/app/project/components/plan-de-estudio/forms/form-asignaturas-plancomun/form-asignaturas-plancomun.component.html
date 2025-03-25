@@ -41,7 +41,7 @@
                             <label><strong>Facultad {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
                             <p-dropdown 
                                 [options]="mainFacultad.facultades"
-                                formControlName="cod_facultad_pe"
+                                formControlName="cod_facultad"
                                 optionLabel="Descripcion_facu"
                                 optionValue="Cod_facultad" 
                                 placeholder="Seleccione facultad"
@@ -59,7 +59,7 @@
                             <label><strong>Programa {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
                             <p-dropdown 
                                 [options]="main.programas_origen"
-                                formControlName="cod_programa_pe"
+                                formControlName="cod_programa"
                                 optionLabel="Nombre_programa_completo"
                                 optionValue="Cod_Programa" 
                                 placeholder="Seleccione programa de postgrado"
@@ -87,11 +87,11 @@
                             />
                         </div>
 
-                        <div class="flex align-items-center justify-content-center w-full mb-2">
+                        <div *ngIf="main.modeForm !== 'show'"  class="flex align-items-center justify-content-center w-full mb-2">
                             <i class="pi pi-arrow-down " [ngStyle]="{'color': form.getArrowColor('planestudio_to_table_left'), 'font-size' : '1.5rem'}"></i>
                         </div>
 
-                        <div class="field mt-2">
+                        <div *ngIf="main.modeForm !== 'show'"  class="field mt-2">
                             <label><strong>Seleccione asignaturas *</strong></label>
                             <p-table
                                 #dt2    
@@ -109,8 +109,8 @@
                                 <ng-template pTemplate="caption">
                                     <div class="flex flex-wrap flex-column sm:flex-row justify-content-center align-items-center">
                                         <p-button
-                                            *ngIf="table.selectedAsignaturaRows.length !== 0 && main.modeForm !== 'show'"
-                                            label="Limpiar seleccionada(s)"
+                                            *ngIf="table.selectedAsignaturaRows.length !== 0"
+                                            label="Deseleccionar"
                                             icon="pi pi-times"
                                             styleClass="p-button-danger p-button-outlined"
                                             (click)="clearTableAsignatura(); "
@@ -132,14 +132,14 @@
         
                                 <ng-template pTemplate="header">
                                     <tr>
-                                        <th style="width: 2rem"><p-tableHeaderCheckbox [disabled]="main.modeForm === 'show'"></p-tableHeaderCheckbox></th>
+                                        <th style="width: 2rem"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
                                         <th>Asignatura</th>
                                     </tr>
                                 </ng-template>
         
                                 <ng-template pTemplate="body" let-asignatura>
                                     <tr>
-                                        <td><p-tableCheckbox [disabled]="main.modeForm === 'show'" [value]="asignatura"></p-tableCheckbox></td>
+                                        <td><p-tableCheckbox [value]="asignatura"></p-tableCheckbox></td>
                                         <td>
                                             <span>
                                                 <strong>Asignatura: </strong> {{ asignatura.codigo_externo }} - {{ asignatura.nombre_asignatura }} <br/>
@@ -217,10 +217,8 @@
                             />
                         </div>
 
-                        
-
-                        <div class="field mt-6">
-                            <label><strong>Asignaturas seleccionadas para plan común {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                        <div *ngIf="main.modeForm !== 'show'" class="field mt-6">
+                            <label><strong>Asignaturas seleccionadas para plan común * </strong></label>
                             <p-table
                                 #dt3    
                                 [value]="table.selectedAsignaturaRows"
@@ -273,6 +271,64 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div *ngIf="main.modeForm === 'show'" class="formgrid grid mt-2">
+                <div class="field col-1"></div>
+                <div class="field col-10">
+                    <div class="surface-card shadow-2 p-3 border-round w-full">
+                        <label><strong>Asignaturas seleccionadas para plan común * </strong></label>
+                        <p-table
+                            #dt3    
+                            [value]="table.selectedAsignaturaRows"
+                            [globalFilterFields]="table.globalFiltrosAsignatura"
+                            [scrollable]="true"
+                            scrollHeight="350px"
+                            dataKey="cod_tema"
+                        >
+                            <ng-template pTemplate="caption">
+                                <div class="flex flex-wrap flex-column sm:flex-row justify-content-center align-items-center">
+                                    <div class="flex mb-2 md:mb-0">
+                                        <span class="p-input-icon-left">
+                                        <i class="pi pi-search"></i>
+                                        <input #inputAsignaturaSelected pInputText type="text" placeholder="Buscar..." (input)="dt3.filterGlobal($any($event.target).value, 'contains')" />
+                                        </span>
+                                    </div>
+                                    <p-button 
+                                        styleClass="p-button-text p-button-sm " 
+                                        icon="pi pi-filter-slash" 
+                                        pTooltip="Limpiar filtros" 
+                                        (click)="inputAsignaturaSelected.value = ''; dt3.filterGlobal('', 'contains') ">
+                                    </p-button>
+                                </div>
+                            </ng-template>
+    
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th>Total seleccionadas: {{ table.selectedAsignaturaRows.length  }} </th>
+                                </tr>
+                            </ng-template>
+    
+                            <ng-template pTemplate="body" let-asignatura>
+                                <tr>
+                                    <td>
+                                        <span>
+                                            <strong>Asignatura: </strong> {{ asignatura.codigo_externo }} - {{ asignatura.nombre_asignatura }} <br/>
+                                            <strong>Tema: </strong> {{ asignatura.nombre_tema === '' ? '-' :  asignatura.nombre_tema }} 
+                                        </span> 
+                                    </td>
+                                </tr>
+                            </ng-template>
+    
+                            <ng-template pTemplate="emptymessage">
+                                <tr>
+                                    <td [attr.colspan]="2">Sin asignaturas seleccionadas</td>
+                                </tr>
+                            </ng-template>
+                            
+                        </p-table>
+                    </div>
+                </div>
+                <div class="field col-1"></div>
             </div>
         </form>
 

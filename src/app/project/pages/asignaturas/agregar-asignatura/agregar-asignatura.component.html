@@ -25,6 +25,7 @@
                     styleClass="p-button-sm p-button-secondary mr-2" 
                     (click)="form.confirmAdd = !form.confirmAdd" [text]="true">
                 </p-button>
+                <button *ngIf="form.selected_CodigoPlanDeEstudio !== 0" pButton class="mr-2" icon="pi pi-book" label="Asignaturas" (click)="form.dialogAsignaturas = !form.dialogAsignaturas"></button>
                 <button pButton icon="pi pi-paperclip" label="Documentos maestros" (click)="main.openDialogChooseDocsMaestro()"></button>
                 <button 
                     pButton 
@@ -165,6 +166,7 @@
                                                 maxlength="2"
                                                 placeholder="Ingrese número del semestre"
                                                 class="w-full p-d-flex p-flex-column"
+                                                (ngModelChange)="resetDataSecuencialidad()"
                                             />
                                             <app-form-control [control]="form.fbForm.controls['semestre']" [validators]="['required' , 'solo_num']"></app-form-control>
                                         </div>
@@ -227,7 +229,7 @@
 
                                     
                                     <div class="flex pt-4 justify-content-end">
-                                        <p-button label="Siguiente" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextCallback.emit()" />
+                                        <p-button label="Siguiente" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextCallback.emit()" [disabled]="!form.stateStepOne" />
                                     </div>
                                 </div>
                             </ng-template>
@@ -351,7 +353,7 @@
                                 </div>
                                 <div class="flex pt-4 justify-content-between">
                                     <p-button label="Atrás" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()" />
-                                    <p-button label="Siguiente" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextCallback.emit()" />
+                                    <p-button label="Siguiente" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextCallback.emit()" [disabled]="!form.stateStepTwo"/>
                                 </div>
                             </ng-template>
                         </p-stepperPanel>
@@ -365,7 +367,7 @@
                                             <div class="surface-card shadow-2 p-3 border-round">
         
                                                 <div class="flex flex-column align-items-center justify-content-center">
-                                                    <label><strong>¿Corresponde a una mención? *</strong></label>
+                                                    <label><strong>¿Incluida en mención? *</strong></label>
                                                     <div class="flex flex-row justify-content-around  flex-wrap gap-3 mt-2">
                                                         <div class="flex flex-column align-items-center justify-content-center">
                                                             <p-radioButton [value]="0" formControlName="tiene_mencion" inputId="ingredient1" (onClick)="changeRadioButtonMencion($event)" />
@@ -448,7 +450,7 @@
                                             
                                             <div class="surface-card shadow-2 p-3 border-round">
                                                 <div class="flex flex-column align-items-center justify-content-center">
-                                                    <label><strong>¿Tiene pre requisitos? *</strong></label>
+                                                    <label><strong>¿Tiene prerrequisitos? *</strong></label>
                                                     <div class="flex flex-row justify-content-around  flex-wrap gap-3 mt-2">
                                                         <div class="flex flex-column align-items-center justify-content-center">
                                                             <p-radioButton [value]="0" formControlName="tiene_prerequisitos" inputId="ingredient1" (onClick)="changeRadioButtonPreRequisitos($event)" />
@@ -468,7 +470,7 @@
                                                                 <span><i class="pi pi-exclamation-triangle"></i><strong> Atención:</strong></span>
                                                                 <span>
                                                                     Al no tener asignaturas el plan de estudio: <strong>{{form.selectedPlanDeEstudio}}</strong>, debe asociar asignatura(s) actualizando la asignatura una vez agregada.
-                                                                    Considere que las asignaturas que asociará deben estar incluídas en el plan de estudio.
+                                                                    Considere que las asignaturas que asociará deben estar incluidas en el plan de estudio.
                                                                 </span>
                                                             </div>
                                                         </ng-template>
@@ -486,7 +488,7 @@
                                                         </ng-template>
                                                     </p-messages>
                                                     <label><strong>Asignaturas *</strong></label>
-                                                    <p-multiSelect
+                                                    <!-- <p-multiSelect
                                                         [options]="asignaturas"
                                                         [style]="{ width: '100%', 'min-width': '100%' }"
                                                         [virtualScroll]="true"
@@ -509,7 +511,21 @@
                                                                 </span>
                                                             </div>
                                                         </ng-template>
-                                                    </p-multiSelect>
+                                                    </p-multiSelect> -->
+                                                    <div class="field">
+                                                        <p-treeSelect
+                                                            [options]="asignaturas"
+                                                            [filter]="true"
+                                                            class="w-full"
+                                                            containerStyleClass="w-full"
+                                                            formControlName="pre_requisitos"
+                                                            selectionMode="checkbox"
+                                                            placeholder="Seleccione asignatura(s)"
+                                                            appendTo="body"
+                                                        >
+    
+                                                        </p-treeSelect>
+                                                    </div>
                                                 
 
                                                     <app-form-control [control]="form.fbForm.controls['pre_requisitos']" [validators]="['required']"></app-form-control>
@@ -722,7 +738,7 @@
                                                                     <i class="pi pi-info-circle"></i>
                                                                 </div>
                                                                 <div class="align-items-center">
-                                                                    <small>Corresponde a la última asignatura secuencial agregada en el plan de estudio: <strong>{{form.selectedPlanDeEstudio}}</strong></small>
+                                                                    <small>Corresponde a la última asignatura secuencial del semestre: <strong>{{form.fbForm.get('semestre')!.value}}</strong> agregada en el plan de estudio: <strong>{{form.selectedPlanDeEstudio}}</strong></small>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -794,6 +810,102 @@
     </div>
     <div footer>
         <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" (click)="form.dialogChooseDocsMaestro = false" [text]="true"></p-button>
+    </div>
+</app-dialog>
+
+<app-dialog [(visible)]="form.dialogAsignaturas">
+    <div header>
+        <span class="text-xl">Asignaturas del plan de estudio</span>
+    </div>
+    <div content>
+        <p-table
+            #dt
+            [rows]="10" 
+            [paginator]="true" 
+            [rowsPerPageOptions]="[10,25,50]" 
+            [showCurrentPageReport]="true"
+            [rowHover]="true"
+            [value]="asignaturas"
+            [expandedRowKeys]="expandedRows"
+            rowExpandMode="single"
+            dataKey="key"
+            currentPageReportTemplate="{first} hasta {last} de {totalRecords} asignaturas." 
+        >
+            <ng-template pTemplate="caption">
+                <div class="flex flex-wrap flex-column md:flex-row justify-content-between align-items-center">
+                    <div>
+                        <span>Asignaturas del plan de estudio seleccionado</span>
+                    </div>
+                    <div class="flex align-items-center estado-badge-doc icon-leyenda" pTooltip="Leyenda de iconos" tooltipPosition="bottom">
+                        <span class="icon-badge"><i class="pi pi-chevron-right"></i></span>
+                        <span class="mx-1 font-light">ver temas</span>
+                    </div>
+                    <div class="flex">
+                        <p-button 
+                            pRipple 
+                            label="Actualizar" 
+                            icon="pi pi-refresh" 
+                            styleClass="p-button-info" 
+                            (click)="getAsignaturas()">
+                        </p-button>
+                    </div>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="min-width: 1rem"></th>
+                    <th pSortableColumn="data.cod_asignatura">Código asignatura <p-sortIcon field="data.cod_asignatura" /></th>
+                    <th pSortableColumn="data.nombre_asignatura">Asignatura <p-sortIcon field="data.nombre_asignatura" /></th>
+                    <th pSortableColumn="data.semestre">Semestre <p-sortIcon field="data.semestre" /></th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-asign let-expanded="expanded">
+                <tr>
+                    <td> 
+                        <p-button *ngIf="asign.children.length !== 0" type="button" pRipple [pRowToggler]="asign" [text]="true" [rounded]="true" [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" /> 
+                    </td>
+                    <td>{{ asign.data.codigo_externo }}</td>
+                    <td>{{ asign.data.nombre_asignatura }}</td>
+                    <td>{{ asign.data.semestre }}</td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="rowexpansion" let-data>
+                <tr>
+                    <td [attr.colspan]="4">
+                        <div class="p-3">
+                            <p-table [value]="data.children" dataKey="key">
+                                <ng-template pTemplate="caption">
+                                    <span>Temas de la asignatura</span>
+                                </ng-template>
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th pSortableColumn="data.nombre_tema">Tema <p-sortIcon field="data.nombre_tema" /></th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-asign>
+                                    <tr>
+                                        <td>{{ asign.data.nombre_tema }}</td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td [attr.colspan]="4">Sin asignaturas</td>
+                </tr>
+            </ng-template>
+
+        </p-table>
+    </div>
+    <div footer>
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-sm p-button-secondary mr-2" (click)="form.dialogAsignaturas = false" [text]="true"></p-button>
     </div>
 </app-dialog>
 
@@ -1003,14 +1115,14 @@
 
                 <div class="col-12 sm:col-4 mb-3">
                     <div class="flex flex-column">
-                        <span class="text-900"> <strong>¿Tiene pre requisitos?</strong> </span>
+                        <span class="text-900"> <strong>¿Tiene prerrequisitos?</strong> </span>
                         <span class="text-700"> {{ form.fbForm.get('tiene_prerequisitos')!.value === 0 ? 'No' : 'Si' }}</span>
                     </div>
                 </div>
 
                 <div class="col-12 sm:col-4 mb-3">
                     <div class="flex flex-column">
-                        <span class="text-900"> <strong>Pre requisito(s) seleccionado(s)</strong> </span>
+                        <span class="text-900"> <strong>Prerrequisito(s) seleccionado(s)</strong> </span>
                         <ng-container *ngIf="form.fbForm.get('tiene_prerequisitos')!.value === 1; else sinPreR">
                             <p-multiSelect
                                 [options]="form.fbForm.get('pre_requisitos')!.value"
@@ -1194,7 +1306,7 @@
 </app-dialog>
 
 <!-- Menciones -->
-<app-form-menciones [from]="'external-form'" [dataExternal]="form.dataToPendingForm"></app-form-menciones>
+<app-form-menciones [needShowAsignaturas]="false" [dataExternal]="form.dataExternal"></app-form-menciones>
 
 <!-- Temas -->
-<app-form-temas [externalData]="form.dataToPendingForm"></app-form-temas>
+<app-form-temas [dataExternal]="form.dataExternal"></app-form-temas>

@@ -8,6 +8,7 @@ import { Jornada } from 'src/app/project/models/plan-de-estudio/Jornada';
 import { BackendJornadaService } from './backend.service';
 import { FormJornadaService } from './form.service';
 import { TableJornadaService } from './table.service';
+import { HistorialActividadService } from '../../components/historial-actividad.service';
 
 @Injectable({
     providedIn: 'root'
@@ -34,7 +35,8 @@ export class JornadaMainService {
         private confirmationService: ConfirmationService,
         private form: FormJornadaService,
         private messageService: MessageServiceGP,
-        private table: TableJornadaService
+        private table: TableJornadaService,
+        private historialActividad: HistorialActividadService
     ){
         this.form.initForm();
     }
@@ -54,6 +56,7 @@ export class JornadaMainService {
             case 'update': await this.updateForm(); break;
             case 'delete': await this.openConfirmationDelete(); break;
             case 'delete-selected': await this.openConfirmationDeleteSelected(); break;
+            case 'historial': this.openHistorialActividad(); break;
         }
     }
 
@@ -106,6 +109,7 @@ export class JornadaMainService {
         }finally{
             this.dialogForm = false;
             this.getJornadas(false);
+            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -117,18 +121,27 @@ export class JornadaMainService {
                 Cod_jornada: this.jornada.Cod_jornada
             }
             const response = await this.backend.updateJornada(params,this.namesCrud);
-            if ( response && response.dataWasUpdated ) {
-                this.messageService.add({
-                    key: 'main',
-                    severity: 'success',
-                    detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
-                });
+            if ( response && response.dataWasUpdated && response.dataWasUpdated !== 0) {
+                if (response.dataWasUpdated === 1) {
+                    this.messageService.add({
+                        key: 'main',
+                        severity: 'success',
+                        detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',true,false)
+                    });
+                }else{
+                    this.messageService.add({
+                        key: 'main',
+                        severity: 'info',
+                        detail: generateMessage(this.namesCrud,response.dataUpdated,'actualizado',false,false)
+                    });
+                }
             }
         }catch (error) {
             console.log(error);
         }finally{
             this.dialogForm = false;
             this.getJornadas(false);
+            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -168,6 +181,7 @@ export class JornadaMainService {
             console.log(error);
         }finally{
             this.getJornadas(false);
+            this.historialActividad.refreshHistorialActividad();
             this.table.resetSelectedRows();
         }
     }
@@ -206,6 +220,14 @@ export class JornadaMainService {
                 await this.deleteRegisters(data);
             }
         }) 
+    }
+
+    openHistorialActividad(){
+        this.historialActividad.showDialog = true;
+    }
+
+    setOrigen(origen: string){
+        this.historialActividad.setOrigen(origen);
     }
 
 }

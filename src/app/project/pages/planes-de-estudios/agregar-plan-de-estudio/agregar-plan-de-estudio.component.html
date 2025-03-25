@@ -222,7 +222,7 @@
 
                                             <div class="surface-card shadow-2 p-3 border-round">
                                                 <div class="flex flex-column align-items-center justify-content-center ">
-                                                    <label><strong>¿Tiene plan común?</strong></label>
+                                                    <label><strong>¿Comparte asign. con plan común?</strong></label>
                                                     <div class="flex flex-row justify-content-around  flex-wrap gap-3 mt-2">
                                                         <div class="flex flex-column align-items-center justify-content-center">
                                                             <p-radioButton [value]="0" formControlName="tiene_plan_comun" inputId="ingredient1" (onClick)="changeRadioButtonPlanComun($event)" />
@@ -657,7 +657,7 @@
 </app-dialog>
 
 <!-- Asignaturas plan común -->
-<app-form-asignaturas-plancomun *ngIf="form.showFormAsignPlanComun" [dataFromAgregarPE]="form.dataExternal" (formWasClosed)="form.showFormAsignPlanComun = false"></app-form-asignaturas-plancomun>
+<app-form-asignaturas-plancomun *ngIf="form.showFormAsignPlanComun" [dataExternal]="form.dataExternal" (formWasClosed)="form.showFormAsignPlanComun = false"></app-form-asignaturas-plancomun>
 
 
 <!-- Certificaciones intermedias PE -->

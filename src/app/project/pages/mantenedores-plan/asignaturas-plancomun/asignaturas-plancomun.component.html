@@ -38,7 +38,7 @@
                 </div>
                 <div class="w-full">
                     <div class="mb-2">
-                        <label><strong>Plan común </strong></label>
+                        <label><strong>Plan de estudio </strong></label>
                     </div>
                     <p-dropdown 
                         [options]="main.planes_notform"
@@ -55,7 +55,6 @@
             </div>
         </div>
         <div *ngIf="main.showTable">
-            <app-menu-buttons-table></app-menu-buttons-table>
             <app-table-asignaturas-plancomun></app-table-asignaturas-plancomun>
         </div>
         <p-messages [(value)]="main.messagesMantenedor" [enableService]="false" />
@@ -63,3 +62,4 @@
 </div>
 </div>
 <app-form-asignaturas-plancomun></app-form-asignaturas-plancomun>
+<app-historial-actividad></app-historial-actividad>

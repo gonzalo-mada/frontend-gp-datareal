@@ -5,17 +5,56 @@
                 <div class="mb-2">
                     <label><strong>Facultad</strong></label>
                 </div>
+                <p-dropdown
+                    [options]="mainFacultad.facultades"
+                    [(ngModel)]="main.cod_facultad_selected"
+                    optionLabel="Descripcion_facu"
+                    optionValue="Cod_facultad" 
+                    placeholder="Seleccione facultad"
+                    appendTo="body" 
+                    styleClass="w-full p-d-flex p-flex-column"
+                    (onChange)="changeFacultad($event)" 
+                />
             </div>
             <div class="w-full">
                 <div class="mb-2">
                     <label><strong>Programa</strong></label>
                 </div>
+                <p-dropdown 
+                    [options]="main.programas_postgrado"
+                    [(ngModel)]="main.cod_programa_selected"
+                    [disabled]="main.disabledDropdownPrograma" 
+                    optionLabel="Nombre_programa_completo"
+                    optionValue="Cod_Programa" 
+                    placeholder="Seleccione programa de postgrado"
+                    appendTo="body" 
+                    styleClass="w-full p-d-flex p-flex-column" 
+                    (onChange)="changePrograma($event)" 
+                />
             </div>
             <div class="w-full">
                 <div class="mb-2">
                     <label><strong>Plan de estudio</strong></label>
                 </div>
+                <p-dropdown 
+                    [options]="main.planes"
+                    [(ngModel)]="main.cod_planestudio_selected"
+                    [disabled]="main.disabledDropdownPlanDeEstudio" 
+                    optionLabel="nombre_plan_estudio_completo"
+                    optionValue="cod_plan_estudio" 
+                    placeholder="Seleccione plan de estudio"
+                    appendTo="body" 
+                    styleClass="w-full p-d-flex p-flex-column" 
+                    (onChange)="changePlanDeEstudio($event)" 
+                />
             </div>
         </div>
     </div>
+    <div *ngIf="main.showTable">
+        <app-menu-buttons-table></app-menu-buttons-table>
+        <app-table-asignaturas></app-table-asignaturas>
+    </div>
+    <p-messages [(value)]="main.messagesMantenedor" [enableService]="false" />
 </app-card>
+<app-historial-actividad></app-historial-actividad>
+

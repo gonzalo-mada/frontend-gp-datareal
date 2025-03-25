@@ -55,11 +55,11 @@
             </div>
         </div>
         <div *ngIf="main.showTable">
-            <app-menu-buttons-table></app-menu-buttons-table>
-            <app-table-menciones></app-table-menciones>
+            <app-table-menciones [from]="'mantenedor'"></app-table-menciones>
         </div>
         <p-messages [(value)]="main.messagesMantenedor" [enableService]="false" />
     </app-card>
 </div>
 </div>
-<app-form-menciones [from]="'mantenedor'"></app-form-menciones>
+<app-form-menciones [needShowAsignaturas]="true"></app-form-menciones>
+<app-historial-actividad></app-historial-actividad>

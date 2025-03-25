@@ -2,7 +2,7 @@
 
 import { ModeDialog } from "../programas/Programa";
 
-export type Module = undefined | 'mantenedores' | 'programa' | 'servicio' | 'table' ;
+export type Module = undefined | 'mantenedores' | 'programa' | 'plandeestudio' | 'asignatura' | 'servicio' | 'table' ;
 export type ModeUploader = undefined | 'show' | 'edit' | 'create' | 'select' | 'delete' | 'init-component';
 export type NameComponent = undefined | 
                 'agregar-programa' | 
@@ -69,7 +69,30 @@ undefined |
 'plan_estudio' |
 'articulaciones' |
 'certificacion_intermedia_pe' |
-'rangos'
+'rangos' |
+'menciones' | 
+'menciones_pe' |
+'asign-pc' |
+'asignaturas_pe' |
+'nombre_asignatura' |
+'codigo_externo_asign' |
+'semestre_asign' |
+'num_creditos_asign' |
+'duracion_asign' |
+'obligatoria_electiva_asign' |
+'max_duracion_asign' |
+'modalidad_asign' |
+'regimen_asign' |
+'tipo_evaluacion_asign' |
+'evaluacion_intermedia_asign' |
+'horas_asign' |
+'articulacion_asign' |
+'mencion_asign' |
+'pre_requisitos_asign' |
+'secuencialidad_asign' |
+'tipo_colegiada_asign' |
+'tema_asign' |
+'asignaturas'
 ; 
 
 

@@ -12,6 +12,12 @@
     </div>
 
     <div content>
+        <!-- <p-button 
+            label="test" 
+            icon="pi pi-times" 
+            styleClass="p-button-sm p-button-secondary mr-2" 
+            (click)="test()" [text]="true">
+        </p-button> -->
         <div class="grid" *ngIf="main.modeForm !== 'show' ">
             <div class="col-12">
                 <app-form-isvalid [valid]="form.fbForm.valid"></app-form-isvalid>
@@ -29,7 +35,7 @@
                     <label><strong>Facultad {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
                     
                     <p-dropdown 
-                        [options]="mainFacultad.facultades"
+                        [options]="mainFacultades.facultades"
                         formControlName="cod_facultad"
                         optionLabel="Descripcion_facu"
                         optionValue="Cod_facultad" 
@@ -44,7 +50,7 @@
                     <label><strong>Programas {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
                     
                     <p-dropdown 
-                        [options]="main.programas"
+                        [options]="main.programas_postgrado"
                         formControlName="cod_programa"
                         optionLabel="Nombre_programa"
                         optionValue="Cod_Programa" 

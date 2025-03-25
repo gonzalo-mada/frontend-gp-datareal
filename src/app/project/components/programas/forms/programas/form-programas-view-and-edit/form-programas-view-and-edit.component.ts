@@ -83,7 +83,6 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.programa = await this.backend.getPrograma({Cod_Programa: this.main.cod_programa},false,this.main.namesCrud);
     this.main.programa = {...this.programa};
-    console.log("DATA PROGRAMA FROM VIEW AND EDIT",this.programa);
     this.form.resetForm();
     this.form.setForm(this.programa);
     this.form.fbForm.disable();
@@ -98,7 +97,6 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
         this.getCampusActivos(),
         this.getInstitucionesSelected(),
         this.getTiposProgramas(),
-        this.getLogPrograma(),
         this.getUnidadesAcademicas(),
         this.getUnidadesAcademicasPrograma(),
         this.getCertificacionIntermediaPrograma(),
@@ -177,9 +175,6 @@ export class FormProgramasViewAndEditComponent implements OnInit, OnDestroy {
     }
   }
 
-  async getLogPrograma(){
-    this.logsPrograma = await this.backend.getLogPrograma({Cod_Programa: this.programa.Cod_Programa},false);
-  }
 
   async changeTab(){
     this.tableCrudService.emitResetExpandedRowsTable();

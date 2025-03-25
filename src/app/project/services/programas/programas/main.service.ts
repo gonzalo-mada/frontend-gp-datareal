@@ -54,7 +54,7 @@ export class ProgramaMainService {
           case 'edit': this.editForm(); break;
           case 'delete': this.openConfirmationDelete(); break;
           case 'delete-selected': await this.openConfirmationDeleteSelected(); break;
-		  case 'historial': this.openHistorialActividad(); break;
+		      case 'historial': this.openHistorialActividad(); break;
       }
     }
 

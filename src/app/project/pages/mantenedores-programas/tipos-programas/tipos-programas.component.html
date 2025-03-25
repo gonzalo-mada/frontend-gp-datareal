@@ -64,6 +64,7 @@
                                                     placeholder="Seleccione categoría..."
                                                     appendTo="body" class="flex-grow-1" 
                                                     formControlName="Cod_CategoriaTP"
+                                                    (onChange)="changeCategoriaTp($event)"
                                                 />
                                                 <button
                                                 *ngIf="main.modeForm !== 'show' "

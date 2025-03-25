@@ -212,9 +212,9 @@ export class StateFormComponent implements OnInit  {
             conditional: { field: 'tiene_mencion', value: 1 } 
           },
           { label: 'Evaluaciones intermedias', control: 'tiene_evaluacionintermedia' },
-          { label: 'Pre requisitos', control: 'tiene_prerequisitos' },
+          { label: 'Prerrequisitos', control: 'tiene_prerequisitos' },
           { 
-            label: 'Pre requisitos seleccionados', 
+            label: 'Prerrequisitos seleccionados', 
             control: 'pre_requisitos' ,
             conditional: { field: 'tiene_prerequisitos', value: 1 }
           },

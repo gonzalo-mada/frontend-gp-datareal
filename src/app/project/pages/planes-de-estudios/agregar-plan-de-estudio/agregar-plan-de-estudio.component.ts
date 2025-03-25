@@ -53,7 +53,6 @@ export class AgregarPlanDeEstudioComponent implements OnInit, OnDestroy {
 
 	async getData(){
 		await Promise.all([
-		this.mainFacultad.getFacultades(false),
 		this.getEstadosPlanEstudio(),
 		this.getModalidades(),
 		this.getJornadas(),
@@ -84,9 +83,13 @@ export class AgregarPlanDeEstudioComponent implements OnInit, OnDestroy {
 	}
 
 	async changePrograma(event: any){
+		console.log("event",event);
+		
 		this.form.resetForm(false);
 		await this.form.setSelectPrograma(event.value);
 		let params = { Cod_Programa: this.form.selected_CodigoPrograma }
+		console.log("params",params);
+		
 		this.programa_postgrado = await this.backend.getProgramaPostgrado(params, false);
 		this.form.checkCertifIntermedia(this.programa_postgrado);
 		this.form.stepOne = true;

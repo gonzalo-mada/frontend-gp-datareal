@@ -26,6 +26,8 @@ export class AgregarAsignaturaComponent implements OnInit, OnDestroy {
 	asignaturas: any[] = [];
 	ultima_asignatura_secuencial: any = {};
 	temas: any[] = [];
+	expandedRows = {};
+
 
 	constructor(
 		private backend: BackendAsignaturasService,
@@ -59,7 +61,6 @@ export class AgregarAsignaturaComponent implements OnInit, OnDestroy {
 
 	async getData(){
 		await Promise.all([
-			this.mainFacultad.getFacultades(false),
 			this.getTiposEvaluacion(),
 			this.getTiposColegiadas(),
 			this.getModalidades(),
@@ -109,7 +110,7 @@ export class AgregarAsignaturaComponent implements OnInit, OnDestroy {
 		this.form.resetForm(false,false);
 		this.main.resetFiles();
 		await this.form.setSelectPlanDeEstudio(event.value);
-		await Promise.all([this.getMenciones(), this.getAsignaturas(), this.getAsignaturasSecuenciales()]);
+		await Promise.all([this.getMenciones(), this.getAsignaturas()]);
 		this.form.stepOne = true;
 	}
 
@@ -120,13 +121,13 @@ export class AgregarAsignaturaComponent implements OnInit, OnDestroy {
 
 	async getAsignaturas(){
 		let params = { cod_plan_estudio: this.form.selected_CodigoPlanDeEstudio };
-		this.asignaturas = await this.backend.getAsignaturasSimplificatedPorPlanDeEstudio(params, false);
+		this.asignaturas = await this.backend.getAsignaturasConTemaAgrupado(params, false);
 		console.log("this.asignaturas",this.asignaturas);
 		
 	}
 
 	async getAsignaturasSecuenciales(){
-		let params = { cod_plan_estudio: this.form.selected_CodigoPlanDeEstudio };
+		let params = { cod_plan_estudio: this.form.selected_CodigoPlanDeEstudio , semestre: this.form.fbForm.get('semestre')?.value };
 		this.ultima_asignatura_secuencial = await this.backend.getUltimaAsignaturaSecuencialConTemaPorPlanDeEstudio(params, false);
 		
 	}
@@ -231,9 +232,10 @@ export class AgregarAsignaturaComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	changeRadioButtonSecuencial(event: any){
+	async changeRadioButtonSecuencial(event: any){
 		switch (event.value) {
-			case 1: 
+			case 1:
+				await this.getAsignaturasSecuenciales() 
 				if (this.asignaturas.length === 0) {
 					this.form.showMessageSinAsignaturas = true;
 					this.form.setStatusControlSecuencialidad(false);
@@ -255,9 +257,15 @@ export class AgregarAsignaturaComponent implements OnInit, OnDestroy {
 		}
 	}
 
+	resetDataSecuencialidad(){
+		this.form.fbForm.get('tiene_secuencialidad')!.reset();
+		this.form.resetMessagesSecuencialidad();
+		this.ultima_asignatura_secuencial = {};
+	}
+
 	setDataToPendingForm(){
-		const actual_values = {...this.form.dataToPendingForm}
-		this.form.dataToPendingForm = {...actual_values,show: true}
+		const actual_values = {...this.form.dataExternal}
+		this.form.dataExternal = {...actual_values,show: true}
 	}
 	
 	async initCreateFormMenciones(){
@@ -278,6 +286,7 @@ export class AgregarAsignaturaComponent implements OnInit, OnDestroy {
 		  case 'c':
 			this.form.dialogSuccessAdd = false;
 			this.form.confirmAdd = false;
+			this.main.reset();
 			this.mainAsignatura.setModeCrud('create');
 		  break;
 		}

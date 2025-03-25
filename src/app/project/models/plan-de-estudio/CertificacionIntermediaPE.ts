@@ -4,6 +4,8 @@ export interface CertificacionIntermediaPE {
     cod_programa?: number,
     cod_certif_intermedia?: number,
     descripcion_certif_intermedia?: string,
+    nombre_plan_estudio_completo?: string,
+    nombre_programa_completo?: string,
     asignaturas?: Asignatura[]
 }
 

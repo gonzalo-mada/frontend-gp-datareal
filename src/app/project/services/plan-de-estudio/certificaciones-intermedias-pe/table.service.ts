@@ -13,13 +13,15 @@ export class TableCertifIntermediasPEService {
         { field: 'asignaturas', header: 'Núm. de asignaturas' },
         { field: 'accion', header: 'Acciones' }
     ];
+    cols_asignatura: any[] = [
+		{ field: 'nombre_asignatura_completa', header: 'Asignatura' }
+	]
     globalFiltros : any[] = [ 'descripcion_certif_intermedia' ];
     globalFiltrosCertifIntermedia : any[] = [ 'Cod_CertificacionIntermedia' , 'Descripcion_certif_inter' ];
-    globalFiltrosAsignatura : any[] = [ 'nombre_asignatura'  , 'nombre_tema', 'codigo_externo' ];
     dataKeyTable : string = 'cod_certif_intermedia';
     selectedRows: CertificacionIntermediaPE[] = [];
     selectedCertifIntermediaRows: any[] = [];
-    selectedAsignaturaRows: any[] = [];
+    selectedAsignaturaRows: any = {};
 
     constructor(private tableCrudService: TableCrudService){}
 
@@ -42,12 +44,11 @@ export class TableCertifIntermediasPEService {
     }
 
     resetSelectedRowsTableAsignaturas(){
-        this.selectedAsignaturaRows = [];
+        this.selectedAsignaturaRows = {};
     }
 
     resetSelectedRowsAllTables(){
         this.resetSelectedRowsTableCertifIntermedias();
         this.resetSelectedRowsTableAsignaturas();
     }
-
 }

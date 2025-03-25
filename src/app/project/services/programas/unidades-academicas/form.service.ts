@@ -22,6 +22,7 @@ export class FormUnidadesAcadService {
             Descripcion_ua: ['', [Validators.required , GPValidator.regexPattern('num_y_letras')]],
             Facultad: this.fb.group({
               Cod_facultad: ['', Validators.required],
+              Descripcion_facu: [''],
             }),
             files: [[], this.filesValidator.bind(this)],
             aux: ['']
@@ -33,7 +34,8 @@ export class FormUnidadesAcadService {
         this.fbForm.reset({
             Descripcion_ua: '',
             Facultad: {
-                Cod_facultad: ''
+                Cod_facultad: '',
+                Descripcion_facu: ''
             },
             files: [],
             aux: ''

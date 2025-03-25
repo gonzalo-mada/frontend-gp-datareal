@@ -199,10 +199,10 @@
                     </div>
                 </ng-container>
         
-                <ng-container *ngIf="main.dialogUpdateMode === 'REXE' ">
+                <ng-container *ngIf="main.dialogUpdateMode === 'REXE / DEXE' ">
                     <div class="field col-12">
                         <label><strong>REXE {{ mode === 'edit' ? '*' : ''}}</strong></label>
-                        <input type="text" pInputText formControlName="REXE" maxlength="50" class="w-full" placeholder="Ingrese REXE del programa"/>
+                        <input type="text" pInputText formControlName="REXE" maxlength="50" class="w-full" placeholder="Ingrese REXE / DEXE del programa"/>
                         <app-form-control [control]="form.fbFormUpdate.controls['REXE']" [validators]="['required', 'num_o_letras']"></app-form-control>
                     </div>
                 </ng-container>

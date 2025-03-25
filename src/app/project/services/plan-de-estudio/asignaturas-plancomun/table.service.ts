@@ -9,13 +9,13 @@ import { AsignaturasPlancomun } from 'src/app/project/models/plan-de-estudio/Asi
 export class TableAsignaturasPlancomunService {
 
     cols : any[] = [
-        { field: 'cod_plan_estudio', header: 'Plan de estudio' },
+        { field: 'cod_plan_estudio_plan_comun', header: 'Plan común' },
         { field: 'Asignaturas', header: 'Núm. de asignaturas' },
         { field: 'accion', header: 'Acciones' }
     ];
-    globalFiltros : any[] = [ 'cod_plan_estudio' , 'nombre_plan_estudio_completo'];
+    globalFiltros : any[] = [ 'cod_plan_estudio_plan_comun' , 'nombre_plan_comun_completo'];
     globalFiltrosAsignatura : any[] = [ 'codigo_externo' , 'nombre_asignatura' , 'nombre_tema' ];
-    dataKeyTable : string = 'cod_plan_estudio';
+    dataKeyTable : string = 'cod_plan_estudio_plan_comun';
     selectedRows: AsignaturasPlancomun[] = [];
     selectedAsignaturaRows: any[] = [];
 

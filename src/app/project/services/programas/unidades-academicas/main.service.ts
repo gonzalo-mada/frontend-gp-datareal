@@ -125,7 +125,6 @@ export class UnidadesAcadMainService {
                     ...formData,
                     docsToUpload: responseUploader.docsToUpload
                 };
-                console.log("params",params);
                 const response = await this.backend.insertUnidadAcademica(params, this.namesCrud);
                 if (response && response.dataWasInserted) {
                     this.messageService.add({

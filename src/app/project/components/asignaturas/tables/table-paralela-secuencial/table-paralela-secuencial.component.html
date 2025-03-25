@@ -1,0 +1,326 @@
+<p-overlayPanel #op>
+    <ng-template pTemplate>
+        <div class="flex flex-row flex-wrap">
+            <div class="flex align-items-center justify-content-center">
+                <span class="icon-badge">
+                    <i class="pi pi-chevron-right"></i> 
+                </span>
+            </div>
+            <div class="flex align-items-center justify-content-center">
+                <span class="mx-1" style="font-weight: 100;">Ver asignaturas paralelas / secuenciales</span>
+            </div>
+        </div>
+    </ng-template>
+</p-overlayPanel>
+<p-table 
+    #dt 
+    [rows]="10" 
+    [paginator]="true" 
+    [rowsPerPageOptions]="[10,25,50]" 
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="{first} hasta {last} de {totalRecords} asignaturas." 
+    selectionMode="multiple"
+    [rowHover]="true" 
+    [value]="main.paralelidades_secuencialidades" 
+    [columns]="table.cols" 
+    [globalFilterFields]="table.globalFiltros"
+    [(selection)]="table.selectedRows" 
+    [dataKey]="table.dataKeyTable" 
+    (selectionChange)="table.setSelectedRows()" 
+    [expandedRowKeys]="expandedRows"
+    rowExpandMode="multiple"
+    >
+    <ng-template pTemplate="caption">
+        <div class="flex flex-wrap flex-column md:flex-row justify-content-between align-items-center">
+            <div class="flex flex-row">
+                <p-button
+                    *ngIf="mode !== 'show'"
+                    icon="pi pi-trash"
+                    styleClass="p-button-danger p-button-outlined mr-2"
+                    pTooltip="Eliminar seleccionados"
+                    [disabled]="table.selectedRows.length === 0"
+                    (click)="main.setModeCrud('delete-selected')"
+                ></p-button>
+                <div class="flex mb-2 md:mb-0">
+                  <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)" />
+                  </span>
+                  <p-button 
+                    styleClass="p-button-text p-button-sm ml-2" 
+                    icon="pi pi-filter-slash" 
+                    pTooltip="Limpiar filtros" 
+                    (click)="clear(dt)">
+                  </p-button>
+                </div>
+            </div>
+
+            <div class="hidden md:flex align-items-center estado-badge-doc icon-leyenda" pTooltip="Leyenda de iconos" tooltipPosition="bottom">
+                <span class="icon-badge"><i class="pi pi-chevron-right"></i></span>
+                <span class="mx-1 font-light">Ver asignaturas paralelas / secuenciales</span>
+            </div>
+                              
+            <div class="flex">
+                <p-button 
+                    pTooltip="Muestra la leyenda de iconos" 
+                    icon="pi pi-question-circle"
+                    styleClass="p-button-warning mr-2 md:hidden" 
+                    (click)="op.toggle($event)">
+                </p-button> 
+                <p-button 
+                    pRipple 
+                    label="Actualizar" 
+                    icon="pi pi-refresh" 
+                    styleClass="p-button-info" 
+                    (click)="main.getAsignaturasSecuencialesParalelasGroupedNotForm()">
+                </p-button>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+        <tr>
+            <th *ngIf="mode !== 'show'" style="min-width: 1rem">
+                <p-tableHeaderCheckbox class="ml-2"></p-tableHeaderCheckbox>
+            </th>
+            <th style="min-width: 1rem"></th>
+            <ng-container *ngFor="let col of table.cols">
+                <ng-container *ngIf="col.field !== 'accion'; else actionsColumn">
+                    <th pSortableColumn="{{col.field}}">
+                        {{col.header}} <p-sortIcon field="{{col.field}}"></p-sortIcon>
+                    </th>
+                </ng-container>
+                <ng-template #actionsColumn>
+                    <th  style="min-width: 10rem; ">{{ col.header }}</th>
+                </ng-template>
+            </ng-container>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-data let-expanded="expanded">
+        <tr>
+            <td *ngIf="mode !== 'show'">
+                <p-tableCheckbox class="ml-2" [value]="data"></p-tableCheckbox>
+            </td>
+            <td> 
+                <p-button 
+                    *ngIf="data.secuenciales.length !== 0 || data.paralelas.length !== 0" 
+                    type="button" pRipple [pRowToggler]="data" [text]="true" [rounded]="true" [plain]="true" 
+                    [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" 
+                /> 
+            </td>
+            <td style="width:50%;">
+                <span> {{data.nombre_asignatura_completa}} </span> 
+            </td>
+            <td style="width:25%;">
+                <span> {{data.paralelidad === 0 ? 'SECUENCIAL' : 'PARALELA'}} </span> 
+            </td>
+            <td style="width:25%;">
+                <span> {{data.semestre}} </span>
+            </td>
+
+            <td >
+                <div class="flex">
+                    <p-button
+                        *ngIf="mode !== 'show'" 
+                        icon="pi pi-trash" 
+                        styleClass="p-button-sm p-button-danger mr-2"
+                        pTooltip="Eliminar registro" 
+                        (click)="delete(data)">
+                    </p-button>
+                    <p-button
+                        *ngIf="mode !== 'show'" 
+                        icon="pi pi-pencil" 
+                        styleClass="p-button-sm p-button-warning mr-2"
+                        pTooltip="Editar registro" 
+                        (click)="edit(data)">
+                    </p-button>
+                    <p-button 
+                        icon="pi pi-eye" 
+                        styleClass="p-button-sm p-button-info mr-2" 
+                        pTooltip="Ver registro"
+                        (click)="show(data)" 
+                        tooltipPosition="left">
+                    </p-button>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="rowexpansion" let-data>
+        <ng-container *ngIf="data.temas.length === 0 else tableTemas">
+            <ng-container *ngIf="data.paralelas.length === 0 else tableParalelas">
+                <tr>
+                    <td [attr.colspan]="table.cols.length + 2">
+                        <div class="p-3">
+                            <p-table [value]="data.secuenciales" dataKey="cod_tema">
+                                <ng-template pTemplate="caption">
+                                    <span>Asignaturas secuenciales</span>
+                                </ng-template>
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th pSortableColumn="cod_asignatura">Código asignatura <p-sortIcon field="cod_asignatura" /></th>
+                                        <th pSortableColumn="nombre_asignatura">Asignatura <p-sortIcon field="nombre_asignatura" /></th>
+                                        <th pSortableColumn="nombre_tema">Tema <p-sortIcon field="nombre_tema" /></th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-asign>
+                                    <tr>
+                                        <td>{{ asign.sec_par.codigo_externo }}</td>
+                                        <td>{{ asign.sec_par.nombre_asignatura }}</td>
+                                        <td>{{ asign.sec_par.nombre_tema !== '' ? asign.sec_par.nombre_tema : '-' }}</td>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="emptymessage">
+                                    <tr>
+                                        <td [attr.colspan]="table.cols.length + 1">Sin asignaturas secuenciales</td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </td>
+                </tr>
+            </ng-container>
+            <ng-template #tableParalelas>
+                <tr>
+                    <td [attr.colspan]="table.cols.length + 2">
+                        <div class="p-3">
+                            <p-table [value]="data.paralelas" dataKey="cod_tema">
+                                <ng-template pTemplate="caption">
+                                    <span>Asignaturas paralelas</span>
+                                </ng-template>
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th pSortableColumn="cod_asignatura">Código asignatura <p-sortIcon field="cod_asignatura" /></th>
+                                        <th pSortableColumn="nombre_asignatura">Asignatura <p-sortIcon field="nombre_asignatura" /></th>
+                                        <th pSortableColumn="nombre_tema">Tema <p-sortIcon field="nombre_tema" /></th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-asign>
+                                    <tr>
+                                        <td>{{ asign.sec_par.codigo_externo }}</td>
+                                        <td>{{ asign.sec_par.nombre_asignatura }}</td>
+                                        <td>{{ asign.sec_par.nombre_tema !== '' ? asign.sec_par.nombre_tema : '-' }}</td>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="emptymessage">
+                                    <tr>
+                                        <td [attr.colspan]="table.cols.length + 1">Sin asignaturas paralelas</td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </ng-container>
+        <ng-template #tableTemas>
+            <tr>
+                <td [attr.colspan]="table.cols.length + 2">
+                    <div class="p-3">
+                        <p-table 
+                            [value]="data.temas" 
+                            [expandedRowKeys]="expandedRowsTemas"
+                            dataKey="asignatura.cod_tema"     
+                            rowExpandMode="multiple">
+                            <ng-template pTemplate="caption">
+                                <span>Temas</span>
+                            </ng-template>
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th style="min-width: 1rem"></th>
+                                    <th pSortableColumn="cod_asignatura">Código asignatura <p-sortIcon field="cod_asignatura" /></th>
+                                    <th pSortableColumn="nombre_asignatura">Asignatura <p-sortIcon field="nombre_asignatura" /></th>
+                                    <th pSortableColumn="nombre_tema">Tema <p-sortIcon field="nombre_tema" /></th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-tema let-expanded="expanded">
+                                <tr>
+                                    <td> 
+                                        <p-button *ngIf="tema.secuenciales.length !== 0 || tema.paralelas.length !== 0" type="button" pRipple [pRowToggler]="tema" [text]="true" [rounded]="true" [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" /> 
+                                    </td>
+                                    <td>{{ tema.asignatura.codigo_externo }}</td>
+                                    <td>{{ tema.asignatura.nombre_asignatura }}</td>
+                                    <td>{{ tema.asignatura.nombre_tema !== '' ? tema.asignatura.nombre_tema : '-' }}</td>
+                                </tr>
+                            </ng-template>
+
+                            <ng-template pTemplate="rowexpansion" let-data>
+                                <ng-container *ngIf="data.paralelas.length === 0 else tableParalelas">
+                                    <tr>
+                                        <td [attr.colspan]="table.cols.length + 2">
+                                            <div class="p-3">
+                                                <p-table [value]="data.secuenciales" dataKey="cod_tema">
+                                                    <ng-template pTemplate="caption">
+                                                        <span>Asignaturas secuenciales</span>
+                                                    </ng-template>
+                                                    <ng-template pTemplate="header">
+                                                        <tr>
+                                                            <th pSortableColumn="cod_asignatura">Código asignatura <p-sortIcon field="cod_asignatura" /></th>
+                                                            <th pSortableColumn="nombre_asignatura">Asignatura <p-sortIcon field="nombre_asignatura" /></th>
+                                                            <th pSortableColumn="nombre_tema">Tema <p-sortIcon field="nombre_tema" /></th>
+                                                        </tr>
+                                                    </ng-template>
+                                                    <ng-template pTemplate="body" let-asign>
+                                                        <tr>
+                                                            <td>{{ asign.codigo_externo }}</td>
+                                                            <td>{{ asign.nombre_asignatura }}</td>
+                                                            <td>{{ asign.nombre_tema !== '' ? asign.nombre_tema : '-' }}</td>
+                                                        </tr>
+                                                    </ng-template>
+                                                    <ng-template pTemplate="emptymessage">
+                                                        <tr>
+                                                            <td [attr.colspan]="table.cols.length + 1">Sin asignaturas secuenciales</td>
+                                                        </tr>
+                                                    </ng-template>
+                                                </p-table>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </ng-container>
+                                <ng-template #tableParalelas>
+                                    <tr>
+                                        <td [attr.colspan]="table.cols.length + 2">
+                                            <div class="p-3">
+                                                <p-table [value]="data.paralelas" dataKey="cod_tema">
+                                                    <ng-template pTemplate="caption">
+                                                        <span>Asignaturas paralelas</span>
+                                                    </ng-template>
+                                                    <ng-template pTemplate="header">
+                                                        <tr>
+                                                            <th pSortableColumn="cod_asignatura">Código asignatura <p-sortIcon field="cod_asignatura" /></th>
+                                                            <th pSortableColumn="nombre_asignatura">Asignatura <p-sortIcon field="nombre_asignatura" /></th>
+                                                            <th pSortableColumn="nombre_tema">Tema <p-sortIcon field="nombre_tema" /></th>
+                                                        </tr>
+                                                    </ng-template>
+                                                    <ng-template pTemplate="body" let-asign>
+                                                        <tr>
+                                                            <td>{{ asign.codigo_externo }}</td>
+                                                            <td>{{ asign.nombre_asignatura }}</td>
+                                                            <td>{{ asign.nombre_tema !== '' ? asign.nombre_tema : '-' }}</td>
+                                                        </tr>
+                                                    </ng-template>
+                                                    <ng-template pTemplate="emptymessage">
+                                                        <tr>
+                                                            <td [attr.colspan]="table.cols.length + 1">Sin asignaturas paralelas</td>
+                                                        </tr>
+                                                    </ng-template>
+                                                </p-table>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </ng-template>
+                            <ng-template pTemplate="emptymessage">
+                                <tr>
+                                    <td [attr.colspan]="table.cols.length + 1">Sin prerrequisitos</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+
+    </ng-template>
+</p-table>

@@ -9,13 +9,10 @@ import { StateValidatorForm } from 'src/app/project/models/shared/StateValidator
 import { GPValidator } from 'src/app/project/tools/validators/gp.validators';
 import { MessageServiceGP } from '../../components/message-service.service';
 import { TipoPrograma } from 'src/app/project/models/programas/TipoPrograma';
-import { UnidadAcademica } from 'src/app/project/models/programas/UnidadAcademica';
 import { TipoGraduacion } from 'src/app/project/models/programas/TipoGraduacion';
 import { Campus } from 'src/app/project/models/programas/Campus';
 import { ModeDialog, Programa } from 'src/app/project/models/programas/Programa';
 import { CollectionsMongo } from 'src/app/project/models/shared/Context';
-import { BackendProgramasService } from './backend.service';
-import { ProgramaMainService } from './main.service';
 import { Message } from 'primeng/api';
 
 interface Director {
@@ -68,8 +65,9 @@ export class FormProgramaService {
 	tipoProgramaCategoriaSelected: string = '';
 	campusSelected: string = '';
 	tipoGraduacionSelected: string = '';
-	unidadAcademicaSelected: string = '';
-	unidadAcademicaFacultadSelected: string = '';
+	unidadAcademicaSelected: any[] = [];
+	institucionesSelected: any[] = [];
+	certifIntermediasSelected: any[] = [];
 	nameProgramaAdded: string = '';
 	codProgramaAdded: number = 0;
 	activeIndexStepper: number | undefined = 0 ;
@@ -96,14 +94,14 @@ export class FormProgramaService {
 		{id:5, col_lg: 4, col_md: 6, isEditable: true,   isEditableWithPE: true,  haveSecondaryValue: false, modeDialog: 'código SIES' , collection: 'codigo_sies' , items: [{title: 'Código SIES' , control: 'Codigo_SIES' ,   iconHelp: false}]},
 		{id:6, col_lg: 2, col_md: 6, isEditable: true,   isEditableWithPE: false,  haveSecondaryValue: false, modeDialog: 'créditos totales' , collection: 'creditos_totales' , items: [{title: 'Créditos totales' , control: 'Creditos_totales' ,   iconHelp: false}]},
 		{id:7, col_lg: 2, col_md: 6, isEditable: true,   isEditableWithPE: false,  haveSecondaryValue: false, modeDialog: 'horas totales' , collection: 'horas_totales' , items: [{title: 'Horas totales' , control: 'Horas_totales' ,   iconHelp: false}]},
-		{id:8, col_lg: 4, col_md: 6, isEditable: true,   isEditableWithPE: false,  haveSecondaryValue: false, modeDialog: 'REXE' , collection: 'REXE' , items: [{title: 'REXE' , control: 'REXE' ,  iconHelp: false}]},
+		{id:8, col_lg: 4, col_md: 6, isEditable: true,   isEditableWithPE: false,  haveSecondaryValue: false, modeDialog: 'REXE / DEXE' , collection: 'REXE' , items: [{title: 'REXE' , control: 'REXE' ,  iconHelp: false}]},
 		{id:9, col_lg: 4, col_md: 6, isEditable: true,   isEditableWithPE: false,  haveSecondaryValue: false, modeDialog: 'título' , collection: 'titulo' ,items: [{title: 'Título' , control: 'Titulo' ,   iconHelp: false}]},
 		{id:10, col_lg: 4, col_md: 6, isEditable: true,  isEditableWithPE: false,  haveSecondaryValue: false, modeDialog: 'grado académico' , collection: 'grado_academico' , items: [{title: 'Grado académico' , control: 'Grado_academico' ,   iconHelp: false}]},
 		{id:11, col_lg: 4, col_md: 6, isEditable: true,  isEditableWithPE: false,  haveSecondaryValue: true, modeDialog: 'tipo de programa' , collection: 'tipo_programa' , items: [{title: 'Tipo de programa (Categoría)' , control: '' ,   iconHelp: false, principalValue: 'form.tipoProgramaSelected' , secondaryName:'Categoría' , secondaryValue: 'form.tipoProgramaCategoriaSelected'}]},
 		{id:12, col_lg: 4, col_md: 6, isEditable: true,  isEditableWithPE: false,  haveSecondaryValue: false, modeDialog: 'campus' , collection: 'campus' , items: [{title: 'Campus' , control: '' ,   iconHelp: false, principalValue: 'form.campusSelected'}]},
 		{id:13, col_lg: 4, col_md: 6, isEditable: true,  isEditableWithPE: false,  haveSecondaryValue: false, modeDialog: 'estado acreditación' , collection: 'estados_acreditacion' , items: [{title: 'Estado de acreditación' , control: '' ,   iconHelp: false, principalValue: 'form.inputEstadoAcreditacion'}]},
 		{id:14, col_lg: 4, col_md: 6, isEditable: true,  isEditableWithPE: false,  haveSecondaryValue: true, modeDialog: 'estado maestro' , collection: 'estado_maestro' , items: [{title: 'Estado maestro' , control: '' ,   iconHelp: false, principalValue: 'form.inputEstadoMaestro', secondaryName:'Tipo de suspensión', secondaryValue: 'form.inputTipoSuspension'}]},
-		{id:15, col_lg: 4, col_md: 6, isEditable: true,  isEditableWithPE: false,  haveSecondaryValue: false, modeDialog: 'reglamento' , collection: 'reglamentos' , items: [{title: 'Reglamento' , control: '' ,   iconHelp: false, principalValue: 'form.inputReglamento'}]},
+		{id:15, col_lg: 4, col_md: 6, isEditable: true,  isEditableWithPE: true,  haveSecondaryValue: false, modeDialog: 'reglamento' , collection: 'reglamentos' , items: [{title: 'Reglamento' , control: '' ,   iconHelp: false, principalValue: 'form.inputReglamento'}]},
 		{id:16, col_lg: 4, col_md: 6, isEditable: true,  isEditableWithPE: false,  haveSecondaryValue: true, modeDialog: 'director' , collection: 'director' , items: [{title: 'Director(a)' , control: '' ,   iconHelp: false, principalValue: 'form.inputDirector.nombre', secondaryName: 'RUT', secondaryValue: 'form.inputDirector.rut'}]},
 		{id:17, col_lg: 4, col_md: 12, isEditable: true, isEditableWithPE: false,  haveSecondaryValue: false, modeDialog: 'unidades académicas' , collection: 'unidades_academicas' , items: [{title: 'Unidades académicas', control: 'Unidades_academicas_Selected' ,   iconHelp: true, labelHelp: 'Organizadas por la facultad a la cual pertenecen'}]},
 		{id:18, col_lg: 8, col_md: 12, isEditable: true, isEditableWithPE: false,  haveSecondaryValue: false, modeDialog: 'director alterno' , collection: 'directorAlterno' , 
@@ -232,8 +230,9 @@ export class FormProgramaService {
 		this.tipoProgramaCategoriaSelected = '';
 		this.campusSelected = '';
 		this.tipoGraduacionSelected = '';
-		this.unidadAcademicaSelected = '';
-		this.unidadAcademicaFacultadSelected = '';
+		this.unidadAcademicaSelected = [];
+		this.institucionesSelected = [];
+		this.certifIntermediasSelected = [];
 		this.nameProgramaAdded = '';
 		this.codProgramaAdded = 0;
 		this.activeIndexStepper = 0;
@@ -276,7 +275,6 @@ export class FormProgramaService {
 		this.messages = [
 			{
 				severity: 'info',
-				summary: 'Atención',
 				detail: `
 							<b>Si el programa está asociado a un plan de estudio:</b> solo se pueden actualizar los siguientes campos: ${editableFields}. No obstante, es posible actualizar documentos asociados a todos los campos. <br/>
 							<b>Si el programa no está asociado a un plan de estudio:</b> todos los campos son actualizables, excepto el <i>Código de programa</i>.
@@ -299,7 +297,6 @@ export class FormProgramaService {
 			haveDirectorAlterno: form.Director_alterno !== '0' ? true : false
 		});
 		this.setValuesInputs(form);
-		console.log("ASI QUEDA EL FORM2",this.fbForm.value);
 	}
 
 	setValuesInputs(data: Programa){
@@ -380,7 +377,7 @@ export class FormProgramaService {
 		return this.stateStepOne && this.stateStepTwo && this.stateStepThree && this.stateFileMaestro;
 	}
 
-	getValuesSelected(): void {
+	getValuesSelected() {
 		let valuesSelected = {
 			directorSelected: this.directorSelected,
 			directorAlternoSelected: this.directorAlternoSelected,
@@ -390,10 +387,11 @@ export class FormProgramaService {
 			tipoProgramaCategoriaSelected: this.tipoProgramaCategoriaSelected,
 			campusSelected: this.campusSelected,
 			unidadAcademicaSelected: this.unidadAcademicaSelected,
-			unidadAcademicaFacultadSelected: this.unidadAcademicaFacultadSelected,
+			institucionesSelected: this.institucionesSelected,
+			certifIntermediasSelected: this.certifIntermediasSelected,
 			tipoGraduacionSelected: this.tipoGraduacionSelected,
 		}
-		console.log("valuesSelected",valuesSelected);
+		return valuesSelected
 	}
 
 	getValuesIndex(): void{
@@ -573,9 +571,19 @@ export class FormProgramaService {
     this.tipoGraduacionSelected = 'NO APLICA';
   }
 
-  setSelectUnidadAcademica(selectedTp: UnidadAcademica){
-      this.unidadAcademicaSelected = selectedTp.Descripcion_ua!;
-      this.unidadAcademicaFacultadSelected = selectedTp.Facultad?.Descripcion_facu!;
+  setSelectUnidadAcademica(event: any){
+      this.unidadAcademicaSelected = [];
+      this.unidadAcademicaSelected = [...event];
+  }
+
+  setSelectInstituciones(event: any){
+      this.institucionesSelected = [];
+      this.institucionesSelected = [...event];
+  }
+
+  setSelectCertifIntermedias(event: any){
+      this.certifIntermediasSelected = [];
+      this.certifIntermediasSelected = [...event];
   }
 
   async setFormUpdate(modeDialog: ModeDialog, programa: Programa, isEditableWithPE: boolean): Promise<boolean> {
@@ -623,7 +631,7 @@ export class FormProgramaService {
           files: [[], GPValidator.filesValidator('files',() => this.modeForm)] 
         }); 
       break;
-      case 'REXE':
+      case 'REXE / DEXE':
         this.fbFormUpdate = this.fb.group({
           REXE: [programa.REXE, [Validators.required, GPValidator.regexPattern('num_o_letras')]],
           isEditableWithPE: [isEditableWithPE],

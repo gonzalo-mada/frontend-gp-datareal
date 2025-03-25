@@ -29,6 +29,11 @@ const routes: Routes = [
   {
     path: 'asignaturas',
     loadChildren: () => import('../pages/asignaturas/asignaturas.module').then((m) => m.AsignaturasModule),
+  },
+  {
+    path: 'manAsig',
+    loadChildren: () => import('../pages/mantenedores-asignaturas/mantenedores-asignaturas.module').then((m) => m.MantenedoresAsignaturasModule),
+    data: {title:'Mantenedores asignaturas'} 
   }
 ];
 
