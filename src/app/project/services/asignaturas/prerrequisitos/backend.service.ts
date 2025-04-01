@@ -47,10 +47,10 @@ export class BackendPrerrequisitosService {
 		}
 	}
 
-	async getAsignaturasConTemaAgrupado(params: any, loading = true) {
+	async getAsignaturasSimplificatedConTemaAgrupado(params: any, loading = true) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('asignaturas/getAsignaturasConTemaAgrupado', loading),
+                this.serviceUtils.generateServiceMongo('asignaturas/getAsignaturasSimplificatedConTemaAgrupado', loading),
                 params
             );
         } catch (error: any) {

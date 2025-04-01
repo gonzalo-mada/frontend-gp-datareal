@@ -45,7 +45,7 @@ export class FormCertificacionesIntermediasPeComponent implements OnInit, OnDest
 			await this.main.getPlanesDeEstudiosPorPrograma(false),
 			await this.main.getCertificacionIntermedia_Prog(false),
 		]);
-		await this.main.getAsignaturasConTemaAgrupado(false)
+		await this.main.getAsignaturasSimplificatedConTemaAgrupado(false)
 	}
 
 	async initForm(){
@@ -80,7 +80,7 @@ export class FormCertificacionesIntermediasPeComponent implements OnInit, OnDest
 		this.main.resetArraysWhenChangedDropdownPE();
 		this.form.resetFormWhenChangedDropdownPE();
 		this.form.cod_planestudio_selected = event.value;
-		await this.main.getAsignaturasConTemaAgrupado();
+		await this.main.getAsignaturasSimplificatedConTemaAgrupado();
 	}
 
 	selectCertificacionIntermedia(event: any){

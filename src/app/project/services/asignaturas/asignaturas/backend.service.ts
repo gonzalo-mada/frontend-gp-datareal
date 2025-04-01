@@ -202,27 +202,10 @@ export class BackendAsignaturasService {
         }
     }
 
-    async getAsignaturasSecuencialesSemestrePorPlanDeEstudio(params: any,  loading = true) {
+    async getAsignaturasSimplificatedConTemaAgrupado(params: any, loading = true) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('asignaturas/getAsignaturasSecuencialesSemestrePorPlanDeEstudio', loading),
-                params
-            );
-        } catch (error: any) {
-            this.errorTemplateHandler.processError(
-                error, 
-                {
-                    notifyMethod: 'alert',
-                   message: 'Hubo un error al obtener asignaturas secuenciales. Intente nuevamente.'
-                }
-            );
-        }
-    }
-
-    async getAsignaturasConTemaAgrupado(params: any, loading = true) {
-        try {
-            return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('asignaturas/getAsignaturasConTemaAgrupado', loading),
+                this.serviceUtils.generateServiceMongo('asignaturas/getAsignaturasSimplificatedConTemaAgrupado', loading),
                 params
             );
         } catch (error: any) {
@@ -233,16 +216,16 @@ export class BackendAsignaturasService {
         }
     }
 
-    async getUltimaAsignaturaSecuencialConTemaPorPlanDeEstudio(params: any, loading = true) {
+    async getAsignaturasConTemaAgrupadoPorSemestre(params: any, loading = true) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('asignaturas/getUltimaAsignaturaSecuencialConTemaPorPlanDeEstudio', loading),
+                this.serviceUtils.generateServiceMongo('asignaturas/getAsignaturasConTemaAgrupadoPorSemestre', loading),
                 params
             );
         } catch (error: any) {
             this.errorTemplateHandler.processError(error, {
                 notifyMethod: 'alert',
-                message: 'Hubo un error al obtener asignaturas secuenciales del plan de estudio. Intente nuevamente.',
+                message: 'Hubo un error al obtener asignaturas del plan de estudio por semestre. Intente nuevamente.',
             });
         }
     }

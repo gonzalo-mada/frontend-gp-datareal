@@ -7,6 +7,8 @@ import { BackendAsignaturasService } from 'src/app/project/services/asignaturas/
 import { FormAsignaturasService } from 'src/app/project/services/asignaturas/asignaturas/form.service';
 import { AsignaturasMainService } from 'src/app/project/services/asignaturas/asignaturas/main.service';
 import { VerEditarAsignaturaMainService } from 'src/app/project/services/asignaturas/asignaturas/ver-editar-asignatura/main.service';
+import { ParalelaSecuencialMainService } from 'src/app/project/services/asignaturas/paralela-secuencial/main.service';
+import { PrerrequisitosMainService } from 'src/app/project/services/asignaturas/prerrequisitos/main.service';
 import { LoadinggpService } from 'src/app/project/services/components/loadinggp.service';
 import { ArticulacionesMainService } from 'src/app/project/services/plan-de-estudio/articulaciones/main.service';
 import { MencionesMainService } from 'src/app/project/services/plan-de-estudio/menciones/main.service';
@@ -34,11 +36,15 @@ export class FormAsignViewAndEditComponent implements OnInit, OnDestroy {
 		public form: FormAsignaturasService,
 		private mainArticulacion: ArticulacionesMainService,
 		private mainMenciones: MencionesMainService,
+		private mainParalelaSecuencial: ParalelaSecuencialMainService,
+		private mainPrerrequisitos: PrerrequisitosMainService
 	){}
 
 	async ngOnInit() {
 		this.subscription.add(this.mainArticulacion.onActionToBD$.subscribe(() => this.getArticulaciones()));
 		this.subscription.add(this.mainMenciones.onActionToBD$.subscribe(() => this.getMenciones()));
+		this.subscription.add(this.mainParalelaSecuencial.onActionToBD$.subscribe(() => (this.getSecuencialidades() , this.getParalelidades() )));
+		this.subscription.add(this.mainPrerrequisitos.onActionToBD$.subscribe(() => this.getPrerrequisitos()));
 		this.main.setOrigen('asignaturas','asignaturas_s',this.mainAsign.cod_asignatura);
 		await this.getAsignatura();
 		await this.getData();

@@ -50,7 +50,7 @@ export class FormMencionesComponent {
 		this.form.setValuesVarsByDataExternal();
 		await Promise.all([
 			this.main.getProgramasPorFacultad(false),
-			this.main.getPlanesDeEstudiosPorPrograma(false),
+			this.main.getPlanesDeEstudiosColumnaPorPrograma(false),
 		]);
 	}
 
@@ -75,7 +75,7 @@ export class FormMencionesComponent {
 		this.form.resetControlsWhenChangedDropdownPrograma();
 		this.form.disabledControlsWhenChangedDropdownPrograma();
 		this.form.cod_programa_selected = event.value;
-		await this.main.getPlanesDeEstudiosPorPrograma();
+		await this.main.getPlanesDeEstudiosColumnaPorPrograma();
 	}
 
 	async changePlanDeEstudio(event:any){

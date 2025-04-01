@@ -26,13 +26,11 @@ export class SuspensionComponent implements OnInit, OnDestroy {
       } 
     }));
     this.main.setOrigen('tipos_suspension');
-    this.main.setNeedUpdateHistorial(true);
   }
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
     this.main.reset();
-    this.main.setNeedUpdateHistorial(false);
   }
 
 }

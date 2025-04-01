@@ -176,7 +176,7 @@
             <td style="min-width:500px" pFrozenColumn [frozen]="programaFrozen">
                 <span> {{data.Nombre_programa}} </span> <br>
                 <span style="font-size: 0.8rem;">
-                    <strong>CÓDIGO:</strong> {{data.Cod_Programa}} <br>
+                    <!-- <strong>CÓDIGO:</strong> {{data.Cod_Programa}} <br> -->
                     <strong>FACULTADES:</strong> {{data.Facultad | slice:0:40}} {{ (data.Facultad.length > 40 ) ? '...' : '' }}<br>
                     <strong>CAMPUS:</strong> {{data.Campus}} 
                 </span>

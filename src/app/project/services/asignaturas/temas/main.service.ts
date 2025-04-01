@@ -52,6 +52,7 @@ export class TemasMainService {
     //MODAL
     dialogForm: boolean = false
     needUpdateHistorial: boolean = false;
+    openedFromPageMantenedor: boolean = false;
 
     private onActionToBD = new Subject<void>();
     onActionToBD$ = this.onActionToBD.asObservable();
@@ -96,6 +97,7 @@ export class TemasMainService {
     }
 
     resetDropdownsFilterTable(){
+        this.clearAllMessages();
         this.disabledDropdownPrograma = true
         this.cod_facultad_selected_notform = 0;
         this.cod_programa_postgrado_selected_notform = 0;
@@ -340,11 +342,13 @@ export class TemasMainService {
 
     async setDropdownsFilterTable(dataInserted: any){
         //esta funcion permite setear automaticamente los dropdowns que están en la pagina del mantenedor
-        this.disabledDropdownPrograma = false;
-        this.cod_facultad_selected_notform = dataInserted.cod_facultad;
-        this.cod_programa_postgrado_selected_notform = dataInserted.cod_programa;
-        await this.getProgramasPorFacultadNotForm(false);
-        await this.getTemasPorProgramaNotForm();
+        if (this.openedFromPageMantenedor) {
+            this.disabledDropdownPrograma = false;
+            this.cod_facultad_selected_notform = dataInserted.cod_facultad;
+            this.cod_programa_postgrado_selected_notform = dataInserted.cod_programa;
+            await this.getProgramasPorFacultadNotForm(false);
+            await this.getTemasPorProgramaNotForm();
+        }
     }
 
     async setDropdownsAndTablesForm(){
@@ -421,6 +425,7 @@ export class TemasMainService {
     }
 
     setNeedUpdateHistorial(need: boolean){
+        this.openedFromPageMantenedor = need;
         this.needUpdateHistorial = need;
     }
 

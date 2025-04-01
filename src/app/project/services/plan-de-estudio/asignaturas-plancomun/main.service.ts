@@ -32,10 +32,14 @@ export class AsignaturasPlancomunMainService {
     message: any = {
         'facultad'  : 'No se encontraron programas para la facultad seleccionada.',
         'programa'  : 'No se encontraron planes de estudios para el programa seleccionado.',
-        'plan'      : 'No se encontraron asignaturas compartidas con plan común para el plan de estudio seleccionado.',
+        'programa_origen'  : 'No se encontraron planes de estudios que cuentan con la opción ¿Comparte asign. con plan común? habilitada para el programa seleccionado.',
+        'programa_destino'  : 'No se encontraron planes de estudios que cuentan con la opción ¿Comparte asign. con plan común? inhabilitada para el programa seleccionado.',
+        'plan'      : 'No se encontraron asignaturas para el plan de estudio seleccionado.',
+        'pc'      : 'No se encontraron asignaturas de un plan de estudio para un plan común.',
     }
     messagesMantenedor: Message[] = [];
     messagesFormulario: Message[] = [];
+    column_tableBD: string = 'PC'
 
     //VARS PARA FILTROS DE TABLA
     cod_facultad_selected_notform: number = 0;
@@ -63,6 +67,7 @@ export class AsignaturasPlancomunMainService {
     //MODAL
     dialogForm: boolean = false
     needUpdateHistorial: boolean = false;
+    openedFromPageMantenedor: boolean = false;
 
     private onInsertedData = new Subject<void>();
     onInsertedData$ = this.onInsertedData.asObservable();
@@ -108,6 +113,7 @@ export class AsignaturasPlancomunMainService {
     }
 
     resetDropdownsFilterTable(){
+        this.clearAllMessages();
         this.disabledDropdownPrograma = true
         this.disabledDropdownPlanEstudio = true
         this.cod_facultad_selected_notform = 0;
@@ -225,14 +231,14 @@ export class AsignaturasPlancomunMainService {
 	}
 
     async getPlanesDeEstudiosPorProgramaOrigen(showCountTableValues: boolean = true, needShowLoading = true){
-        let params = { Cod_Programa: this.form.cod_programa_selected_origen }
-        const response = await this.backend.getPlanesDeEstudiosPorPrograma(params,needShowLoading);
+        let params = { Cod_Programa: this.form.cod_programa_selected_origen , columna: this.column_tableBD, valor: 1 }
+        const response = await this.backend.getPlanesDeEstudiosColumnaPorPrograma(params,needShowLoading);
         if (response) {
           this.planes_origen = [...response];
           if (this.planes_origen.length === 0 ) {
             this.form.setStatusControlPlanEstudioOrigen(false);
             this.form.setArrowColor('programas_to_planestudio_left','red');
-            this.showMessageSinResultadosPlanes('f');
+            this.showMessageSinResultadosPlanOrigen('f');
           }else{
             if (showCountTableValues){
                 this.messageService.add({
@@ -251,14 +257,14 @@ export class AsignaturasPlancomunMainService {
     }
 
     async getPlanesDeEstudiosPorProgramaDestino(showCountTableValues: boolean = true, needShowLoading = true){
-        let params = { Cod_Programa: this.form.cod_programa_selected_destino }
-        const response = await this.backend.getPlanesDeEstudiosPorPrograma(params,needShowLoading);
+        let params = { Cod_Programa: this.form.cod_programa_selected_destino , columna: this.column_tableBD, valor: 0 }
+        const response = await this.backend.getPlanesDeEstudiosColumnaPorPrograma(params,needShowLoading);
         if (response) {
           this.planes_destino = [...response];
           if (this.planes_destino.length === 0 ) {
             this.form.setStatusControlPlanEstudioDestino(false);
             this.form.setArrowColor('programas_to_planestudio_right','red');
-            this.showMessageSinResultadosPlanes('f');
+            this.showMessageSinResultadosPlanDestino('f');
           }else{
             if (showCountTableValues){
                 this.messageService.add({
@@ -353,7 +359,7 @@ export class AsignaturasPlancomunMainService {
     async getAsignaturasPCPorPlanDeEstudio(showCountTableValues: boolean = true, needShowLoading = true): Promise<AsignaturasPlancomun[]>{
         let params = { cod_plan_estudio: this.cod_plan_estudio_selected_notform }
         this.planes_pc = await this.backend.getAsignaturasPorPlanDeEstudio(params,needShowLoading);
-        this.planes_pc.length !== 0 ? (this.showTable = true , this.clearMessagesSinResultados('m')) : (this.showTable = false , this.showMessageSinResultados('m'))
+        this.planes_pc.length !== 0 ? (this.showTable = true , this.clearMessagesSinResultados('m')) : (this.showTable = false , this.showMessageSinResultadosPCAsignatura('m'))
         if (showCountTableValues && this.planes_pc.length !== 0) this.countTableValues();
         return this.planes_pc
     }
@@ -512,14 +518,16 @@ export class AsignaturasPlancomunMainService {
 
     async setDropdownsFilterTable(dataInserted: any){
         //esta funcion permite setear automaticamente los dropdowns que están en la pagina del mantenedor
-        this.disabledDropdownPrograma = false;
-        this.disabledDropdownPlanEstudio = false;
-        this.cod_facultad_selected_notform = dataInserted.cod_facultad;
-        this.cod_programa_postgrado_selected_notform = dataInserted.cod_programa;
-        this.cod_plan_estudio_selected_notform = dataInserted.cod_plan_estudio;
-        await this.getProgramasPorFacultadNotForm(false);
-        await this.getPlanesDeEstudiosPorProgramaNotForm(false);
-        await this.getAsignaturasPCPorPlanDeEstudio(false);
+        if (this.openedFromPageMantenedor) {
+            this.disabledDropdownPrograma = false;
+            this.disabledDropdownPlanEstudio = false;
+            this.cod_facultad_selected_notform = dataInserted.cod_facultad;
+            this.cod_programa_postgrado_selected_notform = dataInserted.cod_programa;
+            this.cod_plan_estudio_selected_notform = dataInserted.cod_plan_estudio;
+            await this.getProgramasPorFacultadNotForm(false);
+            await this.getPlanesDeEstudiosPorProgramaNotForm(false);
+            await this.getAsignaturasPCPorPlanDeEstudio(false);
+        }
     }
 
     async setDropdownsAndTablesForm(){
@@ -565,7 +573,7 @@ export class AsignaturasPlancomunMainService {
         key === 'm' ? this.messagesMantenedor = [] : this.messagesFormulario = [];
     }
 
-    showMessagesSinResultados(key: 'm' | 'f', messageType: 'facultad' | 'programa' | 'plan') {
+    showMessagesSinResultados(key: 'm' | 'f', messageType: 'facultad' | 'programa' | 'programa_origen' | 'programa_destino' | 'plan' | 'pc') {
         const message = { severity: 'warn', detail: this.message[messageType] };
         key === 'm' ? this.messagesMantenedor = [message] : this.messagesFormulario = [message];
         this.messageService.add({
@@ -579,12 +587,24 @@ export class AsignaturasPlancomunMainService {
         this.showMessagesSinResultados(key, 'facultad')
     }
 
+    showMessageSinResultadosPlanOrigen(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'programa_origen')
+    }
+
+    showMessageSinResultadosPlanDestino(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'programa_destino')
+    }
+
     showMessageSinResultadosPlanes(key: 'm' | 'f'){
         this.showMessagesSinResultados(key, 'programa')
     }
 
     showMessageSinResultados(key: 'm' | 'f'){
         this.showMessagesSinResultados(key, 'plan')
+    }
+
+    showMessageSinResultadosPCAsignatura(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'pc')
     }
 
     setVarsNotFormByDataExternal(dataExternal: DataExternal){
@@ -602,6 +622,7 @@ export class AsignaturasPlancomunMainService {
     }
 
     setNeedUpdateHistorial(need: boolean){
+        this.openedFromPageMantenedor = need;
         this.needUpdateHistorial = need;
     }
 

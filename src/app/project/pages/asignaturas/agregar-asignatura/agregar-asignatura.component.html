@@ -7,24 +7,18 @@
                 <div class="p-card-subtitle">Permite agregar una {{ main.namesCrud.singular }}. <br/> Los campos con (*) son requeridos.</div>
             </div>
             <div>
-                <p-button 
+                <!-- <p-button 
                     label="test" 
                     icon="pi pi-times" 
                     styleClass="p-button-sm p-button-secondary mr-2" 
                     (click)="test()" [text]="true">
                 </p-button>
                 <p-button 
-                    label="mensajeExito" 
-                    icon="pi pi-eye" 
-                    styleClass="p-button-sm p-button-secondary mr-2" 
-                    (click)="form.showCardForm = !form.showCardForm" [text]="true">
-                </p-button>
-                <p-button 
                     label="ventanaConfirmar" 
                     icon="pi pi-eye" 
                     styleClass="p-button-sm p-button-secondary mr-2" 
                     (click)="form.confirmAdd = !form.confirmAdd" [text]="true">
-                </p-button>
+                </p-button> -->
                 <button *ngIf="form.selected_CodigoPlanDeEstudio !== 0" pButton class="mr-2" icon="pi pi-book" label="Asignaturas" (click)="form.dialogAsignaturas = !form.dialogAsignaturas"></button>
                 <button pButton icon="pi pi-paperclip" label="Documentos maestros" (click)="main.openDialogChooseDocsMaestro()"></button>
                 <button 
@@ -114,6 +108,7 @@
                                                 placeholder="Seleccione modalidad"
                                                 optionLabel="Descripcion_modalidad"
                                                 styleClass="w-full p-d-flex p-flex-column"
+                                                (onChange)="changeModalidad($event)"
                                             />
                                             <app-form-control [control]="form.fbForm.controls['cod_modalidad']" [validators]="['required']"></app-form-control>
                                         </div>
@@ -166,7 +161,7 @@
                                                 maxlength="2"
                                                 placeholder="Ingrese número del semestre"
                                                 class="w-full p-d-flex p-flex-column"
-                                                (ngModelChange)="resetDataSecuencialidad()"
+                                                (ngModelChange)="resetDataSecuencialidadParalelidad()"
                                             />
                                             <app-form-control [control]="form.fbForm.controls['semestre']" [validators]="['required' , 'solo_num']"></app-form-control>
                                         </div>
@@ -229,7 +224,7 @@
 
                                     
                                     <div class="flex pt-4 justify-content-end">
-                                        <p-button label="Siguiente" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextCallback.emit()" [disabled]="!form.stateStepOne" />
+                                        <p-button label="Siguiente" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextCallback.emit(); getAsignaturasConTemaAgrupadoPorSemestre()" [disabled]="!form.stateStepOne" />
                                     </div>
                                 </div>
                             </ng-template>
@@ -464,12 +459,12 @@
                                                     </div>
                                                 </div>
                                                 <div *ngIf="form.showMessageSinAsignaturas && form.fbForm.get('tiene_prerequisitos')!.value === 1">
-                                                    <p-messages styleClass="mt-2" severity="warn">
+                                                    <p-messages styleClass="mt-2" severity="info">
                                                         <ng-template pTemplate>
                                                             <div class="flex flex-column justify-content-center align-items-center">
-                                                                <span><i class="pi pi-exclamation-triangle"></i><strong> Atención:</strong></span>
+                                                                <span><i class="pi pi-info-circle"></i><strong> Atención:</strong></span>
                                                                 <span>
-                                                                    Al no tener asignaturas el plan de estudio: <strong>{{form.selectedPlanDeEstudio}}</strong>, debe asociar asignatura(s) actualizando la asignatura una vez agregada.
+                                                                    El plan de estudio: <strong>{{form.selectedPlanDeEstudio}}</strong> aún no incluye asignaturas. Debe asociar asignatura(s) actualizando la asignatura una vez agregada.
                                                                     Considere que las asignaturas que asociará deben estar incluidas en el plan de estudio.
                                                                 </span>
                                                             </div>
@@ -488,46 +483,20 @@
                                                         </ng-template>
                                                     </p-messages>
                                                     <label><strong>Asignaturas *</strong></label>
-                                                    <!-- <p-multiSelect
-                                                        [options]="asignaturas"
-                                                        [style]="{ width: '100%', 'min-width': '100%' }"
-                                                        [virtualScroll]="true"
-                                                        [virtualScrollItemSize]="55"
-                                                        [filterFields]="['nombre_tema', 'nombre_asignatura', 'codigo_externo']"
-                                                        [maxSelectedLabels]="0"
-                                                        formControlName="pre_requisitos"
-                                                        placeholder="Seleccione asignatura(s)"
-                                                        appendTo="body"
-                                                        selectedItemsLabel="{0} asignatura(s) seleccionada(s)"
-                                                        filterPlaceHolder="Buscar asignatura..."
-                                                        optionLabel="nombre_asignatura_completa"
-                                                        (onChange)="changePreRequisitos($event)"
-                                                    >
-                                                        <ng-template let-item pTemplate="item">
-                                                            <div class="inline-flex align-items-center px-1">
-                                                                <span>
-                                                                    {{ item.codigo_externo }} - {{ item.nombre_asignatura }} <br/>
-                                                                    <i>Tema:</i> {{ item.nombre_tema === '' ? '-' : item.nombre_tema }}
-                                                                </span>
-                                                            </div>
-                                                        </ng-template>
-                                                    </p-multiSelect> -->
                                                     <div class="field">
                                                         <p-treeSelect
                                                             [options]="asignaturas"
                                                             [filter]="true"
-                                                            class="w-full"
                                                             containerStyleClass="w-full"
+                                                            panelStyleClass="w-8"
+                                                            scrollHeight="300px"
                                                             formControlName="pre_requisitos"
                                                             selectionMode="checkbox"
                                                             placeholder="Seleccione asignatura(s)"
                                                             appendTo="body"
-                                                        >
-    
-                                                        </p-treeSelect>
+                                                            (onNodeSelect)="selectPrerrequisitos()"
+                                                        />
                                                     </div>
-                                                
-
                                                     <app-form-control [control]="form.fbForm.controls['pre_requisitos']" [validators]="['required']"></app-form-control>
                                                 </div>
                                             </div>
@@ -572,17 +541,9 @@
                                                             appendTo="body"
                                                             selectedItemsLabel="{0} tema(s) seleccionado(s)"
                                                             filterPlaceHolder="Buscar tema..."
-                                                            optionLabel="nombre_tema_completo"
+                                                            optionLabel="nombre_tema"
                                                             (onChange)="changeTema($event)"
-                                                        >
-                                                            <ng-template let-item pTemplate="item">
-                                                                <div class="inline-flex align-items-center px-1">
-                                                                    <span>
-                                                                        {{ item.cod_tema }} - {{ item.nombre_tema }} 
-                                                                    </span>
-                                                                </div>
-                                                            </ng-template>
-                                                        </p-multiSelect>
+                                                        />
                                                         <button
                                                             (click)="initCreateFormTemas()"  
                                                             type="button" pButton icon="pi pi-plus" iconPos="right" 
@@ -684,68 +645,83 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div *ngIf="form.showMessageSinAsignaturas  && form.fbForm.get('tiene_secuencialidad')!.value === 1">
+                                                <div *ngIf="form.showMessageSinAsignaturas && ( form.fbForm.get('tiene_secuencialidad')!.value === 0 || form.fbForm.get('tiene_secuencialidad')!.value === 1 )">
                                                     <p-messages styleClass="mt-2" severity="info">
                                                         <ng-template pTemplate>
                                                             <div class="flex flex-column justify-content-center align-items-center">
                                                                 <span><i class="pi pi-info-circle"></i><strong> Atención:</strong></span>
                                                                 <span>
                                                                     El plan de estudio: <strong>{{form.selectedPlanDeEstudio}}</strong> aún no incluye asignaturas.
-                                                                    La asignatura que está agregando será la primera del plan de estudio y será secuencial.
+                                                                    La asignatura que está agregando será la primera del plan de estudio y será {{ form.fbForm.get('tiene_secuencialidad')!.value === 1 ? 'secuencial' : 'paralela'}}.
                                                                 </span>
                                                             </div>
                                                         </ng-template>
                                                     </p-messages>
                                                 </div>
-                                                <div *ngIf="form.showMessageSinAsignaturasSecuenciales  && form.fbForm.get('tiene_secuencialidad')!.value === 1">
+                                                <div *ngIf="form.showMessageSinAsignaturasSecuencialesParalelas">
                                                     <p-messages styleClass="mt-2" severity="info">
                                                         <ng-template pTemplate>
                                                             <div class="flex flex-column justify-content-center align-items-center">
                                                                 <span><i class="pi pi-info-circle"></i><strong> Atención:</strong></span>
                                                                 <span>
-                                                                    El plan de estudio: <strong>{{form.selectedPlanDeEstudio}}</strong> incluye asignaturas, pero ninguna es secuencial. La asignatura que está agregando será la primera en tener secuencialidad.
+                                                                    El plan de estudio: <strong>{{form.selectedPlanDeEstudio}}</strong> incluye asignaturas, pero ninguna es {{ form.fbForm.get('tiene_secuencialidad')!.value === 1 ? 'secuencial' : 'paralela'}} del semestre <strong>{{form.fbForm.get('semestre')!.value}}</strong>. 
+                                                                    La asignatura que está agregando será la primera {{ form.fbForm.get('tiene_secuencialidad')!.value === 1 ? 'secuencial' : 'paralela'}}.
                                                                 </span>
                                                             </div>
                                                         </ng-template>
                                                     </p-messages>
                                                 </div>
-                                                <div *ngIf="form.showMessageSecuencial">
+                                                <div *ngIf="form.showMessageSecuencialParalela">
                                                     <p-messages styleClass="mt-2" severity="info">
                                                         <ng-template pTemplate>
                                                             <div class="flex flex-column justify-content-center align-items-center">
                                                                 <span><i class="pi pi-info-circle"></i><strong> Atención:</strong></span>
                                                                 <span>
-                                                                    Las asignaturas cargadas son aquellas que ya están asociadas al plan de estudio: <strong>{{form.selectedPlanDeEstudio}}</strong> y son <strong>secuenciales</strong>.
+                                                                    Las asignaturas cargadas son aquellas que ya están asociadas al plan de estudio: <strong>{{form.selectedPlanDeEstudio}}</strong>, 
+                                                                    son <strong>{{ form.fbForm.get('tiene_secuencialidad')!.value === 1 ? 'secuenciales' : 'paralelas'}}</strong>
+                                                                    y pertenecen al semestre <strong>{{form.fbForm.get('semestre')!.value}}</strong>.
                                                                 </span>
                                                             </div>
                                                         </ng-template>
                                                     </p-messages>
-                                                    <label><strong>Será secuencial con: </strong></label>
+                                                    <label><strong>Seleccione asignatura(s) {{ form.fbForm.get('tiene_secuencialidad')!.value === 1 ? 'secuencial(es)' : 'paralela(s)'}}: </strong></label>
                                                     <br/>
-                                                    <ng-container *ngIf="ultima_asignatura_secuencial && ultima_asignatura_secuencial.length > 0 ; else pendingSecuenciales">
-                                                        <div class="surface-card shadow-2 p-3 border-round mt-2">
-                                                            <div class="flex align-items-center">
-                                                                <i class="pi pi-book"></i>
-                                                                <div class="ml-3">
-                                                                    <span class="block">
-                                                                        {{ ultima_asignatura_secuencial[0].codigo_externo }} - {{ ultima_asignatura_secuencial[0].nombre_asignatura }} <br/>
-                                                                        <i>Tema:</i> {{ ultima_asignatura_secuencial[0].nombre_tema === '' ? '-' : ultima_asignatura_secuencial[0].nombre_tema }}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                            <div class="flex flex-row mt-2">
-                                                                <div class="align-items-center mr-1" [style]="{'margin-top': '0.1rem !important'}">
-                                                                    <i class="pi pi-info-circle"></i>
-                                                                </div>
-                                                                <div class="align-items-center">
-                                                                    <small>Corresponde a la última asignatura secuencial del semestre: <strong>{{form.fbForm.get('semestre')!.value}}</strong> agregada en el plan de estudio: <strong>{{form.selectedPlanDeEstudio}}</strong></small>
-                                                                </div>
-                                                            </div>
+                                                    <ng-container *ngIf="form.fbForm.get('tiene_secuencialidad')!.value === 1 else formParalela">
+                                                        <div class="field">
+                                                            <p-treeSelect
+                                                                [options]="asignaturas_semestre"
+                                                                [filter]="true"
+                                                                containerStyleClass="w-full"
+                                                                panelStyleClass="w-8"
+                                                                scrollHeight="300px"
+                                                                formControlName="secuencialidad"
+                                                                selectionMode="checkbox"
+                                                                placeholder="Seleccione asignatura(s)"
+                                                                appendTo="body"
+                                                                (onNodeSelect)="selectSecuenciales()"
+                                                            />
                                                         </div>
+                                                        <app-form-control [control]="form.fbForm.controls['secuencialidad']" [validators]="['required']"></app-form-control>
                                                     </ng-container>
-                                                    <ng-template #pendingSecuenciales>
-                                                        <span class="text-700">PENDIENTE</span>
+                                                    <ng-template #formParalela>
+                                                        <div class="field">
+                                                            <p-treeSelect
+                                                                [options]="asignaturas_semestre"
+                                                                [filter]="true"
+                                                                containerStyleClass="w-full"
+                                                                panelStyleClass="w-8"
+                                                                scrollHeight="300px"
+                                                                formControlName="paralelidad"
+                                                                selectionMode="checkbox"
+                                                                placeholder="Seleccione asignatura(s)"
+                                                                appendTo="body"
+                                                                (onNodeSelect)="selectParalelas()"
+                                                            />
+                                                        </div>
+                                                        <app-form-control [control]="form.fbForm.controls['paralelidad']" [validators]="['required']"></app-form-control>
                                                     </ng-template>
+
+
                                                 </div>
 
                                             </div>
@@ -1012,7 +988,6 @@
             <p-divider />
 
             <div class="formgrid grid">
-
                 <div class="col-12 sm:col-2 mb-3">
                     <div class="flex flex-column">
                         <span class="text-900"> <strong>Horas síncronas</strong> </span>
@@ -1048,9 +1023,6 @@
                     </div>
                 </div>
 
-                
-
-
             </div>
 
             <p-divider />
@@ -1075,36 +1047,6 @@
                         </ng-template>
                     </div>
                 </div>
-<!-- 
-                <div class="col-12 sm:col-4 mb-3">
-                    <div class="flex flex-column">
-                        <span class="text-900"> <strong>Mención seleccionada</strong> </span>
-                        <ng-container *ngIf="form.fbForm.get('tiene_mencion')!.value === 1; else sinMenciones">
-                            <p-multiSelect
-                                [options]="form.fbForm.get('menciones')!.value"
-                                [style]="{ 'width': '100%', 'min-width': '100%' }"
-                                [showHeader]="false"
-                                [maxSelectedLabels]="0"
-                                formControlName="menciones_selected"
-                                optionDisabled="checkDisabled"
-                                placeholder="Seleccione mención(es)"
-                                selectedItemsLabel="{0} mención(es) seleccionadas"
-                            >
-                                <ng-template let-item pTemplate="item">
-                                    <div class="inline-flex align-items-center px-1">
-                                        <span>
-                                            {{ item.nombre_mencion }} - Dec {{ item.mencion_rexe }} <br/>
-                                            <i>Descripción:</i> {{ item.descripcion_mencion }}
-                                        </span>
-                                    </div>
-                                </ng-template>
-                            </p-multiSelect>
-                        </ng-container>
-                        <ng-template #sinMenciones>
-                            <span class="text-700">NO APLICA</span>
-                        </ng-template>
-                    </div>
-                </div> -->
 
                 <div class="col-12 sm:col-4 mb-3">
                     <div class="flex flex-column">
@@ -1124,29 +1066,23 @@
                     <div class="flex flex-column">
                         <span class="text-900"> <strong>Prerrequisito(s) seleccionado(s)</strong> </span>
                         <ng-container *ngIf="form.fbForm.get('tiene_prerequisitos')!.value === 1; else sinPreR">
-                            <p-multiSelect
-                                [options]="form.fbForm.get('pre_requisitos')!.value"
-                                [style]="{ 'width': '100%', 'min-width': '100%' }"
-                                [showHeader]="false"
-                                [maxSelectedLabels]="0"
-                                formControlName="pre_requisitos_selected"
-                                optionDisabled="checkDisabled"
-                                placeholder="Seleccione asignatura(s)"
-                                selectedItemsLabel="{0} asignatura(s) seleccionada(s)"
-                            >
-                                <ng-template let-item pTemplate="item">
-                                    <div class="inline-flex align-items-center px-1">
-                                        <span>
-                                            {{ item.codigo_externo }} - {{ item.nombre_asignatura }} <br/>
-                                            <i>Tema:</i> {{ item.nombre_tema === '' ? '-' : item.nombre_tema }}
-                                        </span>
-                                    </div>
-                                </ng-template>
-                            </p-multiSelect>
+                            <ng-container *ngIf="form.fbForm.get('pre_requisitos')?.enabled else firstPrerrequisito">
+                                <p-multiSelect
+                                    [options]="form.fbForm.get('pre_requisitos')!.value"
+                                    [style]="{ 'width': '100%', 'min-width': '100%' }"
+                                    [showHeader]="false"
+                                    [maxSelectedLabels]="0"
+                                    formControlName="pre_requisitos_selected"
+                                    optionDisabled="data.checkDisabled"
+                                    placeholder="Seleccione prerrequisito(s)"
+                                    selectedItemsLabel="{0} prerrequisito(s) seleccionado(s)"
+                                    optionLabel="data.nombre_asignatura_completa"
+                                    appendTo="body"
+                                />
+                            </ng-container>
+                            <ng-template #firstPrerrequisito><span class="text-700">PENDIENTE DE ASIGNAR</span></ng-template>
                         </ng-container>
-                        <ng-template #sinPreR>
-                            <span class="text-700">NO APLICA</span>
-                        </ng-template>
+                        <ng-template #sinPreR><span class="text-700">NO APLICA</span></ng-template>
                     </div>
                 </div>
 
@@ -1177,15 +1113,9 @@
                                 optionDisabled="checkDisabled"
                                 placeholder="Seleccione tema(s)"
                                 selectedItemsLabel="{0} tema(s) seleccionado(s)"
-                            >
-                                <ng-template let-item pTemplate="item">
-                                    <div class="inline-flex align-items-center px-1">
-                                        <span>
-                                            {{ item.cod_tema }} - {{ item.nombre_tema }} 
-                                        </span>
-                                    </div>
-                                </ng-template>
-                            </p-multiSelect>
+                                optionLabel="nombre_tema"
+                                appendTo="body"
+                            />
                         </ng-container>
                         <ng-template #sinTema>
                             <span class="text-700">NO APLICA</span>
@@ -1202,7 +1132,7 @@
 
                 <div class="col-12 sm:col-4 mb-3">
                     <div class="flex flex-column">
-                        <span class="text-900"> <strong>Tipo de colegiada</strong> </span>
+                        <span class="text-900"> <strong>Tipo de colegiada seleccionada</strong> </span>
                         <ng-container *ngIf="form.fbForm.get('tiene_colegiada')!.value === 1; else sinColegiada">
                             <span class="text-700"> {{ form.selectedTipoColegiada }} </span>
                         </ng-container>
@@ -1214,35 +1144,59 @@
 
                 <div class="col-12 sm:col-4 mb-3">
                     <div class="flex flex-column">
-                        <span class="text-900"> <strong>¿Es obligatoria o electiva?</strong> </span>
-                        <span class="text-700"> {{ form.fbForm.get('obligatoria_electiva')!.value === 0 ? 'Obligatoria' : 'Electiva' }}</span>
+                        <span class="text-900"> <strong>¿Es paralela o secuencial?</strong> </span>
+                        <span class="text-700"> {{ form.fbForm.get('tiene_secuencialidad')!.value === 0 ? 'Paralela' : 'Secuencial' }}</span>
                     </div>
                 </div>
 
                 <div class="col-12 sm:col-4 mb-3">
                     <div class="flex flex-column">
-                        <span class="text-900"> <strong>¿Es paralela o secuencial?</strong> </span>
-                        <span class="text-700"> {{ form.fbForm.get('tiene_secuencialidad')!.value === 0 ? 'Paralela' : 'Secuencial' }}</span>
-                    </div>
-                </div>
-                
-                <div class="col-12 sm:col-4 mb-3" *ngIf="form.fbForm.get('tiene_secuencialidad')!.value === 1">
-                    <div class="flex flex-column">
-                        <span class="text-900 text-sm"> <strong>Secuencial con: </strong> </span>
-                        <ng-container *ngIf="form.fbForm.get('tiene_secuencialidad')!.value === 1 && ultima_asignatura_secuencial && ultima_asignatura_secuencial.length > 0 ; else pendingSecuenciales">
-                            <span>
-                                {{ ultima_asignatura_secuencial[0].codigo_externo }} - {{ ultima_asignatura_secuencial[0].nombre_asignatura }} <br/>
-                                <i>Tema:</i> {{ ultima_asignatura_secuencial[0].nombre_tema === '' ? '-' : ultima_asignatura_secuencial[0].nombre_tema }}
-                            </span>
+                        <span class="text-900"> <strong>Asign. {{ form.fbForm.get('tiene_secuencialidad')!.value === 0 ? 'paralelas' : 'secuenciales' }} seleccionada(s)</strong> </span>
+                        <ng-container *ngIf="form.fbForm.get('tiene_secuencialidad')!.value === 1; else multiSelectParalelas">
+                            <ng-container *ngIf="form.fbForm.get('secuencialidad')?.enabled && form.fbForm.get('secuencialidad')?.value.length !== 0; else firstSecuencial">
+                                <p-multiSelect
+                                    [options]="form.fbForm.get('secuencialidad')?.value"
+                                    [style]="{ 'width': '100%', 'min-width': '100%' }"
+                                    [showHeader]="false"
+                                    [maxSelectedLabels]="0"
+                                    formControlName="secuencialidad_selected"
+                                    optionDisabled="data.checkDisabled"
+                                    placeholder="Seleccione asignatura(s)"
+                                    selectedItemsLabel="{0} asignatura(s) seleccionada(s)"
+                                    optionLabel="data.nombre_asignatura_completa"
+                                    appendTo="body"
+                                />
+                            </ng-container>
+                            <ng-template #firstSecuencial><span class="text-700">PRIMERA ASIGN. SECUENCIAL DEL SEMESTRE</span></ng-template>
                         </ng-container>
-                        <ng-template #pendingSecuenciales>
-                            <span class="text-700">PENDIENTE</span>
+                        <ng-template #multiSelectParalelas>
+                            <ng-container *ngIf="form.fbForm.get('tiene_secuencialidad')!.value === 0">
+                                <ng-container *ngIf="form.fbForm.get('paralelidad')?.enabled && form.fbForm.get('paralelidad')?.value.length !== 0; else firstParalela">
+                                    <p-multiSelect
+                                        [options]="form.fbForm.get('paralelidad')?.value"
+                                        [style]="{ 'width': '100%', 'min-width': '100%' }"
+                                        [showHeader]="false"
+                                        [maxSelectedLabels]="0"
+                                        formControlName="paralelidad"
+                                        optionDisabled="data.checkDisabled"
+                                        placeholder="Seleccione asignatura(s)"
+                                        selectedItemsLabel="{0} asignatura(s) seleccionada(s)"
+                                        optionLabel="data.nombre_asignatura_completa"
+                                        appendTo="body"
+                                    />
+                                </ng-container>
+                                <ng-template #firstParalela><span class="text-700">PRIMERA ASIGN. PARALELA DEL SEMESTRE</span></ng-template>
+                            </ng-container>
                         </ng-template>
                     </div>
                 </div>
-
-
-
+                
+                <div class="col-12 sm:col-4 mb-3">
+                    <div class="flex flex-column">
+                        <span class="text-900"> <strong>¿Es obligatoria o electiva?</strong> </span>
+                        <span class="text-700"> {{ form.fbForm.get('obligatoria_electiva')!.value === 0 ? 'Obligatoria' : 'Electiva' }}</span>
+                    </div>
+                </div>
 
                 <div class="col-12">
                     <div class="mb-2">

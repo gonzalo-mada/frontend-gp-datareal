@@ -33,6 +33,7 @@ export class TableAsignaturasPlancomunComponent {
 	}
 	  
 	ngOnDestroy(): void {
+		this.subscription.unsubscribe();
 		this.table.resetSelectedRows();
 	}
 

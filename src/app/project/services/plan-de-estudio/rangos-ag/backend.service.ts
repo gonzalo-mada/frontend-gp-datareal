@@ -33,10 +33,10 @@ export class BackendRangosAGService {
 		}
 	}
 
-	async getPlanesDeEstudiosPorPrograma(params: any, loading = true) {
+	async getPlanesDeEstudiosColumnaPorPrograma(params: any, loading = true) {
 		try {
 			return await this.invoker.httpInvoke(
-				this.serviceUtils.generateServiceMongo('planesDeEstudio/getPlanesDeEstudiosPorPrograma', loading),
+				this.serviceUtils.generateServiceMongo('planesDeEstudio/getPlanesDeEstudiosColumnaPorPrograma', loading),
 				params
 			);
 		} catch (error: any) {

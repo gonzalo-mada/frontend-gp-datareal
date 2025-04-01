@@ -51,10 +51,10 @@ export class BackendCertifIntermediasPEService {
         }
     }
 
-    async getPlanesDeEstudiosPorPrograma(params: any, loading = true) {
+    async getPlanesDeEstudiosColumnaPorPrograma(params: any, loading = true) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('planesDeEstudio/getPlanesDeEstudiosPorPrograma', loading),
+                this.serviceUtils.generateServiceMongo('planesDeEstudio/getPlanesDeEstudiosColumnaPorPrograma', loading),
                 params
             );
         } catch (error: any) {
@@ -68,10 +68,10 @@ export class BackendCertifIntermediasPEService {
         }
     }
     
-    async getAsignaturasConTemaAgrupado(params: any, loading = true) {
+    async getAsignaturasSimplificatedConTemaAgrupado(params: any, loading = true) {
         try {
             return await this.invoker.httpInvoke(
-                this.serviceUtils.generateServiceMongo('asignaturas/getAsignaturasConTemaAgrupado', loading),
+                this.serviceUtils.generateServiceMongo('asignaturas/getAsignaturasSimplificatedConTemaAgrupado', loading),
                 params
             );
         } catch (error: any) {

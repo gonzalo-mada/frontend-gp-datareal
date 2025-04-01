@@ -26,13 +26,11 @@ export class EstadosAcreditacionComponent implements OnInit, OnDestroy {
       } 
     }));
     this.main.setOrigen('estados_acred');
-    this.main.setNeedUpdateHistorial(true);
   }
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
     this.main.reset();
-    this.main.setNeedUpdateHistorial(false);
   }
 
   submit() {

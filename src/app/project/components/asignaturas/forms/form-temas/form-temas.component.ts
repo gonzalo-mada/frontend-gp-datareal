@@ -25,10 +25,13 @@ export class FormTemasComponent {
 
 	async ngOnInit() {
 		this.subscription.add(this.form.fbForm.statusChanges.subscribe(status => { this.form.stateForm = status as StateValidatorForm }));
+		this.dataExternal.data ? await this.setFormByExternalData() : this.initForm();
 	}
 
 	async ngOnChanges(changes: SimpleChanges) {
-		if ( changes['externalData'] && changes['externalData'].currentValue.data ) {
+		if ( changes['dataExternal'] && changes['dataExternal'].currentValue.data ) {
+			console.log("ACTIVE ON CHANGE TEMAS CON:",this.dataExternal);
+			
 			this.form.setDataExternal(this.dataExternal);
 		}
 	}

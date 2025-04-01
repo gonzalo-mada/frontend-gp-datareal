@@ -34,6 +34,7 @@ export class TablePrerrequisitosComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
+    this.subscription.unsubscribe();
 		this.table.resetSelectedRows();
 	}
 

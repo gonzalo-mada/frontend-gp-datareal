@@ -8,5 +8,5 @@ import { PlanDeEstudioMainService } from '../../services/plan-de-estudio/plan-de
   ]
 })
 export class PlanesDeEstudiosComponent {
-  constructor(private main: PlanDeEstudioMainService){this.main.reset()}
+  constructor(private main: PlanDeEstudioMainService){this.main.resetDropdownsFilterTable()}
 }

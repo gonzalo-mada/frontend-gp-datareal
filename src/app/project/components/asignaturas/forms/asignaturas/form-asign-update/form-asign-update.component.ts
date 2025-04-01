@@ -354,7 +354,11 @@ export class FormAsignUpdateComponent implements OnChanges {
 				message = 'Esta acción eliminará <b>TODAS</b> las articulaciones entre la asignatura y asignaturas de pregrado. ¿Desea confirmar?'
 			break;
 			case 'tiene_secuencialidad':
-				message = 'Esta acción eliminará <b>TODAS</b> las asociaciones entre la asignatura y sus asignaturas secuenciales o paralelas. ¿Desea confirmar?'
+				if (valueControl === 0) {
+					message = 'Esta acción eliminará <b>TODAS</b> las asociaciones entre la asignatura y sus asignaturas secuenciales. ¿Desea confirmar?'
+				}else{
+					message = 'Esta acción eliminará <b>TODAS</b> las asociaciones entre la asignatura y sus asignaturas paralelas. ¿Desea confirmar?'
+				}
 			break;
 			case 'tiene_prerequisitos':
 				message = 'Esta acción eliminará <b>TODOS</b> los prerrequisitos de la asignatura. ¿Desea confirmar?'
@@ -366,7 +370,7 @@ export class FormAsignUpdateComponent implements OnChanges {
 				message = 'Esta acción eliminará <b>TODAS</b> las asociaciones entre asignaturas del plan de estudio y un plan común. ¿Desea confirmar?'
 			break;
 		}
-		if (valueControl === 0) {
+		if (valueControl === 0 || dialogUpdateMode === 'tiene_secuencialidad') {
 			this.confirmationService.confirm({
 				header: 'Confirmar',
 				message: message,

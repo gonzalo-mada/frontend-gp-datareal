@@ -36,6 +36,7 @@ export class TableMencionesComponent {
 	}
 	  
 	ngOnDestroy(): void {
+		this.subscription.unsubscribe();
 		this.table.resetSelectedRows();
 	}
 

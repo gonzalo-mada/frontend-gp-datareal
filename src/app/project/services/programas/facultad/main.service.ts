@@ -136,7 +136,6 @@ export class FacultadesMainService {
         }finally{
             this.dialogForm = false;
             this.getFacultades(false);
-            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -182,7 +181,6 @@ export class FacultadesMainService {
         }finally{
             this.dialogForm = false;
             this.getFacultades(false);
-            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -222,7 +220,6 @@ export class FacultadesMainService {
             console.log(error);
         }finally{
             this.getFacultades(false);
-            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }

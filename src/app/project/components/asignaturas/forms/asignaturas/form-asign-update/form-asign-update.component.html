@@ -1,17 +1,33 @@
 <app-dialog [dialogWidth]="'80vw'" [(visible)]="main.dialogUpdate" (visibleChange)="closeDialog()">
     <div header>
         <ng-container [ngSwitch]="main.dialogUpdateMode">
+            <span *ngSwitchCase="'regimen'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} régimen</span>
+            <span *ngSwitchCase="'codigo_externo'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} código</span>
+            <span *ngSwitchCase="'nombre_asignatura'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} nombre</span>
+            <span *ngSwitchCase="'num_creditos'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} créditos</span>
+            <span *ngSwitchCase="'duracion'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} duración</span>
+            <span *ngSwitchCase="'max_duracion'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} máximo de duración</span>
+            <span *ngSwitchCase="'cod_tipo_evaluacion'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} tipo de evaluación</span>
+            <span *ngSwitchCase="'cod_tipo_colegiada'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} tipo de colegiada</span>
+            <span *ngSwitchCase="'tiene_evaluacionintermedia'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} evaluación intermedia</span>
+            <span *ngSwitchCase="'tiene_prerequisitos'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} prerrequisitos</span>
+            <span *ngSwitchCase="'tiene_articulacion'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} articulaciones</span>
+            <span *ngSwitchCase="'tiene_mencion'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} menciones</span>
+            <span *ngSwitchCase="'tiene_secuencialidad'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} paralelidades / secuencialidades</span>
+            <span *ngSwitchCase="'obligatoria_electiva'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} obligatoria / electiva</span>
+            <span *ngSwitchCase="'tiene_tema'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} temas </span>
+            <span *ngSwitchCase="'docs_maestros_asignatura'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} documentos maestros</span>
             <span *ngSwitchDefault class="text-xl" >{{mode === 'show' ? 'Ver' : 'Actualizar'}} {{ main.dialogUpdateMode }}</span>
         </ng-container>
     </div>
 
     <div content>
-        <p-button 
+        <!-- <p-button 
             label="test" 
             icon="pi pi-times" 
             styleClass="p-button-sm p-button-secondary mr-2" 
-            (click)="test()" [text]="true">
-        </p-button>
+            (click)="test()" [text]="true"> 
+        </p-button>-->
         <form *ngIf="main.dialogUpdate" [formGroup]="form.fbFormUpdate">
             <div class="formgrid grid">
 
@@ -531,20 +547,20 @@
     
                 <ng-container *ngIf="main.dialogUpdateMode === 'tiene_secuencialidad' ">
                     <div class="field col-12 mt-2">
-                        <p-accordion [activeIndex]="form.fbForm.get('tiene_secuencialidad')!.value === 1 ? 1 : 0">
+                        <p-accordion [activeIndex]="1">
                             <p-accordionTab header="Actualizar paralelidad / secuencialidad ">
                                 <div class="formgrid grid">
                                     <div class="field col-12 mt-2">
                                         <label><strong>¿Es paralela o secuencial?</strong></label>
                                         <div class="flex flex-row justify-content-start flex-wrap">
                                             <div class="flex align-items-center justify-content-center">
-                                                <span>No</span>
+                                                <span>Paralela</span>
                                             </div>
                                             <div class="flex align-items-center justify-content-center mx-2">
                                                 <p-inputSwitch [falseValue]="0" [trueValue]="1" formControlName="tiene_secuencialidad"  styleClass="mt-1 mx-1" />
                                             </div>
                                             <div class="flex align-items-center justify-content-center">
-                                                <span>Si</span>
+                                                <span>Secuencial</span>
                                             </div>
                                         </div>
                                     </div>

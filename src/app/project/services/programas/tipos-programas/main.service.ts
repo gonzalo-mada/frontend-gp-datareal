@@ -120,7 +120,6 @@ export class TiposProgramasMainService {
         }finally{
             this.dialogForm = false;
             this.getTiposProgramas(false);
-            await this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -152,7 +151,6 @@ export class TiposProgramasMainService {
         }finally{
             this.dialogForm = false;
             this.getTiposProgramas(false);
-            await this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -192,7 +190,6 @@ export class TiposProgramasMainService {
             console.log(error);
         }finally{
             this.getTiposProgramas(false);
-            await this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }

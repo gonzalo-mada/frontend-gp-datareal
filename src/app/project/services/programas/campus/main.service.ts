@@ -135,7 +135,6 @@ export class CampusMainService {
         }finally{
             this.dialogForm = false;
             this.getCampus(false);
-            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -178,7 +177,6 @@ export class CampusMainService {
             console.log(error);
         }finally{
             this.dialogForm = false;
-            this.historialActividad.refreshHistorialActividad();
             this.getCampus(false);
             this.reset();
         }
@@ -219,7 +217,6 @@ export class CampusMainService {
             console.log(error);
         }finally{
             this.getCampus(false);
-            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }

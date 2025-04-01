@@ -30,7 +30,6 @@ export class CertifIntermediaMainService {
 
     //MODAL
     dialogForm: boolean = false
-    needUpdateHistorial: boolean = false;
 
     private onInsertedData = new Subject<void>();
     onInsertedData$ = this.onInsertedData.asObservable();
@@ -126,7 +125,6 @@ export class CertifIntermediaMainService {
         }finally{
             this.dialogForm = false;
             this.getCertificacionesIntermedias(false);
-            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -158,7 +156,6 @@ export class CertifIntermediaMainService {
         }finally{
             this.dialogForm = false;
             this.getCertificacionesIntermedias(false);
-            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -198,7 +195,6 @@ export class CertifIntermediaMainService {
             console.log(error);
         }finally{
             this.getCertificacionesIntermedias(false);
-            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -249,10 +245,6 @@ export class CertifIntermediaMainService {
 
     setOrigen(origen: string){
         this.historialActividad.setOrigen(origen);
-    }
-
-    setNeedUpdateHistorial(need: boolean){
-        this.needUpdateHistorial = need;
     }
 
 }

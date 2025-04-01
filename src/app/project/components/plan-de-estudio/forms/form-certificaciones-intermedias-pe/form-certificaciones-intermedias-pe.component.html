@@ -54,7 +54,14 @@
                             <p-messages  [(value)]="form.messages" [enableService]="false" [escape]="false" />
                         </div>
                     </div>
-                    <label><strong>Programas con certificación intermedia {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                    <label>                                     
+                        <div class="flex flex-row flex-wrap">
+                            <div class="flex align-items-center"><strong>Programas {{  main.modeForm! !== 'show' ? '*' : '' }}</strong></div>
+                            <div class="flex align-items-center ml-1">
+                                <i *ngIf="main.modeForm != 'show'" class="pi pi-info-circle ml-1" [pTooltip]="form.tooltipContent" tooltipPosition="top"></i>
+                            </div>
+                        </div>
+                    </label>
                     <p-dropdown 
                         [options]="main.programas_postgrado"
                         formControlName="cod_programa"
@@ -68,7 +75,19 @@
                 </div>
 
                 <div class="field col-12 md:col-4">
-                    <label><strong>Plan de estudio {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                    <div *ngIf="form.fbForm.get('cod_plan_estudio')?.enabled && main.modeForm !== 'show'" class="flex flex-column sm:flex-row align-items-center justify-content-center border-round" >
+                        <div class="w-full sm:w-auto">
+                            <p-messages  [(value)]="form.messagePE" [enableService]="false" [escape]="false" />
+                        </div>
+                    </div>
+                    <label>                                     
+                        <div class="flex flex-row flex-wrap">
+                            <div class="flex align-items-center"><strong>Plan de estudio {{  main.modeForm! !== 'show' ? '*' : '' }}</strong></div>
+                            <div class="flex align-items-center ml-1">
+                                <i *ngIf="main.modeForm != 'show'" class="pi pi-info-circle ml-1" [pTooltip]="form.tooltipContent2" tooltipPosition="top"></i>
+                            </div>
+                        </div>
+                    </label>
                     <p-dropdown 
                         [options]="main.planes"
                         formControlName="cod_plan_estudio"

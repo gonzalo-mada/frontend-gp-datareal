@@ -70,11 +70,13 @@ export class FormTemasService {
     }
 
     setParamsForm(): Object {
+        const cod_facultad = this.fbForm.get('cod_facultad');
         const cod_programa = this.fbForm.get('cod_programa');
         let params = {};
-        if (cod_programa?.disabled) {
+        if (cod_facultad?.disabled && cod_programa?.disabled) {
             params = {
                 ...this.fbForm.value,
+                cod_facultad: this.cod_facultad_selected, 
                 cod_programa: this.cod_programa_selected
             }
         }else {

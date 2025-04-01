@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { TreeNode } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { AgregarAsignaturaMainService } from 'src/app/project/services/asignaturas/asignaturas/agregar-asignatura/main.service';
 import { BackendAsignaturasService } from 'src/app/project/services/asignaturas/asignaturas/backend.service';
@@ -23,11 +24,11 @@ export class AgregarAsignaturaComponent implements OnInit, OnDestroy {
 	tiposColegiadas: any[] = [];
 	menciones: any[] = [];
 	originalAsignaturas : any[] = [];
+	originalAsignaturas_semestre : any[] = [];
+	asignaturas_semestre : any[] = [];
 	asignaturas: any[] = [];
-	ultima_asignatura_secuencial: any = {};
 	temas: any[] = [];
 	expandedRows = {};
-
 
 	constructor(
 		private backend: BackendAsignaturasService,
@@ -55,7 +56,6 @@ export class AgregarAsignaturaComponent implements OnInit, OnDestroy {
   	}
 
   	ngOnDestroy(): void {
-    	this.form.resetForm();
 		this.main.reset();
   	}
 
@@ -121,19 +121,15 @@ export class AgregarAsignaturaComponent implements OnInit, OnDestroy {
 
 	async getAsignaturas(){
 		let params = { cod_plan_estudio: this.form.selected_CodigoPlanDeEstudio };
-		this.asignaturas = await this.backend.getAsignaturasConTemaAgrupado(params, false);
-		console.log("this.asignaturas",this.asignaturas);
-		
+		this.asignaturas = await this.backend.getAsignaturasSimplificatedConTemaAgrupado(params, false);
 	}
 
-	async getAsignaturasSecuenciales(){
+	async getAsignaturasConTemaAgrupadoPorSemestre(){
 		let params = { cod_plan_estudio: this.form.selected_CodigoPlanDeEstudio , semestre: this.form.fbForm.get('semestre')?.value };
-		this.ultima_asignatura_secuencial = await this.backend.getUltimaAsignaturaSecuencialConTemaPorPlanDeEstudio(params, false);
-		
+		this.originalAsignaturas_semestre = await this.backend.getAsignaturasConTemaAgrupadoPorSemestre(params, false);
 	}
 
 	changeMenciones(event: any){
-		console.log("event",event);
 		this.form.setSelectMencion(event.value);
 		// comentado porque menciones ahora no es multiple
 		// const updatedValues = event.value.map((item: any) => {
@@ -143,24 +139,20 @@ export class AgregarAsignaturaComponent implements OnInit, OnDestroy {
 		// this.form.fbForm.get('menciones_selected')?.patchValue(updatedValues);
 	}
 
-	changePreRequisitos(event: any){
-		const updatedValues = event.value.map((item: any) => {
-			item.checkDisabled = true;
-			return item;
-		});
-		this.form.fbForm.get('pre_requisitos_selected')?.patchValue(updatedValues);
-	}
-
 	changeTema(event: any){
 		const updatedValues = event.value.map((item: any) => {
 			item.checkDisabled = true;
 			return item;
 		});
-		this.form.fbForm.get('tema_selected')?.patchValue(updatedValues);
+		this.form.setSelectControlTemas(updatedValues)
 	}
 	
 	changeRegimenes(event: any){
 		this.form.setSelectRegimen(event.value);
+	}
+
+	changeModalidad(event: any){
+		this.form.setSelectModalidad(event.value);
 	}
 
 	changeTipoEvaluacion(event: any){
@@ -233,34 +225,49 @@ export class AgregarAsignaturaComponent implements OnInit, OnDestroy {
 	}
 
 	async changeRadioButtonSecuencial(event: any){
-		switch (event.value) {
-			case 1:
-				await this.getAsignaturasSecuenciales() 
-				if (this.asignaturas.length === 0) {
-					this.form.showMessageSinAsignaturas = true;
-					this.form.setStatusControlSecuencialidad(false);
-				}else if (this.ultima_asignatura_secuencial.length === 0){
-					this.form.showMessageSinAsignaturasSecuenciales = true;
-					this.form.setStatusControlSecuencialidad(false);
-				}else{
-					this.form.showMessageParalelidad = false;
-					this.form.showMessageSecuencial = true;
-					this.form.setStatusControlSecuencialidad(true); 
-					this.form.setSelectSecuencialidad(this.ultima_asignatura_secuencial); 
-				}  
-			break;
-			case 0 : 
-				this.form.showMessageParalelidad = true;
-				this.form.showMessageSecuencial = false;
-				this.form.setStatusControlSecuencialidad(false); 
-			break;
+		if (this.originalAsignaturas_semestre.length === 0) {
+			this.form.showMessageSinAsignaturas = true;
+			this.form.setStatusControlSecuencialidad(false);
+			this.form.setStatusControlParalelidad(false);
+		}else{
+			this.asignaturas_semestre = [...this.originalAsignaturas_semestre]
+			switch (event.value) {
+				case 1:
+					//secuencial
+					this.asignaturas_semestre = this.asignaturas_semestre.filter((asign: any) => asign.data.tiene_secuencialidad === 1);
+					if (this.asignaturas_semestre.length === 0) {
+						this.form.showMessageSinAsignaturasSecuencialesParalelas = true;
+						this.form.showMessageSecuencialParalela = false;
+						this.form.setStatusControlSecuencialidad(false);
+					}else{
+						this.form.showMessageSinAsignaturasSecuencialesParalelas = false;
+						this.form.showMessageSecuencialParalela = true;
+						this.form.setStatusControlSecuencialidad(true);
+						this.form.setStatusControlParalelidad(false);
+					}
+					
+				break;
+				case 0 : 
+					//paralela
+					this.asignaturas_semestre = this.asignaturas_semestre.filter((asign: any) => asign.data.tiene_paralelidad === 1);
+					if (this.asignaturas_semestre.length === 0) {
+						this.form.showMessageSinAsignaturasSecuencialesParalelas = true;
+						this.form.showMessageSecuencialParalela = false;
+						this.form.setStatusControlParalelidad(false);
+					}else{
+						this.form.showMessageSinAsignaturasSecuencialesParalelas = false;
+						this.form.showMessageSecuencialParalela = true;
+						this.form.setStatusControlParalelidad(true);
+						this.form.setStatusControlSecuencialidad(false);
+					}
+				break;
+			}
 		}
 	}
 
-	resetDataSecuencialidad(){
+	resetDataSecuencialidadParalelidad(){
 		this.form.fbForm.get('tiene_secuencialidad')!.reset();
-		this.form.resetMessagesSecuencialidad();
-		this.ultima_asignatura_secuencial = {};
+		this.form.resetMessagesSecuencialidadParalelidad();
 	}
 
 	setDataToPendingForm(){
@@ -292,23 +299,42 @@ export class AgregarAsignaturaComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	customFilter(event: any) {
-		const query = event.filter.toLowerCase();
-		console.log("filterrr",event);
-		
+	selectPrerrequisitos(){
+		// funcion que filtra la asignatura que tiene hijos (temas)
+		let prerrequisitos_selected = [];
+		prerrequisitos_selected = this.form.fbForm.get('pre_requisitos')?.value;
+		prerrequisitos_selected = prerrequisitos_selected.filter( (pr: TreeNode) => pr.children?.length === 0)
+		const updatedValues = prerrequisitos_selected.map((item: TreeNode) => {
+			item.data.checkDisabled = true;
+			return item;
+		});
+		this.form.setSelectControlPrerrequisitos(updatedValues)
 	}
 
+	selectSecuenciales(){
+		// funcion que filtra la asignatura que tiene hijos (temas)
+		let data = [];
+		data = this.form.fbForm.get('secuencialidad')?.value;
+		data = data.filter( (pr: TreeNode) => pr.children?.length === 0)
+		const updatedValues = data.map((item: TreeNode) => {
+			item.data.checkDisabled = true;
+			return item;
+		});
+		this.form.setSelectControlSecuencialidad(updatedValues)
+	}
 
+	selectParalelas(){
+		// funcion que filtra la asignatura que tiene hijos (temas)
+		let data = [];
+		data = this.form.fbForm.get('paralelidad')?.value;
+		data = data.filter( (pr: TreeNode) => pr.children?.length === 0)
+		const updatedValues = data.map((item: TreeNode) => {
+			item.data.checkDisabled = true;
+			return item;
+		});
+		this.form.setSelectControlParalelidad(updatedValues)
 
-
-
-
-
-
-
-
-
-
+	}
 
 	test(){
 		Object.keys(this.form.fbForm.controls).forEach(key => {
@@ -318,11 +344,6 @@ export class AgregarAsignaturaComponent implements OnInit, OnDestroy {
 		  }
 		});
 		console.log("VALORES FORMULARIO:",this.form.fbForm.value);
-		this.form.showCardForm = false;
-		console.log("stateStepOne", this.form.stateStepOne);
-		console.log("stateStepTwo", this.form.stateStepTwo);
-		console.log("stateStepThree", this.form.stateStepThree);
-		
 		// this.form.getValuesSelected();
 		// this.form.getValuesIndex();
 	}

@@ -26,13 +26,11 @@ export class CertificacionIntermediaComponent implements OnInit, OnDestroy {
       } 
     }));
     this.main.setOrigen('certif_Intermedia');
-    this.main.setNeedUpdateHistorial(true);
   }
   
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
     this.main.reset();
-    this.main.setNeedUpdateHistorial(false);
   }
   
 }

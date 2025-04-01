@@ -29,7 +29,6 @@ export class EstadosAcreditacionMainService {
 
     //MODAL
     dialogForm: boolean = false;
-    needUpdateHistorial: boolean = false;
 
     constructor(
         private backend: BackendEstadosAcreditacionService,
@@ -128,7 +127,6 @@ export class EstadosAcreditacionMainService {
         }finally{
             this.dialogForm = false;
             this.getEstadosAcreditacion(false);
-            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -158,7 +156,6 @@ export class EstadosAcreditacionMainService {
         }finally{
             this.dialogForm = false;
             this.getEstadosAcreditacion(false);
-            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -247,7 +244,6 @@ export class EstadosAcreditacionMainService {
         }finally{
             this.getEstadosAcreditacion(false);
             this.table.emitRefreshTablesEA();
-            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -378,10 +374,5 @@ export class EstadosAcreditacionMainService {
     setOrigen(origen: string){
         this.historialActividad.setOrigen(origen);
     }
-
-    setNeedUpdateHistorial(need: boolean){
-        this.needUpdateHistorial = need;
-    }
-
 
 }

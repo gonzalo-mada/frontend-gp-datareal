@@ -28,7 +28,6 @@ export class CategoriasTpMainService {
 
     //MODAL
     dialogForm: boolean = false;
-    needUpdateHistorial: boolean = false;
 
     constructor(
         private backend: BackendCategoriasTpService,
@@ -113,7 +112,6 @@ export class CategoriasTpMainService {
         }finally{
             this.dialogForm = false;
             this.getCategoriasTp(false);
-            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -145,7 +143,6 @@ export class CategoriasTpMainService {
         }finally{
             this.dialogForm = false;
             this.getCategoriasTp(false);
-            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -232,10 +229,6 @@ export class CategoriasTpMainService {
 
     setOrigen(origen: string){
         this.historialActividad.setOrigen(origen);
-    }
-
-    setNeedUpdateHistorial(need: boolean){
-        this.needUpdateHistorial = need;
     }
 
 }

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Message } from 'primeng/api';
 import { AsignaturasPlancomun } from 'src/app/project/models/plan-de-estudio/AsignaturasPlancomun';
 import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
@@ -48,6 +49,30 @@ export class FormAsignaturasPlancomunService {
         planestudio_to_table_right: 'gray'
     };
 
+    messagePE: Message[] = [
+        {
+            severity: 'info',
+            detail: `
+                    Se cargan solo planes de estudios que cuentan con la opción de <b> ¿Comparte asign. con plan común? </b> habilitada.
+                    Si el plan de estudio que desea seleccionar no aparece en la lista, diríjase al Mantenedor de plan de estudio, habilite la opción y actualice el plan de estudio.
+                    `,
+            data: 'Se cargan solo planes de estudios que cuentan con la opción de ¿Comparte asign. con plan común? habilitada.'
+        },
+
+    ];
+    tooltipContent: string = this.messagePE[0].data;
+    messagePC: Message[] = [
+        {
+            severity: 'info',
+            detail: `
+                    Se cargan solo planes de estudios que cuentan con la opción de <b> ¿Comparte asign. con plan común? </b> inhabilitada.
+                    Si el plan de estudio que desea seleccionar no aparece en la lista, diríjase al Mantenedor de plan de estudio, inhabilite la opción y actualice el plan de estudio.
+                    `,
+            data: 'Se cargan solo planes de estudios que cuentan con la opción de ¿Comparte asign. con plan común? inhabilitada.'
+        }
+    ];
+    tooltipContent2: string = this.messagePC[0].data;
+    
     constructor(private fb: FormBuilder){}
 
     async initForm(): Promise<boolean>{

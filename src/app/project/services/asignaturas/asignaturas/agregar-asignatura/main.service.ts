@@ -7,6 +7,7 @@ import { FilesAgregarAsignaturasService } from './files.service';
 import { MessageServiceGP } from '../../../components/message-service.service';
 import { Programa } from 'src/app/project/models/programas/Programa';
 import { PlanDeEstudio } from 'src/app/project/models/plan-de-estudio/PlanDeEstudio';
+import { filterDataFromArrayAsync } from 'src/app/project/tools/utils/form.utils';
 
 @Injectable({
     providedIn: 'root'
@@ -147,16 +148,22 @@ export class AgregarAsignaturaMainService {
 
     async insertForm(){
         try {
+            const valuesSelected = this.form.getValuesSelected();
             const responseUploader = await this.files.setActionUploader('upload');
             if (responseUploader) {
                 const params = this.form.setParamsForm();
+                const { pre_requisitos_selected, secuencialidad_selected, paralelidad_selected, ...filteredForm } = params as { [key: string]: any };
+
                 let paramsChecked = {
-                    ...params,
-                    docsToUpload: responseUploader.docsToUpload
+                    ...filteredForm,
+                    valuesSelected,
+                    docsToUpload: responseUploader.docsToUpload,
+                    pre_requisitos_selected: await filterDataFromArrayAsync(pre_requisitos_selected),
+                    secuencialidad_selected: await filterDataFromArrayAsync(secuencialidad_selected),
+                    paralelidad_selected: await filterDataFromArrayAsync(paralelidad_selected),
                 };
                 const response = await this.backend.insertAsignatura(paramsChecked, this.namesCrud);
                 if (response && response.dataWasInserted) {
-                    console.log("response",response);
                     this.form.nameAsignaturaAdded = response.dataInserted.nombre_asignatura;
                     this.form.codAsignaturaAdded = response.dataInserted.cod_asignatura;
                     this.form.dialogSuccessAdd = true;

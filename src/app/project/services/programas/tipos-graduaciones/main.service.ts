@@ -29,7 +29,6 @@ export class TiposGraduacionesMainService {
 
     //MODAL
     dialogForm: boolean = false
-    needUpdateHistorial: boolean = false;
 
     private onInsertedData = new Subject<void>();
     onInsertedData$ = this.onInsertedData.asObservable();
@@ -118,7 +117,6 @@ export class TiposGraduacionesMainService {
         }finally{
             this.dialogForm = false;
             this.getTiposGraduaciones(false);
-            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset()
         }
     }
@@ -150,7 +148,6 @@ export class TiposGraduacionesMainService {
         }finally{
             this.dialogForm = false;
             this.getTiposGraduaciones(false);
-            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -190,7 +187,6 @@ export class TiposGraduacionesMainService {
             console.log(error);
         }finally{
             this.getTiposGraduaciones(false);
-            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -242,10 +238,5 @@ export class TiposGraduacionesMainService {
     setOrigen(origen: string){
         this.historialActividad.setOrigen(origen);
     }
-
-    setNeedUpdateHistorial(need: boolean){
-        this.needUpdateHistorial = need;
-    }
-
 
 }

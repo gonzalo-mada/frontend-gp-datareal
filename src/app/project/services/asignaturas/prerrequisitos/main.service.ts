@@ -34,8 +34,8 @@ export class PrerrequisitosMainService {
     message: any = {
         'facultad'  : 'No se encontraron programas para la facultad seleccionada.',
         'programa'  : 'No se encontraron planes de estudios para el programa seleccionado.',
-        'plan'      : 'No se encontraron asignaturas para el plan de estudio seleccionado.',
-        'asignaturas'      : 'No se encontraron asignaturas para el plan de estudio seleccionado.',
+        'plan'      : 'No se encontraron asignaturas con prerrequisitos para el plan de estudio seleccionado.',
+        'asignaturas' : 'No se encontraron asignaturas con la opción "¿Tiene prerrequisitos?" habilitada para el plan de estudio seleccionado.',
     }
     messagesMantenedor: Message[] = [];
     messagesFormulario: Message[] = [];
@@ -59,6 +59,8 @@ export class PrerrequisitosMainService {
 
     dialogForm: boolean = false;
     needUpdateHistorial: boolean = false;
+    openedFromPageMantenedor: boolean = false;
+
 
     private onActionToBD = new Subject<void>();
     onActionToBD$ = this.onActionToBD.asObservable();
@@ -104,6 +106,7 @@ export class PrerrequisitosMainService {
     }
 
     resetDropdownsFilterTable(){
+        this.clearAllMessages();
         this.disabledDropdownPrograma = true
         this.disabledDropdownPlanEstudio = true
         this.cod_facultad_selected_notform = 0;
@@ -236,9 +239,9 @@ export class PrerrequisitosMainService {
         }
     }
 
-    async getAsignaturasConTemaAgrupado(showCountTableValues: boolean = true, needShowLoading = true){
+    async getAsignaturasSimplificatedConTemaAgrupado(showCountTableValues: boolean = true, needShowLoading = true){
         let params = { cod_plan_estudio: this.form.cod_planestudio_selected }
-        const response = await this.backend.getAsignaturasConTemaAgrupado(params,needShowLoading);
+        const response = await this.backend.getAsignaturasSimplificatedConTemaAgrupado(params,needShowLoading);
         if (response) {
           this.prerrequisitos_grouped = [...response];
           this.prerrequisitos_grouped_aux = [...response];
@@ -478,14 +481,16 @@ export class PrerrequisitosMainService {
 
     async setDropdownsFilterTable(dataInserted: any){
         //esta funcion permite setear automaticamente los dropdowns que están en la pagina del mantenedor
-        this.disabledDropdownPrograma = false;
-        this.disabledDropdownPlanEstudio = false;
-        this.cod_facultad_selected_notform = dataInserted.cod_facultad;
-        this.cod_programa_postgrado_selected_notform = dataInserted.cod_programa;
-        this.cod_plan_estudio_selected_notform = dataInserted.cod_plan_estudio;
-        await this.getProgramasPorFacultadNotForm(false);
-        await this.getPlanesDeEstudiosPorProgramaNotForm(false);
-        await this.getAsignaturasConPrerrequisitos(false);
+        if (this.openedFromPageMantenedor) {
+            this.disabledDropdownPrograma = false;
+            this.disabledDropdownPlanEstudio = false;
+            this.cod_facultad_selected_notform = dataInserted.cod_facultad;
+            this.cod_programa_postgrado_selected_notform = dataInserted.cod_programa;
+            this.cod_plan_estudio_selected_notform = dataInserted.cod_plan_estudio;
+            await this.getProgramasPorFacultadNotForm(false);
+            await this.getPlanesDeEstudiosPorProgramaNotForm(false);
+            await this.getAsignaturasConPrerrequisitos(false);
+        }
     }
 
     async setDropdownsAndTablesForm(){
@@ -517,7 +522,7 @@ export class PrerrequisitosMainService {
                     this.getProgramasPorFacultad(false,false),
                     this.getPlanesDeEstudiosPorPrograma(false,false),
                     this.getAsignaturasPrerrequisitoHabilitado(false,false),
-                    this.getAsignaturasConTemaAgrupado(false,false),
+                    this.getAsignaturasSimplificatedConTemaAgrupado(false,false),
                 ]);
                 this.form.setControlsFormByDataExternal();
             }
@@ -573,7 +578,7 @@ export class PrerrequisitosMainService {
     
     async setTablePrerrequisitos(): Promise<boolean>{
         try {
-            await this.getAsignaturasConTemaAgrupado(false,false);
+            await this.getAsignaturasSimplificatedConTemaAgrupado(false,false);
             if (this.form.asignaturas_selected.length !== 0) {
                 this.filterTablePrerrequisitosPorAsignSelected()
             }
@@ -741,6 +746,7 @@ export class PrerrequisitosMainService {
     }
 
     setNeedUpdateHistorial(need: boolean){
+        this.openedFromPageMantenedor = need;
         this.needUpdateHistorial = need;
     }
 

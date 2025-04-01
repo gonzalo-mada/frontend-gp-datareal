@@ -35,13 +35,14 @@ export class CertifIntermediasPEMainService {
 
     message: any = {
         'facultad'  : 'No se encontraron programas para la facultad seleccionada.',
-        'programa'  : 'No se encontraron planes de estudios para el programa seleccionado.',
-        'plan'      : 'No se encontraron certificaciones intermedias para el plan de estudio seleccionado.',
+        'programa'  : 'No se encontraron planes de estudios con la opción "¿Tiene certificación intermedia?" habilitada para el programa seleccionado.',
+        'plan'      : 'No se encontraron certificaciones intermedias y sus asignaturas para el plan de estudio seleccionado.',
         'certif'    : 'No se encontraron certificaciones intermedias para el programa seleccionado.',
+        'asignatura': 'No se encontraron asignaturas para el plan de estudio seleccionado.'
     }
     messagesMantenedor: Message[] = [];
     messagesFormulario: Message[] = [];
-
+    column_tableBD: string = 'CI'
     //VARS PARA FILTROS DE TABLA
     cod_facultad_selected_notform: number = 0;
     cod_programa_postgrado_selected_notform: number = 0;
@@ -62,6 +63,7 @@ export class CertifIntermediasPEMainService {
     //MODAL
     dialogForm: boolean = false
     needUpdateHistorial: boolean = false;
+    openedFromPageMantenedor: boolean = false;
 
 
     private onInsertedData = new Subject<void>();
@@ -107,6 +109,7 @@ export class CertifIntermediasPEMainService {
     }
 
     resetDropdownsFilterTable(){
+        this.clearAllMessages();
         this.disabledDropdownPrograma = true
         this.disabledDropdownPlanEstudio = true
         this.cod_facultad_selected_notform = 0;
@@ -156,8 +159,8 @@ export class CertifIntermediasPEMainService {
     }
 
     async getPlanesDeEstudiosPorPrograma(showCountTableValues: boolean = true, needShowLoading = true){
-        let params = { Cod_Programa: this.form.cod_programa_postgrado_selected }
-        const response = await this.backend.getPlanesDeEstudiosPorPrograma(params,needShowLoading);
+        let params = { Cod_Programa: this.form.cod_programa_postgrado_selected , columna: this.column_tableBD, valor: 1 }
+        const response = await this.backend.getPlanesDeEstudiosColumnaPorPrograma(params,needShowLoading);
         if (response) {
           this.planes = [...response];
           if (this.planes.length === 0 ) {
@@ -179,14 +182,14 @@ export class CertifIntermediasPEMainService {
         }
     }
 
-    async getAsignaturasConTemaAgrupado(showCountTableValues: boolean = true, needShowLoading = true){
+    async getAsignaturasSimplificatedConTemaAgrupado(showCountTableValues: boolean = true, needShowLoading = true){
         let params = { cod_plan_estudio: this.form.cod_planestudio_selected }
-        const response = await this.backend.getAsignaturasConTemaAgrupado(params,needShowLoading);
+        const response = await this.backend.getAsignaturasSimplificatedConTemaAgrupado(params,needShowLoading);
         
         if (response) {
             this.asignaturas = [...response];
             if (this.asignaturas.length === 0 ) {
-                this.showMessageSinResultados('f')
+                this.showMessageSinResultadosAsignatura('f')
             }else{
                 if (showCountTableValues){
                     this.messageService.add({
@@ -254,13 +257,13 @@ export class CertifIntermediasPEMainService {
 	}
 
     async getPlanesDeEstudiosPorProgramaNotForm(showCountTableValues: boolean = true, needShowLoading = true){
-        let params = { Cod_Programa: this.cod_programa_postgrado_selected_notform }
-        const response = await this.backend.getPlanesDeEstudiosPorPrograma(params,needShowLoading);
+        let params = { Cod_Programa: this.cod_programa_postgrado_selected_notform, columna: this.column_tableBD, valor: 1}
+        const response = await this.backend.getPlanesDeEstudiosColumnaPorPrograma(params,needShowLoading);
         if (response) {
           this.planes_notform = [...response];
           if (this.planes_notform.length === 0 ) {
             this.disabledDropdownPlanEstudio = true;
-            this.showMessageSinResultadosPrograma('m');
+            this.showMessageSinResultadosPlanes('m');
           }else{
             if (showCountTableValues){
                 this.messageService.add({
@@ -435,14 +438,16 @@ export class CertifIntermediasPEMainService {
     }
 
     async setDropdownsFilterTable(dataInserted: any){
-        this.disabledDropdownPrograma = false;
-        this.disabledDropdownPlanEstudio = false;
-        this.cod_facultad_selected_notform = dataInserted.cod_facultad;
-        this.cod_programa_postgrado_selected_notform = dataInserted.cod_programa;
-        this.cod_plan_estudio_selected_notform = dataInserted.cod_plan_estudio;
-        await this.getProgramasPorFacultadNotForm(false);
-        await this.getPlanesDeEstudiosPorProgramaNotForm(false);
-        await this.getCertificacionesIntermediasPorPlanDeEstudio(false);
+        if (this.openedFromPageMantenedor) {
+            this.disabledDropdownPrograma = false;
+            this.disabledDropdownPlanEstudio = false;
+            this.cod_facultad_selected_notform = dataInserted.cod_facultad;
+            this.cod_programa_postgrado_selected_notform = dataInserted.cod_programa;
+            this.cod_plan_estudio_selected_notform = dataInserted.cod_plan_estudio;
+            await this.getProgramasPorFacultadNotForm(false);
+            await this.getPlanesDeEstudiosPorProgramaNotForm(false);
+            await this.getCertificacionesIntermediasPorPlanDeEstudio(false);
+        }
     }
 
     async setDropdownsAndTablesForm(){
@@ -459,7 +464,7 @@ export class CertifIntermediasPEMainService {
                 this.getProgramasPostgradoConCertifIntermediaPorFacultad(false,false),
                 this.getCertificacionIntermedia_Prog(false,false),
                 this.getPlanesDeEstudiosPorPrograma(false,false),
-                this.getAsignaturasConTemaAgrupado(false,false),
+                this.getAsignaturasSimplificatedConTemaAgrupado(false,false),
             ]);
             const responseTable1 = await this.setTableAsignatura();
             if (responseTable1) {
@@ -473,7 +478,7 @@ export class CertifIntermediasPEMainService {
                     this.getProgramasPostgradoConCertifIntermediaPorFacultad(false,false),
                     this.getCertificacionIntermedia_Prog(false,false),
                     this.getPlanesDeEstudiosPorPrograma(false,false),
-                    this.getAsignaturasConTemaAgrupado(false,false),
+                    this.getAsignaturasSimplificatedConTemaAgrupado(false,false),
                 ]);
                 this.form.setControlsFormByDataExternal();
             }
@@ -584,7 +589,7 @@ export class CertifIntermediasPEMainService {
         key === 'm' ? this.messagesMantenedor = [] : this.messagesFormulario = [];
     }
 
-    showMessagesSinResultados(key: 'm' | 'f', messageType: 'facultad' | 'programa' | 'plan' | 'certif') {
+    showMessagesSinResultados(key: 'm' | 'f', messageType: 'facultad' | 'programa' | 'plan' | 'certif' | 'asignatura') {
         const message = { severity: 'warn', detail: this.message[messageType] };
         key === 'm' ? this.messagesMantenedor = [message] : this.messagesFormulario = [message];
         this.messageService.add({
@@ -599,6 +604,10 @@ export class CertifIntermediasPEMainService {
     }
 
     showMessageSinResultadosPlanes(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'programa')
+    }
+
+    showMessageSinResultadosAsignatura(key: 'm' | 'f'){
         this.showMessagesSinResultados(key, 'programa')
     }
 
@@ -625,6 +634,7 @@ export class CertifIntermediasPEMainService {
     }
 
     setNeedUpdateHistorial(need: boolean){
+        this.openedFromPageMantenedor = need;
         this.needUpdateHistorial = need;
     }
 

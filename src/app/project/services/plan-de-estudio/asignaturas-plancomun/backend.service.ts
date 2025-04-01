@@ -62,6 +62,20 @@ export class BackendAsignaturasPlancomunService {
         }
     }
 
+    async getPlanesDeEstudiosColumnaPorPrograma(params: any, loading = true) {
+        try {
+            return await this.invoker.httpInvoke(
+                this.serviceUtils.generateServiceMongo('planesDeEstudio/getPlanesDeEstudiosColumnaPorPrograma', loading),
+                params
+            );
+        } catch (error: any) {
+            this.errorTemplateHandler.processError(error, {
+                notifyMethod: 'alert',
+                message: 'Hubo un error al obtener planes de estudios por programa seleccionado. Intente nuevamente.',
+            });
+        }
+    }
+
     async getAsignaturasSimplificatedPorPlanDeEstudio(params: any, loading = true) {
         try {
             return await this.invoker.httpInvoke(

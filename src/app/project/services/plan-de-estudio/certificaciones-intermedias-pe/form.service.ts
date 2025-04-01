@@ -31,9 +31,23 @@ export class FormCertifIntermediasPEService {
             detail: `
                         Se cargan solo programas que cuentan con la opción de <b> ¿Tiene certificación intermedia? </b> habilitada.
                         Si el programa que desea seleccionar no aparece en la lista, diríjase al Mantenedor de programas, habilite la opción y actualice el programa.
-                    `
+                    `,
+            data: 'Se cargan solo programas que cuentan con la opción de ¿Tiene certificación intermedia? habilitada.'
         }
     ];
+    tooltipContent: string = this.messages[0].data;
+    messagePE: Message[] = [
+        {
+            severity: 'info',
+            contentStyleClass: 'text-sm',
+            detail: `
+                    Se cargan solo planes de estudios que cuentan con la opción de <b> ¿Tiene certificación intermedia? </b> habilitada.
+                    Si el plan de estudio que desea seleccionar no aparece en la lista, diríjase al Mantenedor de plan de estudio, habilite la opción y actualice el plan de estudio.
+                    `,
+            data: 'Se cargan solo planes de estudios que cuentan con la opción de ¿Tiene certificación intermedia? habilitada.'
+        }
+    ];
+    tooltipContent2: string = this.messagePE[0].data;
 
     constructor(private fb: FormBuilder){}
 

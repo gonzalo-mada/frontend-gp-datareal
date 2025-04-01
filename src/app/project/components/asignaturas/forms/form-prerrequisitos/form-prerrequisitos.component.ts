@@ -75,7 +75,7 @@ export class FormPrerrequisitosComponent implements OnInit, OnDestroy{
   async changePlanDeEstudio(event:any){
     this.form.cod_planestudio_selected = event.value;
 		await this.main.getAsignaturasPrerrequisitoHabilitado();
-		await this.main.getAsignaturasConTemaAgrupado(false,false);
+		await this.main.getAsignaturasSimplificatedConTemaAgrupado(false,false);
   }
 
   test(){

@@ -26,13 +26,11 @@ export class CategoriasTpComponent implements OnInit, OnDestroy {
 			} 
 		}));
 		this.main.setOrigen('categoria_tp');
-		this.main.setNeedUpdateHistorial(true);
 	}
 
 	ngOnDestroy(): void {
 		this.subscription.unsubscribe();
 		this.main.reset();
-		this.main.setNeedUpdateHistorial(false);
 	}
 
 }

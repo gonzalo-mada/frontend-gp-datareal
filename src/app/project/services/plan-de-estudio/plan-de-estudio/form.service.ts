@@ -58,15 +58,15 @@ export class FormPlanDeEstudioService {
 
     inputs: CardPlanEstudio[] = [
         {   
-            col_lg: 4, col_md: 6, isEditable: false, isEditableBy: false, haveSecondaryValue: true, modeDialog: undefined, collection: undefined, 
+            col_lg: 4, col_md: 6, isEditable: false, isEditableBy: false, haveSecondaryValue: false, modeDialog: undefined, collection: undefined, 
             items: [
-                { title: 'Plan de estudio', control: '', iconHelp: false, principalValue: 'form.selectedNombrePlanEstudio', secondaryName: 'Código', secondaryValue: 'form.selected_CodigoPlanEstudio'}
+                { title: 'Plan de estudio', control: '', iconHelp: false, principalValue: 'form.selectedNombrePlanEstudio'}
             ]
         },
         {   
-            col_lg: 4, col_md: 6, isEditable: false, isEditableBy: false, haveSecondaryValue: true, modeDialog: undefined, collection: undefined, 
+            col_lg: 4, col_md: 6, isEditable: false, isEditableBy: false, haveSecondaryValue: false, modeDialog: undefined, collection: undefined, 
             items: [
-                { title: 'Programa', control: '', iconHelp: false, principalValue: 'form.selectedPrograma', secondaryName: 'Código', secondaryValue: 'form.selected_CodigoPrograma'}
+                { title: 'Programa', control: '', iconHelp: false, principalValue: 'form.selectedPrograma'}
             ]
         },
         {   

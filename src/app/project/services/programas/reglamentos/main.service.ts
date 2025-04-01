@@ -31,7 +31,6 @@ export class ReglamentosMainService {
 
     //MODAL
     dialogForm: boolean = false;
-    needUpdateHistorial: boolean = false;
 
 
     constructor(
@@ -136,7 +135,6 @@ export class ReglamentosMainService {
         }finally{
             this.dialogForm = false;
             this.getReglamentos(false);
-            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.table.emitRefreshTablesReglamentos();
             this.reset();
         }
@@ -176,7 +174,6 @@ export class ReglamentosMainService {
         }finally{
             this.dialogForm = false;
             this.getReglamentos(false);
-            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.table.emitRefreshTablesReglamentos();
             this.reset();
         }
@@ -218,7 +215,6 @@ export class ReglamentosMainService {
             
         }finally{
             this.getReglamentos(false);
-            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.table.emitRefreshTablesReglamentos();
             this.reset();
         }
@@ -272,10 +268,6 @@ export class ReglamentosMainService {
 
     setOrigen(origen: string){
         this.historialActividad.setOrigen(origen);
-    }
-
-    setNeedUpdateHistorial(need: boolean){
-        this.needUpdateHistorial = need;
     }
 
 }

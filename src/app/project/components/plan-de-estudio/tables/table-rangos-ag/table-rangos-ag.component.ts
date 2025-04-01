@@ -33,6 +33,7 @@ export class TableRangosAgComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
+		this.subscription.unsubscribe();
 		this.table.resetSelectedRows();
 	}
 

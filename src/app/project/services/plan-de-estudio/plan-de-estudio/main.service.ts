@@ -121,13 +121,13 @@ export class PlanDeEstudioMainService {
     }
   }
 
-
-  reset(){
-      this.planesDeEstudios = [];
-      this.showTable = false;
-      this.cod_programa_postgrado_selected = 0;
-      this.cod_facultad_selected = 0;
-      this.clearAllMessages();
+  resetDropdownsFilterTable(){
+    this.planesDeEstudios = [];
+    this.showTable = false;
+    this.cod_programa_postgrado_selected = 0;
+    this.cod_facultad_selected = 0;
+    this.disabledDropdownPrograma = true;
+    this.clearAllMessages();
   }
 
   createForm(){
@@ -251,6 +251,7 @@ export class PlanDeEstudioMainService {
 	resetWhenChangedDropdownFacultad(){
 		this.showTable = false;
 		this.cod_programa_postgrado_selected = 0;
+    this.disabledDropdownPrograma = true;
 	}
 
   openHistorialActividad(){

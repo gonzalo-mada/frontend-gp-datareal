@@ -46,7 +46,6 @@ export class TableAsignaturasComponent {
 	}
 
 	customSortAccreditation(event:any) {
-		console.log("event",event);
 		
 		switch (event.field) {
 
@@ -195,10 +194,17 @@ export class TableAsignaturasComponent {
 	
 	}
 
-	set_op_asign(event: any, op_asign: OverlayPanel, data: Asignatura, mode: 'pre_req' | 'secuenciales' | 'articulaciones' | 'temas' | 'paralelas'){
+	async set_op_asign(event: any, op_asign: OverlayPanel, data: Asignatura, mode: 'pre_req' | 'secuenciales' | 'articulaciones' | 'temas' | 'paralelas'){
 		this.data_cod_asignatura = data.cod_asignatura!;
 		this.mode_asign_op = mode;
-		op_asign.toggle(event);
+		if (!op_asign.overlayVisible) {
+			let response = await this.main.getAsignaturasToOverlay(this.mode_asign_op , this.data_cod_asignatura)
+			if (response) {
+				op_asign.toggle(event);
+			}
+		}else{
+			op_asign.toggle(event);
+		}
 	}
 
 	async getAsignaturasToOverlay(){

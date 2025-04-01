@@ -165,7 +165,7 @@ export class FormAsignaturasService {
         {   
             col_lg: 6, col_md: 12, isEditable: true, canEdit: true, haveSecondaryValue: false, modeDialog: 'tiene_secuencialidad', collection: 'secuencialidad_asign', 
             items: [
-                { title: '¿Es secuencial o paralela?', control: 'tiene_secuencialidad', iconHelp: false},
+                { title: '¿Es paralela o secuencial?', control: 'tiene_secuencialidad', iconHelp: false},
                 { title: 'Número de asignaturas', control: '', iconHelp: false, principalValue: 'form.selectedSecuencialidadesParalelidades'}
             ]
         },
@@ -190,10 +190,9 @@ export class FormAsignaturasService {
     showMessageMencion: boolean = false;
     showMessagePreRequisitos: boolean = false;
     showMessageTema: boolean = false;
-    showMessageSecuencial: boolean = false;
-    showMessageParalelidad: boolean = false;
+    showMessageSecuencialParalela: boolean = false;
     showMessageSinAsignaturas: boolean = false;
-    showMessageSinAsignaturasSecuenciales: boolean = false;
+    showMessageSinAsignaturasSecuencialesParalelas: boolean = false;
 
     //VALUES SELECTED
     selectedFacultad: string = '';
@@ -216,6 +215,11 @@ export class FormAsignaturasService {
     selectedObligatoria_electiva: string = '';
     selectedTemas: string = '';
     selectedArrayTemas: any[] = [];
+
+    selectedControlAsignSecuenciales: any[] = [];
+    selectedControlAsignParalelas: any[] = [];
+    selectedControlPrerrequisitos: any[] = [];
+    selectedControlTemas: any[] = [];
 
     selected_CodigoFacultad: number = 0;
     selected_CodigoPrograma: number = 0;
@@ -303,6 +307,15 @@ export class FormAsignaturasService {
         return this.fbFormUpdate.get('horas_sincronas')?.value + this.fbFormUpdate.get('horas_asincronas')?.value  + this.fbFormUpdate.get('horas_presenciales')?.value + this.fbFormUpdate.get('horas_indirectas')?.value 
     }
 
+    getValuesSelected() {
+        let valuesSelected = {
+            asignSecuenciales: this.selectedControlAsignSecuenciales.length === 0 ? 'NO APLICA' : this.selectedControlAsignSecuenciales.map(as => as.data.nombre_asignatura_completa).join(' | '),
+            asignParalelas: this.selectedControlAsignParalelas.length === 0 ? 'NO APLICA' : this.selectedControlAsignParalelas.map(ap => ap.data.nombre_asignatura_completa).join(' | '),
+            asignPrerrequisitos: this.selectedControlPrerrequisitos.length === 0 ? 'NO APLICA' : this.selectedControlPrerrequisitos.map(pr => pr.data.nombre_asignatura_completa).join(' | '),
+            asignTemas: this.selectedControlTemas.length === 0 ? 'NO APLICA' : this.selectedControlTemas.map(t => t.nombre_tema).join(' | '),
+        }
+        return valuesSelected
+    }
     initForm(): Promise<boolean>{
         return new Promise((success) => {
             this.fbForm = this.fb.group({
@@ -324,9 +337,9 @@ export class FormAsignaturasService {
 
                 //paso 2
                 horas_sincronas: [0, [Validators.required, GPValidator.regexPattern('solo_num_and_decimals')]],
-                horas_asincronas: ['', [Validators.required, GPValidator.regexPattern('solo_num_and_decimals')]],
-                horas_presenciales: ['', [Validators.required, GPValidator.regexPattern('solo_num_and_decimals')]],
-                horas_indirectas: ['', [Validators.required, GPValidator.regexPattern('solo_num_and_decimals')]],
+                horas_asincronas: [0, [Validators.required, GPValidator.regexPattern('solo_num_and_decimals')]],
+                horas_presenciales: [0, [Validators.required, GPValidator.regexPattern('solo_num_and_decimals')]],
+                horas_indirectas: [0, [Validators.required, GPValidator.regexPattern('solo_num_and_decimals')]],
 
 
                 //paso 3
@@ -345,7 +358,10 @@ export class FormAsignaturasService {
                 tiene_colegiada: [null, [Validators.required]],
                 cod_tipo_colegiada: ['', [Validators.required]],
                 tiene_secuencialidad: [null, [Validators.required]],
-                secuencialidad: ['', [Validators.required]],
+                secuencialidad: [[], [Validators.required]],
+                secuencialidad_selected: [[]],
+                paralelidad: [[], [Validators.required]],
+                paralelidad_selected: [[]],
 
                 file_maestro: [[], GPValidator.filesValidator('file_maestro',() => this.modeForm)],
             });
@@ -396,7 +412,10 @@ export class FormAsignaturasService {
             tiene_colegiada: null,
             cod_tipo_colegiada: '',
             tiene_secuencialidad: null,
-            secuencialidad: '',
+            secuencialidad: [],
+            secuencialidad_selected: [],
+            paralelidad: [],
+            paralelidad_selected: [],
             
             file_maestro: []
         });
@@ -459,17 +478,15 @@ export class FormAsignaturasService {
         this.showMessageMencion = false;
         this.showMessagePreRequisitos = false;
         this.showMessageTema = false;
-        this.showMessageSecuencial = false;
-        this.showMessageParalelidad = false;
+        this.showMessageSecuencialParalela = false;
         this.showMessageSinAsignaturas = false;
-        this.showMessageSinAsignaturasSecuenciales = false;
+        this.showMessageSinAsignaturasSecuencialesParalelas = false;
     }
 
-    resetMessagesSecuencialidad(){
+    resetMessagesSecuencialidadParalelidad(){
 		this.showMessageSinAsignaturas = false;
-		this.showMessageSinAsignaturasSecuenciales = false;
-		this.showMessageParalelidad = false;
-		this.showMessageSecuencial = false;
+		this.showMessageSinAsignaturasSecuencialesParalelas = false;
+		this.showMessageSecuencialParalela = false;
 	}
 
     resetVarsPostAddedAsignatura(){
@@ -577,9 +594,30 @@ export class FormAsignaturasService {
         this.fbForm.patchValue({ menciones: event });
     }
 
-    setSelectSecuencialidad(event: any){
-        //recibes: 
-        this.fbForm.patchValue({ secuencialidad: event });
+    setSelectControlPrerrequisitos(event: any){
+        this.selectedControlPrerrequisitos = [];
+        this.selectedControlPrerrequisitos = [...event];
+        this.fbForm.patchValue({ pre_requisitos_selected: event });
+    }
+
+    setSelectControlSecuencialidad(event: any){
+        this.selectedControlAsignSecuenciales = [];
+        this.selectedControlAsignParalelas = [];
+        this.selectedControlAsignSecuenciales = [...event];
+        this.fbForm.patchValue({ secuencialidad_selected: event });
+    }
+
+    setSelectControlParalelidad(event: any){
+        this.selectedControlAsignParalelas = [];
+        this.selectedControlAsignSecuenciales = [];
+        this.selectedControlAsignParalelas = [...event];
+        this.fbForm.patchValue({ paralelidad_selected: event});
+    }
+
+    setSelectControlTemas(event: any){
+        this.selectedControlTemas = [];
+        this.selectedControlTemas = [...event];
+        this.fbForm.patchValue({ tema_selected: event});
     }
 
     setSelectModalidad(modalidad: any){
@@ -692,6 +730,12 @@ export class FormAsignaturasService {
 
     setStatusControlSecuencialidad(status: boolean){
         const control = this.fbForm.get('secuencialidad');
+        control?.reset();
+        status ? control?.enable() : control?.disable()
+    }
+
+    setStatusControlParalelidad(status: boolean){
+        const control = this.fbForm.get('paralelidad');
         control?.reset();
         status ? control?.enable() : control?.disable()
     }

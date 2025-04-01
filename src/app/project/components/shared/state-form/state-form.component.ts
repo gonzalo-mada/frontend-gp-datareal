@@ -234,9 +234,14 @@ export class StateFormComponent implements OnInit  {
           { label: 'Articulable', control: 'tiene_articulacion' },
           { label: 'Paralela / Secuencial', control: 'tiene_secuencialidad' },
           { 
-            label: 'Asign. secuencial', 
+            label: 'Asign. secuenciales', 
             control: 'secuencialidad',
             conditional: { field: 'tiene_secuencialidad', value: 1 }  
+          },
+          { 
+            label: 'Asign. paralelas', 
+            control: 'paralelidad',
+            conditional: { field: 'tiene_secuencialidad', value: 0 }  
           },
         ]
       },

@@ -8,5 +8,5 @@ import { AsignaturasMainService } from '../../services/asignaturas/asignaturas/m
   ]
 })
 export class AsignaturasComponent {
-  constructor(private main: AsignaturasMainService){this.main.reset()}
+  constructor(private main: AsignaturasMainService){this.main.resetDropdownsFilterTable()}
 }

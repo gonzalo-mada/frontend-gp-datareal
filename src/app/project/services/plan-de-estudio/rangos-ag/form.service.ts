@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { Message } from "primeng/api";
 import { RangoAG } from "src/app/project/models/plan-de-estudio/RangoAG";
 import { DataExternal } from "src/app/project/models/shared/DataExternal";
 import { ModeForm } from "src/app/project/models/shared/ModeForm";
@@ -19,6 +20,19 @@ export class FormRangosAGService {
 	cod_facultad_selected_postgrado: number = 0;
     cod_programa_postgrado_selected: number = 0;
     cod_planestudio_selected: number = 0;
+
+	messagePE: Message[] = [
+		{
+			severity: 'info',
+			contentStyleClass: 'text-sm',
+			detail: `
+					Se cargan solo planes de estudios que cuentan con la opción de <b> ¿Tiene rangos de aprobación? </b> habilitada.
+					Si el plan de estudio que desea seleccionar no aparece en la lista, diríjase al Mantenedor de plan de estudio, habilite la opción y actualice el plan de estudio.
+					`,
+			data: 'Se cargan solo planes de estudios que cuentan con la opción de ¿Tiene rangos de aprobación? habilitada.'
+		}
+	];
+	tooltipContent: string = this.messagePE[0].data;
 
   	constructor(private fb: FormBuilder) {}
 

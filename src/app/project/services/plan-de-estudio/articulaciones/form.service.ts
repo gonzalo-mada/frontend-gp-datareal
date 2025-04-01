@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Message } from 'primeng/api';
 import { Articulacion } from 'src/app/project/models/plan-de-estudio/Articulacion';
 import { DataExternal } from 'src/app/project/models/shared/DataExternal';
 import { ModeForm } from 'src/app/project/models/shared/ModeForm';
@@ -47,6 +48,33 @@ export class FormArticulacionesService{
 
     openedFromMantenedorAsignatura: boolean = false
     asignaturaHaveTemas: boolean = false
+
+    messagePE: Message[] = [
+        {
+            severity: 'info',
+            contentStyleClass: 'text-sm',
+            detail: `
+                    Se cargan solo planes de estudios que cuentan con la opción de <b> ¿Tiene articulación con programas de Pregrado? </b> habilitada.
+                    Si el plan de estudio que desea seleccionar no aparece en la lista, diríjase al Mantenedor de plan de estudio, habilite la opción y actualice el plan de estudio.
+                    `,
+            data: 'Se cargan solo planes de estudios que cuentan con la opción de ¿Tiene articulación con programas de Pregrado? habilitada.'
+        }
+    ];
+    tooltipContent: string = this.messagePE[0].data;
+
+    messages: Message[] = [
+        {
+            severity: 'info',
+            detail: `
+                        Se cargan solo asignaturas que cuentan con la opción de <b> ¿Es articulable? </b> habilitada.
+                        Si la asignatura que desea seleccionar no aparece en la tabla, diríjase al Mantenedor de asignaturas, habilite la opción y actualice la asignatura.
+                    `,
+            data: 'Se cargan solo asignaturas que cuentan con la opción de ¿Es articulable? habilitada.'
+            
+        }
+    ];
+    tooltipContent2: string = this.messages[0].data;
+
 
     constructor(private fb: FormBuilder){}
 

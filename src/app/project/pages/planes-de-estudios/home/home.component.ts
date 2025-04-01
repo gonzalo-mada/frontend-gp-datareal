@@ -32,6 +32,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 				case 'historial': this.main.setModeCrud('historial');break;
 			} 
 		}));
+    this.main.cod_programa_postgrado_selected !== 0 ? this.main.getPlanesDeEstudiosMergedPorPrograma() : this.main.resetDropdownsFilterTable();
   }
 
   ngOnDestroy(): void {

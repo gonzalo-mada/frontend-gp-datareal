@@ -33,6 +33,7 @@ export class TableCertificacionesIntermediasPeComponent {
 	}
 	  
 	ngOnDestroy(): void {
+		this.subscription.unsubscribe();
 		this.table.resetSelectedRows();
 	}
 

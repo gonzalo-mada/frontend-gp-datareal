@@ -33,8 +33,9 @@ export class ParalelaSecuencialMainService {
     message: any = {
         'facultad'  : 'No se encontraron programas para la facultad seleccionada.',
         'programa'  : 'No se encontraron planes de estudios para el programa seleccionado.',
-        'plan'      : 'No se encontraron asignaturas para el plan de estudio seleccionado.',
-        'asignaturas'      : 'No se encontraron asignaturas para el plan de estudio seleccionado.',
+        'plan'      : 'No se encontraron asignaturas con sus secuencialidades o paralelidades para el plan de estudio seleccionado.',
+        'asignaturas_sec' : 'No se encontraron asignaturas secuenciales para el plan de estudio seleccionado.',
+        'asignaturas_par' : 'No se encontraron asignaturas paralelas para el plan de estudio seleccionado.',
     }
     messagesMantenedor: Message[] = [];
     messagesFormulario: Message[] = [];
@@ -62,6 +63,7 @@ export class ParalelaSecuencialMainService {
 
     dialogForm: boolean = false;
     needUpdateHistorial: boolean = false;
+    openedFromPageMantenedor: boolean = false;
 
     openedFrom!: 'crud_asign' | 'mantenedor' ;
 
@@ -109,6 +111,7 @@ export class ParalelaSecuencialMainService {
     }
 
     resetDropdownsFilterTable(){
+        this.clearAllMessages();
         this.disabledDropdownPrograma = true
         this.disabledDropdownPlanEstudio = true
         this.cod_facultad_selected_notform = 0;
@@ -230,10 +233,10 @@ export class ParalelaSecuencialMainService {
         const response = await this.backend.getAsignaturasParalelaSecuencial(params,needShowLoading);
         if (response) {
           this.asignaturas_grouped = [...response];
-          console.log("this.asignaturas_grouped getAsignaturasParalelaSecuencial",this.asignaturas_grouped);
           if (this.asignaturas_grouped.length === 0 ) {
             this.resetAndClearTables();
-            this.showMessageSinResultadosAsignaturas('f');
+            this.form.cod_paralela_secuencial_selected === 1 ? this.showMessageSinResultadosAsignaturasSecuenciales('f') : this.showMessageSinResultadosAsignaturasParalelas('f');
+            
           }else{
             if (showCountTableValues){
                 this.messageService.add({
@@ -496,14 +499,16 @@ export class ParalelaSecuencialMainService {
 
     async setDropdownsFilterTable(dataInserted: any){
         //esta funcion permite setear automaticamente los dropdowns que están en la pagina del mantenedor
-        this.disabledDropdownPrograma = false;
-        this.disabledDropdownPlanEstudio = false;
-        this.cod_facultad_selected_notform = dataInserted.cod_facultad;
-        this.cod_programa_postgrado_selected_notform = dataInserted.cod_programa;
-        this.cod_plan_estudio_selected_notform = dataInserted.cod_plan_estudio;
-        await this.getProgramasPorFacultadNotForm(false);
-        await this.getPlanesDeEstudiosPorProgramaNotForm(false);
-        await this.getAsignaturasSecuencialesParalelasGroupedNotForm(false);
+        if (this.openedFromPageMantenedor) {
+            this.disabledDropdownPrograma = false;
+            this.disabledDropdownPlanEstudio = false;
+            this.cod_facultad_selected_notform = dataInserted.cod_facultad;
+            this.cod_programa_postgrado_selected_notform = dataInserted.cod_programa;
+            this.cod_plan_estudio_selected_notform = dataInserted.cod_plan_estudio;
+            await this.getProgramasPorFacultadNotForm(false);
+            await this.getPlanesDeEstudiosPorProgramaNotForm(false);
+            await this.getAsignaturasSecuencialesParalelasGroupedNotForm(false);
+        }
     }
 
     async setDropdownsAndTablesForm(){
@@ -547,6 +552,7 @@ export class ParalelaSecuencialMainService {
     async setTableAsignatura(): Promise<boolean> {
         try {
             console.log("this.asignaturas_grouped setTableAsignatura",this.asignaturas_grouped);
+            console.log("this.paralelidad_secuencialidad setTableAsignatura",this.paralelidad_secuencialidad);
             
             this.asignaturas_grouped.forEach(asign => {
                 // se verifica si el key coincide con cod_asignatura del prerrequisito seleccionado
@@ -777,7 +783,7 @@ export class ParalelaSecuencialMainService {
         key === 'm' ? this.messagesMantenedor = [] : this.messagesFormulario = [];
     }
 
-    showMessagesSinResultados(key: 'm' | 'f', messageType: 'facultad' | 'programa' | 'plan' | 'asignaturas') {
+    showMessagesSinResultados(key: 'm' | 'f', messageType: 'facultad' | 'programa' | 'plan' | 'asignaturas_sec' | 'asignaturas_par') {
         const message = { severity: 'warn', detail: this.message[messageType] };
         key === 'm' ? this.messagesMantenedor = [message] : this.messagesFormulario = [message];
         this.messageService.add({
@@ -799,8 +805,12 @@ export class ParalelaSecuencialMainService {
         this.showMessagesSinResultados(key, 'plan')
     }
 
-    showMessageSinResultadosAsignaturas(key: 'm' | 'f'){
-        this.showMessagesSinResultados(key, 'asignaturas')
+    showMessageSinResultadosAsignaturasSecuenciales(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'asignaturas_sec')
+    }
+
+    showMessageSinResultadosAsignaturasParalelas(key: 'm' | 'f'){
+        this.showMessagesSinResultados(key, 'asignaturas_par')
     }
 
     setVarsNotFormByDataExternal(dataExternal: DataExternal){
@@ -819,6 +829,7 @@ export class ParalelaSecuencialMainService {
     }
 
     setNeedUpdateHistorial(need: boolean){
+        this.openedFromPageMantenedor = need;
         this.needUpdateHistorial = need;
     }
 

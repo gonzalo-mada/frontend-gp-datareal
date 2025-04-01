@@ -3,18 +3,22 @@
         <ng-container [ngSwitch]="main.dialogUpdateMode">
             <span *ngSwitchCase="'articulacion'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} articulación</span>
             <span *ngSwitchCase="'asign-pc'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} asignaturas para plan común</span>
+            <span *ngSwitchCase="'regimen'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} régimen</span>
+            <span *ngSwitchCase="'cupo_minimo'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} cupo mínimo</span>
+            <span *ngSwitchCase="'certificacion'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} certificación intermedia</span>
+            <span *ngSwitchCase="'rangos'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} rangos de aprobación</span>
             <span *ngSwitchCase="'docs_maestros_plan_estudio'" class="text-xl" > {{mode === 'show' ? 'Visualizar' : 'Actualizar'}} documentos maestros</span>
             <span *ngSwitchDefault class="text-xl" >{{mode === 'show' ? 'Ver' : 'Actualizar'}} {{ main.dialogUpdateMode }}</span>
         </ng-container>
     </div>
 
     <div content>
-        <p-button 
+        <!-- <p-button 
             label="test" 
             icon="pi pi-times" 
             styleClass="p-button-sm p-button-secondary mr-2" 
             (click)="test()" [text]="true">
-        </p-button> 
+        </p-button>  -->
         <form *ngIf="main.dialogUpdate" [formGroup]="form.fbFormUpdate">
             <div class="formgrid grid">
 

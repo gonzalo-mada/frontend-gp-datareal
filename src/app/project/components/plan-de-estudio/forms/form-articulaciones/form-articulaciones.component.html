@@ -72,7 +72,19 @@
                         </div>
 
                         <div class="field">
-                            <label><strong>Plan de estudio {{ main.modeForm === 'show' ? '' : '*'}} </strong></label>
+                            <div *ngIf="form.fbForm.get('cod_plan_estudio')?.enabled && main.modeForm !== 'show'" class="flex flex-column sm:flex-row align-items-center justify-content-center border-round mt-2" >
+                                <div class="w-full sm:w-auto">
+                                    <p-messages [(value)]="form.messagePE" [enableService]="false" [escape]="false" />
+                                </div>
+                            </div>
+                            <label>                                     
+                                <div class="flex flex-row flex-wrap">
+                                    <div class="flex align-items-center"><strong>Plan de estudio {{  main.modeForm! !== 'show' ? '*' : '' }}</strong></div>
+                                    <div class="flex align-items-center ml-1">
+                                        <i *ngIf="main.modeForm != 'show'" class="pi pi-info-circle ml-1" [pTooltip]="form.tooltipContent" tooltipPosition="top"></i>
+                                    </div>
+                                </div>
+                            </label>
                             <p-dropdown 
                                 [options]="main.planes"
                                 formControlName="cod_plan_estudio"
@@ -89,8 +101,21 @@
                             <i class="pi pi-arrow-down " [ngStyle]="{'color': form.getArrowColor('planestudio_to_table_left'), 'font-size' : '1.5rem'}"></i>
                         </div>
 
+                        <div *ngIf="main.asignaturas_postgrado.length !== 0" class="flex flex-column sm:flex-row align-items-center justify-content-center border-round">
+                            <div class="w-full sm:w-auto">
+                                <p-messages  [(value)]="form.messages" [enableService]="false" [escape]="false" />
+                            </div>
+                        </div>
+
                         <div class="field">
-                            <label><strong>Seleccione asignatura *</strong></label>
+                            <label>                                     
+                                <div class="flex flex-row flex-wrap">
+                                    <div class="flex align-items-center"><strong>Seleccione asignatura{{  main.modeForm! !== 'show' ? '*' : '' }}</strong></div>
+                                    <div class="flex align-items-center ml-1">
+                                        <i *ngIf="main.modeForm != 'show'" class="pi pi-info-circle ml-1" [pTooltip]="form.tooltipContent2" tooltipPosition="top"></i>
+                                    </div>
+                                </div>
+                            </label>
                             <p-table
                                 #dt2    
                                 [value]="main.asignaturas_postgrado"

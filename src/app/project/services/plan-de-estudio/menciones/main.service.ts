@@ -35,9 +35,11 @@ export class MencionesMainService {
     }
     message: any = {
         'facultad': 'No se encontraron programas para la facultad seleccionada.',
-        'programa': 'No se encontraron planes de estudios para el programa seleccionado.',
+        'programa': 'No se encontraron planes de estudios con la opción "¿Tiene menciones?" habilitada para el programa seleccionado.',
         'plan': 'No se encontraron menciones para el plan de estudio seleccionado.',
         'asign': 'No se encontraron menciones para la asignatura.',
+        'mencion': 'No se encontraron menciones con asignaturas para el plan de estudio seleccionado.',
+        'asign_mencion': 'No se encontraron asignaturas para el plan de estudio seleccionado.',
     }
     messagesMantenedor: Message[] = [];
     messagesFormulario: Message[] = [];
@@ -48,11 +50,11 @@ export class MencionesMainService {
     mencion: Mencion = {};
     asignaturas: any[] = [];
     menciones_form_incluir : any[] = [];
-
+    column_tableBD: string = 'ME'
     //MODAL
     dialogForm: boolean = false
-    dialogAssociateForm: boolean = false
     needUpdateHistorial: boolean = false;
+    openedFromPageMantenedor: boolean = false;
 
 
     //VARS ELEMENTS MANTENEDOR (DROPDOWNS FILTER TABLE / SHOWTABLE)
@@ -116,6 +118,7 @@ export class MencionesMainService {
     }
 
     resetDropdownsFilterTable(){
+        this.clearAllMessages();
         this.disabledDropdownPrograma = true
         this.disabledDropdownPlanEstudio = true
         this.cod_facultad_selected_notform = 0;
@@ -194,9 +197,9 @@ export class MencionesMainService {
 		}
 	}
 
-    async getPlanesDeEstudiosPorPrograma(showCountTableValues: boolean = true, needShowLoading = true){
-        let params = { Cod_Programa: this.form.cod_programa_selected }
-        const response = await this.backend.getPlanesDeEstudiosPorPrograma(params,needShowLoading);
+    async getPlanesDeEstudiosColumnaPorPrograma(showCountTableValues: boolean = true, needShowLoading = true){
+        let params = { Cod_Programa: this.form.cod_programa_selected , columna: this.column_tableBD, valor: 1 }
+        const response = await this.backend.getPlanesDeEstudiosColumnaPorPrograma(params,needShowLoading);
         if (response) {
           this.planes = [...response];
           if (this.planes.length === 0 ) {
@@ -271,8 +274,8 @@ export class MencionesMainService {
 	}
 
     async getPlanesDeEstudiosPorProgramaNotForm(showCountTableValues: boolean = true, needShowLoading = true){
-        let params = { Cod_Programa: this.cod_programa_postgrado_selected_notform }
-        const response = await this.backend.getPlanesDeEstudiosPorPrograma(params,needShowLoading);
+        let params = { Cod_Programa: this.cod_programa_postgrado_selected_notform , columna: this.column_tableBD, valor: 1 }
+        const response = await this.backend.getPlanesDeEstudiosColumnaPorPrograma(params,needShowLoading);
         if (response) {
           this.planes_notform = [...response];
           if (this.planes_notform.length === 0 ) {
@@ -526,14 +529,16 @@ export class MencionesMainService {
 
     async setDropdownsFilterTable(dataInserted: any){
         //esta funcion permite setear automaticamente los dropdowns que están en la pagina del mantenedor
-        this.disabledDropdownPrograma = false;
-        this.disabledDropdownPlanEstudio = false;
-        this.cod_facultad_selected_notform = dataInserted.cod_facultad;
-        this.cod_programa_postgrado_selected_notform = dataInserted.cod_programa;
-        this.cod_plan_estudio_selected_notform = dataInserted.cod_plan_estudio;
-        await this.getProgramasPorFacultadNotForm(false);
-        await this.getPlanesDeEstudiosPorProgramaNotForm(false);
-        await this.getMencionesPorPlanDeEstudio(false);
+        if (this.openedFromPageMantenedor) {
+            this.disabledDropdownPrograma = false;
+            this.disabledDropdownPlanEstudio = false;
+            this.cod_facultad_selected_notform = dataInserted.cod_facultad;
+            this.cod_programa_postgrado_selected_notform = dataInserted.cod_programa;
+            this.cod_plan_estudio_selected_notform = dataInserted.cod_plan_estudio;
+            await this.getProgramasPorFacultadNotForm(false);
+            await this.getPlanesDeEstudiosPorProgramaNotForm(false);
+            await this.getMencionesPorPlanDeEstudio(false);
+        }
     }
 
     async setDropdownsAndTablesForm(){
@@ -548,7 +553,7 @@ export class MencionesMainService {
         if (this.form.modeForm !== 'create') {
             await Promise.all([
                 this.getProgramasPorFacultad(false,false),
-                this.getPlanesDeEstudiosPorPrograma(false,false),
+                this.getPlanesDeEstudiosColumnaPorPrograma(false,false),
                 this.getAsignaturasMencionHabilitada(false,false),
             ]);
             const responseTable1 = await this.setTableAsignatura();
@@ -561,7 +566,7 @@ export class MencionesMainService {
                 this.form.setValuesVarsByDataExternal();
                 await Promise.all([
                     this.getProgramasPorFacultad(false,false),
-                    this.getPlanesDeEstudiosPorPrograma(false,false),
+                    this.getPlanesDeEstudiosColumnaPorPrograma(false,false),
                     this.getAsignaturasMencionHabilitada(false,false),
                 ]);
                 this.form.setControlsFormByDataExternal();
@@ -640,7 +645,7 @@ export class MencionesMainService {
         key === 'm' ? this.messagesMantenedor = [] : this.messagesFormulario = [];
     }
 
-    showMessagesSinResultados(key: 'm' | 'f', messageType: 'facultad' | 'programa' | 'plan' | 'asign' ) {
+    showMessagesSinResultados(key: 'm' | 'f', messageType: 'facultad' | 'programa' | 'plan' | 'asign' | 'mencion' | 'asign_mencion' ) {
         const message = { severity: 'warn', detail: this.message[messageType] };
         key === 'm' ? this.messagesMantenedor = [message] : this.messagesFormulario = [message];
         this.messageService.add({
@@ -659,12 +664,18 @@ export class MencionesMainService {
     }
 
     showMessageSinResultados(key: 'm' | 'f'){
-        console.log("this.openedFrom",this.openedFrom);
-        
-        if (this.openedFrom !== 'crud_asign') {
-            this.showMessagesSinResultados(key, 'plan')
+        if (key === 'f') {
+            if (this.openedFrom !== 'crud_asign') {
+                this.showMessagesSinResultados(key, 'asign_mencion')
+            }else{
+                this.showMessagesSinResultados(key, 'asign')
+            }
         }else{
-            this.showMessagesSinResultados(key, 'asign')
+            if (this.openedFrom !== 'crud_asign') {
+                this.showMessagesSinResultados(key, 'mencion')
+            }else{
+                this.showMessagesSinResultados(key, 'asign')
+            }
         }
     }
 
@@ -684,6 +695,7 @@ export class MencionesMainService {
     }
 
     setNeedUpdateHistorial(need: boolean){
+        this.openedFromPageMantenedor = need;
         this.needUpdateHistorial = need;
     }
 

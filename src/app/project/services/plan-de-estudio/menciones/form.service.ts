@@ -28,8 +28,18 @@ export class FormMencionesService {
 	activeTab: number = 0;
 
 	showTableAsignatura: boolean = false;
+    messagePE: Message[] = [
+        {
+            severity: 'info',
+            detail: `
+                    Se cargan solo planes de estudios que cuentan con la opción de <b> ¿Tiene mención? </b> habilitada.
+                    Si el plan de estudio que desea seleccionar no aparece en la lista, diríjase al Mantenedor de plan de estudio, habilite la opción y actualice el plan de estudio.
+                    `,
+            data: 'Se cargan solo planes de estudios que cuentan con la opción de ¿Tiene mención? habilitada.'
+        }
+    ];
+    tooltipContent: string = this.messagePE[0].data;
 
-    
     messages: Message[] = [
         {
             severity: 'info',

@@ -32,11 +32,12 @@ export class RangosAGMainService {
 
     message: any = {
         'facultad'  : 'No se encontraron programas para la facultad seleccionada.',
-        'programa'  : 'No se encontraron planes de estudios para el programa seleccionado.',
+        'programa'  : 'No se encontraron planes de estudios con la opción "¿Tiene rangos de aprobación?" habilitada para el programa seleccionado.',
         'plan'      : 'No se encontraron rangos de aprobación para el plan de estudio seleccionado.',
     }
     messagesMantenedor: Message[] = [];
     messagesFormulario: Message[] = [];
+    column_tableBD: string = 'RA'
 
     //VARS PARA FILTROS DE TABLA
     cod_facultad_selected_notform: number = 0;
@@ -53,7 +54,7 @@ export class RangosAGMainService {
 
     dialogForm: boolean = false;
     needUpdateHistorial: boolean = false;
-
+    openedFromPageMantenedor: boolean = false;
 
     private onInsertedData = new Subject<void>();
     onInsertedData$ = this.onInsertedData.asObservable();
@@ -98,6 +99,7 @@ export class RangosAGMainService {
     }
 
     resetDropdownsFilterTable(){
+        this.clearAllMessages();
         this.disabledDropdownPrograma = true
         this.disabledDropdownPlanEstudio = true
         this.cod_facultad_selected_notform = 0;
@@ -168,8 +170,8 @@ export class RangosAGMainService {
 	}
 
     async getPlanesDeEstudiosPorPrograma(showCountTableValues: boolean = true, needShowLoading = true){
-        let params = { Cod_Programa: this.form.cod_programa_postgrado_selected }
-        const response = await this.backend.getPlanesDeEstudiosPorPrograma(params,needShowLoading);
+        let params = { Cod_Programa: this.form.cod_programa_postgrado_selected, columna: this.column_tableBD, valor: 1}
+        const response = await this.backend.getPlanesDeEstudiosColumnaPorPrograma(params,needShowLoading);
         if (response) {
           this.planes = [...response];
           if (this.planes.length === 0 ) {
@@ -219,13 +221,13 @@ export class RangosAGMainService {
 	}
 
     async getPlanesDeEstudiosPorProgramaNotForm(showCountTableValues: boolean = true, needShowLoading = true){
-        let params = { Cod_Programa: this.cod_programa_postgrado_selected_notform }
-        const response = await this.backend.getPlanesDeEstudiosPorPrograma(params,needShowLoading);
+        let params = { Cod_Programa: this.cod_programa_postgrado_selected_notform, columna: this.column_tableBD, valor: 1 }
+        const response = await this.backend.getPlanesDeEstudiosColumnaPorPrograma(params,needShowLoading);
         if (response) {
           this.planes_notform = [...response];
           if (this.planes_notform.length === 0 ) {
             this.disabledDropdownPlanEstudio = true;
-            this.showMessageSinResultadosPrograma('m');
+            this.showMessageSinResultadosPlanes('m');
           }else{
             if (showCountTableValues){
                 this.messageService.add({
@@ -406,14 +408,16 @@ export class RangosAGMainService {
 
     async setDropdownsFilterTable(dataInserted: any){
         //esta funcion permite setear automaticamente los dropdowns que están en la pagina del mantenedor
-        this.disabledDropdownPrograma = false;
-        this.disabledDropdownPlanEstudio = false;
-        this.cod_facultad_selected_notform = dataInserted.cod_facultad;
-        this.cod_programa_postgrado_selected_notform = dataInserted.cod_programa;
-        this.cod_plan_estudio_selected_notform = dataInserted.cod_plan_estudio;
-        await this.getProgramasPorFacultadNotForm(false);
-        await this.getPlanesDeEstudiosPorProgramaNotForm(false);
-        await this.getRangosAprobacion(false);
+        if (this.openedFromPageMantenedor) {
+            this.disabledDropdownPrograma = false;
+            this.disabledDropdownPlanEstudio = false;
+            this.cod_facultad_selected_notform = dataInserted.cod_facultad;
+            this.cod_programa_postgrado_selected_notform = dataInserted.cod_programa;
+            this.cod_plan_estudio_selected_notform = dataInserted.cod_plan_estudio;
+            await this.getProgramasPorFacultadNotForm(false);
+            await this.getPlanesDeEstudiosPorProgramaNotForm(false);
+            await this.getRangosAprobacion(false);
+        }
     }
 
     async setDropdownsAndTablesForm(){
@@ -496,6 +500,7 @@ export class RangosAGMainService {
     }
 
     setNeedUpdateHistorial(need: boolean){
+        this.openedFromPageMantenedor = need;
         this.needUpdateHistorial = need;
     }
 

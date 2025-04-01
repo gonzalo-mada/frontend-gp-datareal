@@ -32,6 +32,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 				case 'historial': this.main.setModeCrud('historial');break;
 			} 
 		}));
+		this.main.cod_planestudio_selected !== 0 ? this.main.getAsignaturasMergedPorPlanDeEstudio() : this.main.resetDropdownsFilterTable();
 	}
 	
 	ngOnDestroy(): void {
@@ -55,6 +56,4 @@ export class HomeComponent implements OnInit, OnDestroy {
 		this.main.cod_planestudio_selected = event.value;
 		await this.main.getAsignaturasMergedPorPlanDeEstudio();
 	}
-
-
 }

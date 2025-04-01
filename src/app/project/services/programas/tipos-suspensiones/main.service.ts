@@ -29,7 +29,6 @@ export class TiposSuspensionesMainService {
 
     //MODAL
     dialogForm: boolean = false
-    needUpdateHistorial: boolean = false;
 
     private onInsertedData = new Subject<void>();
     onInsertedData$ = this.onInsertedData.asObservable();
@@ -118,7 +117,6 @@ export class TiposSuspensionesMainService {
         }finally{
             this.dialogForm = false;
             this.getTiposSuspensiones(false);
-            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset()
         }
     }
@@ -150,7 +148,6 @@ export class TiposSuspensionesMainService {
         }finally{
             this.dialogForm = false;
             this.getTiposSuspensiones(false);
-            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -190,7 +187,6 @@ export class TiposSuspensionesMainService {
             console.log(error);
         }finally{
             this.getTiposSuspensiones(false);
-            if (this.needUpdateHistorial) this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -242,10 +238,5 @@ export class TiposSuspensionesMainService {
     setOrigen(origen: string){
         this.historialActividad.setOrigen(origen);
     }
-
-    setNeedUpdateHistorial(need: boolean){
-        this.needUpdateHistorial = need;
-    }
-
 
 }

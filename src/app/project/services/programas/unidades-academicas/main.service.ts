@@ -139,7 +139,6 @@ export class UnidadesAcadMainService {
         }finally{
             this.dialogForm = false;
             this.getUnidadesAcademicas(false);
-            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -177,7 +176,6 @@ export class UnidadesAcadMainService {
         }finally{
             this.dialogForm = false;
             this.getUnidadesAcademicas(false);
-            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }
@@ -217,7 +215,6 @@ export class UnidadesAcadMainService {
             console.log(error);
         }finally{
             this.getUnidadesAcademicas(false);
-            this.historialActividad.refreshHistorialActividad();
             this.reset();
         }
     }

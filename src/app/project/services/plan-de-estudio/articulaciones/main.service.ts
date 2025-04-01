@@ -31,15 +31,15 @@ export class ArticulacionesMainService {
 
     message: any = {
         'facultad': 'No se encontraron programas para la facultad de postgrado seleccionada.',
-        'programa': 'No se encontraron planes de estudios para el programa de postgrado seleccionado.',
+        'programa': 'No se encontraron planes de estudios con la opción "¿Tiene articulación con programas de Pregrado?" habilitada para el programa de postgrado seleccionado.',
         'plan': 'No se encontraron articulaciones para el plan de estudio de postgrado seleccionado.',
-        'asignaturas': 'No se encontraron asignaturas para el plan de estudio de postgrado seleccionado.',
+        'asignaturas': 'No se encontraron asignaturas con la opción "¿Es articulable?" habilitada para el plan de estudio de postgrado seleccionado.',
         'facultad-pre': 'No se encontraron programas para la facultad de pregrado seleccionada.',
         'programa-pre': 'No se encontraron asignaturas para el programa de pregrado seleccionado.',
     }
     messagesMantenedor: Message[] = [];
     messagesFormulario: Message[] = [];
-
+    column_tableBD: string = 'AR'
     articulaciones: Articulacion[] = [];
     articulacion: Articulacion = {};
     planes: PlanDeEstudio[] = [];
@@ -65,7 +65,7 @@ export class ArticulacionesMainService {
     //MODAL
     dialogForm: boolean = false
     needUpdateHistorial: boolean = false;
-
+    openedFromPageMantenedor: boolean = false;
 
     private onActionToBD = new Subject<void>();
     onActionToBD$ = this.onActionToBD.asObservable();
@@ -112,6 +112,7 @@ export class ArticulacionesMainService {
     }
 
     resetDropdownsFilterTable(){
+        this.clearAllMessages();
         this.disabledDropdownPrograma = true
         this.disabledDropdownPlanEstudio = true
         this.cod_facultad_selected_notform = 0;
@@ -200,8 +201,8 @@ export class ArticulacionesMainService {
 	}
 
     async getPlanesDeEstudiosPorProgramaNotForm(showCountTableValues: boolean = true, needShowLoading = true){
-        let params = { Cod_Programa: this.cod_programa_postgrado_selected_notform }
-        const response = await this.backend.getPlanesDeEstudiosPorPrograma(params,needShowLoading);
+        let params = { Cod_Programa: this.cod_programa_postgrado_selected_notform , columna: this.column_tableBD, valor: 1 }
+        const response = await this.backend.getPlanesDeEstudiosColumnaPorPrograma(params,needShowLoading);
         if (response) {
           this.planes_notform = [...response];
           if (this.planes_notform.length === 0 ) {
@@ -265,8 +266,8 @@ export class ArticulacionesMainService {
 	}
 
     async getPlanesDeEstudiosPorPrograma(showCountTableValues: boolean = true, needShowLoading = true){
-        let params = { Cod_Programa: this.form.cod_programa_selected_postgrado }
-        const response = await this.backend.getPlanesDeEstudiosPorPrograma(params,needShowLoading);
+        let params = { Cod_Programa: this.form.cod_programa_selected_postgrado , columna: this.column_tableBD, valor: 1 }
+        const response = await this.backend.getPlanesDeEstudiosColumnaPorPrograma(params,needShowLoading);
         if (response) {
           this.planes = [...response];
           if (this.planes.length === 0 ) {
@@ -292,8 +293,8 @@ export class ArticulacionesMainService {
     }
 
     async getAsignaturasPorPlanDeEstudio(showCountTableValues: boolean = true, needShowLoading = true){
-        let params = { cod_plan_estudio: this.form.cod_plan_estudio_selected }
-        const response = await this.backend.getAsignaturasPorPlanDeEstudio(params,needShowLoading);
+        let params = { cod_plan_estudio: this.form.cod_plan_estudio_selected , columna: this.column_tableBD }
+        const response = await this.backend.getAsignaturasColumnaPorPlanDeEstudio(params,needShowLoading);
         if (response) {
           this.asignaturas_postgrado = [...response];
           if (this.asignaturas_postgrado.length === 0 ) {
@@ -521,14 +522,16 @@ export class ArticulacionesMainService {
 
     async setDropdownsFilterTable(dataInserted: any){
         //esta funcion permite setear automaticamente los dropdowns que están en la pagina del mantenedor
-        this.disabledDropdownPrograma = false;
-        this.disabledDropdownPlanEstudio = false;
-        this.cod_facultad_selected_notform = dataInserted.cod_facultad;
-        this.cod_programa_postgrado_selected_notform = dataInserted.cod_programa;
-        this.cod_plan_estudio_selected_notform = dataInserted.cod_plan_estudio;
-        await this.getProgramasPorFacultadNotForm(false);
-        await this.getPlanesDeEstudiosPorProgramaNotForm(false);
-        await this.getArticulacionesPorPlanDeEstudio(false);
+        if (this.openedFromPageMantenedor) {
+            this.disabledDropdownPrograma = false;
+            this.disabledDropdownPlanEstudio = false;
+            this.cod_facultad_selected_notform = dataInserted.cod_facultad;
+            this.cod_programa_postgrado_selected_notform = dataInserted.cod_programa;
+            this.cod_plan_estudio_selected_notform = dataInserted.cod_plan_estudio;
+            await this.getProgramasPorFacultadNotForm(false);
+            await this.getPlanesDeEstudiosPorProgramaNotForm(false);
+            await this.getArticulacionesPorPlanDeEstudio(false);
+        }
     }
 
     async setDropdownsAndTablesForm(){
@@ -671,6 +674,7 @@ export class ArticulacionesMainService {
     }
 
     setNeedUpdateHistorial(need: boolean){
+        this.openedFromPageMantenedor = need;
         this.needUpdateHistorial = need;
     }
 
